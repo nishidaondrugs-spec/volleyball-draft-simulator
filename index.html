@@ -3586,7 +3586,7 @@ input:focus,select:focus,textarea:focus{
 </style>
 </head>
 <body>
-<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.3 · TENDENCIES ON</div>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.4 · SERVE SAVE</div>
 
 <div class="app">
 <header class="vdsGlobalHeader">
@@ -4367,6 +4367,7 @@ function cloudPlayerFromRow(r){
     speed:Number(r.speed??50),
     reactionTime:Number(r.reaction_time??50),
     service:Number(r.service??50),
+    serveType:r.serve_type||"auto",
     blocking:Number(r.blocking??50),
     setting:Number(r.setting??50),
     mindset:Number(r.mindset??50),
@@ -4395,6 +4396,7 @@ function cloudRowFromPlayer(p){
     speed:Number(p.speed||0),
     reaction_time:Number(p.reactionTime||0),
     service:Number(p.service||0),
+    serve_type:p.serveType||"auto",
     blocking:Number(p.blocking||0),
     setting:Number(p.setting||0),
     mindset:Number(p.mindset||0),
@@ -11063,6 +11065,13 @@ vdsSyncGlobalNav();
  - Match lineup remains 6 starters.
  - Drafted players #7 and #8 are stored/displayed as substitutes.
  - Substitution controls are intentionally separate from this roster-capacity change.
+*/
+
+/*
+ BUILD B2.4 — SERVE PREFERENCE CLOUD SAVE
+ - Player serveType is written to Supabase players.serve_type when publishing.
+ - players.serve_type is restored to serveType when cloud players reload.
+ - Existing null/blank values safely fall back to "auto".
 */
 </script>
 
