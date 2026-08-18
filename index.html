@@ -3474,10 +3474,29 @@ input:focus,select:focus,textarea:focus{
 .fifaServeType{
   margin-top:9px;font-size:7px;font-weight:1000;letter-spacing:.12em;opacity:.58;
 }
+
+/* BUILD B1 — manager-visible condition */
+.fatigueManagerPanel{
+  margin:8px 22px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.fatigueTeam{
+  border:1px solid rgba(255,255,255,.06);border-radius:11px;
+  background:rgba(4,15,26,.56);padding:8px 10px;
+}
+.fatigueTitle{font-size:7px;font-weight:1000;letter-spacing:.13em;color:#7890a7;margin-bottom:6px}
+.fatigueChips{display:flex;gap:5px;flex-wrap:wrap}
+.fatigueChip{
+  display:inline-flex;gap:4px;align-items:center;padding:5px 7px;border-radius:999px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);
+  color:#9fb2c8;font-size:7px;font-weight:800;
+}
+.fatigueChip b{color:#edf5fb}
+.courtFatigue{font-size:8px;font-weight:900;color:#8fa6bc;margin:4px 0 6px}
+@media(max-width:760px){.fatigueManagerPanel{grid-template-columns:1fr;margin-left:10px;margin-right:10px}}
 </style>
 </head>
 <body>
-<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD A · SERVE TYPES</div>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B1 · FATIGUE + SERVES</div>
 
 <div class="app">
 <header class="vdsGlobalHeader">
@@ -3762,6 +3781,17 @@ input:focus,select:focus,textarea:focus{
         <button class="btn timeoutBtn" id="timeout1Btn">Timeout Team 1 (<span id="timeouts1">2</span>)</button>
         <button class="btn timeoutBtn" id="timeout2Btn">Timeout Team 2 (<span id="timeouts2">2</span>)</button>
         <span class="rotationBadge" id="rotationBadge2">6–1 Rotation <b id="rotation2">1</b> — <span id="rotName2">Team 2</span></span>
+      </div>
+
+      <div class="fatigueManagerPanel">
+        <div class="fatigueTeam">
+          <div class="fatigueTitle"><span id="fatigueName1">TEAM 1</span> · CONDITION</div>
+          <div class="fatigueChips" id="fatigueTeam1"></div>
+        </div>
+        <div class="fatigueTeam">
+          <div class="fatigueTitle"><span id="fatigueName2">TEAM 2</span> · CONDITION</div>
+          <div class="fatigueChips" id="fatigueTeam2"></div>
+        </div>
       </div>
 
       <details class="vdsRallyDetails">
@@ -5485,7 +5515,11 @@ function renderLiveCourtPlayers(){
       ${p.photo ? `<img class="courtAvatar" src="${p.photo}" alt="${esc(p.name)}">` : `<span class="courtRoleFallback">${role}</span>`}
       <div class="courtTooltip">
         <div class="courtTooltipName">${esc(p.name)}</div>
-        <div class="courtTooltipRole">${role} • Position Rating ${roleRating}</div><div class="small">Rotation ${id.startsWith("b")?liveState.rotation1:liveState.rotation2} · ${(()=>{
+        <div class="courtTooltipRole">${role} • Position Rating ${roleRating}</div>
+        <div class="courtFatigue">${(()=>{
+          const c=Math.round(playerCondition(p));const st=conditionLabel(c);
+          return `${st.icon} ${st.label} · ${c}% CONDITION · STAMINA ${Math.round(fatigueRecord(p)?.stamina??playerStaminaRating(p))}`;
+        })()}</div><div class="small">Rotation ${id.startsWith("b")?liveState.rotation1:liveState.rotation2} · ${(()=>{
           const team=id.startsWith("b")?liveState.a:liveState.b;
           const rot=id.startsWith("b")?liveState.rotation1:liveState.rotation2;
           const z=effectiveSixOneZones(team,rot)[p.name];
@@ -7939,7 +7973,9 @@ function callTimeout(team){
   if(s[key]<=0){alert("No timeouts remaining — each team may use only 2 per match.");return}
   s[key]--;
   if(team===1){s.recent2=Math.max(0,s.recent2-2)} else {s.recent1=Math.max(0,s.recent1-2)}
-  addCommentary(`⏱️ ${team===1?s.name1:s.name2} calls timeout. Momentum is reset.`);
+  const restingTeam=team===1?s.a:s.b;
+  recoverTeamCondition(restingTeam,4,"timeout");
+  addCommentary(`⏱️ ${team===1?s.name1:s.name2} calls timeout. Momentum is reset and players recover a little condition.`);
   updateLiveUI();
 }
 
@@ -7956,6 +7992,9 @@ function updateLiveUI(){
   document.getElementById("rotation1").textContent=s.rotation1; document.getElementById("rotation2").textContent=s.rotation2;
   document.getElementById("timeouts1").textContent=s.timeouts1; document.getElementById("timeouts2").textContent=s.timeouts2;
   document.getElementById("rotName1").textContent=s.name1; document.getElementById("rotName2").textContent=s.name2;
+  const fn1=document.getElementById("fatigueName1"),fn2=document.getElementById("fatigueName2");
+  if(fn1)fn1.textContent=s.name1;if(fn2)fn2.textContent=s.name2;
+  renderFatiguePanel();
   const rb1=document.getElementById("rotationBadge1"), rb2=document.getElementById("rotationBadge2");
   if(rb1) rb1.title=rotationSummary(s.a,s.rotation1);
   if(rb2) rb2.title=rotationSummary(s.b,s.rotation2);
@@ -8044,6 +8083,140 @@ async function animateRemoteRally(payload){
   applyRemoteMatchSnapshot(payload.snapshot);
 }
 
+
+/* ===== BUILD B1: MATCH FATIGUE / STAMINA =====
+   Condition starts at 100. Stamina controls how slowly condition is lost.
+   Timeouts and set breaks recover condition. */
+function playerStaminaRating(p){
+  // There is no separate raw stamina field in the current database, so Work Rate
+  // is the primary endurance signal with Physical qualities supporting it.
+  if(Number.isFinite(Number(p?.stamina)))return clamp(Number(p.stamina),40,99);
+  return clamp(
+    Number(p?.workRate||70)*.58+
+    Number(p?.speed||70)*.12+
+    Number(p?.vertical||70)*.08+
+    Number(p?.reactionTime||70)*.10+
+    Number(p?.mindset||70)*.12,
+    45,98
+  );
+}
+
+function initFatigueState(teamA,teamB){
+  const f={};
+  [...teamA,...teamB].forEach(p=>{
+    f[p.name]={condition:100,stamina:playerStaminaRating(p),rallies:0};
+  });
+  return f;
+}
+
+function fatigueRecord(p){
+  if(!liveState||!p)return null;
+  liveState.fatigue=liveState.fatigue||{};
+  if(!liveState.fatigue[p.name]){
+    liveState.fatigue[p.name]={condition:100,stamina:playerStaminaRating(p),rallies:0};
+  }
+  return liveState.fatigue[p.name];
+}
+
+function playerCondition(p){
+  return fatigueRecord(p)?.condition??100;
+}
+
+function conditionLabel(v){
+  if(v>=88)return {label:"FRESH",icon:"🟢"};
+  if(v>=72)return {label:"GOOD",icon:"🔵"};
+  if(v>=55)return {label:"TIRED",icon:"🟠"};
+  return {label:"FATIGUED",icon:"🔴"};
+}
+
+function fatigueLossMultiplier(p){
+  const stamina=fatigueRecord(p)?.stamina??75;
+  // 95 stamina ≈ 0.70x loss; 60 stamina ≈ 1.22x loss.
+  return clamp(1+(75-stamina)*.015,.66,1.45);
+}
+
+function applyRallyFatigue(team,rallyEvt=null){
+  if(!liveState||!team?.length)return;
+  const involved=new Map();
+
+  const mark=(p,cost)=>{
+    if(!p?.name)return;
+    involved.set(p.name,(involved.get(p.name)||0)+cost);
+  };
+
+  // Everybody on court pays a small movement/readiness cost.
+  team.forEach(p=>mark(p,.10));
+
+  const events=[rallyEvt,...(rallyEvt?.extendedEvents||[])].filter(Boolean);
+  events.forEach(e=>{
+    mark(e.passer,.10);        // receive/dig movement
+    mark(e.defender,.16);      // defensive pursuit
+    mark(e.setter,.10);        // movement to second ball
+    mark(e.attacker,.34);      // approach + jump + swing
+    mark(e.blocker,.27);       // block jump
+    if(e.formation?.blockers){
+      e.formation.blockers.forEach(b=>mark(b,.12));
+    }
+  });
+
+  involved.forEach((base,name)=>{
+    const p=team.find(x=>x.name===name);
+    if(!p)return;
+    const rec=fatigueRecord(p);
+    rec.condition=clamp(rec.condition-base*fatigueLossMultiplier(p),20,100);
+    rec.rallies=(rec.rallies||0)+1;
+  });
+}
+
+function applyServeFatigue(server,serveType){
+  if(!server)return;
+  const rec=fatigueRecord(server);
+  if(!rec)return;
+  let base=.08;
+  if(serveType?.id==="jump_float")base=.16;
+  if(serveType?.id==="jump_topspin")base=.27;
+  rec.condition=clamp(rec.condition-base*fatigueLossMultiplier(server),20,100);
+}
+
+function recoverTeamCondition(team,baseAmount,reason="rest"){
+  if(!liveState||!team)return;
+  team.forEach(p=>{
+    const rec=fatigueRecord(p);
+    if(!rec)return;
+    // High stamina also gives a modest recovery advantage.
+    const recoveryFactor=clamp(.86+(rec.stamina-60)*.005,.82,1.08);
+    rec.condition=clamp(rec.condition+baseAmount*recoveryFactor,20,100);
+  });
+}
+
+function fatiguePerformanceFactor(p,action="general"){
+  const c=playerCondition(p);
+  if(c>=75)return 1;
+  const deficit=75-c;
+  const sensitivity={
+    attack:.0038,block:.0035,vertical:.0040,speed:.0032,
+    reaction:.0027,receive:.0018,set:.0010,general:.0022
+  }[action]||.0022;
+  return clamp(1-deficit*sensitivity,.82,1);
+}
+
+function fatigueSummaryHtml(team){
+  if(!team?.length)return "";
+  return team.map(p=>{
+    const c=Math.round(playerCondition(p));
+    const s=Math.round(fatigueRecord(p)?.stamina??playerStaminaRating(p));
+    const state=conditionLabel(c);
+    return `<span class="fatigueChip" title="Stamina ${s}">${state.icon} ${esc(p.name)} <b>${c}%</b></span>`;
+  }).join("");
+}
+
+function renderFatiguePanel(){
+  if(!liveState)return;
+  const p1=document.getElementById("fatigueTeam1");
+  const p2=document.getElementById("fatigueTeam2");
+  if(p1)p1.innerHTML=fatigueSummaryHtml(liveState.a);
+  if(p2)p2.innerHTML=fatigueSummaryHtml(liveState.b);
+}
 function beginLiveMatch(){
   if(mpIsConnected() && !mpIsHost()){
     alert("Only the host can start the multiplayer match.");
@@ -8091,7 +8264,8 @@ function beginLiveMatch(){
     server:Math.random()<.5?1:2,recent1:0,recent2:0,
     rotation1:1,rotation2:1,timeouts1:2,timeouts2:2,lastServer:null,
     setFinished:false,matchFinished:false,
-    sets:[],totals:{},errorDetails:{},commentary:[]
+    sets:[],totals:{},errorDetails:{},commentary:[],
+    fatigue:initFatigueState(a,b)
   };
 
   document.getElementById("liveMatchCard").classList.remove("hidden");
@@ -8226,6 +8400,12 @@ async function playLiveRally(){
       addCommentary(`Visual animation skipped: ${animErr.message}`);
     }
 
+    // Fatigue is charged after the rally. Both teams move every rally; players
+    // actually involved in attack/block/defence pay additional workload.
+    applyServeFatigue(serveAttempt?.player,serveType);
+    applyRallyFatigue(servingTeam,rallyEvt);
+    applyRallyFatigue(receivingTeam,rallyEvt);
+
     const pointEl=document.getElementById(team1Wins?"livePts1":"livePts2");
     if(pointEl){
       pointEl.classList.add("flashPoint");
@@ -8279,7 +8459,9 @@ function nextLiveSet(){
   s.p1=0;s.p2=0;s.recent1=0;s.recent2=0;s.setFinished=false;
   s.target=(s.setNo===s.best)?15:25;
   s.server=Math.random()<.5?1:2;
-  addCommentary(`Set ${s.setNo} begins.`);
+  recoverTeamCondition(s.a,10,"set break");
+  recoverTeamCondition(s.b,10,"set break");
+  addCommentary(`Set ${s.setNo} begins. Both teams recovered condition during the set break.`);
   renderLiveCourtPlayers();
   document.getElementById("nextSetBtn").classList.add("hidden");
   updateLiveUI();
