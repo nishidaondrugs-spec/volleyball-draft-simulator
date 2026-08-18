@@ -3583,10 +3583,33 @@ input:focus,select:focus,textarea:focus{
 .benchPlayer span{font-size:6px;font-weight:1000;letter-spacing:.11em;color:#6d8297}
 .benchPlayer b{font-size:10px}.benchPlayer small{font-size:7px;color:#71869a}
 .auctionRosterCount{font-size:7px;font-weight:1000;letter-spacing:.13em;color:#6f88a0;margin-bottom:6px}
+
+/* Explicit 6 starters + 2 substitute slots in multiplayer auction */
+.auctionRosterSlots{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px;
+}
+.auctionRosterSlot{
+  min-height:54px;padding:8px 9px;border-radius:10px;
+  border:1px dashed rgba(255,255,255,.10);background:rgba(255,255,255,.02);
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+}
+.auctionRosterSlot.filled{border-style:solid;background:rgba(255,255,255,.035)}
+.auctionRosterSlot.subSlot{
+  border-color:rgba(239,196,92,.22);
+  background:rgba(239,196,92,.035);
+}
+.auctionSlotLabel{
+  font-size:6px;font-weight:1000;letter-spacing:.12em;color:#6f879d;
+}
+.auctionRosterSlot.subSlot .auctionSlotLabel{color:#c9a955}
+.auctionRosterSlot b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auctionRosterSlot small{font-size:6px;color:#71879b}
+.auctionRosterSlot em{font-size:7px;font-style:normal;color:#53697d}
+@media(max-width:700px){.auctionRosterSlots{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.4 · SERVE SAVE</div>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.5 · SUB SLOTS</div>
 
 <div class="app">
 <header class="vdsGlobalHeader">
@@ -9576,19 +9599,32 @@ function renderAuction(){
 
   const turnEl=document.getElementById("auctionRollTurn");
   if(turnEl) turnEl.textContent=`Team ${auctionState.rollerTeam||1} rolls next`;
-  const wonChip=(n)=>{
-    const p=players.find(x=>x.name===n);
-    return `<span class="draftChip wonPlayerChip" tabindex="0">${esc(n)}
-      <span class="wonPlayerRadar">${p ? radarSvg(p) : ""}</span>
-    </span>`;
+  const rosterSlotsHtml=(roster)=>{
+    const starterLabels=["STARTER 1","STARTER 2","STARTER 3","STARTER 4","STARTER 5","STARTER 6","SUB 1","SUB 2"];
+    return `<div class="auctionRosterCount">${roster.length}/${AUCTION_ROSTER_SIZE} PLAYERS</div>
+      <div class="auctionRosterSlots">
+        ${starterLabels.map((label,i)=>{
+          const n=roster[i];
+          const p=n?players.find(x=>x.name===n):null;
+          const isSub=i>=AUCTION_STARTERS;
+          return `<div class="auctionRosterSlot ${isSub?"subSlot":""} ${n?"filled":""}">
+            <span class="auctionSlotLabel">${label}</span>
+            ${n
+              ? `<b>${esc(n)}</b><small>${p?.position||"—"} · ${p?mainPositionRating(p):"—"}</small>`
+              : `<em>${isSub?"EMPTY SUBSTITUTE":"EMPTY"}</em>`}
+          </div>`;
+        }).join("")}
+      </div>`;
   };
+
   document.getElementById("auctionRoster1").innerHTML=
     (!mpPrivateView || mpViewerTeam===1)
-      ? (`<div class="auctionRosterCount">${auctionState.team1.length}/${AUCTION_ROSTER_SIZE} PLAYERS</div>`+(auctionState.team1.map(wonChip).join("")||'<span class="small">No players yet</span>'))
+      ? rosterSlotsHtml(auctionState.team1)
       : '<span class="small">Opponent team hidden</span>';
+
   document.getElementById("auctionRoster2").innerHTML=
     (!mpPrivateView || mpViewerTeam===2)
-      ? (`<div class="auctionRosterCount">${auctionState.team2.length}/${AUCTION_ROSTER_SIZE} PLAYERS</div>`+(auctionState.team2.map(wonChip).join("")||'<span class="small">No players yet</span>'))
+      ? rosterSlotsHtml(auctionState.team2)
       : '<span class="small">Opponent team hidden</span>';
   const card=document.getElementById("auctionPlayerCard");
   if(!auctionState.current){
@@ -9675,9 +9711,9 @@ function spinAuctionPlayer(){
     return;
   }
 
-  if(auctionState[`team${roller}`].length>=6){
+  if(auctionState[`team${roller}`].length>=AUCTION_ROSTER_SIZE){
     auctionState.rollerTeam=roller===1?2:1;
-    document.getElementById("bidLog").textContent=`Team ${roller} already has 6 players. Roll passes to Team ${auctionState.rollerTeam}.`;
+    document.getElementById("bidLog").textContent=`Team ${roller} already has ${AUCTION_ROSTER_SIZE} players. Roll passes to Team ${auctionState.rollerTeam}.`;
     renderAuction();
     mpBroadcastAuction();
     return;
@@ -9718,7 +9754,7 @@ function placeBid(team){
   if(mpIsSpectator()){document.getElementById("bidLog").textContent="Spectators cannot bid.";return;}
   if(mpIsConnected() && team!==mpTeam){document.getElementById("bidLog").textContent=`You control Team ${mpTeam}.`;return}
   if(!auctionState.current){document.getElementById("bidLog").textContent="Spin a player first.";return}
-  if(auctionState[`team${team}`].length>=6){document.getElementById("bidLog").textContent=`Team ${team} already has 6 players.`;return}
+  if(auctionState[`team${team}`].length>=AUCTION_ROSTER_SIZE){document.getElementById("bidLog").textContent=`Team ${team} already has ${AUCTION_ROSTER_SIZE} players.`;return}
   const input=document.getElementById(team===1?"bid1":"bid2");
   const amount=Number(input.value);
   const budget=team===1?auctionState.budget1:auctionState.budget2;
@@ -9795,8 +9831,11 @@ function awardAuctionPlayer(){
     ? (document.getElementById("team1Name")?.value||"Team 1")
     : (document.getElementById("team2Name")?.value||"Team 2");
 
+  const rosterNow=auctionState[`team${team}`].length;
   document.getElementById("bidLog").textContent=
-    `${name} joins ${winningTeamName} for $${price}. ${nextTeamName} can spin next.`;
+    rosterNow===AUCTION_STARTERS
+      ? `${name} joins ${winningTeamName} for $${price}. Starting six complete — ${winningTeamName} still needs 2 substitutes. ${nextTeamName} can spin next.`
+      : `${name} joins ${winningTeamName} for $${price}. ${nextTeamName} can spin next.`;
 
   renderAuction();
   syncAuctionTeamsToMatchLineups();
@@ -11072,6 +11111,14 @@ vdsSyncGlobalNav();
  - Player serveType is written to Supabase players.serve_type when publishing.
  - players.serve_type is restored to serveType when cloud players reload.
  - Existing null/blank values safely fall back to "auto".
+*/
+
+/*
+ BUILD B2.5 — MULTIPLAYER 8-PLAYER DRAFT FIX
+ - Removed the two remaining hard-coded "6 players = full" checks.
+ - Draft now continues after the starting six until each team has 8.
+ - Auction roster visibly shows 6 starter slots + SUB 1 + SUB 2.
+ - At player #6 the log explicitly says the team still needs two substitutes.
 */
 </script>
 
