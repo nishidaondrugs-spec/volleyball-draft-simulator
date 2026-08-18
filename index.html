@@ -3493,10 +3493,100 @@ input:focus,select:focus,textarea:focus{
 .fatigueChip b{color:#edf5fb}
 .courtFatigue{font-size:8px;font-weight:900;color:#8fa6bc;margin:4px 0 6px}
 @media(max-width:760px){.fatigueManagerPanel{grid-template-columns:1fr;margin-left:10px;margin-right:10px}}
+
+/* ===== BUILD C — MATCH ANALYTICS ===== */
+.shotAnalyticsPanel{
+  margin-top:18px;padding:17px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(4,15,27,.72);
+}
+.shotAnalyticsHead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:13px}
+.shotAnalyticsHead h3{margin:3px 0 0!important;font-size:21px}
+.shotAnalyticsHead select{width:auto;min-width:170px}
+.shotSummaryStrip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;border:1px solid rgba(255,255,255,.06);border-radius:11px;overflow:hidden;margin-bottom:10px}
+.shotSummaryStrip>div{padding:10px;text-align:center;background:rgba(255,255,255,.025)}
+.shotSummaryStrip span{display:block;color:#70869c;font-size:6px;font-weight:1000;letter-spacing:.13em}
+.shotSummaryStrip b{display:block;margin-top:3px;font-size:19px}
+.shotAnalyticsGrid{display:grid;grid-template-columns:1.25fr 1fr;gap:10px}
+.shotAnalyticsCard{padding:12px;border:1px solid rgba(255,255,255,.06);border-radius:13px;background:rgba(2,10,18,.52)}
+.shotCardTitle{margin-bottom:9px;color:#8198ae;font-size:7px;font-weight:1000;letter-spacing:.15em}
+
+/* Half-court offensive target visual */
+.shotCourt{
+  position:relative;height:310px;overflow:hidden;border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    linear-gradient(90deg,rgba(22,62,93,.35) 0 50%,transparent 50%),
+    linear-gradient(135deg,#9d5031,#bd6941);
+}
+.shotCourt::before{content:"";position:absolute;left:50%;right:4%;top:6%;bottom:6%;border:2px solid rgba(255,255,255,.58)}
+.shotNet{position:absolute;left:50%;top:5%;bottom:5%;width:3px;background:#eef4f8}
+.shotAttackLine{position:absolute;left:65%;top:6%;bottom:6%;width:1px;background:rgba(255,255,255,.48)}
+.shotZone{position:absolute;color:rgba(255,255,255,.30);font-size:20px;font-weight:1000}
+.shotZone.z4{left:56%;top:20%}.shotZone.z3{left:56%;top:47%}.shotZone.z2{left:56%;top:74%}
+.shotZone.z5{left:82%;top:20%}.shotZone.z6{left:82%;top:47%}.shotZone.z1{left:82%;top:74%}
+.shotMarker{
+  position:absolute;z-index:5;transform:translate(-50%,-50%);
+  width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:1000;border:2px solid rgba(255,255,255,.8);
+  box-shadow:0 3px 9px rgba(0,0,0,.38);cursor:help
+}
+.shotMarker.kill{background:#1f9f70}.shotMarker.error{background:#b94858}
+.shotMarker.block{background:#7a4dc4}.shotMarker.dig{background:#2f6ea8}
+.shotMarker.cover{background:#8a6d2c}
+.shotLegend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:8px;color:#8297ac}
+.shotLegend .kill{color:#58d6a4}.shotLegend .error{color:#ff8794}.shotLegend .block{color:#ba91ff}.shotLegend .dig{color:#72baff}
+
+.heatGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.heatZone{
+  min-height:102px;border-radius:9px;padding:9px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(56,145,216,calc(.05 + var(--heat)*.42));
+}
+.heatZone span{font-size:7px;font-weight:1000;letter-spacing:.10em;color:#8aa0b5}
+.heatZone b{font-size:27px;margin:3px 0}
+.heatZone small{font-size:6px;color:#71869a}
+
+.tendencyCompare{margin-top:10px}
+.tendencyRows{display:grid;gap:7px}
+.tendencyRow{display:grid;grid-template-columns:145px 1fr;gap:12px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,255,255,.04)}
+.tendencyRow:first-child{border-top:0}
+.tendencyRow>div:first-child b{display:block;font-size:9px}.tendencyRow>div:first-child small{font-size:7px;color:#6f8499}
+.tendencyBars{display:grid;gap:5px}
+.tendencyBars>div{position:relative;height:17px;border-radius:6px;background:rgba(255,255,255,.035);overflow:hidden}
+.tendencyBars span{position:absolute;left:6px;top:5px;z-index:2;font-size:5px;font-weight:1000;letter-spacing:.1em}
+.tendencyBars i{display:block;height:100%;background:rgba(111,137,163,.33);border-radius:inherit}
+.tendencyBars .actual i{background:rgba(57,151,228,.48)}
+.tendencyBars b{position:absolute;right:6px;top:3px;font-size:8px}
+.shotEmpty{padding:70px 10px;text-align:center;color:#71869a}
+.statsFootnote{margin-top:6px;color:#687e93;font-size:7px}
+.analyticsStatsTable th,.analyticsStatsTable td{white-space:nowrap}
+
+@media(max-width:820px){
+ .shotAnalyticsGrid{grid-template-columns:1fr}
+ .shotSummaryStrip{grid-template-columns:repeat(3,1fr)}
+ .tendencyRow{grid-template-columns:1fr}
+ .shotCourt{height:270px}
+}
+
+/* Multiplayer 8-player roster */
+.benchRoster{
+  margin-top:12px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(3,12,21,.46);
+}
+.benchTitle{font-size:7px;font-weight:1000;letter-spacing:.14em;color:#7990a7;margin-bottom:7px}
+.benchPlayers{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.benchPlayer{
+  min-height:58px;padding:8px 9px;border-radius:10px;border:1px solid rgba(255,255,255,.055);
+  background:rgba(255,255,255,.025);display:flex;flex-direction:column;gap:2px
+}
+.benchPlayer span{font-size:6px;font-weight:1000;letter-spacing:.11em;color:#6d8297}
+.benchPlayer b{font-size:10px}.benchPlayer small{font-size:7px;color:#71869a}
+.auctionRosterCount{font-size:7px;font-weight:1000;letter-spacing:.13em;color:#6f88a0;margin-bottom:6px}
 </style>
 </head>
 <body>
-<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B1 · FATIGUE + SERVES</div>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.3 · TENDENCIES ON</div>
 
 <div class="app">
 <header class="vdsGlobalHeader">
@@ -3667,7 +3757,7 @@ input:focus,select:focus,textarea:focus{
         <div class="small" style="width:100%;margin-bottom:4px">In multiplayer, each manager edits only their own six lineup slots; the opponent lineup is shown read-only. A match cannot start if the same player appears twice on the same team.</div>
         
         <div class="control"><label>FORMAT</label><select id="format"><option value="5">Best of 5</option><option value="3">Best of 3</option></select></div>
-        <div class="control"><label>MATCH DISPLAY</label><select id="speed"><option value="instant">Instant Result</option><option value="live">Live Rally Mode</option></select></div>
+        <div class="control"><label>MATCH DISPLAY</label><select id="speed"><option value="live" selected>Live Rally Mode</option></select></div>
         <button class="btn primary" id="simulateBtn">🎲 Simulate Match</button>
         <button class="btn secondary" id="swapBtn">⇄ Swap Teams</button>
         <button class="btn secondary" id="resetDraftBtn">Reset Draft</button>
@@ -3693,6 +3783,7 @@ input:focus,select:focus,textarea:focus{
           <div class="liveControls">
             <button class="btn primary" id="nextRallyBtn">▶ Next Rally</button>
             <button class="btn secondary" id="autoPlayBtn">⏩ Auto Play Set</button>
+            <button class="btn secondary" id="skipSetBtn" title="Instantly simulate the remaining rallies in this set">⏭ Skip to End of Set</button>
             <button class="btn primary hidden" id="nextPhaseBtn">Next Phase ▶</button>
             <button class="btn secondary hidden" id="nextSetBtn">Next Set</button>
           </div>
@@ -3824,10 +3915,10 @@ input:focus,select:focus,textarea:focus{
       <div><label>MANAGER 1</label><input id="setupManager1" value="Team 1"></div>
       <div><label>MANAGER 2</label><input id="setupManager2" value="Team 2"></div>
       <div><label>FORMAT</label><select id="setupFormat"><option value="5">Best of 5</option><option value="3">Best of 3</option></select></div>
-      <div><label>MATCH MODE</label><select id="setupMode"><option value="live">Live Rally</option><option value="instant">Instant</option></select></div>
-      <div><label>SHOT TENDENCIES</label><select id="setupTendencies"><option value="off">Off — choose randomly from loadout</option><option value="on">On — use player tendency weights</option></select></div>
-      <div><label>DRAFT BUDGET</label><input value="$20 each" disabled></div>
-      <div><label>PLAYERS PER TEAM</label><input value="6" disabled></div>
+      <div><label>MATCH MODE</label><select id="setupMode"><option value="live" selected>Live Rally</option></select></div>
+      <div><label>SHOT TENDENCIES</label><select id="setupTendencies"><option value="on" selected>On — use player preferred shot tendencies</option><option value="off">Off — choose randomly from loadout</option></select></div>
+      <div><label>DRAFT BUDGET</label><input value="$35 each" disabled></div>
+      <div><label>PLAYERS PER TEAM</label><input value="8 (6 starters + 2 subs)" disabled></div>
     </div>
     <div class="setupActions">
       <button class="btn primary" id="setupDraftBtn">Start Draft</button>
@@ -3845,7 +3936,7 @@ input:focus,select:focus,textarea:focus{
     <div class="playersTop">
       <div>
         <h2 style="margin-bottom:4px">Draft Auction</h2>
-        <div class="small">Spin a random available player, then bid from either side. The winner is added to that draft team.</div>
+        <div class="small">Spin a random available player, then bid from either side. Each manager drafts 8 players: 6 starters + 2 substitutes.</div>
       </div>
       <button class="btn secondary" id="resetAuctionBtn">Reset Auction</button>
     </div>
@@ -4678,12 +4769,12 @@ function syncAuctionTeamsToMatchLineups(){
 
     const current=Array.isArray(draftDefaults[team]) ? draftDefaults[team].filter(Boolean) : [];
     const samePlayers=
-      current.length===Math.min(6,roster.length) &&
+      current.length===Math.min(AUCTION_STARTERS,roster.length) &&
       current.every(name=>roster.includes(name)) &&
       new Set(current).size===current.length;
 
     if(!samePlayers){
-      draftDefaults[team]=roster.slice(0,6);
+      draftDefaults[team]=roster.slice(0,AUCTION_STARTERS);
     }
   });
 }
@@ -4743,6 +4834,20 @@ function renderRosters(){
    div.innerHTML=`<label>${slot[0]}</label><div><select class="draftSelect" data-team="${team}" data-i="${i}" data-role="${slot[1]}">${playerOptions(selected,slot[1],team)}</select><div class="assignedRating"><span>${slot[1]} rating</span><b>${assigned}</b></div></div>`;
    box.appendChild(div);
   });
+
+  const auctionRoster=team==="team1"?auctionState.team1:auctionState.team2;
+  const bench=auctionRoster.slice(AUCTION_STARTERS,AUCTION_ROSTER_SIZE);
+  const benchWrap=document.createElement("div");
+  benchWrap.className="benchRoster";
+  benchWrap.innerHTML=`<div class="benchTitle">SUBSTITUTES · ${bench.length}/2</div>
+    <div class="benchPlayers">${bench.length
+      ? bench.map((name,i)=>{
+          const p=players.find(x=>x.name===name);
+          const rating=p?mainPositionRating(p):"—";
+          return `<div class="benchPlayer"><span>SUB ${i+1}</span><b>${esc(name)}</b><small>${p?.position||"—"} ${rating}</small></div>`;
+        }).join("")
+      : `<div class="small">Draft two more players for the bench.</div>`}</div>`;
+  box.appendChild(benchWrap);
  });
  document.querySelectorAll(".draftSelect").forEach(sel=>{
    sel.addEventListener("change",()=>{
@@ -5361,55 +5466,70 @@ function moveToTransitionOffence(teamNo){
   const zones=effectiveSixOneZones(team,rot);
   const R=lineupRoles(team);
 
-  const frontOH=[R.oh1,R.oh2].find(p=>p && zones[p.name]?.front);
-  const backOH=[R.oh1,R.oh2].find(p=>p && zones[p.name]?.back);
+  const frontOH=[R.oh1,R.oh2].find(p=>p&&zones[p.name]?.front);
+  const backOH=[R.oh1,R.oh2].find(p=>p&&zones[p.name]?.back);
 
-  if(R.s) movePlayerToTacticalZone(teamNo,R.s,2,teamNo===1?-3:3,-8);
-  if(frontOH) movePlayerToTacticalZone(teamNo,frontOH,4,teamNo===1?2:-2,0);
-  if(R.m) movePlayerToTacticalZone(teamNo,R.m,3);
-  if(backOH) movePlayerToTacticalZone(teamNo,backOH,6);
-  if(R.l) movePlayerToTacticalZone(teamNo,R.l,5);
+  // Setter releases toward the net.
+  if(R.s)movePlayerToTacticalZone(teamNo,R.s,2,teamNo===1?-3:3,-7);
 
+  // Front-row attack lanes.
+  if(frontOH)movePlayerToTacticalZone(teamNo,frontOH,4,teamNo===1?2:-2,-2);
+  if(R.m)movePlayerToTacticalZone(teamNo,R.m,3,teamNo===1?1:-1,0);
+
+  // Back-row OH is the pipe option through Zone 6.
+  if(backOH)movePlayerToTacticalZone(teamNo,backOH,6,teamNo===1?-1:1,0);
+
+  // Libero stays behind the attack for cover.
+  if(R.l)movePlayerToTacticalZone(teamNo,R.l,5,teamNo===1?-2:2,2);
+
+  // Opposite uses right-side front attack or a genuine back-row Zone 1 lane.
   if(R.op){
     if(zones[R.op.name]?.front){
-      movePlayerToTacticalZone(teamNo,R.op,2,teamNo===1?3:-3,10);
+      movePlayerToTacticalZone(teamNo,R.op,2,teamNo===1?3:-3,8);
     }else{
-      if(teamNo===1) setPlayerCourtPos(playerCourtId(1,R.op),"30%","82%");
-      else setPlayerCourtPos(playerCourtId(2,R.op),"64%","82%");
+      movePlayerToTacticalZone(teamNo,R.op,1,teamNo===1?-2:2,4);
     }
   }
 }
 
-function moveToDefensiveBase(teamNo){
-  if(!liveState)return;
 
+function rallyHomePosition(teamNo,player){
+  if(!liveState||!player)return null;
   const team=teamNo===1?liveState.a:liveState.b;
   const rot=teamNo===1?liveState.rotation1:liveState.rotation2;
   const zones=effectiveSixOneZones(team,rot);
-  const R=lineupRoles(team);
+  const role=player.assignedRole;
+  const z=zones[player.name];
 
-  const frontOH=[R.oh1,R.oh2].find(p=>p&&zones[p.name]?.front);
-  const backOH=[R.oh1,R.oh2].find(p=>p&&zones[p.name]?.back);
+  // Fixed defensive system requested:
+  // L always P5; back-row OH always P6; back-row S/OP always P1.
+  if(role==="L") return 5;
+  if(["OH","OH1","OH2"].includes(role) && z?.back) return 6;
+  if(["S","OP"].includes(role) && z?.back) return 1;
 
-  // Back court: L=P5, back OH=P6, back S/OP=P1.
-  if(R.l) movePlayerToTacticalZone(teamNo,R.l,5);
-  if(backOH) movePlayerToTacticalZone(teamNo,backOH,6);
+  // Front-row home responsibilities.
+  if(["OH","OH1","OH2"].includes(role) && z?.front) return 4;
+  if(role==="M") return 3;
+  if(["S","OP"].includes(role) && z?.front) return 2;
 
-  if(R.s && zones[R.s.name]?.back){
-    movePlayerToTacticalZone(teamNo,R.s,1);
-  }else if(R.op && zones[R.op.name]?.back){
-    movePlayerToTacticalZone(teamNo,R.op,1);
-  }
+  return Number(z?.zone)||null;
+}
 
-  // Front court: OH=P4, M=P3, front S/OP=P2.
-  if(frontOH) movePlayerToTacticalZone(teamNo,frontOH,4);
-  if(R.m) movePlayerToTacticalZone(teamNo,R.m,3);
+function returnPlayerToRallyHome(teamNo,player){
+  const zone=rallyHomePosition(teamNo,player);
+  if(zone) movePlayerToTacticalZone(teamNo,player,zone,0,0);
+}
 
-  if(R.s && zones[R.s.name]?.front){
-    movePlayerToTacticalZone(teamNo,R.s,2);
-  }else if(R.op && zones[R.op.name]?.front){
-    movePlayerToTacticalZone(teamNo,R.op,2);
-  }
+function returnTeamToRallyHomes(teamNo){
+  if(!liveState)return;
+  const team=teamNo===1?liveState.a:liveState.b;
+  team.forEach(p=>returnPlayerToRallyHome(teamNo,p));
+}
+
+function moveToDefensiveBase(teamNo){
+  // During live play, defence always returns to the system home positions:
+  // L=P5, back OH=P6, back S/OP=P1, front OH/M/right-side=P4/P3/P2.
+  returnTeamToRallyHomes(teamNo);
 }
 
 function moveSetterToBase(teamNo,setter){
@@ -5419,14 +5539,26 @@ function moveSetterToBase(teamNo,setter){
 function moveAttackerToApproach(teamNo,attacker,zoneInfo){
   if(!attacker)return;
   const back=!!zoneInfo?.back;
-  if(attacker.assignedRole==="OH1"||attacker.assignedRole==="OH2"){
-    movePlayerToTacticalZone(teamNo,attacker,back?6:4,teamNo===1?(back?8:2):(back?-8:-2),back?-8:0);
-  }else if(attacker.assignedRole==="M"){
+  const role=attacker.assignedRole;
+
+  if(["OH","OH1","OH2"].includes(role)){
+    if(back){
+      // PIPE: outside hitter attacks from middle-back Zone 6, clearly behind 3 m.
+      movePlayerToTacticalZone(teamNo,attacker,6,teamNo===1?-1:1,0);
+    }else{
+      // Front-row outside at Zone 4.
+      movePlayerToTacticalZone(teamNo,attacker,4,teamNo===1?2:-2,0);
+    }
+  }else if(role==="M"){
     movePlayerToTacticalZone(teamNo,attacker,3,teamNo===1?2:-2,0);
-  }else if(attacker.assignedRole==="OP"){
-    movePlayerToTacticalZone(teamNo,attacker,back?1:2,teamNo===1?(back?6:2):(back?-6:-2),back?8:8);
-  }else if(attacker.assignedRole==="S"){
-    movePlayerToTacticalZone(teamNo,attacker,2,teamNo===1?-2:2,-4);
+  }else if(role==="OP"){
+    if(back){
+      movePlayerToTacticalZone(teamNo,attacker,1,teamNo===1?-1:1,0);
+    }else{
+      movePlayerToTacticalZone(teamNo,attacker,2,teamNo===1?2:-2,8);
+    }
+  }else if(role==="S"){
+    if(!back)movePlayerToTacticalZone(teamNo,attacker,2,teamNo===1?-2:2,-4);
   }
 }
 
@@ -5638,6 +5770,7 @@ window.addEventListener("load",()=>{
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 let phaseAdvanceResolver=null;
+let skipSetInProgress=false;
 
 function animationSpeedMultiplier(){
   const el=document.getElementById("animationSpeed");
@@ -5656,9 +5789,9 @@ function waitForNextPhase(label){
   const btn=document.getElementById("nextPhaseBtn");
   const status=document.getElementById("rallyStatus");
 
-  if(rallyPlaybackMode()!=="step"){
+  if(skipSetInProgress || rallyPlaybackMode()!=="step"){
     if(btn){btn.classList.add("hidden");btn.disabled=true;}
-    if(status)status.textContent="Playing rally…";
+    if(status && !skipSetInProgress)status.textContent="Playing rally…";
     return Promise.resolve();
   }
 
@@ -5912,6 +6045,13 @@ function normalizeShotId(evt){
   return "cross";
 }
 
+function isPipeAttack(attacker,evtOrZone=null){
+  const role=attacker?.assignedRole||"";
+  const isOH=["OH","OH1","OH2"].includes(role);
+  const back=!!(evtOrZone?.attackerZone?.back ?? evtOrZone?.back);
+  return isOH && back;
+}
+
 function attackerLane(attacker){
   const r=attacker?.assignedRole||"";
   if(r==="OP")return "bottom";
@@ -5923,59 +6063,72 @@ function shotCourtTarget(attackingTeamNo,attacker,evt={}){
   const defNo=attackingTeamNo===1?2:1;
   const lane=attackerLane(attacker);
   const id=normalizeShotId(evt);
+  const pipe=isPipeAttack(attacker,evt);
+  const role=attacker?.assignedRole||"";
+  const fromRight=role==="OP";
 
-  // zone + small offsets create recognisably different landing locations.
-  // Zones are expressed from the defending team's normal court orientation.
-  let zone=6, ox=0, oy=0, depth="deep";
+  let zone=6,ox=0,oy=0,depth="deep";
 
-  if(id==="line"){
-    // Stay on the same lateral sideline as the hitter.
-    zone=lane==="bottom"?5:6;
-    oy=lane==="bottom"?7:-7;
+  if(pipe){
+    // Pipe originates from Zone 6. Destination still follows the selected shot,
+    // but the ball crosses the net through the middle rather than a pin lane.
+    if(id==="line"){zone=6;ox=3;oy=0;}
+    else if(id==="cross"){zone=fromRight?5:1;ox=2;oy=0;}
+    else if(id==="deep_corner"){zone=fromRight?5:1;ox=6;oy=0;}
+    else if(id==="tip"){zone=3;ox=-2;oy=0;depth="short";}
+    else if(id==="roll"){zone=6;ox=-2;oy=0;depth="medium";}
+    else if(id==="deep_push"){zone=6;ox=6;oy=0;}
+    else if(id==="cut"){zone=fromRight?4:2;ox=-2;oy=0;depth="short";}
+    else if(id==="seam"){zone=6;ox=1;oy=0;depth="medium";}
+    else if(id==="block_out"){zone=3;ox=-5;oy=0;depth="tool";}
+  }else if(id==="line"){
+    // OH at Zone 4 -> line to defending Zone 1.
+    // OP at Zone 2 -> line to defending Zone 5.
+    zone=fromRight?5:1;
+    ox=4;
   }else if(id==="cross"){
-    // Conventional diagonal into the opposite deep half.
-    zone=lane==="bottom"?6:5;
-    oy=lane==="bottom"?-5:5;
+    zone=fromRight?6:5;
+    oy=fromRight?-5:5;
   }else if(id==="deep_corner"){
-    zone=lane==="bottom"?6:5;
-    ox=6; oy=lane==="bottom"?-10:10;
+    zone=fromRight?5:1;
+    ox=6;
   }else if(id==="tip"){
-    // Short just behind / around the block.
-    zone=lane==="bottom"?4:2;
-    ox=-1; oy=lane==="bottom"?3:-3; depth="short";
+    zone=fromRight?4:2;
+    ox=-1;
+    depth="short";
   }else if(id==="roll"){
-    // Softer ball into the middle-back / conflict zone.
-    zone=6; ox=-2; oy=lane==="bottom"?5:-5; depth="medium";
+    zone=6;ox=-2;depth="medium";
   }else if(id==="deep_push"){
-    // Deliberately over the defence to end line.
-    zone=1; ox=5; oy=lane==="bottom"?7:-7;
+    zone=fromRight?5:1;ox=5;
   }else if(id==="cut"){
-    // Very sharp diagonal, landing short on the opposite sideline.
-    zone=lane==="bottom"?2:4;
-    ox=-2; oy=lane==="bottom"?-9:9; depth="short";
+    zone=fromRight?4:2;ox=-2;depth="short";
   }else if(id==="seam"){
-    // Between middle-back and right/left-back defenders.
-    zone=6; ox=1; oy=lane==="bottom"?-2:2; depth="medium";
+    zone=6;ox=1;depth="medium";
   }else if(id==="block_out"){
-    // The intended target is the outside hand, followed by a deflection out.
-    zone=lane==="bottom"?2:4;
-    ox=-5; oy=lane==="bottom"?7:-7; depth="tool";
+    zone=fromRight?2:4;ox=-5;depth="tool";
   }
 
   const p=tacticalZonePosition(defNo,zone,ox,oy);
-  return p?{...p,defNo,zone,offsetX:ox,offsetY:oy,depth,shotId:id,lane}:null;
+  return p?{...p,defNo,zone,offsetX:ox,offsetY:oy,depth,shotId:id,lane,pipe}:null;
 }
 
 function shotNetCrossing(attackingTeamNo,attacker,evt={}){
-  const lane=attackerLane(attacker);
   const id=normalizeShotId(evt);
+
+  // A true pipe comes through the middle-back / Zone 6 lane regardless of
+  // whether the hitter's natural role is OH1 or OH2.
+  if(isPipeAttack(attacker,evt))return "50%";
+
+  const lane=attackerLane(attacker);
   let y=lane==="top"?26:lane==="bottom"?69:45;
 
+  // LINE stays on the hitter's own pin lane.
+  if(id==="line") y=lane==="top"?26:lane==="bottom"?69:45;
   if(id==="cross") y=lane==="top"?48:lane==="bottom"?47:45;
   if(id==="cut") y=lane==="top"?60:lane==="bottom"?35:45;
   if(id==="seam") y=50;
   if(id==="tip") y=lane==="top"?33:lane==="bottom"?62:47;
-  if(id==="deep_push"||id==="deep_corner") y=lane==="top"?40:lane==="bottom"?56:48;
+  if(id==="deep_push"||id==="deep_corner") y=lane==="top"?30:lane==="bottom"?66:48;
   if(id==="block_out") y=lane==="top"?24:lane==="bottom"?71:45;
 
   return `${y}%`;
@@ -6028,6 +6181,55 @@ function shotActionLabel(evt){
   })[id]||"HIT";
 }
 
+
+/* ===== RALLY PHASE POSITIONING =====
+   Every new possession starts from a coherent volleyball shape:
+   attacking side -> transition offence
+   defending side -> defensive base
+   Then the actual setter, attacker and blockers move from those bases. */
+function preparePossessionPositions(attackingTeamNo,evt=null){
+  if(!liveState)return;
+  const defendingTeamNo=attackingTeamNo===1?2:1;
+
+  // Every possession begins from the fixed rally home system.
+  returnTeamToRallyHomes(attackingTeamNo);
+  returnTeamToRallyHomes(defendingTeamNo);
+
+  const attackingTeam=attackingTeamNo===1?liveState.a:liveState.b;
+  const rot=attackingTeamNo===1?liveState.rotation1:liveState.rotation2;
+  const zones=effectiveSixOneZones(attackingTeam,rot);
+
+  // The attacking team then releases into its offensive lanes.
+  moveToTransitionOffence(attackingTeamNo);
+
+  // If setter took first ball, return them to their backcourt home instead of
+  // allowing them to appear immediately at the net.
+  if(evt?.emergencySetterMode && evt.emergencySetterMode!=="normal" && evt?.passer){
+    returnPlayerToRallyHome(attackingTeamNo,evt.passer);
+  }
+
+  // Only the ACTUAL second-contact player moves to the setting window.
+  if(evt?.setter){
+    moveSetterToBase(attackingTeamNo,evt.setter);
+  }
+}
+
+function restoreDefensiveShape(teamNo){
+  if(!liveState)return;
+  moveToDefensiveBase(teamNo);
+}
+
+function recoverTeamAfterContact(teamNo,contactPlayer=null){
+  if(!liveState)return;
+
+  // First, snap the contact player back to their defensive system home.
+  if(contactPlayer) returnPlayerToRallyHome(teamNo,contactPlayer);
+
+  // Then restore all six. This guarantees a libero returns to P5,
+  // back-row OH to P6, and back-row setter/opposite to P1.
+  returnTeamToRallyHomes(teamNo);
+}
+
 async function animateTransitionPossessions(events=[]){
   for(const evt of events){
     if(!evt)continue;
@@ -6035,6 +6237,11 @@ async function animateTransitionPossessions(events=[]){
     const defNo=atkNo===1?2:1;
     const setter=evt.setter;
     const attacker=evt.attacker;
+
+    // Reset every player before this possession begins. This prevents a digger,
+    // blocker or cover player from staying stranded where the previous contact happened.
+    preparePossessionPositions(atkNo,evt);
+    await rallySleep(135);
 
     if(evt.outcome==="transition_error"){
       const source=evt.passer;
@@ -6048,7 +6255,6 @@ async function animateTransitionPossessions(events=[]){
 
     setPhase("set");
     if(setter){
-      moveSetterToBase(atkNo,setter);
       ballArcToPlayer(atkNo,setter,120,250,105,72);
       showPlayerAction(
         atkNo,setter,
@@ -6090,6 +6296,8 @@ async function animateTransitionPossessions(events=[]){
         ballArcToCourt(defNo,6,0,15,520,280,80,12);
       }
       await rallySleep(300);
+      returnTeamToRallyHomes(atkNo);
+      returnTeamToRallyHomes(defNo);
       continue;
     }
 
@@ -6107,12 +6315,17 @@ async function animateTransitionPossessions(events=[]){
       if(evt.outcome==="block"){
         ballArcToCourt(atkNo,3,0,6,570,270,85,14);
         await rallySleep(290);
+        returnTeamToRallyHomes(atkNo);
+        returnTeamToRallyHomes(defNo);
       }else if(evt.blockCover?.coverer){
         const c=evt.blockCover.coverer;
         ballArcToPlayer(atkNo,c,600,250,82,44);
         showPlayerAction(atkNo,c,"COVER","positive");
         animateCourtPlayer(atkNo,c,"coverPop",400);
-        await rallySleep(275);
+        await rallySleep(220);
+        recoverTeamAfterContact(atkNo,c);
+        restoreDefensiveShape(defNo);
+        await rallySleep(130);
       }
       continue;
     }
@@ -6121,6 +6334,8 @@ async function animateTransitionPossessions(events=[]){
       showPlayerAction(atkNo,attacker,"KILL","positive");
       ballArcToShotTarget(atkNo,attacker,evt,570);
       await rallySleep(310);
+      returnTeamToRallyHomes(atkNo);
+      returnTeamToRallyHomes(defNo);
       continue;
     }
 
@@ -6131,7 +6346,10 @@ async function animateTransitionPossessions(events=[]){
       showPlayerAction(defNo,d,"DIG","positive");
       animateCourtPlayer(defNo,d,normalizeShotId(evt)==="line"?"diveRight":"diveLeft",540);
       ballArcToPlayer(defNo,d,570,300,shotArcProfile(attacker,evt).peak*.70,42);
-      await rallySleep(330);
+      await rallySleep(220);
+      recoverTeamAfterContact(defNo,d);
+      restoreDefensiveShape(atkNo);
+      await rallySleep(130);
     }
   }
 }
@@ -6192,6 +6410,8 @@ async function animateRally(winner, context={}){
   ballArcToPlayer(receivingTeamNo,passer,180,460,145,58);
   await rallySleep(490);
   await waitForNextPhase("SERVE");
+  // Once the serve is in play, the serving team immediately enters fixed defence.
+  moveToDefensiveBase(servingTeamNo);
 
   setPhase("receive");
   if(passer){
@@ -6328,7 +6548,10 @@ async function animateRally(winner, context={}){
       if(cid)pulsePlayer(cid);
       showPlayerAction(receivingTeamNo,coverer,"COVER","positive");
       animateCourtPlayer(receivingTeamNo,coverer,"coverPop",420);
-      await rallySleep(330);
+      await rallySleep(230);
+      recoverTeamAfterContact(receivingTeamNo,coverer);
+      restoreDefensiveShape(defendingTeamNo);
+      await rallySleep(130);
     }
     await waitForNextPhase("BLOCK COVER");
 
@@ -6370,7 +6593,10 @@ async function animateRally(winner, context={}){
       const diveClass=normalizeShotId(evt)==="line"?"diveRight":"diveLeft";
       animateCourtPlayer(defendingTeamNo,defender,diveClass,580);
       ballArcToPlayer(defendingTeamNo,defender,760,330,shotArcProfile(attacker,evt).peak*.70,42);
-      await rallySleep(360);
+      await rallySleep(230);
+      recoverTeamAfterContact(defendingTeamNo,defender);
+      restoreDefensiveShape(receivingTeamNo);
+      await rallySleep(130);
     }
     await waitForNextPhase("DIG");
 
@@ -6427,6 +6653,7 @@ function weightedPick(items, weightFn){
 
 function rallyPlayers(attackingTeam,defendingTeam){
   const attackingIsTeam1 = liveState && attackingTeam===liveState.a;
+  const attackingTeamNo=attackingIsTeam1?1:2;
   const atkRot = liveState ? (attackingIsTeam1?liveState.rotation1:liveState.rotation2) : 1;
   const defRot = liveState ? (attackingIsTeam1?liveState.rotation2:liveState.rotation1) : 1;
 
@@ -6958,7 +7185,8 @@ function chooseAttackShot(p, blocker, context={}){
     execution,
     readPenalty,
     blockEvasion:Number(shot.blockEvasion||0)+readPenalty+styleMods.blockEvasion,
-    styleMods
+    styleMods,
+    backRow:!!context.backRow
   };
 }
 function shotCommentary(attacker, shotInfo, blocker){
@@ -7338,17 +7566,35 @@ function gameplayShotTarget(attacker,shotInfo){
   const id=shotInfo?.shot?.id||"cross";
   const role=attacker?.assignedRole||"";
   const fromRight=role==="OP";
+  const backRow=!!shotInfo?.backRow;
+
+  // Back-row OH pipe attacks originate from Zone 6. They can still choose
+  // different finishes, but are not treated as a front-row Zone 4 pin swing.
+  if(backRow && ["OH","OH1","OH2"].includes(role)){
+    switch(id){
+      case "cross":       return {zones:[5,1],depth:"deep",family:"pipe_cross",rangeDifficulty:3};
+      case "line":        return {zones:[6],depth:"deep",family:"pipe_line",rangeDifficulty:2};
+      case "deep_corner": return {zones:[5,1],depth:"very_deep",family:"pipe_corner",rangeDifficulty:7};
+      case "tip":         return {zones:[3],depth:"short",family:"pipe_tip",rangeDifficulty:9};
+      case "roll":        return {zones:[6],depth:"mid",family:"roll",rangeDifficulty:3};
+      case "deep_push":   return {zones:[6],depth:"very_deep",family:"push",rangeDifficulty:6};
+      case "cut":         return {zones:[4,2],depth:"short",family:"sharp_cross",rangeDifficulty:11};
+      case "block_out":   return {zones:[],depth:"net",family:"tool",rangeDifficulty:0};
+      case "seam":        return {zones:[5,6,1],depth:"deep",family:"seam",rangeDifficulty:5};
+    }
+  }
+
   switch(id){
-    case "cross":       return {zones:fromRight?[5,6]:[5,6], depth:"deep", family:"cross", rangeDifficulty:2};
-    case "line":        return {zones:[fromRight?5:1], depth:"deep", family:"line", rangeDifficulty:3};
-    case "deep_corner": return {zones:[fromRight?5:1], depth:"very_deep", family:"corner", rangeDifficulty:7};
-    case "tip":         return {zones:fromRight?[4,3]:[2,3], depth:"short", family:"tip", rangeDifficulty:8};
-    case "roll":        return {zones:[6], depth:"mid", family:"roll", rangeDifficulty:3};
-    case "deep_push":   return {zones:[fromRight?5:1,6], depth:"very_deep", family:"push", rangeDifficulty:6};
-    case "cut":         return {zones:[fromRight?4:2], depth:"short", family:"sharp_cross", rangeDifficulty:11};
-    case "block_out":   return {zones:[], depth:"net", family:"tool", rangeDifficulty:0};
-    case "seam":        return {zones:[5,6,1], depth:"deep", family:"seam", rangeDifficulty:5};
-    default:            return {zones:[6], depth:"deep", family:"cross", rangeDifficulty:2};
+    case "cross":       return {zones:[5,6],depth:"deep",family:"cross",rangeDifficulty:2};
+    case "line":        return {zones:[fromRight?5:1],depth:"deep",family:"line",rangeDifficulty:3};
+    case "deep_corner": return {zones:[fromRight?5:1],depth:"very_deep",family:"corner",rangeDifficulty:7};
+    case "tip":         return {zones:fromRight?[4,3]:[2,3],depth:"short",family:"tip",rangeDifficulty:8};
+    case "roll":        return {zones:[6],depth:"mid",family:"roll",rangeDifficulty:3};
+    case "deep_push":   return {zones:[fromRight?5:1,6],depth:"very_deep",family:"push",rangeDifficulty:6};
+    case "cut":         return {zones:[fromRight?4:2],depth:"short",family:"sharp_cross",rangeDifficulty:11};
+    case "block_out":   return {zones:[],depth:"net",family:"tool",rangeDifficulty:0};
+    case "seam":        return {zones:[5,6,1],depth:"deep",family:"seam",rangeDifficulty:5};
+    default:            return {zones:[6],depth:"deep",family:"cross",rangeDifficulty:2};
   }
 }
 
@@ -7417,6 +7663,7 @@ function shotDigDifficulty(attacker,shotInfo,defender,defRot,defendingTeam){
 
 function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendingName, serveType=null){
   const attackingIsTeam1 = liveState && attackingTeam===liveState.a;
+  const attackingTeamNo = attackingIsTeam1 ? 1 : 2;
   const atkRot = liveState ? (attackingIsTeam1?liveState.rotation1:liveState.rotation2) : 1;
   const defRot = liveState ? (attackingIsTeam1?liveState.rotation2:liveState.rotation1) : 1;
 
@@ -7429,7 +7676,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   // Grade 0 is a direct reception failure.
   if(passQuality.grade===0){
     return {
-      passer,server,setter:designatedSetter(attackingTeam),attacker:null,blocker:null,defender:null,
+      attackingTeamNo,passer,server,setter:designatedSetter(attackingTeam),attacker:null,blocker:null,defender:null,
       outcome:"reception_error",passQuality,
       text:passQualityText(passQuality,passer,server)
     };
@@ -7440,7 +7687,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
 
   // Only a genuine mishandle ends the point here. An OOS set stays alive.
   if(setGrade.error){
-    return {passer,server,setter,attacker:null,blocker:null,defender:null,outcome:"setting_error",passQuality,setGrade,
+    return {attackingTeamNo,passer,server,setter,attacker:null,blocker:null,defender:null,outcome:"setting_error",passQuality,setGrade,
       outOfSystem:false,text:`${passQualityText(passQuality,passer,server)} → ${setQualityText(setGrade,setter)}`};
   }
 
@@ -7575,7 +7822,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     text=`🎭 ${attacker.name} is extremely difficult to read. `+text;
   }
 
-  return {passer,server,setter,attacker,blocker,defender,formation,outcome,text,
+  return {attackingTeamNo,passer,server,setter,attacker,blocker,defender,formation,outcome,text,
     shot:shotInfo.shot.name,shotId:shotInfo.shot.id,shotTarget:gameplayShotTarget(attacker,shotInfo),
     passQuality,setGrade,setterIQ:choice.setterIQ,attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem};
 }
@@ -7737,7 +7984,7 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   }
 
   return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,setter,attacker,
-    blocker,defender,formation,outcome,text,shot:shotInfo.shot.name,shotId:shotInfo.shot.id,setterIQ:choice.setterIQ,
+    blocker,defender,formation,outcome,text,shot:shotInfo.shot.name,shotId:shotInfo.shot.id,shotTarget:gameplayShotTarget(attacker,shotInfo),setterIQ:choice.setterIQ,
     attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem,emergencySetterMode};
 }
 
@@ -7794,7 +8041,29 @@ function addActualEventStats(evt,attackingWon){
     if(evt.passQuality.grade===0){ ps.receptionErrors++; ps.errors++; if(evt.server) ensure(evt.server.name).aces++; }
   }
   if(evt.outcome==="reception_error" || evt.outcome==="transition_error") return;
-  if(evt.attacker) ensure(evt.attacker.name).attempts++;
+  if(evt.attacker){
+    ensure(evt.attacker.name).attempts++;
+
+    if(evt.shotId || evt.shot){
+      liveState.shotLog=liveState.shotLog||[];
+      const shotInfo={
+        shot:{id:evt.shotId||normalizeShotId(evt),name:evt.shot||evt.shotId||"Attack"}
+      };
+      const target=evt.shotTarget || gameplayShotTarget(evt.attacker,shotInfo);
+      liveState.shotLog.push({
+        player:evt.attacker.name,
+        team:Number(evt.attackingTeamNo||0),
+        shotId:evt.shotId||normalizeShotId(evt),
+        shotName:evt.shot||shotActionLabel(evt),
+        outcome:evt.outcome,
+        zones:Array.isArray(target?.zones)?target.zones:[],
+        depth:target?.depth||"",
+        family:target?.family||"",
+        backRow:!!evt.attackerZone?.back,
+        possessionNo:Number(evt.possessionNo||1)
+      });
+    }
+  }
   ensure(evt.setter.name).assists=(ensure(evt.setter.name).assists||0)+(evt.outcome==="kill"?1:0);
   if(evt.outcome==="attack_error" && evt.attacker){
     ensure(evt.attacker.name).errors++;
@@ -8021,8 +8290,10 @@ function updateLiveUI(){
   else if(s.recent2>=3) alertText=`${s.name2} on a run`;
   document.getElementById("matchAlert").textContent=alertText;
 
-  document.getElementById("nextRallyBtn").disabled=s.setFinished;
-  document.getElementById("autoPlayBtn").disabled=s.setFinished || rallyPlaybackMode()==="step";
+  document.getElementById("nextRallyBtn").disabled=s.setFinished || skipSetInProgress;
+  document.getElementById("autoPlayBtn").disabled=s.setFinished || rallyPlaybackMode()==="step" || skipSetInProgress;
+  const skipBtn=document.getElementById("skipSetBtn");
+  if(skipBtn)skipBtn.disabled=s.setFinished || skipSetInProgress;
   document.getElementById("nextSetBtn").classList.toggle("hidden",!s.setFinished || s.matchFinished);
 }
 
@@ -8063,7 +8334,7 @@ function applyRemoteMatchSnapshot(snapshot){
 
 function applyMultiplayerMatchControls(){
   if(!mpIsConnected())return;
-  ["simulateBtn","nextRallyBtn","autoPlayBtn","nextSetBtn"].forEach(id=>{
+  ["simulateBtn","nextRallyBtn","autoPlayBtn","skipSetBtn","nextSetBtn"].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
     const locked=!mpIsHost();
@@ -8258,6 +8529,8 @@ function beginLiveMatch(){
 
   liveState={
     a,b,best,need,
+    bench1:(auctionState.team1||[]).slice(AUCTION_STARTERS,AUCTION_ROSTER_SIZE).map(n=>players.find(p=>p.name===n)).filter(Boolean),
+    bench2:(auctionState.team2||[]).slice(AUCTION_STARTERS,AUCTION_ROSTER_SIZE).map(n=>players.find(p=>p.name===n)).filter(Boolean),
     name1:document.getElementById("team1Name").value||"Team 1",
     name2:document.getElementById("team2Name").value||"Team 2",
     sets1:0,sets2:0,setNo:1,p1:0,p2:0,target:25,
@@ -8265,7 +8538,8 @@ function beginLiveMatch(){
     rotation1:1,rotation2:1,timeouts1:2,timeouts2:2,lastServer:null,
     setFinished:false,matchFinished:false,
     sets:[],totals:{},errorDetails:{},commentary:[],
-    fatigue:initFatigueState(a,b)
+    fatigue:initFatigueState([...a,...((auctionState.team1||[]).slice(AUCTION_STARTERS,AUCTION_ROSTER_SIZE).map(n=>players.find(p=>p.name===n)).filter(Boolean))],[...b,...((auctionState.team2||[]).slice(AUCTION_STARTERS,AUCTION_ROSTER_SIZE).map(n=>players.find(p=>p.name===n)).filter(Boolean))]),
+    shotLog:[]
   };
 
   document.getElementById("liveMatchCard").classList.remove("hidden");
@@ -8394,7 +8668,9 @@ async function playLiveRally(){
     }
 
     try{
-      await animateRally(authoritativeWinner,authoritativeContext);
+      if(!skipSetInProgress){
+        await animateRally(authoritativeWinner,authoritativeContext);
+      }
     }catch(animErr){
       console.error("Animation error:",animErr);
       addCommentary(`Visual animation skipped: ${animErr.message}`);
@@ -8407,7 +8683,7 @@ async function playLiveRally(){
     applyRallyFatigue(receivingTeam,rallyEvt);
 
     const pointEl=document.getElementById(team1Wins?"livePts1":"livePts2");
-    if(pointEl){
+    if(pointEl && !skipSetInProgress){
       pointEl.classList.add("flashPoint");
       setTimeout(()=>pointEl.classList.remove("flashPoint"),300);
     }
@@ -8487,6 +8763,53 @@ function autoPlaySet(){
 
 
 
+
+async function skipToEndOfSet(){
+  if(mpIsConnected() && !mpIsHost()){
+    const status=document.getElementById("rallyStatus");
+    if(status)status.textContent="Waiting for host…";
+    return;
+  }
+  if(!liveState || liveState.setFinished || liveState.matchFinished || liveState.animating)return;
+
+  skipSetInProgress=true;
+  clearInterval(liveTimer);
+  if(phaseAdvanceResolver)phaseAdvanceResolver();
+
+  const status=document.getElementById("rallyStatus");
+  if(status)status.textContent="Simulating remainder of set…";
+  updateLiveUI();
+
+  try{
+    let guard=0;
+    while(liveState && !liveState.setFinished && !liveState.matchFinished && guard<120){
+      await playLiveRally();
+      guard++;
+    }
+
+    if(guard>=120 && liveState && !liveState.setFinished){
+      if(status)status.textContent="Simulation paused — set exceeded safety limit.";
+    }else if(liveState?.setFinished){
+      if(status)status.textContent=`Set ${liveState.setNo} complete — ${liveState.p1}–${liveState.p2}.`;
+    }
+
+    resetCourtAfterRally();
+    renderLiveCourtPlayers();
+    updateLiveUI();
+
+    if(mpIsConnected() && mpIsHost() && liveState){
+      await mpSend("match_state",{snapshot:multiplayerMatchSnapshot()});
+    }
+  }catch(err){
+    console.error("Skip to end of set error:",err);
+    if(status)status.textContent=`Skip error: ${err.message}`;
+  }finally{
+    skipSetInProgress=false;
+    updateLiveUI();
+    applyMultiplayerMatchControls();
+  }
+}
+
 function renderAwards(){
   if(!liveState)return;
   const stats=Object.values(liveState.totals);
@@ -8525,6 +8848,181 @@ function renderErrorBreakdown(){
   target.appendChild(panel);
 }
 
+
+/* ===== BUILD C: SHOT CHART / HEAT MAP / TENDENCY ANALYTICS ===== */
+const SHOT_ZONE_COORDS={
+  1:{x:78,y:50},2:{x:60,y:72},3:{x:60,y:50},4:{x:60,y:28},
+  5:{x:78,y:28},6:{x:78,y:72}
+};
+
+function shotOutcomeClass(o){
+  if(o==="kill")return "kill";
+  if(o==="attack_error")return "error";
+  if(o==="block")return "block";
+  if(o==="dig")return "dig";
+  if(o==="block_cover")return "cover";
+  return "other";
+}
+
+function shotOutcomeSymbol(o){
+  return ({kill:"●",attack_error:"×",block:"■",dig:"○",block_cover:"◇"})[o]||"•";
+}
+
+function shotOutcomeLabel(o){
+  return ({kill:"Kill",attack_error:"Error",block:"Blocked",dig:"Dug",block_cover:"Block Cover"})[o]||o;
+}
+
+function shotAnalyticsForPlayer(name){
+  const logs=(liveState?.shotLog||[]).filter(x=>x.player===name);
+  const byShot={};
+  logs.forEach(x=>{
+    const id=x.shotId||"unknown";
+    byShot[id]=byShot[id]||{id,name:x.shotName||id,total:0,kills:0,errors:0,blocks:0,digs:0,covers:0,zones:{}};
+    const s=byShot[id];s.total++;
+    if(x.outcome==="kill")s.kills++;
+    if(x.outcome==="attack_error")s.errors++;
+    if(x.outcome==="block")s.blocks++;
+    if(x.outcome==="dig")s.digs++;
+    if(x.outcome==="block_cover")s.covers++;
+    (x.zones||[]).forEach(z=>s.zones[z]=(s.zones[z]||0)+1);
+  });
+  return {logs,byShot};
+}
+
+function tendencyComparisonRows(player){
+  const actual=shotAnalyticsForPlayer(player.name);
+  const tendencies=normalizeTendencies(player);
+  const total=actual.logs.length||1;
+  const ids=new Set([...(player.shots||[]),...Object.keys(actual.byShot)]);
+  return [...ids].map(id=>{
+    const shot=SHOT_LIBRARY.find(s=>s.id===id);
+    const count=actual.byShot[id]?.total||0;
+    return {
+      id,
+      name:shot?.name||actual.byShot[id]?.name||id,
+      intended:Number(tendencies[id]||0),
+      actual:count/total*100,
+      count
+    };
+  }).sort((a,b)=>b.actual-a.actual);
+}
+
+function renderShotMiniCourt(logs){
+  if(!logs.length)return `<div class="shotEmpty">No attacks recorded for this player.</div>`;
+
+  const markers=logs.map((x,i)=>{
+    const zones=(x.zones&&x.zones.length)?x.zones:[6];
+    const z=zones[i%zones.length];
+    const base=SHOT_ZONE_COORDS[z]||SHOT_ZONE_COORDS[6];
+    // deterministic jitter based on index so markers do not fully overlap
+    const jx=((i*17)%13)-6, jy=((i*29)%15)-7;
+    const left=clamp(base.x+jx*.65,53,94);
+    const top=clamp(base.y+jy*.65,8,92);
+    return `<span class="shotMarker ${shotOutcomeClass(x.outcome)}"
+      style="left:${left}%;top:${top}%"
+      title="${esc(x.shotName)} · ${shotOutcomeLabel(x.outcome)} · ${zones.map(n=>"Z"+n).join("/")}">${shotOutcomeSymbol(x.outcome)}</span>`;
+  }).join("");
+
+  return `<div class="shotCourt">
+    <div class="shotNet"></div>
+    <div class="shotAttackLine"></div>
+    <span class="shotZone z4">4</span><span class="shotZone z3">3</span><span class="shotZone z2">2</span>
+    <span class="shotZone z5">5</span><span class="shotZone z6">6</span><span class="shotZone z1">1</span>
+    ${markers}
+  </div>`;
+}
+
+function renderHeatMap(logs){
+  const counts={1:0,2:0,3:0,4:0,5:0,6:0};
+  logs.forEach(x=>(x.zones||[]).forEach(z=>{if(counts[z]!==undefined)counts[z]++;}));
+  const max=Math.max(1,...Object.values(counts));
+  return `<div class="heatGrid">
+    ${[4,3,2,5,6,1].map(z=>{
+      const n=counts[z],heat=n/max;
+      return `<div class="heatZone" style="--heat:${heat.toFixed(2)}">
+        <span>ZONE ${z}</span><b>${n}</b><small>${logs.length?Math.round(n/logs.length*100):0}% TARGET SHARE</small>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function renderShotAnalytics(){
+  if(!liveState)return;
+  const target=document.getElementById("resultsCard");
+  if(!target)return;
+  document.getElementById("shotAnalyticsPanel")?.remove();
+
+  const playersWithShots=[...new Set((liveState.shotLog||[]).map(x=>x.player))];
+  if(!playersWithShots.length)return;
+
+  const panel=document.createElement("div");
+  panel.id="shotAnalyticsPanel";
+  panel.className="shotAnalyticsPanel";
+  panel.innerHTML=`
+    <div class="shotAnalyticsHead">
+      <div><div class="homeKicker">BUILD C ANALYTICS</div><h3>Shot Chart & Heat Map</h3></div>
+      <select id="shotAnalyticsPlayer">${playersWithShots.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}</select>
+    </div>
+    <div id="shotAnalyticsBody"></div>`;
+  target.appendChild(panel);
+
+  const renderPlayer=name=>{
+    const p=players.find(x=>x.name===name);
+    if(!p)return;
+    const a=shotAnalyticsForPlayer(name);
+    const rows=tendencyComparisonRows(p);
+    const kills=a.logs.filter(x=>x.outcome==="kill").length;
+    const errors=a.logs.filter(x=>x.outcome==="attack_error").length;
+    const blocks=a.logs.filter(x=>x.outcome==="block").length;
+    const eff=a.logs.length?(kills-errors-blocks)/a.logs.length:0;
+
+    document.getElementById("shotAnalyticsBody").innerHTML=`
+      <div class="shotSummaryStrip">
+        <div><span>ATTEMPTS</span><b>${a.logs.length}</b></div>
+        <div><span>KILLS</span><b>${kills}</b></div>
+        <div><span>ERRORS</span><b>${errors}</b></div>
+        <div><span>BLOCKED</span><b>${blocks}</b></div>
+        <div><span>ATT EFF</span><b>${eff.toFixed(3)}</b></div>
+      </div>
+
+      <div class="shotAnalyticsGrid">
+        <div class="shotAnalyticsCard">
+          <div class="shotCardTitle">SHOT CHART</div>
+          ${renderShotMiniCourt(a.logs)}
+          <div class="shotLegend">
+            <span class="kill">● Kill</span><span class="dig">○ Dug</span>
+            <span class="block">■ Blocked</span><span class="error">× Error</span><span class="cover">◇ Cover</span>
+          </div>
+        </div>
+        <div class="shotAnalyticsCard">
+          <div class="shotCardTitle">TARGET HEAT MAP</div>
+          ${renderHeatMap(a.logs)}
+        </div>
+      </div>
+
+      <div class="shotAnalyticsCard tendencyCompare">
+        <div class="shotCardTitle">TENDENCY vs ACTUAL USAGE</div>
+        <div class="small" style="margin-bottom:10px">
+          ${gameSetup.tendencies?"Player tendency weights were active in this match.":"Tendencies mode was OFF — actual choices used balanced shot selection + playstyle bias."}
+        </div>
+        <div class="tendencyRows">
+          ${rows.map(r=>`
+            <div class="tendencyRow">
+              <div><b>${esc(r.name)}</b><small>${r.count} attempts</small></div>
+              <div class="tendencyBars">
+                <div><span>INTENDED</span><i style="width:${clamp(r.intended,0,100)}%"></i><b>${r.intended.toFixed(0)}%</b></div>
+                <div class="actual"><span>ACTUAL</span><i style="width:${clamp(r.actual,0,100)}%"></i><b>${r.actual.toFixed(0)}%</b></div>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>`;
+  };
+
+  const select=document.getElementById("shotAnalyticsPlayer");
+  select.onchange=()=>renderPlayer(select.value);
+  renderPlayer(select.value);
+}
+
 function finishLiveMatch(){
   const s=liveState;
   if(!s) return;
@@ -8532,6 +9030,7 @@ function finishLiveMatch(){
   renderResult(s.sets1,s.sets2,s.sets,Object.values(s.totals));
   renderErrorBreakdown();
   renderAwards();
+  renderShotAnalytics();
 }
 
 
@@ -8557,7 +9056,7 @@ function validateNoTeamDuplicates(){
 
 function simulateMatch(){
  if(!validateNoTeamDuplicates()) return;
- if(document.getElementById("speed").value==="live"){
+ if("live"==="live"){
    beginLiveMatch();
    return;
  }
@@ -8584,7 +9083,16 @@ function simulateMatch(){
 function renderResult(aw,bw,sets,stats){
  const n1=esc(document.getElementById("team1Name").value||"Team 1"), n2=esc(document.getElementById("team2Name").value||"Team 2");
  const winner=aw>bw?n1:n2;
+ if(!stats.length)return;
  const mvp=[...stats].sort((a,b)=>(b.kills+b.blocks*1.4+b.aces*1.2+b.digs*.25-b.errors)-(a.kills+a.blocks*1.4+a.aces*1.2+a.digs*.25-a.errors))[0];
+
+ const receptionRating=r=>{
+   const total=(r.perfectPasses||0)+(r.goodPasses||0)+(r.poorPasses||0)+(r.receptionErrors||0);
+   if(!total)return "—";
+   return (((r.perfectPasses||0)*3+(r.goodPasses||0)*2+(r.poorPasses||0))/total).toFixed(2);
+ };
+ const serveErrors=name=>Number(liveState?.errorDetails?.[name]?.Serve||0);
+
  document.getElementById("resultsCard").innerHTML=`
   <h2>Match Result</h2>
   <div class="resultHero">
@@ -8592,10 +9100,23 @@ function renderResult(aw,bw,sets,stats){
    <div class="scoreBig">${aw} : ${bw}</div>
    <div class="sets">${sets.map((s,i)=>`<span class="pill">Set ${i+1}: <b>${s[0]}–${s[1]}</b></span>`).join("")}</div>
   </div>
+
   <h3>Player Totals</h3>
-  <div style="overflow:auto"><table><thead><tr><th>Player</th><th>ATT</th><th>Kills</th><th>ATT ERR</th><th>HIT%</th><th>Blocks</th><th>Aces</th><th>Digs</th><th>Assists</th></tr></thead><tbody>
-  ${stats.sort((a,b)=>b.kills-a.kills).map(r=>`<tr ${r.name===mvp.name?'class="winner"':''}><td><span class="clickableName" onclick="openProfile('${r.name}')">${esc(r.name)}</span>${r.name===mvp.name?" ⭐ MVP":""}</td><td>${r.attempts||0}</td><td>${r.kills}</td><td>${r.attackErrors||0}</td><td>${(r.attempts||0)?(((r.kills-(r.attackErrors||0))/(r.attempts||1))).toFixed(3):".000"}</td><td>${r.blocks}</td><td>${r.aces}</td><td>${r.digs}</td><td>${r.assists||0}</td></tr>`).join("")}
-  </tbody></table></div>`;
+  <div class="tableWrap"><table class="analyticsStatsTable"><thead><tr>
+    <th>Player</th><th>ATT</th><th>K</th><th>ATT ERR</th><th>HIT%</th>
+    <th>BLK</th><th>ACE</th><th>SE</th><th>DIG</th><th>AST</th><th>PASS</th>
+  </tr></thead><tbody>
+  ${stats.sort((a,b)=>b.kills-a.kills).map(r=>{
+    const hit=(r.attempts||0)?((r.kills-(r.attackErrors||0))/(r.attempts||1)).toFixed(3):".000";
+    return `<tr ${r.name===mvp.name?'class="winner"':''}>
+      <td><span class="clickableName" onclick="openProfile('${r.name}')">${esc(r.name)}</span>${r.name===mvp.name?" ⭐":""}</td>
+      <td>${r.attempts||0}</td><td>${r.kills||0}</td><td>${r.attackErrors||0}</td><td>${hit}</td>
+      <td>${r.blocks||0}</td><td>${r.aces||0}</td><td>${serveErrors(r.name)}</td>
+      <td>${r.digs||0}</td><td>${r.assists||0}</td><td>${receptionRating(r)}</td>
+    </tr>`;
+  }).join("")}
+  </tbody></table></div>
+  <div class="statsFootnote">PASS = average reception grade on the 0–3 scale · HIT% = (kills − attack errors) ÷ attempts</div>`;
 }
 
 
@@ -8878,27 +9399,30 @@ async function leaveMultiplayer(){
 }
 
 
-let auctionState = {budget1:20,budget2:20,team1:[],team2:[],available:[],current:null,currentBid:0,currentBidder:null,rollerTeam:1,skipUsed1:false,skipUsed2:false,agree1:false,agree2:false};
+const AUCTION_BUDGET=35;
+const AUCTION_ROSTER_SIZE=8;
+const AUCTION_STARTERS=6;
+let auctionState = {budget1:AUCTION_BUDGET,budget2:AUCTION_BUDGET,team1:[],team2:[],available:[],current:null,currentBid:0,currentBidder:null,rollerTeam:1,skipUsed1:false,skipUsed2:false,agree1:false,agree2:false};
 
 
 function autoCompleteDraftIfNeeded(){
   // Closeout rule:
-  // If one team is full (6 players) and the other has $0,
+  // If one team is full (8 players) and the other has $0,
   // give the broke team the remaining undrafted players for free
-  // until they also have 6.
-  const team1Full=auctionState.team1.length>=6;
-  const team2Full=auctionState.team2.length>=6;
+  // until they also have 8.
+  const team1Full=auctionState.team1.length>=AUCTION_ROSTER_SIZE;
+  const team2Full=auctionState.team2.length>=AUCTION_ROSTER_SIZE;
 
   let receiver=null;
-  if(team1Full && auctionState.budget2<=0 && auctionState.team2.length<6) receiver=2;
-  if(team2Full && auctionState.budget1<=0 && auctionState.team1.length<6) receiver=1;
+  if(team1Full && auctionState.budget2<=0 && auctionState.team2.length<AUCTION_ROSTER_SIZE) receiver=2;
+  if(team2Full && auctionState.budget1<=0 && auctionState.team1.length<AUCTION_ROSTER_SIZE) receiver=1;
 
   if(!receiver) return false;
 
   const taken=new Set([...auctionState.team1,...auctionState.team2]);
   const remaining=players.map(p=>p.name).filter(name=>!taken.has(name));
 
-  const need=Math.max(0,6-auctionState[`team${receiver}`].length);
+  const need=Math.max(0,AUCTION_ROSTER_SIZE-auctionState[`team${receiver}`].length);
   const awarded=remaining.slice(0,need);
 
   if(!awarded.length) return false;
@@ -8928,7 +9452,7 @@ function autoCompleteDraftIfNeeded(){
 function resetAuction(){
   if(mpIsSpectator()){alert("Spectators cannot reset the auction.");return;}
   if(mpIsConnected() && !mpIsHost()){alert("Only the host can reset the multiplayer auction.");return}
-  auctionState={budget1:20,budget2:20,team1:[],team2:[],available:players.map(p=>p.name),current:null,currentBid:0,currentBidder:null,rollerTeam:1,skipUsed1:false,skipUsed2:false,agree1:false,agree2:false};
+  auctionState={budget1:AUCTION_BUDGET,budget2:AUCTION_BUDGET,team1:[],team2:[],available:players.map(p=>p.name),current:null,currentBid:0,currentBidder:null,rollerTeam:1,skipUsed1:false,skipUsed2:false,agree1:false,agree2:false};
   renderAuction();
   mpBroadcastAuction();
 }
@@ -9058,11 +9582,11 @@ function renderAuction(){
   };
   document.getElementById("auctionRoster1").innerHTML=
     (!mpPrivateView || mpViewerTeam===1)
-      ? (auctionState.team1.map(wonChip).join("")||'<span class="small">No players yet</span>')
+      ? (`<div class="auctionRosterCount">${auctionState.team1.length}/${AUCTION_ROSTER_SIZE} PLAYERS</div>`+(auctionState.team1.map(wonChip).join("")||'<span class="small">No players yet</span>'))
       : '<span class="small">Opponent team hidden</span>';
   document.getElementById("auctionRoster2").innerHTML=
     (!mpPrivateView || mpViewerTeam===2)
-      ? (auctionState.team2.map(wonChip).join("")||'<span class="small">No players yet</span>')
+      ? (`<div class="auctionRosterCount">${auctionState.team2.length}/${AUCTION_ROSTER_SIZE} PLAYERS</div>`+(auctionState.team2.map(wonChip).join("")||'<span class="small">No players yet</span>'))
       : '<span class="small">Opponent team hidden</span>';
   const card=document.getElementById("auctionPlayerCard");
   if(!auctionState.current){
@@ -9240,8 +9764,8 @@ function awardAuctionPlayer(){
     return;
   }
 
-  if(auctionState[`team${team}`].length>=6){
-    document.getElementById("bidLog").textContent=`Team ${team} already has 6 players.`;
+  if(auctionState[`team${team}`].length>=AUCTION_ROSTER_SIZE){
+    document.getElementById("bidLog").textContent=`Team ${team} already has ${AUCTION_ROSTER_SIZE} players.`;
     return;
   }
 
@@ -9292,8 +9816,8 @@ function awardAuctionPlayer(){
 }
 
 function finishDraftToLineup(){
-  if(auctionState.team1.length!==6 || auctionState.team2.length!==6){
-    alert(`Each team needs exactly 6 players. Team 1: ${auctionState.team1.length}/6, Team 2: ${auctionState.team2.length}/6`);
+  if(auctionState.team1.length!==AUCTION_ROSTER_SIZE || auctionState.team2.length!==AUCTION_ROSTER_SIZE){
+    alert(`Each team needs exactly ${AUCTION_ROSTER_SIZE} players. Team 1: ${auctionState.team1.length}/${AUCTION_ROSTER_SIZE}, Team 2: ${auctionState.team2.length}/${AUCTION_ROSTER_SIZE}`);
     return;
   }
   // Multiplayer names are already synchronised between both browsers.
@@ -9304,6 +9828,8 @@ function finishDraftToLineup(){
   renderRosters();
   [...document.querySelectorAll('select[data-team="team1"]')].forEach((s,i)=>s.value=auctionState.team1[i]);
   [...document.querySelectorAll('select[data-team="team2"]')].forEach((s,i)=>s.value=auctionState.team2[i]);
+  draftDefaults.team1=auctionState.team1.slice(0,AUCTION_STARTERS);
+  draftDefaults.team2=auctionState.team2.slice(0,AUCTION_STARTERS);
   // refresh displayed position ratings
   document.querySelectorAll(".draftSelect").forEach(sel=>sel.dispatchEvent(new Event("change")));
   goPage("sim");
@@ -10218,6 +10744,16 @@ document.getElementById("autoPlayBtn").onclick=()=>{
     alert("Auto Play hit an error: "+err.message);
   }
 };
+document.getElementById("skipSetBtn").onclick=async()=>{
+  try{ await skipToEndOfSet(); }
+  catch(err){
+    console.error(err);
+    if(liveState)liveState.animating=false;
+    document.getElementById("rallyStatus").textContent="Skip to End of Set error";
+    alert("Skip to End of Set hit an error: "+err.message);
+  }
+};
+
 document.getElementById("nextSetBtn").onclick=nextLiveSet;
 document.getElementById("nextPhaseBtn").onclick=()=>{
   if(phaseAdvanceResolver)phaseAdvanceResolver();
@@ -10490,6 +11026,43 @@ vdsSyncGlobalNav();
  Overall remains visible as smaller secondary OVR information.
  This also controls general-card playstyle capacity because capacity follows
  the displayed card tier: Bronze 1, Silver 2, Gold 3.
+*/
+
+/*
+ BUILD C2 — RALLY MOVEMENT / ATTACK GEOMETRY
+ - Diggers and cover players now recover into transition base before the next possession.
+ - Front-row line attacks stay on the pin lane and target the correct deep sideline zone.
+ - Back-row OH attacks are treated as true PIPE attacks from Zone 6 and cross the net centrally.
+ - Gameplay targeting, animation targeting and analytics now use the same pipe/line geometry.
+*/
+
+/*
+ BUILD C2.2 — RALLY POSITIONING
+ - Every transition possession now re-forms BOTH teams before the next set/attack.
+ - Diggers/cover players stop remaining at the contact location.
+ - Attackers occupy distinct Zone 4 / Zone 3 / Zone 2 / pipe Zone 6 / back-row Zone 1 lanes.
+ - Defenders return to stable 5-6-1 backcourt and 4-3-2 frontcourt shapes.
+ - If the setter makes first contact, the setter stays out of the setting window while
+   the libero/nearest emergency setter moves to contact two.
+*/
+
+/*
+ BUILD C2.3 — FIXED RALLY HOMES
+ User-defined defensive system is now authoritative during live rallies:
+   Libero -> Position 5
+   Back-row OH -> Position 6
+   Back-row Setter/Opposite -> Position 1
+ After dig/cover/contact, the contact player and team are explicitly returned home.
+ Serving team enters defensive home shape immediately after the serve.
+*/
+
+/*
+ MULTIPLAYER ROSTER BUILD
+ - Auction budget: $35 per manager.
+ - Draft roster: 8 players per team.
+ - Match lineup remains 6 starters.
+ - Drafted players #7 and #8 are stored/displayed as substitutes.
+ - Substitution controls are intentionally separate from this roster-capacity change.
 */
 </script>
 
