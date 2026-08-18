@@ -3606,10 +3606,47 @@ input:focus,select:focus,textarea:focus{
 .auctionRosterSlot small{font-size:6px;color:#71879b}
 .auctionRosterSlot em{font-size:7px;font-style:normal;color:#53697d}
 @media(max-width:700px){.auctionRosterSlots{grid-template-columns:1fr}}
+
+/* ===== LIVE SUBSTITUTION MANAGER ===== */
+.substitutionPanel{
+  margin:8px 22px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.substitutionTeam{
+  padding:9px 10px;border-radius:11px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(4,15,26,.62);
+}
+.substitutionHead{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin-bottom:7px;font-size:7px;font-weight:1000;letter-spacing:.11em;color:#7890a7;
+}
+.substitutionHead b{color:#d5e1eb}
+.substitutionControls{
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto;
+  gap:6px;align-items:center;
+}
+.substitutionControls select{
+  min-width:0;height:31px;padding:4px 6px;font-size:7px;
+}
+.subArrow{font-size:14px;color:#7690a8}
+.subActionBtn{
+  min-height:31px!important;padding:5px 9px!important;font-size:7px!important;
+  background:#153a55!important;border-color:rgba(74,168,255,.25)!important;
+}
+.subBenchInfo{
+  margin-top:6px;font-size:6px;letter-spacing:.05em;color:#647b91;
+}
+.subBenchInfo span b{color:#aebed0}
+@media(max-width:850px){
+  .substitutionPanel{grid-template-columns:1fr;margin-left:10px;margin-right:10px}
+}
+@media(max-width:560px){
+  .substitutionControls{grid-template-columns:1fr auto 1fr}
+  .subActionBtn{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
-<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.5 · SUB SLOTS</div>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD B2.6 · LIVE SUBS</div>
 
 <div class="app">
 <header class="vdsGlobalHeader">
@@ -3905,6 +3942,29 @@ input:focus,select:focus,textarea:focus{
         <div class="fatigueTeam">
           <div class="fatigueTitle"><span id="fatigueName2">TEAM 2</span> · CONDITION</div>
           <div class="fatigueChips" id="fatigueTeam2"></div>
+        </div>
+      </div>
+
+      <div class="substitutionPanel" id="substitutionPanel">
+        <div class="substitutionTeam" id="substitutionTeam1">
+          <div class="substitutionHead"><span id="subTeamName1">TEAM 1</span><b>SUBSTITUTIONS</b></div>
+          <div class="substitutionControls">
+            <select id="subOut1" aria-label="Team 1 player to substitute out"></select>
+            <span class="subArrow">⇄</span>
+            <select id="subIn1" aria-label="Team 1 substitute to bring in"></select>
+            <button class="btn subActionBtn" id="makeSub1Btn" type="button">Make Sub</button>
+          </div>
+          <div class="subBenchInfo" id="subBenchInfo1"></div>
+        </div>
+        <div class="substitutionTeam" id="substitutionTeam2">
+          <div class="substitutionHead"><span id="subTeamName2">TEAM 2</span><b>SUBSTITUTIONS</b></div>
+          <div class="substitutionControls">
+            <select id="subOut2" aria-label="Team 2 player to substitute out"></select>
+            <span class="subArrow">⇄</span>
+            <select id="subIn2" aria-label="Team 2 substitute to bring in"></select>
+            <button class="btn subActionBtn" id="makeSub2Btn" type="button">Make Sub</button>
+          </div>
+          <div class="subBenchInfo" id="subBenchInfo2"></div>
         </div>
       </div>
 
@@ -8273,6 +8333,140 @@ function callTimeout(team){
   updateLiveUI();
 }
 
+
+/* ===== LIVE SUBSTITUTIONS =====
+   Eight-player roster = six on court + two on bench.
+   A substitute takes the exact role/rotation slot of the player leaving. */
+function substitutionBench(teamNo){
+  if(!liveState)return [];
+  return teamNo===1?(liveState.bench1||[]):(liveState.bench2||[]);
+}
+
+function substitutionLineup(teamNo){
+  if(!liveState)return [];
+  return teamNo===1?liveState.a:liveState.b;
+}
+
+function canControlSubstitutionTeam(teamNo){
+  if(!liveState || liveState.matchFinished || liveState.setFinished || liveState.animating)return false;
+  if(!mpIsConnected())return true;
+  if(mpIsSpectator())return false;
+  return Number(mpTeam)===Number(teamNo);
+}
+
+function renderSubstitutionPanel(){
+  if(!liveState)return;
+
+  [1,2].forEach(teamNo=>{
+    const lineup=substitutionLineup(teamNo);
+    const bench=substitutionBench(teamNo);
+    const outSel=document.getElementById(`subOut${teamNo}`);
+    const inSel=document.getElementById(`subIn${teamNo}`);
+    const btn=document.getElementById(`makeSub${teamNo}Btn`);
+    const info=document.getElementById(`subBenchInfo${teamNo}`);
+    const nameEl=document.getElementById(`subTeamName${teamNo}`);
+
+    if(nameEl)nameEl.textContent=teamNo===1?liveState.name1:liveState.name2;
+    if(!outSel||!inSel||!btn)return;
+
+    const previousOut=outSel.value;
+    const previousIn=inSel.value;
+
+    outSel.innerHTML=lineup.map(p=>{
+      const c=Math.round(playerCondition(p));
+      return `<option value="${esc(p.name)}">${esc(p.name)} · ${p.assignedRole||"—"} · ${c}%</option>`;
+    }).join("");
+
+    inSel.innerHTML=bench.length
+      ? bench.map(p=>{
+          const c=Math.round(playerCondition(p));
+          return `<option value="${esc(p.name)}">${esc(p.name)} · ${p.position||"—"} · ${c}%</option>`;
+        }).join("")
+      : `<option value="">No substitutes available</option>`;
+
+    if([...outSel.options].some(o=>o.value===previousOut))outSel.value=previousOut;
+    if([...inSel.options].some(o=>o.value===previousIn))inSel.value=previousIn;
+
+    const allowed=canControlSubstitutionTeam(teamNo) && bench.length>0;
+    outSel.disabled=!allowed;
+    inSel.disabled=!allowed;
+    btn.disabled=!allowed;
+    btn.title=!allowed
+      ? (liveState.animating?"Wait until the rally finishes":
+         liveState.setFinished?"Start the next set before substituting":
+         mpIsSpectator()?"Spectators cannot make substitutions":
+         mpIsConnected()&&Number(mpTeam)!==teamNo?"Controlled by the other manager":"No substitute available")
+      : "Swap the selected bench player into this exact court role";
+
+    if(info){
+      info.innerHTML=bench.length
+        ? `BENCH: ${bench.map(p=>`<span>${esc(p.name)} <b>${Math.round(playerCondition(p))}%</b></span>`).join(" · ")}`
+        : "BENCH EMPTY";
+    }
+  });
+}
+
+function applySubstitution(teamNo,outName,inName,{remoteRequest=false}={}){
+  if(!liveState)return {ok:false,msg:"No live match."};
+  if(liveState.animating)return {ok:false,msg:"Wait until the current rally finishes."};
+  if(liveState.setFinished||liveState.matchFinished)return {ok:false,msg:"Substitutions are unavailable while the set is finished."};
+
+  const lineup=substitutionLineup(teamNo);
+  const bench=substitutionBench(teamNo);
+  const outIdx=lineup.findIndex(p=>p.name===outName);
+  const inIdx=bench.findIndex(p=>p.name===inName);
+
+  if(outIdx<0)return {ok:false,msg:"The selected on-court player was not found."};
+  if(inIdx<0)return {ok:false,msg:"The selected substitute is not on the bench."};
+
+  const outgoing=lineup[outIdx];
+  const incoming=bench[inIdx];
+  const role=outgoing.assignedRole;
+
+  // Incoming player inherits the exact volleyball slot. Outgoing player joins bench.
+  lineup[outIdx]={...incoming,assignedRole:role};
+  bench[inIdx]={...outgoing};
+
+  addCommentary(`🔄 ${teamNo===1?liveState.name1:liveState.name2}: ${incoming.name} enters for ${outgoing.name} at ${role}.`);
+
+  renderLiveCourtPlayers();
+  updateLiveUI();
+
+  return {ok:true,outgoing:outgoing.name,incoming:incoming.name,role};
+}
+
+async function requestSubstitution(teamNo){
+  if(!liveState)return;
+
+  const outSel=document.getElementById(`subOut${teamNo}`);
+  const inSel=document.getElementById(`subIn${teamNo}`);
+  const outName=outSel?.value;
+  const inName=inSel?.value;
+  if(!outName||!inName)return;
+
+  if(mpIsConnected()){
+    if(mpIsSpectator() || Number(mpTeam)!==Number(teamNo)){
+      alert("You can only make substitutions for your own team.");
+      return;
+    }
+
+    // Host applies Team 1 directly. Guest requests Team 2 from authoritative host.
+    if(mpIsHost()){
+      const result=applySubstitution(teamNo,outName,inName);
+      if(!result.ok){alert(result.msg);return;}
+      await mpSend("match_state",{snapshot:multiplayerMatchSnapshot()});
+    }else{
+      await mpSend("sub_request",{teamNo,outName,inName});
+      const status=document.getElementById("rallyStatus");
+      if(status)status.textContent="Substitution sent to host…";
+    }
+    return;
+  }
+
+  const result=applySubstitution(teamNo,outName,inName);
+  if(!result.ok)alert(result.msg);
+}
+
 function updateLiveUI(){
   if(!liveState) return;
   const s=liveState;
@@ -8289,6 +8483,7 @@ function updateLiveUI(){
   const fn1=document.getElementById("fatigueName1"),fn2=document.getElementById("fatigueName2");
   if(fn1)fn1.textContent=s.name1;if(fn2)fn2.textContent=s.name2;
   renderFatiguePanel();
+  renderSubstitutionPanel();
   const rb1=document.getElementById("rotationBadge1"), rb2=document.getElementById("rotationBadge2");
   if(rb1) rb1.title=rotationSummary(s.a,s.rotation1);
   if(rb2) rb2.title=rotationSummary(s.b,s.rotation2);
@@ -8574,6 +8769,7 @@ function beginLiveMatch(){
   try{
     renderLiveCourtPlayers();
     addCommentary(`Set 1 begins. ${liveState.server===1?liveState.name1:liveState.name2} serves first.`);
+    addCommentary(`🔄 Both managers have two bench players available for live substitutions between rallies.`);
     updateLiveUI();
     applyMultiplayerMatchControls();
     if(mpIsConnected() && mpIsHost()){
@@ -9325,6 +9521,18 @@ async function connectMultiplayer(role,code){
 
       if(bothManagersAgreed()){
         maybeAutoAwardAgreedBid();
+      }
+    })
+    .on("broadcast",{event:"sub_request"},async({payload})=>{
+      if(!mpIsHost() || !payload || !liveState)return;
+      const teamNo=Number(payload.teamNo||0);
+
+      // Only Team 2 requests are expected from the guest in the current host/guest model.
+      if(teamNo!==2)return;
+
+      const result=applySubstitution(teamNo,payload.outName,payload.inName,{remoteRequest:true});
+      if(result.ok){
+        await mpSend("match_state",{snapshot:multiplayerMatchSnapshot()});
       }
     })
     .on("broadcast",{event:"request_snapshot"},()=>{if(mpIsHost())mpSendSnapshot();})
@@ -10774,6 +10982,8 @@ document.getElementById("nextRallyBtn").onclick=async()=>{
     alert("The rally hit an error: "+err.message);
   }
 };
+document.getElementById("makeSub1Btn").onclick=()=>requestSubstitution(1);
+document.getElementById("makeSub2Btn").onclick=()=>requestSubstitution(2);
 document.getElementById("timeout1Btn").onclick=()=>callTimeout(1);
 document.getElementById("timeout2Btn").onclick=()=>callTimeout(2);
 document.getElementById("autoPlayBtn").onclick=()=>{
@@ -11119,6 +11329,17 @@ vdsSyncGlobalNav();
  - Draft now continues after the starting six until each team has 8.
  - Auction roster visibly shows 6 starter slots + SUB 1 + SUB 2.
  - At player #6 the log explicitly says the team still needs two substitutes.
+*/
+
+/*
+ BUILD B2.6 — LIVE SUBSTITUTIONS
+ - The two drafted bench players can now actually enter the match.
+ - Manager chooses OUT player + IN bench player between rallies.
+ - Incoming player inherits the exact OH1/OH2/OP/S/L/M slot and rotation role.
+ - Outgoing player moves to the bench and may later return.
+ - Multiplayer guest sends Team 2 substitution request to host; host applies and
+   broadcasts the authoritative match state to both managers.
+ - Fatigue remains attached to each player's name, so bench/rest condition is preserved.
 */
 </script>
 
