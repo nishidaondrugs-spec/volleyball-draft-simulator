@@ -1,26 +1,26 @@
-function calculatePassQuality(server, passer, serveType=null){
-  const t=serveType||VDS_SERVE_TYPES.jump_float;
-  const serverPhysical=categoryRatings(server).physical;
-
-  const servePressure=
-    server.service*.72 +
-    server.mindset*.12 +
-    serverPhysical*.06 +
-    Number(t.pressure||0);
-
-  let receiveSkill=passer.serveReceive*.55+passer.positioning*.18+passer.reactionTime*.17+passer.mindset*.10;
-  let reliableBonus=0;
-  if(defenseStyleId(passer)==="reliable_receiver"){receiveSkill+=8;reliableBonus=6;}
-  const edge=receiveSkill-servePressure;
-  const roll=Math.random()*100 + edge*.32 + reliableBonus;
-
-  // Direct aces are deliberately rarer. Strong serving is expressed more
-  // often by degrading the pass instead of instantly ending the rally.
-  if(roll<6.5) return {grade:0,score:0,label:"Reception Error",modifier:.35,roll,receiveSkill,servePressure,serveType:t};
-  if(roll<34) return {grade:1,score:1,label:"Poor Pass",modifier:.68,roll,receiveSkill,servePressure,serveType:t};
-  if(roll<70) return {grade:2,score:2,label:"Good Pass",modifier:.88,roll,receiveSkill,servePressure,serveType:t};
-  return {grade:3,score:3,label:"Perfect Pass",modifier:1.06,roll,receiveSkill,servePressure,serveType:t};
-} var(--border);border-radius:14px}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Volleyball Draft Simulator</title>
+<style>
+  :root{
+    --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
+    --muted:#9fb0c7; --blue:#4aa8ff; --red:#ff5f6d; --green:#48d597;
+    --yellow:#ffd166; --border:#243b5c; --shadow:0 14px 40px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#07101d,#0b1524 45%,#08111f);color:var(--text);
+       font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+  button,input,select{font:inherit}
+  .app{max-width:1450px;margin:auto;padding:24px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .ball{font-size:42px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
+  h1{font-size:27px;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .tabs{display:flex;gap:8px;background:#0b1729;padding:6px;border:1px solid var(--border);border-radius:14px}
   .tab{border:0;background:transparent;color:var(--muted);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
   .tab.active{background:var(--blue);color:white}
   .page{display:none}.page.active{display:block}
@@ -3472,16 +3472,13 @@ input:focus,select:focus,textarea:focus{
 
 
 .fifaServeType{
-  margin-top:9px;
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.12em;
-  opacity:.58;
+  margin-top:9px;font-size:7px;font-weight:1000;letter-spacing:.12em;opacity:.58;
 }
-
 </style>
 </head>
 <body>
+<div id="vdsBuildMarker" style="position:fixed;right:8px;bottom:8px;z-index:99999;font:700 9px/1 system-ui;color:#7f95aa;opacity:.45;pointer-events:none">BUILD A · SERVE TYPES</div>
+
 <div class="app">
 <header class="vdsGlobalHeader">
   <button class="vdsBrand" type="button" data-page="home" aria-label="VDS Home">
@@ -6963,8 +6960,6 @@ function renderShotSelector(p, idx){
 
 
 
-/* ===== BUILD A: Serve identity =====
-   No zone targeting yet. Serve type changes risk, pressure and commentary. */
 const VDS_SERVE_TYPES={
   standing_float:{id:"standing_float",name:"Standing Float",errorBase:.028,pressure:-5},
   jump_float:{id:"jump_float",name:"Jump Float",errorBase:.046,pressure:2},
@@ -6972,17 +6967,12 @@ const VDS_SERVE_TYPES={
 };
 
 function chooseServeType(server){
-  // If the manager/player database has an explicit serve preference, use it.
-  // Existing players without one continue to use AUTO logic.
   const preferred=String(server?.serveType||"auto");
-  if(preferred!=="auto" && VDS_SERVE_TYPES[preferred]){
-    return VDS_SERVE_TYPES[preferred];
-  }
+  if(preferred!=="auto" && VDS_SERVE_TYPES[preferred])return VDS_SERVE_TYPES[preferred];
 
   const service=Number(server?.service||0);
   const physical=Number(categoryRatings(server)?.physical||0);
   const mindset=Number(server?.mindset||0);
-
   const weights=[
     {v:VDS_SERVE_TYPES.standing_float,w:Math.max(8,52-service*.38+mindset*.08)},
     {v:VDS_SERVE_TYPES.jump_float,w:Math.max(16,28+service*.18+mindset*.08)},
@@ -6997,34 +6987,24 @@ function chooseServeType(server){
 function serveErrorProbability(server,serveType){
   const t=serveType||VDS_SERVE_TYPES.jump_float;
   const control=Number(server.service||0)*.78+Number(server.mindset||0)*.22;
-  // Typical servers now sit around 3–7%; aggressive topspin carries the risk.
-  let p=t.errorBase + (72-control)*.00075;
-  if(defenseStyleId(server)==="reliable_receiver")p-=.002;
-  return clamp(p,.012,.105);
+  return clamp(t.errorBase+(72-control)*.00075,.012,.105);
 }
-function calculatePassQuality(server, passer){
-  // Volleyball-style reception score:
-  // 0 = reception error / ace
-  // 1 = poor pass, setter taken well off target
-  // 2 = good playable pass
-  // 3 = perfect pass, full offence available
-  const serverPhysical=categoryRatings(server).physical;
 
-  const servePressure=
-    server.service*.72 +
-    server.mindset*.12 +
-    serverPhysical*.06;
+function calculatePassQuality(server, passer, serveType=null){
+  const t=serveType||VDS_SERVE_TYPES.jump_float;
+  const serverPhysical=categoryRatings(server).physical;
+  const servePressure=server.service*.72+server.mindset*.12+serverPhysical*.06+Number(t.pressure||0);
 
   let receiveSkill=passer.serveReceive*.55+passer.positioning*.18+passer.reactionTime*.17+passer.mindset*.10;
   let reliableBonus=0;
   if(defenseStyleId(passer)==="reliable_receiver"){receiveSkill+=8;reliableBonus=6;}
   const edge=receiveSkill-servePressure;
-  const roll=Math.random()*100 + edge*.32 + reliableBonus;
+  const roll=Math.random()*100+edge*.32+reliableBonus;
 
-  if(roll<13) return {grade:0,score:0,label:"Reception Error",modifier:.35,roll,receiveSkill,servePressure};
-  if(roll<39) return {grade:1,score:1,label:"Poor Pass",modifier:.68,roll,receiveSkill,servePressure};
-  if(roll<72) return {grade:2,score:2,label:"Good Pass",modifier:.88,roll,receiveSkill,servePressure};
-  return {grade:3,score:3,label:"Perfect Pass",modifier:1.06,roll,receiveSkill,servePressure};
+  if(roll<6.5)return {grade:0,score:0,label:"Reception Error",modifier:.35,roll,receiveSkill,servePressure,serveType:t};
+  if(roll<34)return {grade:1,score:1,label:"Poor Pass",modifier:.68,roll,receiveSkill,servePressure,serveType:t};
+  if(roll<70)return {grade:2,score:2,label:"Good Pass",modifier:.88,roll,receiveSkill,servePressure,serveType:t};
+  return {grade:3,score:3,label:"Perfect Pass",modifier:1.06,roll,receiveSkill,servePressure,serveType:t};
 }
 
 function servingPlayer(team,rotation){
@@ -7149,10 +7129,10 @@ function setQualityText(sq,setter){
 function passQualityText(pq, passer, server){
   const g=`<span class="setGrade">PASS ${pq.score}/3</span>`;
   const serveName=pq?.serveType?.name||"Serve";
-  if(pq.grade===0) return `${g} 💥 ${server.name}'s ${serveName.toLowerCase()} overwhelms ${passer.name} — ace/reception error.`;
-  if(pq.grade===1) return `${g} 🟠 ${passer.name} keeps the ${serveName.toLowerCase()} alive but is pushed well off the setter's target.`;
-  if(pq.grade===2) return `${g} 🟢 ${passer.name} controls the serve — a good, playable pass.`;
-  return `${g} 💎 ${passer.name} puts the ball right onto the setter's target — full offence available.`;
+  if(pq.grade===0)return `${g} 💥 ${server.name}'s ${serveName.toLowerCase()} overwhelms ${passer.name} — ace/reception error.`;
+  if(pq.grade===1)return `${g} 🟠 ${passer.name} keeps the ${serveName.toLowerCase()} alive but is pushed well off the setter's target.`;
+  if(pq.grade===2)return `${g} 🟢 ${passer.name} controls the ${serveName.toLowerCase()} — a good, playable pass.`;
+  return `${g} 💎 ${passer.name} puts the ${serveName.toLowerCase()} right onto the setter's target — full offence available.`;
 }
 
 function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
@@ -7352,16 +7332,8 @@ function defenderForShot(defendingTeam,defRot,attacker,shotInfo){
   let eligible=defendingTeam.filter(p=>{
     const z=zones[p.name];
     if(!z)return false;
-
-    // Deep 1/5/6 balls belong to backcourt defence. A front-row middle will
-    // no longer magically receive a deep Zone 5 cross.
     if(target.depth==="deep"||target.depth==="very_deep")return !!z.back;
-
-    // Short attacks are primarily handled by front defenders, but back-row
-    // chasers may pursue them.
-    if(target.depth==="short"){
-      return !!z.front || defenseStyleId(p)==="chaser";
-    }
+    if(target.depth==="short")return !!z.front || defenseStyleId(p)==="chaser";
     return true;
   });
   if(!eligible.length)eligible=defendingTeam;
@@ -7371,7 +7343,6 @@ function defenderForShot(defendingTeam,defRot,attacker,shotInfo){
     const current=Number(z.zone)||6;
     const dist=Math.min(...targetZones.map(t=>zoneDistance(current,t)));
     const exact=targetZones.includes(current);
-
     let reach=100-dist*24;
     if(exact)reach+=42;
     if((target.depth==="deep"||target.depth==="very_deep")&&z.back)reach+=26;
@@ -7380,15 +7351,11 @@ function defenderForShot(defendingTeam,defRot,attacker,shotInfo){
 
     const style=defenseStyleId(p);
     if(style==="chaser")reach+=target.depth==="short"||target.family==="sharp_cross"?32:12;
-    if(style==="court_reader"){
-      reach+=["cross","line","roll","seam"].includes(target.family)?20:7;
-      if(attackStyleId(attacker)==="shot_maker"||Number(attacker?.creativity||0)>=85)reach-=10;
-    }
+    if(style==="court_reader")reach+=["cross","line","roll","seam"].includes(target.family)?20:7;
     if(style==="deep_court_guardian"){
       if(target.depth==="deep"||target.depth==="very_deep")reach+=34;
       if(target.depth==="short")reach-=28;
     }
-
     const skill=p.covering*.28+p.reactionTime*.27+p.speed*.27+p.serveReceive*.18;
     return Math.max(1,(skill+reach)*.5);
   });
@@ -7712,11 +7679,8 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   }
 
   const emergencyIntro=
-    emergencySetterMode==="libero"
-      ?`🛡️ ${setter.name} steps in to take the second contact. `
-      :emergencySetterMode==="nearest"
-        ?`🆘 ${setter.name} is nearest and takes the emergency second contact. `
-        :"";
+    emergencySetterMode==="libero"?`🛡️ ${setter.name} steps in to take the second contact. `:
+    emergencySetterMode==="nearest"?`🆘 ${setter.name} is nearest and takes the emergency second contact. `:"";
   const setIntro=emergencyIntro+setQualityText(setGrade,setter);
   const decision=outOfSystem
     ?`OUT OF SYSTEM: ${setter.name} sends a slow high ball to outside hitter ${attacker.name}, giving the block time to load up`
@@ -7917,35 +7881,27 @@ function designatedSetter(team){
 
 function transitionSetter(team,firstContactPlayer,rotation,passQuality,sourceType="dig"){
   const normal=designatedSetter(team);
-  if(!firstContactPlayer || normal?.name!==firstContactPlayer.name){
-    return {player:normal,mode:"normal"};
-  }
+  if(!firstContactPlayer || normal?.name!==firstContactPlayer.name)return {player:normal,mode:"normal"};
 
   const candidates=team.filter(p=>p.name!==firstContactPlayer.name);
   if(!candidates.length)return {player:null,mode:"none"};
   const zones=effectiveSixOneZones(team,rotation);
   const firstZone=Number(zones[firstContactPlayer.name]?.zone)||6;
 
-  // Setter made contact one. On a controlled ball the libero is the preferred
-  // second-contact player.
   const libero=team.find(p=>p.assignedRole==="L"&&p.name!==firstContactPlayer.name);
-  if(libero && Number(passQuality?.grade||0)>=2){
-    return {player:libero,mode:"libero"};
-  }
+  if(libero && Number(passQuality?.grade||0)>=2)return {player:libero,mode:"libero"};
 
-  // Scramble: proximity beats pure setting rating.
   const ranked=candidates.map(p=>{
     const z=Number(zones[p.name]?.zone)||6;
     const dist=zoneDistance(firstZone,z);
-    let score=100-dist*30;
-    score+=Number(p.setting||0)*.12+Number(p.reactionTime||0)*.08+Number(p.positioning||0)*.06;
+    let score=100-dist*30+Number(p.setting||0)*.12+Number(p.reactionTime||0)*.08+Number(p.positioning||0)*.06;
     if(p.assignedRole==="L")score+=6;
     if(defenseStyleId(p)==="chaser")score+=5;
     return {p,score};
   }).sort((a,b)=>b.score-a.score);
-
   return {player:ranked[0]?.p||null,mode:"nearest"};
 }
+
 
 function receptionCandidates(team,rotation){
   const R=lineupRoles(team);
@@ -8162,7 +8118,7 @@ function maybeActualServeError(team,rotation,forcedServeType=null){
   const pressure=Math.min(1.28,pressureFactor(liveState));
   const p=serveErrorProbability(server,serveType)*pressure;
   if(Math.random()<p){
-    return {type:"Serve",player:server,serveType,
+    return {type:"Serve",player:server,serveType,error:true,
       text:`${server.name}'s ${serveType.name.toLowerCase()} misses — service error.`};
   }
   return {type:"ServeIn",player:server,serveType,error:false};
@@ -8191,7 +8147,7 @@ async function playLiveRally(){
   const servingRot=servingTeamNo===1?s.rotation1:s.rotation2;
 
   const serveAttempt=maybeActualServeError(servingTeam,servingRot);
-  let errorEvent=serveAttempt?.error===false?null:serveAttempt;
+  let errorEvent=serveAttempt?.error?serveAttempt:null;
   const serveType=serveAttempt?.serveType||VDS_SERVE_TYPES.jump_float;
   let rallyEvt=null;
   let team1Wins=false;
@@ -10352,26 +10308,6 @@ vdsSyncGlobalNav();
  Overall remains visible as smaller secondary OVR information.
  This also controls general-card playstyle capacity because capacity follows
  the displayed card tier: Bronze 1, Silver 2, Gold 3.
-*/
-
-/*
- BUILD A
- - Serve types: Standing Float / Jump Float / Jump Topspin.
- - Serve type changes pressure and error risk; no serve-zone targeting yet.
- - Direct ace and service-error frequency reduced; serve pressure more often
-   produces worse reception rather than an instant point.
- - Deep 1/5/6 attacks are defended by back-row players only.
- - Setter first contact -> controlled ball prefers libero for contact two;
-   scramble ball -> nearest available teammate.
-*/
-
-/*
- PLAYER SERVE TYPE
- Each player can now be assigned:
- AUTO / Standing Float / Jump Float / Jump Topspin.
- AUTO keeps the previous stat-driven serve selection.
- An explicit preference makes that player use the chosen serve type.
- Service rating still controls pressure/control within that serve type.
 */
 </script>
 
