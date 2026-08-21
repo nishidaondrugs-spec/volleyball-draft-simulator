@@ -10774,6 +10774,26 @@ body{
   .lineupCardNatural{font-size:6px;bottom:11px}
   #lineup .benchPlayers{grid-template-columns:1fr 1fr}
 }
+
+/* =========================================================
+   B3.09 — MULTIPLAYER MINI DRAFT GUEST CONTROL FIX
+   ========================================================= */
+#minidraft .miniDraftSlot:not(:disabled){
+  cursor:pointer!important;
+  pointer-events:auto!important;
+}
+#minidraft .miniDraftChoiceCard:not(:disabled){
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  position:relative;
+  z-index:5;
+}
+#minidraft .miniDraftSlot:disabled{
+  cursor:default;
+}
+#multiplayerModal:not(.show){
+  pointer-events:none!important;
+}
 </style>
 </head>
 <body>
@@ -17996,12 +18016,25 @@ async function connectMultiplayer(role,code){
     .on("broadcast",{event:"auction_state"},({payload})=>mpApplyAuction(payload.auctionState))
     .on("broadcast",{event:"draft_pool_state"},({payload})=>{
       if(mpIsHost())return;
+      closeMultiplayer();
       applyRemoteDraftPoolState(payload);
     })
     .on("broadcast",{event:"mini_draft_start"},({payload})=>{
       if(mpIsHost())return;
+
+      // Host started Mini Draft: automatically dismiss the lobby on the guest.
+      // The modal previously remained above the game page and intercepted every click.
+      closeMultiplayer();
+
       if(payload?.draftPoolState)draftPoolState=JSON.parse(JSON.stringify(payload.draftPoolState));
       applyRemoteMiniDraftState(payload?.miniDraftState);
+
+      // Guest is Player 2 and must immediately have control of Team 2's draft slots.
+      if(mpRole==="guest")mpTeam=2;
+      renderMiniDraft();
+
+      const status=document.getElementById("miniDraftStatus");
+      if(status)status.textContent="Mini Draft started · choose one of your Team 2 slots.";
     })
     .on("broadcast",{event:"lineup_confirm_request"},async({payload})=>{
       if(!mpIsHost()||!payload)return;
@@ -18066,6 +18099,10 @@ async function connectMultiplayer(role,code){
     })
     .on("broadcast",{event:"mini_choices_offer"},({payload})=>{
       if(!payload||Number(mpTeam)!==Number(payload.teamNo))return;
+
+      // Never let the multiplayer lobby sit over an active draft interaction.
+      closeMultiplayer();
+
       miniDraftPendingSlots[Number(payload.teamNo)]?.add(payload.slotKey);
       renderMiniDraft();
       showMiniDraftOffer(payload.teamNo,payload.slotKey,payload.names||[]);
@@ -18593,7 +18630,12 @@ function renderMiniDraft(){
     if(count)count.textContent=`${Object.values(team).filter(Boolean).length}/8`;
     if(!box)return;
 
-    const canControl=!mpIsSpectator() && (miniDraftIsLocal() || Number(mpTeam)===teamNo);
+    const canControl=!mpIsSpectator() && (
+      miniDraftIsLocal() ||
+      Number(mpTeam)===teamNo ||
+      (mpRole==="guest" && teamNo===2) ||
+      (mpRole==="host" && teamNo===1)
+    );
     box.innerHTML=MINI_DRAFT_SLOTS.map(slot=>{
       const name=team[slot.key];
       const p=name?players.find(x=>x.name===name):null;
@@ -18638,6 +18680,9 @@ function showMiniDraftOffer(teamNo,slotKey,names){
   wrap.classList.remove("hidden");
   if(title)title.textContent=`Choose ${slot?.label||slotKey}`;
 
+  const status=document.getElementById("miniDraftStatus");
+  if(status)status.textContent=`Choose 1 of 3 for ${slot?.label||slotKey}`;
+
   cards.innerHTML=names.map(name=>{
     const p=players.find(x=>x.name===name);
     if(!p)return "";
@@ -18654,7 +18699,13 @@ function showMiniDraftOffer(teamNo,slotKey,names){
 async function requestMiniDraftChoices(teamNo,slotKey){
   teamNo=Number(teamNo);
   if(mpIsSpectator())return;
-  if(mpIsConnected() && Number(mpTeam)!==teamNo)return;
+  if(mpIsConnected()){
+    const ownsTeam=
+      Number(mpTeam)===teamNo ||
+      (mpRole==="guest" && teamNo===2) ||
+      (mpRole==="host" && teamNo===1);
+    if(!ownsTeam)return;
+  }
   if(![1,2].includes(teamNo))return;
   if(miniDraftState[`team${teamNo}`]?.[slotKey])return;
   if(miniDraftPendingSlots[teamNo]?.has(slotKey))return;
@@ -18679,7 +18730,22 @@ async function requestMiniDraftChoices(teamNo,slotKey){
     miniDraftHostOffers[teamNo]={slotKey,names};
     showMiniDraftOffer(teamNo,slotKey,names);
   }else{
+    const status=document.getElementById("miniDraftStatus");
+    if(status)status.textContent=`Loading choices for ${slotKey}…`;
+
     await mpSend("mini_choices_request",{teamNo,slotKey});
+
+    // If the realtime response is delayed, don't leave the UI looking dead forever.
+    setTimeout(()=>{
+      if(
+        miniDraftPendingSlots[teamNo]?.has(slotKey) &&
+        !miniDraftLocalOffer &&
+        !miniDraftState[`team${teamNo}`]?.[slotKey]
+      ){
+        const s=document.getElementById("miniDraftStatus");
+        if(s)s.textContent="Waiting for host to send your 3 player choices…";
+      }
+    },900);
   }
 }
 
@@ -21900,6 +21966,16 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
    Rare Gold and Special.
  - Existing dropdown swapping, bench swapping, multiplayer locks and
    lineup confirmation flow remain intact.
+*/
+
+/*
+ BUILD B3.09 — MULTIPLAYER MINI DRAFT GUEST FIX
+ - Guest lobby closes automatically when the host starts Mini Draft.
+ - Guest is explicitly granted Team 2 slot control.
+ - Player-choice cards remain clickable for the guest.
+ - Multiplayer modal can no longer invisibly intercept draft clicks.
+ - Guest sees loading/waiting feedback while host generates the 1-of-3.
+ - Auction Draft guest transition also closes the lobby automatically.
 */
 </script>
 
