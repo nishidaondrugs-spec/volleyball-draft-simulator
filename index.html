@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.7 FUT Proportion Pass</title>
+<title>Volleyball Draft Simulator — B8.9 Slim Ultimate Team Topbar</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -26731,6 +26731,691 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B88_UT_TOPBAR_MISSIONS_DROPDOWN">
+/* Stage 6E8 — replace the bulky UT hero/tabs with a compact game-like UT top bar. */
+#ultimate .vdsUTHeader,
+#ultimate .vdsUTHubNavigation{
+  display:none!important;
+}
+#ultimate .vdsUTShell{
+  overflow:visible!important;
+}
+#ultimate .vdsUTHubInstances{
+  margin-top:10px!important;
+}
+#ultimate .vdsUTInstanceIntro{
+  margin-bottom:12px!important;
+}
+
+#ultimate .vdsUTCompactTopBar{
+  position:relative;
+  z-index:6;
+  width:calc(100% - 24px);
+  margin:14px auto 10px;
+  padding:14px 16px;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 80% 0,rgba(58,138,215,.13),transparent 26%),
+    linear-gradient(145deg,rgba(5,19,33,.94),rgba(3,12,22,.95));
+  box-shadow:0 18px 50px rgba(0,0,0,.18);
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) auto;
+  gap:14px;
+}
+#ultimate .vdsUTCompactLeft{
+  display:flex;
+  align-items:end;
+  gap:18px;
+  min-width:0;
+}
+#ultimate .vdsUTCompactBrand{
+  min-width:0;
+}
+#ultimate .vdsUTCompactBrand small{
+  display:block;
+  color:#62aef0;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.2em;
+}
+#ultimate .vdsUTCompactBrand b{
+  display:block;
+  margin-top:4px;
+  font-size:28px;
+  line-height:.96;
+  letter-spacing:-.04em;
+}
+#ultimate .vdsUTCompactSection{
+  min-width:170px;
+}
+#ultimate .vdsUTCompactSection label{
+  display:block;
+  margin-bottom:6px;
+  color:#6f8da3;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+#ultimate .vdsUTCompactSection select{
+  width:100%;
+  min-height:42px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#071a2b;
+  color:#eef7ff;
+  padding:0 12px;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.09em;
+  outline:none;
+}
+
+#ultimate .vdsUTCompactRight{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#ultimate .vdsUTCompactPill,
+#ultimate .vdsUTCompactWallet,
+#ultimate .vdsUTCompactAccount{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  background:rgba(3,15,27,.72);
+}
+#ultimate .vdsUTCompactPill{
+  position:relative;
+  min-height:46px;
+  padding:0 14px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  color:#eff6fc;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.14em;
+  white-space:nowrap;
+}
+#ultimate .vdsUTCompactPill b{
+  color:#55d995;
+  font-size:10px;
+  letter-spacing:0;
+}
+#ultimate .vdsUTCompactPill:hover{
+  background:rgba(255,255,255,.045);
+}
+#ultimate .vdsUTCompactStat{
+  min-width:70px;
+  min-height:46px;
+  padding:8px 11px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+#ultimate .vdsUTCompactStat span{
+  color:#6f8ca0;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+#ultimate .vdsUTCompactStat b{
+  display:block;
+  margin-top:4px;
+  font-size:18px;
+  line-height:1;
+}
+#ultimate .vdsUTCompactWallet{
+  min-width:125px;
+  min-height:46px;
+  padding:8px 12px;
+  box-sizing:border-box;
+  background:
+    radial-gradient(circle at 50% 0,rgba(236,198,74,.10),transparent 62%),
+    rgba(4,16,28,.86);
+  border-color:rgba(229,189,62,.18);
+}
+#ultimate .vdsUTCompactWallet span{
+  display:block;
+  color:#907f48;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+#ultimate .vdsUTCompactWallet b{
+  display:block;
+  margin-top:4px;
+  color:#f1d068;
+  font-size:22px;
+  line-height:1;
+}
+#ultimate .vdsUTCompactAccount{
+  min-height:46px;
+  min-width:180px;
+  padding:7px 10px 7px 7px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  cursor:pointer;
+}
+#ultimate .vdsUTCompactAccount:hover{
+  background:rgba(255,255,255,.04);
+}
+#ultimate .vdsUTCompactAccountAvatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  overflow:hidden;
+  flex:0 0 auto;
+}
+#ultimate .vdsUTCompactAccountAvatar img,
+#ultimate .vdsUTCompactAccountAvatar .vdsAccountAvatar,
+#ultimate .vdsUTCompactAccountAvatar .vdsAccountAvatarFallback{
+  width:32px!important;
+  height:32px!important;
+  margin:0!important;
+}
+#ultimate .vdsUTCompactAccountMeta{
+  min-width:0;
+}
+#ultimate .vdsUTCompactAccountMeta b{
+  display:block;
+  font-size:9px;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#ultimate .vdsUTCompactAccountMeta span{
+  display:block;
+  margin-top:3px;
+  color:#6e879b;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+
+#ultimate .vdsUTCompactMissionPanel{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:16px;
+  width:min(420px,calc(100vw - 44px));
+  padding:14px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 80% 0,rgba(58,138,215,.10),transparent 24%),
+    linear-gradient(180deg,rgba(5,18,31,.98),rgba(3,11,20,.98));
+  box-shadow:0 24px 65px rgba(0,0,0,.34);
+  display:none;
+}
+#ultimate .vdsUTCompactMissionPanel.open{display:block}
+#ultimate .vdsUTCompactMissionHead{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+#ultimate .vdsUTCompactMissionHead small{
+  display:block;
+  color:#67b4f4;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+#ultimate .vdsUTCompactMissionHead b{
+  display:block;
+  margin-top:4px;
+  font-size:19px;
+  letter-spacing:-.03em;
+}
+#ultimate .vdsUTCompactMissionOpen{
+  border:0;
+  background:rgba(36,127,199,.16);
+  color:#cce8ff;
+  border-radius:10px;
+  padding:9px 11px;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.13em;
+  cursor:pointer;
+}
+#ultimate .vdsUTCompactMissionList{
+  margin-top:12px;
+  display:grid;
+  gap:8px;
+}
+#ultimate .vdsUTCompactMissionItem{
+  padding:10px 11px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+#ultimate .vdsUTCompactMissionItemTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#ultimate .vdsUTCompactMissionItemTop span{
+  color:#e7f1f8;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+#ultimate .vdsUTCompactMissionItemTop b{
+  color:#f1d068;
+  font-size:8px;
+  font-weight:1000;
+}
+#ultimate .vdsUTCompactMissionItem small{
+  display:block;
+  margin-top:6px;
+  color:#7d97ab;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+#ultimate .vdsUTCompactMissionItem.done{
+  border-color:rgba(85,217,149,.18);
+  background:rgba(85,217,149,.05);
+}
+#ultimate .vdsUTCompactMissionItem.done small{color:#6cdca0}
+
+@media(max-width:980px){
+  #ultimate .vdsUTCompactTopBar{
+    grid-template-columns:1fr;
+  }
+  #ultimate .vdsUTCompactRight{
+    justify-content:flex-start;
+  }
+}
+@media(max-width:620px){
+  #ultimate .vdsUTCompactTopBar{
+    width:calc(100% - 16px);
+    margin:10px auto 8px;
+    padding:12px;
+    border-radius:16px;
+    gap:12px;
+  }
+  #ultimate .vdsUTCompactLeft{
+    align-items:stretch;
+    flex-direction:column;
+    gap:10px;
+  }
+  #ultimate .vdsUTCompactBrand b{
+    font-size:23px;
+  }
+  #ultimate .vdsUTCompactSection{
+    min-width:0;
+  }
+  #ultimate .vdsUTCompactRight{
+    gap:8px;
+  }
+  #ultimate .vdsUTCompactPill{
+    order:-1;
+    width:100%;
+    justify-content:space-between;
+  }
+  #ultimate .vdsUTCompactStat{
+    min-width:62px;
+  }
+  #ultimate .vdsUTCompactWallet{
+    min-width:105px;
+  }
+  #ultimate .vdsUTCompactAccount{
+    min-width:0;
+    flex:1 1 100%;
+  }
+  #ultimate .vdsUTCompactMissionPanel{
+    right:8px;
+    left:8px;
+    width:auto;
+  }
+}
+</style>
+
+
+<style id="VDS_B89_SLIM_UT_TOPBAR">
+/* Stage 6E9 — slim single-row Ultimate Team command bar. */
+#ultimate .vdsUTCompactTopBar{
+  width:calc(100% - 24px)!important;
+  min-height:64px!important;
+  margin:12px auto 9px!important;
+  padding:8px 10px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  grid-template-columns:none!important;
+  border-radius:15px!important;
+  background:
+    radial-gradient(circle at 82% 0,rgba(55,137,211,.10),transparent 27%),
+    linear-gradient(180deg,rgba(5,18,30,.96),rgba(3,13,22,.96))!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  box-shadow:0 15px 34px rgba(0,0,0,.16)!important;
+}
+
+#ultimate .vdsUTCompactLeft,
+#ultimate .vdsUTCompactRight{
+  display:none!important;
+}
+
+#ultimate .vdsUTSlimBrand{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 8px 0 2px;
+}
+#ultimate .vdsUTSlimMark{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#44a6ef,#1a619c);
+  border:1px solid rgba(119,196,250,.24);
+  box-shadow:0 8px 18px rgba(29,113,178,.17);
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.04em;
+}
+#ultimate .vdsUTSlimBrandText small{
+  display:block;
+  color:#63849c;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.22em;
+}
+#ultimate .vdsUTSlimBrandText b{
+  display:block;
+  margin-top:2px;
+  color:#f1f7fc;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+
+#ultimate .vdsUTSlimSection{
+  flex:0 0 160px;
+  position:relative;
+}
+#ultimate .vdsUTSlimSection:after{
+  content:"⌄";
+  position:absolute;
+  right:11px;
+  top:50%;
+  transform:translateY(-52%);
+  color:#6f8ba0;
+  pointer-events:none;
+  font-size:9px;
+}
+#ultimate .vdsUTSlimSection select{
+  width:100%;
+  height:40px;
+  appearance:none;
+  -webkit-appearance:none;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.065);
+  background:rgba(255,255,255,.022);
+  color:#edf6fd;
+  padding:0 28px 0 11px;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.12em;
+  outline:none;
+  cursor:pointer;
+}
+#ultimate .vdsUTSlimSection select:hover{
+  border-color:rgba(80,167,232,.20);
+  background:rgba(255,255,255,.034);
+}
+
+#ultimate .vdsUTSlimSpacer{
+  flex:1 1 auto;
+  min-width:12px;
+}
+
+#ultimate .vdsUTSlimMissionButton{
+  flex:0 0 auto;
+  min-height:40px;
+  padding:0 11px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.065);
+  background:rgba(255,255,255,.018);
+  color:#a5bbcc;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  cursor:pointer;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.13em;
+}
+#ultimate .vdsUTSlimMissionButton:hover{
+  color:#e6f1f8;
+  background:rgba(255,255,255,.035);
+}
+#ultimate .vdsUTSlimMissionButton b{
+  min-width:27px;
+  padding:4px 6px;
+  border-radius:999px;
+  background:rgba(75,210,138,.08);
+  color:#61db94;
+  font-size:7px;
+  letter-spacing:0;
+}
+
+#ultimate .vdsUTSlimStat{
+  flex:0 0 auto;
+  min-width:52px;
+  height:40px;
+  box-sizing:border-box;
+  padding:6px 9px;
+  border-left:1px solid rgba(255,255,255,.055);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+#ultimate .vdsUTSlimStat span{
+  color:#5f7f96;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+#ultimate .vdsUTSlimStat b{
+  margin-top:2px;
+  color:#e9f3fa;
+  font-size:12px;
+  line-height:1;
+}
+
+#ultimate .vdsUTSlimWallet{
+  flex:0 0 auto;
+  height:40px;
+  min-width:88px;
+  box-sizing:border-box;
+  padding:0 11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border-radius:10px;
+  border:1px solid rgba(229,190,64,.14);
+  background:
+    radial-gradient(circle at 50% 0,rgba(237,197,68,.09),transparent 66%),
+    rgba(239,199,66,.02);
+  color:#edcc64;
+}
+#ultimate .vdsUTSlimWallet span{
+  font-size:14px;
+}
+#ultimate .vdsUTSlimWallet b{
+  font-size:13px;
+  font-weight:1000;
+}
+
+#ultimate .vdsUTSlimAccount{
+  flex:0 0 auto;
+  min-width:168px;
+  height:44px;
+  padding:5px 8px 5px 5px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.065);
+  background:rgba(255,255,255,.018);
+  color:#edf5fb;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+}
+#ultimate .vdsUTSlimAccount:hover{
+  background:rgba(255,255,255,.034);
+}
+#ultimate .vdsUTSlimAvatar{
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  border-radius:50%;
+  overflow:hidden;
+}
+#ultimate .vdsUTSlimAvatar img,
+#ultimate .vdsUTSlimAvatar .vdsAccountAvatar,
+#ultimate .vdsUTSlimAvatar .vdsAccountAvatarFallback{
+  width:32px!important;
+  height:32px!important;
+  margin:0!important;
+}
+#ultimate .vdsUTSlimAccountMeta{
+  min-width:0;
+  flex:1;
+  text-align:left;
+}
+#ultimate .vdsUTSlimAccountMeta b{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:8px;
+  line-height:1.1;
+}
+#ultimate .vdsUTSlimAccountMeta span{
+  display:block;
+  margin-top:3px;
+  color:#647f94;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+#ultimate .vdsUTSlimAccount>i{
+  color:#668299;
+  font-style:normal;
+  font-size:11px;
+}
+
+/* Missions dropdown now aligns tightly below the command bar. */
+#ultimate .vdsUTCompactMissionPanel{
+  top:calc(100% + 6px)!important;
+  right:10px!important;
+  width:min(400px,calc(100vw - 38px))!important;
+  border-radius:14px!important;
+}
+
+/* Reduce excess empty space above the actual UT instance. */
+#ultimate .vdsUTHubInstances{
+  margin-top:7px!important;
+}
+#ultimate .vdsUTInstanceIntro{
+  margin-bottom:9px!important;
+}
+#ultimate .vdsUTInstanceIntro small{
+  font-size:6px!important;
+}
+#ultimate .vdsUTInstanceIntro h2{
+  font-size:23px!important;
+  margin-top:3px!important;
+}
+#ultimate .vdsUTInstanceIntro p{
+  margin-top:4px!important;
+  font-size:7px!important;
+}
+
+/* Mobile becomes a clean two-row command bar instead of a tall dashboard. */
+@media(max-width:760px){
+  #ultimate .vdsUTCompactTopBar{
+    width:calc(100% - 12px)!important;
+    min-height:0!important;
+    padding:8px!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+  }
+
+  #ultimate .vdsUTSlimBrand{
+    flex:1 1 auto;
+  }
+  #ultimate .vdsUTSlimBrandText b{
+    font-size:9px;
+  }
+
+  #ultimate .vdsUTSlimSection{
+    order:3;
+    flex:1 1 100%;
+  }
+  #ultimate .vdsUTSlimSection select{
+    height:38px;
+  }
+
+  #ultimate .vdsUTSlimSpacer{
+    display:none;
+  }
+
+  #ultimate .vdsUTSlimMissionButton{
+    order:4;
+    flex:1 1 auto;
+    justify-content:center;
+    min-height:38px;
+  }
+
+  #ultimate .vdsUTSlimStat{
+    display:none;
+  }
+
+  #ultimate .vdsUTSlimWallet{
+    min-width:76px;
+    height:38px;
+    padding:0 8px;
+  }
+  #ultimate .vdsUTSlimWallet b{
+    font-size:11px;
+  }
+
+  #ultimate .vdsUTSlimAccount{
+    min-width:0;
+    width:42px;
+    height:42px;
+    padding:4px;
+    justify-content:center;
+  }
+  #ultimate .vdsUTSlimAccountMeta,
+  #ultimate .vdsUTSlimAccount>i{
+    display:none;
+  }
+
+  #ultimate .vdsUTCompactMissionPanel{
+    left:6px!important;
+    right:6px!important;
+    width:auto!important;
+  }
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -27347,11 +28032,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.7-STAGE6E7">
+<section id="ultimate" class="page" data-vds-build="B8.9-STAGE6E9">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E7 · FUT PROPORTION PASS</div>
+        <div class="vdsUTBuildBadge">STAGE 6E9 · SLIM UT TOPBAR</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -45086,6 +45771,213 @@ VDS B8.7 STAGE 6E7 — FUT PROPORTION PASS
 - Desktop squad cards were made slightly more compact and grouped more tightly.
 - Mobile squad cards were intentionally reduced to feel closer to the reference phone squad-builder UI.
 - Chemistry logic, drag/drop, roster logic, and all gameplay behaviour remain unchanged.
+-->
+
+
+<script id="VDS_B88_UT_TOPBAR_MISSIONS_JS">
+(function(){
+  const SECTION_OPTIONS=[
+    ["home","HOME"],
+    ["squad","CLUB SQUAD"],
+    ["packs","PACK STORE"],
+    ["club","MY CLUB"],
+    ["profile","CLUB PROFILE"]
+  ];
+
+  function vdsB88ParseProgress(text){
+    const m=(text||"").match(/(\d+)\s*\/\s*(\d+)/);
+    if(!m) return {done:false, current:0, total:0};
+    return {done:Number(m[1])>=Number(m[2]) && Number(m[2])>0, current:Number(m[1]), total:Number(m[2])};
+  }
+
+  function vdsB88MissionData(){
+    const firstWinStatus=(document.getElementById("utFirstWinStatus")?.textContent||"").trim();
+    const play1=(document.getElementById("utObjPlay1Status")?.textContent||"0 / 1").trim();
+    const win1=(document.getElementById("utObjWin1Status")?.textContent||"0 / 1").trim();
+    const play3=(document.getElementById("utObjPlay3Status")?.textContent||"0 / 3").trim();
+
+    const firstDone=/CLAIMED|COMPLETED|DONE/i.test(firstWinStatus);
+    const p1=vdsB88ParseProgress(play1);
+    const w1=vdsB88ParseProgress(win1);
+    const p3=vdsB88ParseProgress(play3);
+
+    return [
+      {title:"First Win Today", reward:"+200 ◉", status:firstWinStatus||"AVAILABLE TODAY", done:firstDone},
+      {title:"Play 1 Match", reward:"+100 ◉", status:play1, done:p1.done},
+      {title:"Win 1 Match", reward:"+150 ◉", status:win1, done:w1.done},
+      {title:"Play 3 Matches", reward:"+200 ◉", status:play3, done:p3.done}
+    ];
+  }
+
+  function vdsB88ActiveSection(){
+    const activeBtn=document.querySelector('#ultimate .vdsUTHubTab.active');
+    const activeSelect=document.getElementById('vdsUTCompactSectionSelect');
+    if(activeSelect && activeSelect.value) return activeSelect.value;
+    if(activeBtn?.dataset.utNav) return activeBtn.dataset.utNav;
+    return (typeof vdsUltimateHubActive!=="undefined" && vdsUltimateHubActive) ? vdsUltimateHubActive : "squad";
+  }
+
+  function vdsB88ActiveLabel(id){
+    const hit=SECTION_OPTIONS.find(x=>x[0]===id);
+    return hit?hit[1]:"CLUB SQUAD";
+  }
+
+  function vdsB88RenderMissionPanel(){
+    const panel=document.getElementById("vdsUTCompactMissionPanel");
+    const badge=document.getElementById("vdsUTCompactMissionCount");
+    if(!panel || !badge) return;
+    const missions=vdsB88MissionData();
+    const done=missions.filter(m=>m.done).length;
+    badge.textContent=`${done}/${missions.length}`;
+    panel.innerHTML=`
+      <div class="vdsUTCompactMissionHead">
+        <div><small>LIVE OBJECTIVES</small><b>Missions</b></div>
+        <button type="button" class="vdsUTCompactMissionOpen" id="vdsUTCompactMissionOpen">OPEN FULL MISSIONS</button>
+      </div>
+      <div class="vdsUTCompactMissionList">
+        ${missions.map(m=>`
+          <div class="vdsUTCompactMissionItem ${m.done?'done':''}">
+            <div class="vdsUTCompactMissionItemTop"><span>${m.title}</span><b>${m.reward}</b></div>
+            <small>${m.status}</small>
+          </div>
+        `).join("")}
+      </div>`;
+    document.getElementById("vdsUTCompactMissionOpen")?.addEventListener("click",()=>{
+      panel.classList.remove("open");
+      if(typeof vdsSwitchUltimateInstance==="function") vdsSwitchUltimateInstance("missions");
+    });
+  }
+
+  function vdsB88SyncTopBar(){
+    const select=document.getElementById("vdsUTCompactSectionSelect");
+    const id=vdsB88ActiveSection();
+    if(select && select.value!==id && [...select.options].some(o=>o.value===id)) select.value=id;
+
+    const lv=document.getElementById("utManagerLevel")?.textContent?.trim() || "1";
+    const elo=document.getElementById("utManagerElo")?.textContent?.trim() || "1000";
+    const coins=document.getElementById("utCoins")?.textContent?.trim() || "1,000";
+    const lvOut=document.getElementById("vdsUTCompactLevel");
+    const eloOut=document.getElementById("vdsUTCompactElo");
+    const coinOut=document.getElementById("vdsUTCompactCoins");
+    if(lvOut) lvOut.textContent=lv;
+    if(eloOut) eloOut.textContent=elo;
+    if(coinOut) coinOut.textContent=coins;
+
+    const name=document.getElementById("vdsAccountHeaderName")?.textContent?.trim() || "Manager";
+    const nameOut=document.getElementById("vdsUTCompactProfileName");
+    if(nameOut) nameOut.textContent=name;
+
+    const avatarHTML=document.getElementById("vdsAccountHeaderAvatar")?.innerHTML || '<div class="vdsAccountAvatarFallback">M</div>';
+    const avatarOut=document.getElementById("vdsUTCompactProfileAvatar");
+    if(avatarOut) avatarOut.innerHTML=avatarHTML;
+
+    vdsB88RenderMissionPanel();
+  }
+
+  function vdsB88InitTopBar(){
+    const ultimate=document.getElementById("ultimate");
+    const shell=ultimate?.querySelector(".vdsUTShell");
+    const instances=shell?.querySelector(".vdsUTHubInstances");
+    if(!ultimate || !shell || !instances) return;
+    if(document.getElementById("vdsUTCompactTopBar")) return;
+
+    const top=document.createElement("div");
+    top.id="vdsUTCompactTopBar";
+    top.className="vdsUTCompactTopBar";
+    top.innerHTML=`
+      <div class="vdsUTSlimBrand">
+        <div class="vdsUTSlimMark">UT</div>
+        <div class="vdsUTSlimBrandText">
+          <small>VDS</small>
+          <b>ULTIMATE TEAM</b>
+        </div>
+      </div>
+
+      <div class="vdsUTSlimSection">
+        <select id="vdsUTCompactSectionSelect" aria-label="Ultimate Team section">
+          ${SECTION_OPTIONS.map(([id,label])=>`<option value="${id}">${label}</option>`).join("")}
+        </select>
+      </div>
+
+      <div class="vdsUTSlimSpacer"></div>
+
+      <button type="button" class="vdsUTSlimMissionButton" id="vdsUTCompactMissionsBtn">
+        <span>MISSIONS</span>
+        <b id="vdsUTCompactMissionCount">0/4</b>
+      </button>
+
+      <div class="vdsUTSlimStat"><span>LV</span><b id="vdsUTCompactLevel">1</b></div>
+      <div class="vdsUTSlimStat"><span>ELO</span><b id="vdsUTCompactElo">1000</b></div>
+
+      <div class="vdsUTSlimWallet">
+        <span>◉</span>
+        <b id="vdsUTCompactCoins">1,000</b>
+      </div>
+
+      <button type="button" class="vdsUTSlimAccount" id="vdsUTCompactAccountBtn">
+        <div class="vdsUTSlimAvatar" id="vdsUTCompactProfileAvatar"></div>
+        <div class="vdsUTSlimAccountMeta">
+          <b id="vdsUTCompactProfileName">Manager</b>
+          <span>ACCOUNT</span>
+        </div>
+        <i>⌄</i>
+      </button>
+
+      <div id="vdsUTCompactMissionPanel" class="vdsUTCompactMissionPanel"></div>
+    `;
+    shell.insertBefore(top, instances);
+
+    document.getElementById("vdsUTCompactSectionSelect")?.addEventListener("change",(e)=>{
+      if(typeof vdsSwitchUltimateInstance==="function") vdsSwitchUltimateInstance(e.target.value);
+      setTimeout(vdsB88SyncTopBar, 40);
+    });
+    document.getElementById("vdsUTCompactMissionsBtn")?.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      document.getElementById("vdsUTCompactMissionPanel")?.classList.toggle("open");
+      vdsB88RenderMissionPanel();
+    });
+    document.getElementById("vdsUTCompactAccountBtn")?.addEventListener("click",()=>{
+      document.getElementById("vdsAccountOpenBtn")?.click();
+    });
+    document.addEventListener("click",(e)=>{
+      const panel=document.getElementById("vdsUTCompactMissionPanel");
+      const btn=document.getElementById("vdsUTCompactMissionsBtn");
+      if(!panel || !btn) return;
+      if(panel.contains(e.target) || btn.contains(e.target)) return;
+      panel.classList.remove("open");
+    });
+
+    const observer=new MutationObserver(()=>vdsB88SyncTopBar());
+    ["utManagerLevel","utManagerElo","utCoins","utFirstWinStatus","utObjPlay1Status","utObjWin1Status","utObjPlay3Status","vdsAccountHeaderName","vdsAccountHeaderAvatar"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) observer.observe(el,{childList:true,subtree:true,characterData:true});
+    });
+
+    vdsB88SyncTopBar();
+    if(typeof vdsSwitchUltimateInstance==="function"){
+      setTimeout(()=>{
+        vdsSwitchUltimateInstance("squad",{scroll:false});
+        setTimeout(vdsB88SyncTopBar,60);
+      },80);
+    }
+  }
+
+  const boot=()=>setTimeout(vdsB88InitTopBar, 500);
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
+
+<!--
+VDS B8.9 STAGE 6E9 — SLIM ULTIMATE TEAM TOPBAR
+- Reworked the Stage 6E8 UT header into a slimmer single-row game-style command bar.
+- Desktop now shows:
+  VDS Ultimate Team · Section dropdown · Missions · Level · ELO · Coins · Account.
+- Coins and account profile are visually grouped at the far right.
+- Missions remain a compact dropdown instead of a full main navigation section.
+- Mobile uses a two-row compact layout: brand + wallet + avatar, then section selector + missions.
+- No squad, economy, pack, chemistry, auth or multiplayer mechanics changed.
 -->
 
 </body>
