@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.5 Volleyball Chemistry</title>
+<title>Volleyball Draft Simulator — B8.6 Card Scale & Net Layer Fix</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -26371,6 +26371,128 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B86_CARD_SCALE_NET_LAYER_FIX">
+/* Stage 6E6 — cards larger, pulled inward, and net sits behind the players. */
+
+/* Keep the stadium/court, but slightly widen the useful visual area. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+  height:800px!important;
+  min-height:800px!important;
+}
+
+/* Net behind the players, not in front of them. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
+  z-index:2!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentHint,
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentGhosts{
+  z-index:1!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTSquadSlots{
+  z-index:4!important;
+}
+
+/* Make cards more prominent. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{
+  width:142px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
+  width:110px!important;
+  height:150px!important;
+  border-radius:18px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{
+  box-shadow:0 22px 42px rgba(0,0,0,.36)!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadRatingBadge{
+  min-width:30px!important;
+  height:30px!important;
+  font-size:16px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadMiniRemove{
+  width:22px!important;
+  height:22px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{
+  margin-top:10px!important;
+  font-size:10px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotLabel{
+  margin-top:4px!important;
+  font-size:6.4px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotHint{
+  margin-top:3px!important;
+  font-size:5.6px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTPlayerChem{
+  width:110px!important;
+  margin-top:7px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadFloatWrap::after{
+  width:78px!important;
+  height:14px!important;
+  bottom:-10px!important;
+  background:radial-gradient(circle,rgba(0,0,0,.34),transparent 70%)!important;
+}
+
+/* Pull all positions inward so they feel safely on the court. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:25%!important;top:31.5%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:27.5%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:75%!important;top:31.5%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:21%!important;top:63.5%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:70.5%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:79%!important;top:63.5%!important}
+
+/* Slightly refine the far net position relative to enlarged cards. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
+  left:24.5%!important;
+  right:24.5%!important;
+  top:12.8%!important;
+  height:126px!important;
+}
+
+/* Mobile scaling */
+@media(max-width:620px){
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+    height:820px!important;
+    min-height:820px!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{
+    width:108px!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
+    width:82px!important;
+    height:114px!important;
+    border-radius:15px!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{
+    font-size:8px!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTPlayerChem{
+    width:82px!important;
+    margin-top:6px!important;
+  }
+
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:20%!important;top:33%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:29%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:80%!important;top:33%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:17%!important;top:64%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:71.5%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:83%!important;top:64%!important}
+
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
+    left:17.5%!important;
+    right:17.5%!important;
+    top:12.2%!important;
+    height:112px!important;
+  }
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -26987,11 +27109,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.5-STAGE6E5">
+<section id="ultimate" class="page" data-vds-build="B8.6-STAGE6E6">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E5 · VOLLEYBALL CHEMISTRY</div>
+        <div class="vdsUTBuildBadge">STAGE 6E6 · CARD SCALE + NET LAYER FIX</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -44707,6 +44829,15 @@ VDS B8.5 STAGE 6E5 — VOLLEYBALL CHEMISTRY
 - Club/affiliation name appears beside the player's chemistry pips on desktop.
 - Chemistry remains visual only and does not modify match simulation yet.
 - P6 remains slightly deeper than the other back-row positions.
+-->
+
+
+<!--
+VDS B8.6 STAGE 6E6 — CARD SCALE + NET LAYER FIX
+- Enlarged squad cards so they read more like featured starters rather than tiny markers.
+- Pulled the left/right positions inward so cards feel anchored on the court instead of falling off the edge.
+- Moved the far net behind the players by lowering its layer while keeping the court slots above it.
+- Kept gameplay and chemistry logic unchanged; this is presentation-only.
 -->
 
 </body>
