@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.3 Chemistry Squad Builder</title>
+<title>Volleyball Draft Simulator — B8.4 Club Chemistry Arena</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -25977,6 +25977,212 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 @media(prefers-reduced-motion:reduce){.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{animation:none!important}}
 </style>
 
+
+<style id="VDS_B84_CLUB_CHEM_ARENA">
+/* Stage 6E4 — view-only squad-builder refinement. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+  position:relative!important;
+  height:780px!important;
+  min-height:780px!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(61,143,219,.13),transparent 28%),
+    linear-gradient(180deg,#06131f 0%,#05111b 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 28px 65px rgba(0,0,0,.26)!important;
+}
+
+/* Dramatic stadium shell behind the formation board. */
+#ultimate .vdsUTStadiumBackdrop{
+  position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+#ultimate .vdsUTStadiumRoof{
+  position:absolute;left:-6%;right:-6%;top:-18%;height:38%;
+  border-radius:0 0 50% 50%;
+  background:
+    repeating-linear-gradient(90deg,rgba(161,195,220,.05) 0 2px,transparent 2px 64px),
+    linear-gradient(180deg,#07101a,#0a1c2b 72%,rgba(10,28,43,.15));
+  box-shadow:inset 0 -25px 60px rgba(51,125,186,.08),0 40px 80px rgba(0,0,0,.35);
+}
+#ultimate .vdsUTStadiumCrowd{
+  position:absolute;left:-5%;right:-5%;top:9%;height:28%;
+  border-radius:0 0 46% 46%;
+  background:
+    radial-gradient(circle,rgba(199,225,243,.19) 0 1px,transparent 1.7px) 0 0/14px 11px,
+    radial-gradient(circle,rgba(87,167,223,.14) 0 1px,transparent 1.8px) 5px 4px/17px 13px,
+    linear-gradient(180deg,rgba(20,46,66,.86),rgba(8,25,39,.30));
+  opacity:.72;
+  -webkit-mask-image:linear-gradient(180deg,#000 0 74%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0 74%,transparent 100%);
+}
+#ultimate .vdsUTStadiumBoard{
+  position:absolute;left:50%;top:4.5%;transform:translateX(-50%);
+  width:190px;padding:8px 14px;border-radius:8px;text-align:center;
+  border:1px solid rgba(92,177,238,.16);
+  background:rgba(3,13,22,.76);
+  box-shadow:0 10px 24px rgba(0,0,0,.26),0 0 22px rgba(64,150,218,.08);
+}
+#ultimate .vdsUTStadiumBoard span{display:block;color:#5aa7dd;font-size:5px;font-weight:1000;letter-spacing:.20em}
+#ultimate .vdsUTStadiumBoard b{display:block;margin-top:3px;color:#dcecf7;font-size:8px;letter-spacing:.12em}
+#ultimate .vdsUTStadiumLamps{
+  position:absolute;left:8%;right:8%;top:3%;display:flex;justify-content:space-between;
+}
+#ultimate .vdsUTStadiumLamps i{
+  width:42px;height:6px;border-radius:999px;
+  background:linear-gradient(90deg,rgba(237,249,255,.22),rgba(231,249,255,.92),rgba(237,249,255,.22));
+  box-shadow:0 0 12px rgba(180,225,255,.44),0 0 28px rgba(82,161,222,.18);
+}
+#ultimate .vdsUTLightBeams{z-index:1!important;opacity:.62!important}
+#ultimate .vdsUTLightBeams span{
+  height:410px!important;
+  background:linear-gradient(180deg,rgba(223,245,255,.13),rgba(113,193,244,.035) 30%,transparent 78%)!important;
+  filter:blur(1px)!important;
+}
+
+/* FUT-inspired green formation board. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:1!important;
+  left:7%!important;right:7%!important;top:17%!important;bottom:6%!important;
+  border-radius:24px!important;
+  clip-path:polygon(22% 0,78% 0,100% 100%,0 100%)!important;
+  transform:none!important;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 78px),
+    radial-gradient(circle at 50% 49%,transparent 0 10.8%,rgba(230,248,235,.34) 11% 11.5%,transparent 11.8%),
+    linear-gradient(180deg,#1e6735 0%,#16542b 53%,#0f3d21 100%)!important;
+  box-shadow:
+    inset 0 0 0 2px rgba(225,247,232,.19),
+    inset 0 55px 90px rgba(255,255,255,.035),
+    0 38px 70px rgba(0,0,0,.30)!important;
+  opacity:1!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{
+  content:""!important;
+  position:absolute!important;
+  z-index:1!important;
+  left:13%!important;right:13%!important;top:28%!important;bottom:11%!important;
+  clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)!important;
+  background:
+    linear-gradient(180deg,transparent 49.55%,rgba(240,248,241,.38) 49.8%,rgba(240,248,241,.38) 50.2%,transparent 50.45%),
+    linear-gradient(90deg,transparent 49.7%,rgba(240,248,241,.18) 49.85%,rgba(240,248,241,.18) 50.15%,transparent 50.3%)!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+#ultimate .vdsUTOpponentHint,
+#ultimate .vdsUTOpponentGhosts,
+#ultimate .vdsUTNetPerspective,
+#ultimate .vdsUTNet,
+#ultimate .vdsUTAttackLine,
+#ultimate .vdsUTCourtAura{
+  display:none!important;
+}
+
+/* Chemistry is behind cards but above pitch. */
+#ultimate .vdsUTChemLayer{z-index:2!important}
+#ultimate .vdsUTSquadSlots{z-index:3!important}
+#ultimate .vdsUTChemLine{
+  fill:none!important;
+  stroke-width:4!important;
+  stroke-linecap:round!important;
+  opacity:.96!important;
+}
+#ultimate .vdsUTChemLine.active{
+  stroke:#59de89!important;
+  filter:drop-shadow(0 0 7px rgba(74,221,132,.36))!important;
+}
+#ultimate .vdsUTChemLine.inactive{
+  stroke:rgba(190,77,77,.48)!important;
+  stroke-width:2.4!important;
+  filter:none!important;
+}
+#ultimate .vdsUTChemLine.empty{
+  stroke:rgba(135,156,169,.18)!important;
+  stroke-width:1.7!important;
+  stroke-dasharray:6 8!important;
+  filter:none!important;
+}
+#ultimate .vdsUTChemNode{display:none!important}
+
+/* Slightly larger floating cards. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{
+  width:126px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
+  width:96px!important;
+  height:132px!important;
+  border-radius:17px!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 18px 34px rgba(0,0,0,.34)!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadFloatWrap::after{
+  width:70px!important;height:13px!important;bottom:-8px!important;
+}
+
+/* Formation spacing. P6 is intentionally slightly farther back. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:22%!important;top:29%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:24%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:78%!important;top:29%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:18%!important;top:62%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:68%!important}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:82%!important;top:62%!important}
+
+/* Team chemistry readout. */
+#ultimate #utChemistryRating{
+  flex:0 0 auto;
+  padding:7px 10px;
+  border-radius:999px;
+  border:1px solid rgba(83,218,129,.16);
+  background:rgba(73,204,117,.045);
+  color:#6be29a;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+#ultimate #utChemistryRating.low{
+  border-color:rgba(190,89,89,.14);
+  background:rgba(185,72,72,.035);
+  color:#dc8888;
+}
+
+/* Mobile formation tuned separately. */
+@media(max-width:620px){
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+    height:790px!important;
+    min-height:790px!important;
+  }
+  #ultimate .vdsUTStadiumBoard{top:3.5%;width:142px;padding:6px 10px}
+  #ultimate .vdsUTStadiumLamps{left:5%;right:5%}
+  #ultimate .vdsUTStadiumLamps i{width:23px;height:4px}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{
+    left:3%!important;right:3%!important;top:15%!important;bottom:7%!important;
+    clip-path:polygon(17% 0,83% 0,100% 100%,0 100%)!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{
+    left:8%!important;right:8%!important;top:24%!important;bottom:12%!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{width:98px!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
+    width:74px!important;height:102px!important;border-radius:14px!important;
+  }
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:18%!important;top:31%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:26%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:82%!important;top:31%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:15%!important;top:63%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:70%!important}
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:85%!important;top:63%!important}
+  #ultimate .vdsUTChemLine{stroke-width:3!important}
+  #ultimate .vdsUTChemLine.inactive{stroke-width:2!important}
+  #ultimate #utChemistryRating{padding:7px 8px;font-size:5.5px}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -26593,11 +26799,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.3-STAGE6E3">
+<section id="ultimate" class="page" data-vds-build="B8.4-STAGE6E4">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E3 · CHEMISTRY SQUAD BUILDER</div>
+        <div class="vdsUTBuildBadge">STAGE 6E4 · CLUB CHEMISTRY ARENA</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -26672,6 +26878,12 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
         <div class="vdsUTLineupHelp">Club arena · your six play from the near side with the net at the far end. Drag portraits into each zone; mobile users can tap a bench card, then a court spot.</div>
         <div class="vdsUTCourt vdsUTCourtEnhanced">
           <div class="vdsUTCourtAura"></div>
+          <div class="vdsUTStadiumBackdrop">
+            <div class="vdsUTStadiumRoof"></div>
+            <div class="vdsUTStadiumCrowd"></div>
+            <div class="vdsUTStadiumBoard"><span>VDS CLUB ARENA</span><b>ULTIMATE TEAM</b></div>
+            <div class="vdsUTStadiumLamps"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
           <div class="vdsUTLightBeams"><span></span><span></span><span></span><span></span></div>
           <div class="vdsUTOpponentHint">OPPONENT SIDE</div>
           <div class="vdsUTOpponentGhosts"><span></span><span></span><span></span></div>
@@ -44079,6 +44291,129 @@ VDS B8.3 STAGE 6E3 — CHEMISTRY SQUAD BUILDER
   P5 Libero, P4 + P6 OH, P3 Middle, P1 Setter, P2 Opposite.
 - No gameplay, lineup data, bench data, pack economy or multiplayer logic changed.
 - This is a pure Squad-view presentation upgrade plus phone-safe spacing.
+-->
+
+
+<script id="VDS_B84_CLUB_CHEM_ARENA_JS">
+function vdsUTPlayerForCard(card){
+  if(!card)return null;
+  return players.find(p=>Number(p.cloudId)===Number(card.playerId)) ||
+         players.find(p=>String(p.name||'')===String(card.playerName||'')) ||
+         null;
+}
+function vdsUTCardAffiliations(card){
+  const p=vdsUTPlayerForCard(card);
+  const list=Array.isArray(p?.affiliations)?p.affiliations:[];
+  return [...new Set(list.map(v=>String(v||'').trim().toUpperCase()).filter(Boolean))];
+}
+function vdsUTSharedClubs(cardA,cardB){
+  const a=new Set(vdsUTCardAffiliations(cardA));
+  return vdsUTCardAffiliations(cardB).filter(x=>a.has(x));
+}
+function vdsGetFixedChemAnchor(slotEl,courtRect){
+  const wrap=slotEl.querySelector('.vdsSquadFloatWrap,.vdsSquadEmptyWrap') || slotEl;
+  const r=wrap.getBoundingClientRect();
+  return {
+    x:r.left-courtRect.left+(r.width/2),
+    y:r.top-courtRect.top+(r.height/2)
+  };
+}
+function vdsRenderSquadChemistry(){
+  const layer=document.getElementById('utChemLayer');
+  const court=document.querySelector('.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced');
+  const slotEls=[...document.querySelectorAll('#utSquadSlots .vdsSquadSlot')];
+  if(!layer || !court || slotEls.length!==6){
+    if(layer)layer.innerHTML='';
+    return;
+  }
+
+  const courtRect=court.getBoundingClientRect();
+  const dataSlots=(ultimateTeamState?.lineupSlots||Array(6).fill(null)).slice(0,6);
+  const visualCards=UT_LINEUP_SLOTS.map(slot=>utCardByUid(dataSlots[slot.dataIndex]));
+  const points=slotEls.map(slot=>vdsGetFixedChemAnchor(slot,courtRect));
+
+  let activeCount=0;
+  let filledLinks=0;
+
+  const lines=UT_CHEM_LINKS.map(([a,b])=>{
+    const cardA=visualCards[a];
+    const cardB=visualCards[b];
+    let cls='empty';
+    let title='Empty chemistry link';
+
+    if(cardA && cardB){
+      filledLinks++;
+      const shared=vdsUTSharedClubs(cardA,cardB);
+      if(shared.length){
+        cls='active';
+        activeCount++;
+        title=`Shared club: ${shared.join(', ')}`;
+      }else{
+        cls='inactive';
+        title='No shared club';
+      }
+    }
+
+    return `<path class="vdsUTChemLine ${cls}" d="${vdsBuildChemPath(points[a],points[b])}"><title>${title}</title></path>`;
+  }).join('');
+
+  layer.innerHTML=`<svg viewBox="0 0 ${courtRect.width} ${courtRect.height}" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>`;
+
+  const head=document.querySelector('#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTHeadRight');
+  if(head){
+    let chem=document.getElementById('utChemistryRating');
+    if(!chem){
+      chem=document.createElement('div');
+      chem.id='utChemistryRating';
+      const teamOvr=document.getElementById('utSquadRating');
+      if(teamOvr)head.insertBefore(chem,teamOvr);
+      else head.appendChild(chem);
+    }
+    chem.textContent=`CHEM ${activeCount}/${UT_CHEM_LINKS.length}`;
+    chem.classList.toggle('low',filledLinks>0 && activeCount===0);
+    chem.title='Green links require both players to share at least one club/affiliation.';
+  }
+}
+
+/* Replace the previous Stage 6E3 chemistry renderer wrapper with a stable,
+   fixed-anchor redraw. Cards can float while chemistry lines stay fixed. */
+const vdsB84OriginalRenderUltimateSquadVisual = renderUltimateSquadVisual;
+renderUltimateSquadVisual = function(){
+  const result=vdsB84OriginalRenderUltimateSquadVisual.apply(this,arguments);
+  requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry));
+  return result;
+};
+
+const vdsB84OriginalSwitchUltimateInstance=vdsSwitchUltimateInstance;
+vdsSwitchUltimateInstance=function(id,options){
+  const result=vdsB84OriginalSwitchUltimateInstance.call(this,id,options);
+  if(id==='squad')requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry));
+  return result;
+};
+
+let vdsB84ResizeTimer=0;
+window.addEventListener('resize',()=>{
+  clearTimeout(vdsB84ResizeTimer);
+  vdsB84ResizeTimer=setTimeout(vdsRenderSquadChemistry,90);
+});
+window.addEventListener('orientationchange',()=>setTimeout(vdsRenderSquadChemistry,140));
+setTimeout(vdsRenderSquadChemistry,300);
+</script>
+
+
+<!--
+VDS B8.4 STAGE 6E4 — CLUB CHEMISTRY ARENA
+- View-only Ultimate Team Squad update; no match/simulation mechanics changed.
+- P6 moved slightly deeper toward the baseline/viewer.
+- Court squad cards enlarged on desktop and mobile.
+- Fixed chemistry-line drift: lines are anchored to non-animated slot wrappers while cards can keep gently hovering.
+- Chemistry is now club-based using each real player's `affiliations` field.
+- Green = both connected players share at least one affiliation/club.
+- Red/dim = both filled but no shared affiliation.
+- Dashed/dim = one or both slots empty.
+- Added CHEM x/11 visual counter (presentation only, no new gameplay modifier).
+- Added dramatic stadium bowl, crowd lights, scoreboard and floodlights behind the squad builder.
+- Formation board is now a FUT-inspired dark-green pitch while retaining volleyball role/position labels.
 -->
 
 </body>
