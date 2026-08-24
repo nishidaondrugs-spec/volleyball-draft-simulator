@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B9.2 Base Card Tier Fix</title>
+<title>Volleyball Draft Simulator — B9.4 Ace Black Purple Splash</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -28556,11 +28556,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B9.2-STAGE6E12">
+<section id="ultimate" class="page" data-vds-build="B9.4-STAGE6E14">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E12 · BASE CARD TIER FIX</div>
+        <div class="vdsUTBuildBadge">STAGE 6E14 · ACE BLACK PURPLE SPLASH</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -46540,6 +46540,8 @@ Fixes the Player Database / base-card page so the new tier art actually shows:
 This specifically overrides older #players-scoped CSS that was keeping the old art visible.
 -->
 
+
+<!-- B9.4: ACE cards now keep a black premium base with subtle purple splashes / accents. -->
 </body>
 </html>
 
@@ -47284,4 +47286,86 @@ This specifically overrides older #players-scoped CSS that was keeping the old a
 /* Filter chips / labels stay aligned with the new colour language */
 .vdsFilter.eliteFilter.active{background:linear-gradient(135deg,#7f43dd,#412070)!important;color:#fbf3ff!important;box-shadow:0 0 14px rgba(191,140,255,.22)!important}
 .vdsFilter.aceFilter.active{background:linear-gradient(135deg,#161b23,#030507)!important;color:#ffffff!important;box-shadow:0 0 12px rgba(255,255,255,.10)!important}
+</style>
+
+<style id="VDS_B94_ACE_PURPLE_SPLASH_OVERRIDE">
+/* Stage 6E14 — add subtle purple splashes to ACE black cards */
+.fifaPlayerCard.ace,
+.vdsLegacyFifaPlayerCard.ace,
+#players .fifaPlayerCard.ace,
+#players .vdsLegacyFifaPlayerCard.ace,
+.utPremiumCard.ace,
+.utPremiumCollectionCard.ace,
+.utCard.ace,
+.utCollectionCard.ace{
+  background:
+    radial-gradient(circle at 18% 16%, rgba(185,115,255,.20), transparent 14%),
+    radial-gradient(circle at 82% 18%, rgba(134,76,255,.14), transparent 18%),
+    radial-gradient(circle at 50% 76%, rgba(132,74,255,.12), transparent 24%),
+    radial-gradient(circle at 72% 68%, rgba(214,167,255,.08), transparent 18%),
+    linear-gradient(138deg, rgba(185,115,255,.10) 0%, rgba(255,255,255,0) 12%, rgba(125,77,255,.08) 21%, rgba(255,255,255,0) 31%),
+    linear-gradient(160deg,#141824 0%,#0a0d14 28%,#05070b 54%,#100a18 74%,#04060a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -78px 98px rgba(0,0,0,.38),
+    inset 0 0 66px rgba(0,0,0,.18),
+    0 0 0 1px rgba(255,255,255,.09),
+    0 0 14px rgba(194,137,255,.10),
+    0 0 34px rgba(111,72,180,.14) !important;
+}
+.fifaPlayerCard.ace .fifaTierTag,
+.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+#players .fifaPlayerCard.ace .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+.utPremiumCard.ace .utPremiumRarity,
+.utPremiumCollectionCard.ace .utPremiumRarity,
+.utCard.ace .utRarity,
+.utCollectionCard.ace .utRarity{
+  border-color: rgba(220,186,255,.85) !important;
+  color: #f6edff !important;
+  background: linear-gradient(180deg, rgba(53,31,82,.96), rgba(10,10,16,.98)) !important;
+  box-shadow: 0 0 10px rgba(180,120,255,.15), inset 0 0 8px rgba(255,255,255,.05) !important;
+}
+.fifaPlayerCard.ace .fifaOverall,
+.vdsLegacyFifaPlayerCard.ace .fifaOverall,
+#players .fifaPlayerCard.ace .fifaOverall,
+#players .vdsLegacyFifaPlayerCard.ace .fifaOverall,
+.utPremiumCard.ace .utPremiumRating,
+.utPremiumCollectionCard.ace .utPremiumRating{
+  color:#ffffff !important;
+  text-shadow: 0 2px 0 rgba(0,0,0,.72), 0 4px 10px rgba(0,0,0,.55), 0 0 10px rgba(191,132,255,.12) !important;
+}
+.fifaPlayerCard.ace::before,
+.vdsLegacyFifaPlayerCard.ace::before,
+#players .fifaPlayerCard.ace::before,
+#players .vdsLegacyFifaPlayerCard.ace::before,
+.utPremiumCard.ace::before,
+.utPremiumCollectionCard.ace::before{
+  opacity:.34 !important;
+  background: linear-gradient(110deg,
+    transparent 38%,
+    rgba(188,120,255,0) 44%,
+    rgba(207,156,255,.10) 47%,
+    rgba(255,255,255,.54) 50%,
+    rgba(177,108,255,.12) 53%,
+    rgba(188,120,255,0) 57%,
+    transparent 63%) !important;
+}
+.fifaPlayerCard.ace::after,
+.vdsLegacyFifaPlayerCard.ace::after,
+#players .fifaPlayerCard.ace::after,
+#players .vdsLegacyFifaPlayerCard.ace::after,
+.utPremiumCard.ace::after,
+.utPremiumCollectionCard.ace::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:1px !important;
+  pointer-events:none !important;
+  border-radius:inherit !important;
+  background:
+    radial-gradient(circle at 50% 0, rgba(207,156,255,.10), transparent 26%),
+    radial-gradient(circle at 0 100%, rgba(120,70,255,.08), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent 18%, transparent 82%, rgba(171,112,255,.05)) !important;
+  opacity:1 !important;
+}
 </style>
