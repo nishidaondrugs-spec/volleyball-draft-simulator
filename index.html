@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B7.8 Ultimate Team Depth Polish</title>
+<title>Volleyball Draft Simulator — B8.0 Ultimate Team Hub</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -25052,6 +25052,308 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B80_ULTIMATE_TEAM_HUB">
+/* Stage 6E — Ultimate Team is now a mini-mode with dedicated instances. */
+#ultimate .vdsUTShell{
+  width:min(1880px,100%);
+  margin:0 auto;
+}
+#ultimate .vdsUTHeaderStage6B{
+  width:calc(100% - 24px);
+  margin:12px auto 0;
+}
+#ultimate .vdsUTWalletCloud.host-wallet{
+  border-color:rgba(226,187,65,.34)!important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(238,196,64,.18),transparent 65%),
+    rgba(4,15,25,.9)!important;
+}
+#ultimate .vdsUTWalletCloud.host-wallet b{
+  font-size:31px!important;
+  color:#f4d36c!important;
+}
+#ultimate .vdsUTWalletCloud.host-wallet small{color:#d2b95f!important}
+
+/* Navigation shell */
+.vdsUTHubNavigation{
+  width:calc(100% - 24px);
+  margin:10px auto 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:9px 10px;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:15px;
+  background:linear-gradient(180deg,rgba(5,18,30,.90),rgba(3,13,22,.90));
+  box-shadow:0 14px 32px rgba(0,0,0,.16);
+}
+.vdsUTHubTabs{display:flex;align-items:center;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.vdsUTHubTabs::-webkit-scrollbar{display:none}
+.vdsUTHubTab{
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:#708ba0;
+  padding:10px 13px;
+  border-radius:10px;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.13em;
+  cursor:pointer;
+  transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+.vdsUTHubTab:hover{color:#dceaf5;background:rgba(255,255,255,.03)}
+.vdsUTHubTab.active{
+  color:#fff;
+  background:linear-gradient(135deg,#247fc7,#154c7b);
+  box-shadow:0 7px 16px rgba(30,108,170,.18);
+}
+.vdsUTHubMobileSelect{
+  display:none;
+  width:100%;
+  min-height:43px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#071725;
+  color:#e9f4fb;
+  padding:0 12px;
+  font-size:9px;
+  font-weight:900;
+}
+.vdsUTHubNavMeta{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#607e95;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.10em;
+}
+.vdsUTHubNavMeta i{width:5px;height:5px;border-radius:50%;background:#54d894;box-shadow:0 0 8px rgba(84,216,148,.45)}
+
+.vdsUTHubInstances{
+  width:calc(100% - 24px);
+  margin:12px auto 24px;
+}
+.vdsUTInstance{display:none}
+.vdsUTInstance.active{display:block}
+.vdsUTInstanceIntro{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:18px;
+  margin-bottom:12px;
+  padding:0 2px;
+}
+.vdsUTInstanceIntro small{display:block;color:#579fd8;font-size:7px;font-weight:1000;letter-spacing:.18em}
+.vdsUTInstanceIntro h2{margin:4px 0 0;font-size:27px;letter-spacing:-.04em}
+.vdsUTInstanceIntro p{max-width:620px;margin:6px 0 0;color:#6d889e;font-size:8px;line-height:1.5}
+
+/* HOME */
+.vdsUTHubHomeHero{
+  position:relative;
+  min-height:330px;
+  overflow:hidden;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(circle at 73% 30%,rgba(51,142,217,.17),transparent 28%),
+    radial-gradient(circle at 25% 100%,rgba(109,62,177,.10),transparent 28%),
+    linear-gradient(145deg,#071b2b,#04111c 72%);
+  padding:30px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:minmax(320px,.72fr) minmax(450px,1.28fr);
+  align-items:center;
+  gap:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,.22);
+}
+.vdsUTHubHomeHero:after{
+  content:"VDS";
+  position:absolute;
+  right:-25px;
+  top:-25px;
+  font-size:220px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  color:rgba(255,255,255,.018);
+  pointer-events:none;
+}
+.vdsUTHubClubKicker{color:#57aef0;font-size:8px;font-weight:1000;letter-spacing:.2em}
+.vdsUTHubClubName{margin:8px 0 0;font-size:clamp(38px,5vw,67px);line-height:.92;letter-spacing:-.065em}
+.vdsUTHubClubMeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.vdsUTHubClubMeta span{
+  padding:7px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.065);
+  background:rgba(255,255,255,.025);color:#8099ad;font-size:7px;font-weight:900;
+}
+.vdsUTHubHomeActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}
+.vdsUTHubPrimary,
+.vdsUTHubSecondary{
+  min-height:42px;padding:0 15px;border-radius:10px;font-size:8px;font-weight:1000;letter-spacing:.10em;cursor:pointer;
+}
+.vdsUTHubPrimary{border:0;background:linear-gradient(135deg,#3898e1,#185c94);color:#fff}
+.vdsUTHubSecondary{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.025);color:#a5bccd}
+.vdsUTHubSquadPreview{
+  position:relative;
+  min-height:248px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.055);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.005)),
+    linear-gradient(180deg,#071827,#05121e);
+  overflow:hidden;
+}
+.vdsUTHubPreviewCourt{
+  position:absolute;left:7%;right:7%;top:31%;bottom:-20%;
+  clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);
+  background:linear-gradient(180deg,#d18049,#b86136);
+  box-shadow:inset 0 0 0 2px rgba(255,248,240,.76);
+  opacity:.86;
+}
+.vdsUTHubPreviewPlayers{position:absolute;inset:0;z-index:3}
+.vdsUTHubPreviewPlayer{
+  position:absolute;
+  width:54px;height:68px;
+  transform:translate(-50%,-50%);
+  border-radius:11px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:#122638;
+  box-shadow:0 9px 16px rgba(0,0,0,.24);
+}
+.vdsUTHubPreviewPlayer img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.vdsUTHubPreviewPlayer b{
+  position:absolute;left:4px;top:4px;padding:3px 5px;border-radius:999px;background:rgba(3,13,22,.82);font-size:7px;
+}
+.vdsUTHubPreviewPlayer:nth-child(1){left:34%;top:41%}
+.vdsUTHubPreviewPlayer:nth-child(2){left:50%;top:37%}
+.vdsUTHubPreviewPlayer:nth-child(3){left:66%;top:41%}
+.vdsUTHubPreviewPlayer:nth-child(4){left:25%;top:70%}
+.vdsUTHubPreviewPlayer:nth-child(5){left:50%;top:66%}
+.vdsUTHubPreviewPlayer:nth-child(6){left:75%;top:70%}
+.vdsUTHubPreviewEmpty{display:grid;place-items:center;height:100%;color:#66859d;font-size:9px}
+.vdsUTHubHomeGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.vdsUTHubHomeCard{
+  position:relative;min-height:145px;padding:15px;border-radius:16px;border:1px solid rgba(255,255,255,.055);
+  background:linear-gradient(180deg,rgba(6,20,32,.84),rgba(4,14,23,.84));overflow:hidden;
+}
+.vdsUTHubHomeCard span{color:#66869e;font-size:7px;font-weight:1000;letter-spacing:.14em}
+.vdsUTHubHomeCard h3{margin:7px 0 0;font-size:18px}
+.vdsUTHubHomeCard p{margin:6px 0 0;color:#6d8599;font-size:8px;line-height:1.5;max-width:85%}
+.vdsUTHubHomeCard button{position:absolute;left:15px;bottom:14px}
+.vdsUTHubHomeCard.gold{border-color:rgba(227,188,64,.16);background:radial-gradient(circle at 95% 0,rgba(230,190,62,.11),transparent 36%),linear-gradient(180deg,rgba(6,20,32,.84),rgba(4,14,23,.84))}
+.vdsUTHubHomeCard.gold h3{color:#e5c761}
+
+/* Missions instance */
+.vdsUTInstance[data-ut-instance="missions"] .vdsUTEconomyHero{margin:0!important}
+
+/* Squad instance: full-width hero, no neighbouring pack panel */
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPanel{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{height:800px!important}
+
+/* Packs instance: dedicated store */
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel{
+  width:100%!important;
+  box-sizing:border-box!important;
+  min-height:520px!important;
+}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackGrid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPack{
+  min-height:390px!important;
+  padding:22px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackIcon{
+  position:relative!important;
+  left:auto!important;top:auto!important;
+  transform:rotate(-4deg)!important;
+  width:105px!important;height:145px!important;
+  margin:8px 0 22px!important;
+  border-radius:20px!important;
+  font-size:19px!important;
+}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackName{font-size:25px!important}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackOdds{font-size:8px!important;margin-top:10px!important}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackCost{left:22px!important;bottom:22px!important;font-size:25px!important}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utOpenBtn{right:20px!important;bottom:20px!important;padding:11px 14px!important}
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPack.gold,
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPack.silver,
+.vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPack.bronze{
+  order:initial!important;grid-column:auto!important;
+}
+
+/* Club collection */
+.vdsUTInstance[data-ut-instance="club"] .vdsCollectionPanel{
+  width:100%!important;margin:0!important;box-sizing:border-box!important;
+}
+
+/* Profile */
+.vdsUTHubProfileHero{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;
+  padding:22px;border:1px solid rgba(255,255,255,.055);border-radius:19px;
+  background:radial-gradient(circle at 84% 0,rgba(59,146,217,.11),transparent 32%),linear-gradient(180deg,#071a2a,#04121e);
+}
+.vdsUTHubAvatar{
+  width:92px;height:92px;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:#0a2235;display:grid;place-items:center;font-size:30px;font-weight:1000;
+}
+.vdsUTHubAvatar img{width:100%;height:100%;object-fit:cover}
+.vdsUTHubProfileName{font-size:29px;font-weight:1000;letter-spacing:-.04em}
+.vdsUTHubProfileUser{margin-top:4px;color:#66879f;font-size:8px}
+.vdsUTHubProfileStats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:14px}
+.vdsUTHubProfileStat{padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02)}
+.vdsUTHubProfileStat span{display:block;color:#638198;font-size:6px;font-weight:1000;letter-spacing:.12em}
+.vdsUTHubProfileStat b{display:block;margin-top:5px;font-size:17px}
+.vdsUTHubProfileStat.coins b{color:#ebcc69}
+.vdsUTHubRecentWrap{margin-top:10px;padding:16px;border:1px solid rgba(255,255,255,.05);border-radius:16px;background:rgba(4,15,25,.68)}
+.vdsUTHubRecentTitle{font-size:8px;font-weight:1000;letter-spacing:.14em;color:#6f8aa0;margin-bottom:9px}
+.vdsUTHubRecentRow{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 4px;border-top:1px solid rgba(255,255,255,.035)}
+.vdsUTHubRecentRow:first-child{border-top:0}
+.vdsUTHubRecentResult{font-size:10px;font-weight:1000}
+.vdsUTHubRecentResult.win{color:#64d99a}.vdsUTHubRecentResult.loss{color:#ef8181}
+.vdsUTHubRecentRow small{color:#617b90;font-size:7px}
+.vdsUTHubRecentRow strong{font-size:8px}
+
+/* Old two-column holder disappears after its children are moved. */
+#ultimate .vdsUTMain.vdsUTHubEmptied{display:none!important}
+
+@media(max-width:980px){
+  .vdsUTHubTabs{display:none}
+  .vdsUTHubMobileSelect{display:block}
+  .vdsUTHubNavMeta{display:none}
+  .vdsUTHubHomeHero{grid-template-columns:1fr;min-height:0;padding:20px}
+  .vdsUTHubSquadPreview{min-height:260px}
+  .vdsUTHubHomeGrid{grid-template-columns:1fr}
+  .vdsUTHubProfileStats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPackGrid{grid-template-columns:1fr!important}
+  .vdsUTInstance[data-ut-instance="packs"] .vdsPackPanel .utPack{min-height:300px!important}
+}
+@media(max-width:600px){
+  #ultimate .vdsUTHeaderStage6B,.vdsUTHubNavigation,.vdsUTHubInstances{width:calc(100% - 14px)}
+  .vdsUTHubNavigation{padding:7px}
+  .vdsUTHubHomeHero{padding:17px;border-radius:17px}
+  .vdsUTHubClubName{font-size:43px}
+  .vdsUTHubHomeHero:after{font-size:140px}
+  .vdsUTHubProfileHero{grid-template-columns:1fr;text-align:center}
+  .vdsUTHubAvatar{margin:auto}
+  .vdsUTHubProfileStats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{height:690px!important}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -25668,19 +25970,19 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B7.8-STAGE6D5">
+<section id="ultimate" class="page" data-vds-build="B8.0-STAGE6E">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6D5 · UT DEPTH POLISH</div>
+        <div class="vdsUTBuildBadge">STAGE 6E · ULTIMATE TEAM HUB</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
-        <h2>Play. Earn. Build.</h2>
-        <p>Online matches now earn permanent VDS Coins, XP and ELO for your signed-in manager account.</p>
+        <h2>Your Club. Your Way.</h2>
+        <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
       </div>
       <div class="vdsUTWallet vdsUTWalletCloud">
         <span>ACCOUNT COINS</span>
         <b>◉ <span id="utCoins">1,000</span></b>
-        <small>SUPABASE WALLET</small>
+        <small id="utWalletLabel">SUPABASE WALLET</small>
       </div>
     </div>
 
@@ -34279,7 +34581,7 @@ async function vdsEnsureProfile(user){
 
   let {data,error}=await client
     .from("vds_profiles")
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,created_at,updated_at")
     .eq("id",user.id)
     .maybeSingle();
 
@@ -34294,7 +34596,7 @@ async function vdsEnsureProfile(user){
         display_name:String(google.displayName||"Manager").slice(0,40),
         avatar_url:google.avatar||null
       },{onConflict:"id"})
-      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,created_at,updated_at")
+      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,created_at,updated_at")
       .single();
 
     if(upsert.error){
@@ -34345,7 +34647,7 @@ function vdsUpdateAccountUI(){
   set("vdsProfileWins",profile.wins||0);
   set("vdsProfileLosses",profile.losses||0);
   set("vdsProfileElo",profile.elo||1000);
-  set("vdsProfileCoins",Number(profile.coins||0).toLocaleString());
+  set("vdsProfileCoins",profile.is_host_account?"∞":Number(profile.coins||0).toLocaleString());
   set("vdsProfileLevel",profile.manager_level||1);
 
   const level=Math.max(1,Number(profile.manager_level||1));
@@ -34372,10 +34674,14 @@ function vdsUtcDateKey(){
 }
 
 function vdsSyncUltimateWalletFromProfile(){
+  const host=!!vdsAccountProfile?.is_host_account;
   const balance=Math.max(0,Number(vdsAccountProfile?.coins||0));
   if(typeof ultimateTeamState==="object" && ultimateTeamState)ultimateTeamState.coins=balance;
   const coinEl=document.getElementById("utCoins");
-  if(coinEl)coinEl.textContent=balance.toLocaleString();
+  if(coinEl)coinEl.textContent=host?"∞":balance.toLocaleString();
+  const label=document.getElementById("utWalletLabel");
+  if(label)label.textContent=host?"HOST WALLET · UNLIMITED":"SUPABASE WALLET";
+  document.querySelector(".vdsUTWalletCloud")?.classList.toggle("host-wallet",host);
 }
 
 function vdsRenderDailyProgress(){
@@ -34717,7 +35023,7 @@ async function vdsSaveProfile(){
     .from("vds_profiles")
     .update({display_name:display,username})
     .eq("id",vdsAccountSession.user.id)
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,created_at,updated_at")
     .single();
 
   if(error){
@@ -38350,8 +38656,9 @@ async function openUltimatePack(packId){
     return;
   }
 
+  const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
-  if(currentCoins<pack.cost){
+  if(!isHostWallet && currentCoins<pack.cost){
     alert(`Not enough VDS coins. ${pack.cost.toLocaleString()} coins required.`);
     return;
   }
@@ -38371,14 +38678,16 @@ async function openUltimatePack(packId){
 
   try{
     const client=ensureMultiplayerClient();
-    const {data,error}=await client.rpc("vds_purchase_ut_pack",{p_pack_id:packId});
+    const {data,error}=await client.rpc("vds_purchase_ut_pack_hostaware",{p_pack_id:packId});
     if(error)throw error;
 
     const newBalance=Number(data?.coin_balance);
-    if(Number.isFinite(newBalance)){
+    if(Number.isFinite(newBalance) && !vdsAccountProfile?.is_host_account){
       vdsAccountProfile={...(vdsAccountProfile||{}),coins:newBalance};
       ultimateTeamState.coins=newBalance;
       vdsUpdateAccountUI();
+    }else if(vdsAccountProfile?.is_host_account){
+      vdsSyncUltimateWalletFromProfile();
     }
 
     // A player's Ultimate Team rarity is fixed by their MAIN-POSITION rating.
@@ -38844,7 +39153,7 @@ function renderUltimateTeam(){
   if(coinEl){
     const serverCoins=Math.max(0,Number(vdsAccountProfile?.coins||ultimateTeamState.coins||0));
     ultimateTeamState.coins=serverCoins;
-    coinEl.textContent=serverCoins.toLocaleString();
+    coinEl.textContent=vdsAccountProfile?.is_host_account?"∞":serverCoins.toLocaleString();
   }
   vdsRenderDailyProgress();
   if(countEl)countEl.textContent=ultimateTeamState.cards.length;
@@ -42711,6 +43020,236 @@ VDS B7.8 STAGE 6D5 — ULTIMATE TEAM DEPTH POLISH
 - Pack store redesigned into a tighter vertical premium list so it feels integrated with the rest of the page.
 - Gold, Silver and Bronze packs now share the same design language with accent borders instead of oversized disconnected colour blocks.
 -->
+
+<script id="VDS_B80_UT_HUB_JS">
+let vdsUltimateHubReady=false;
+let vdsUltimateHubActive="home";
+const VDS_UT_INSTANCES=[
+  ["home","HOME"],
+  ["missions","MISSIONS"],
+  ["squad","CLUB SQUAD"],
+  ["packs","PACK STORE"],
+  ["club","MY CLUB"],
+  ["profile","CLUB PROFILE"]
+];
+
+function vdsUltimateInstanceIntro(kicker,title,body){
+  return `<div class="vdsUTInstanceIntro"><div><small>${kicker}</small><h2>${title}</h2><p>${body}</p></div></div>`;
+}
+
+function vdsInitUltimateHub(){
+  if(vdsUltimateHubReady)return;
+  const page=document.getElementById("ultimate");
+  const shell=page?.querySelector(".vdsUTShell");
+  const header=shell?.querySelector(".vdsUTHeader");
+  const economy=shell?.querySelector(".vdsUTEconomyHero");
+  const main=shell?.querySelector(".vdsUTMain");
+  const squad=main?.querySelector(".vdsSquadPanel");
+  const packs=main?.querySelector(".vdsPackPanel");
+  const club=shell?.querySelector(".vdsCollectionPanel");
+  if(!page||!shell||!header||!economy||!main||!squad||!packs||!club)return;
+
+  const nav=document.createElement("div");
+  nav.className="vdsUTHubNavigation";
+  nav.innerHTML=`
+    <div class="vdsUTHubTabs">
+      ${VDS_UT_INSTANCES.map(([id,label])=>`<button class="vdsUTHubTab ${id==="home"?"active":""}" data-ut-nav="${id}" type="button">${label}</button>`).join("")}
+    </div>
+    <select class="vdsUTHubMobileSelect" id="vdsUTHubMobileSelect" aria-label="Ultimate Team section">
+      ${VDS_UT_INSTANCES.map(([id,label])=>`<option value="${id}">${label}</option>`).join("")}
+    </select>
+    <div class="vdsUTHubNavMeta"><i></i><span>CLUB ONLINE</span></div>`;
+
+  const instances=document.createElement("div");
+  instances.className="vdsUTHubInstances";
+  instances.id="vdsUTHubInstances";
+  instances.innerHTML=`
+    <section class="vdsUTInstance active" data-ut-instance="home"><div id="vdsUTHubHome"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="missions">${vdsUltimateInstanceIntro("PROGRESSION","Missions","Complete daily objectives, collect bonuses and keep your club moving forward.")}<div id="vdsUTHubMissionsMount"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="squad">${vdsUltimateInstanceIntro("TEAM MANAGEMENT","Club Squad","Build the starting six, set the serving rotation and organise your bench.")}<div id="vdsUTHubSquadMount"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="packs">${vdsUltimateInstanceIntro("CLUB STORE","Pack Store","Spend VDS Coins on packs and launch the full player-reveal experience.")}<div id="vdsUTHubPacksMount"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="club">${vdsUltimateInstanceIntro("COLLECTION","My Club","Browse every card you own. Squad management stays separate so the collection can breathe.")}<div id="vdsUTHubClubMount"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="profile">${vdsUltimateInstanceIntro("MANAGER","Club Profile","Your permanent record, rating, progression and recent online form.")}<div id="vdsUTHubProfile"></div></section>`;
+
+  header.insertAdjacentElement("afterend",nav);
+  nav.insertAdjacentElement("afterend",instances);
+
+  document.getElementById("vdsUTHubMissionsMount")?.appendChild(economy);
+  document.getElementById("vdsUTHubSquadMount")?.appendChild(squad);
+  document.getElementById("vdsUTHubPacksMount")?.appendChild(packs);
+  document.getElementById("vdsUTHubClubMount")?.appendChild(club);
+  main.classList.add("vdsUTHubEmptied");
+
+  nav.querySelectorAll("[data-ut-nav]").forEach(btn=>{
+    btn.addEventListener("click",()=>vdsSwitchUltimateInstance(btn.dataset.utNav));
+  });
+  document.getElementById("vdsUTHubMobileSelect")?.addEventListener("change",event=>{
+    vdsSwitchUltimateInstance(event.target.value);
+  });
+
+  vdsUltimateHubReady=true;
+  vdsSwitchUltimateInstance("home",{scroll:false});
+  vdsRenderUltimateHubHome();
+  vdsRenderUltimateHubProfile();
+}
+
+function vdsSwitchUltimateInstance(id,{scroll=true}={}){
+  if(!vdsUltimateHubReady)vdsInitUltimateHub();
+  const valid=VDS_UT_INSTANCES.some(([key])=>key===id)?id:"home";
+  vdsUltimateHubActive=valid;
+  document.querySelectorAll("#ultimate .vdsUTInstance").forEach(el=>el.classList.toggle("active",el.dataset.utInstance===valid));
+  document.querySelectorAll("#ultimate [data-ut-nav]").forEach(el=>el.classList.toggle("active",el.dataset.utNav===valid));
+  const select=document.getElementById("vdsUTHubMobileSelect");
+  if(select)select.value=valid;
+
+  if(valid==="home")vdsRenderUltimateHubHome();
+  if(valid==="profile")vdsRenderUltimateHubProfile();
+  if(valid==="squad" && typeof renderUltimateSquadVisual==="function")renderUltimateSquadVisual();
+  if(valid==="club" && typeof renderUltimateTeam==="function")renderUltimateTeam();
+  if(valid==="missions" && typeof vdsRenderDailyProgress==="function")vdsRenderDailyProgress();
+
+  if(scroll){
+    document.querySelector("#ultimate .vdsUTHubNavigation")?.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+}
+
+function vdsHubOwnedLineupCards(){
+  if(!Array.isArray(ultimateTeamState?.lineupSlots))return [];
+  return ultimateTeamState.lineupSlots.slice(0,6).map(uid=>typeof utCardByUid==="function"?utCardByUid(uid):null);
+}
+
+function vdsRenderUltimateHubHome(){
+  const mount=document.getElementById("vdsUTHubHome");
+  if(!mount)return;
+  const p=vdsAccountProfile||{};
+  const display=p.display_name||vdsAccountSession?.user?.user_metadata?.full_name||"VDS Manager";
+  const username=p.username?`@${p.username}`:"VDS CLUB";
+  const coins=p.is_host_account?"∞":Number(p.coins||0).toLocaleString();
+  const lineup=vdsHubOwnedLineupCards();
+  const filled=lineup.filter(Boolean);
+  const d=vdsDailyProgressCache||{};
+  const completed=[d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded].filter(Boolean).length;
+  const firstWin=d.first_win_rewarded?"CLAIMED":"+200 AVAILABLE";
+
+  mount.innerHTML=`
+    <div class="vdsUTHubHomeHero">
+      <div>
+        <div class="vdsUTHubClubKicker">${esc(username)} · ULTIMATE TEAM</div>
+        <h1 class="vdsUTHubClubName">${esc(display)}</h1>
+        <div class="vdsUTHubClubMeta">
+          <span>LV ${Number(p.manager_level||1)}</span>
+          <span>ELO ${Number(p.elo||1000).toLocaleString()}</span>
+          <span>${Number(p.wins||0)} W · ${Number(p.losses||0)} L</span>
+          <span>${coins} ◉</span>
+          ${p.is_host_account?'<span>HOST · UNLIMITED WALLET</span>':""}
+        </div>
+        <div class="vdsUTHubHomeActions">
+          <button class="vdsUTHubPrimary" type="button" onclick="vdsSwitchUltimateInstance('squad')">MANAGE SQUAD</button>
+          <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">OPEN PACKS</button>
+        </div>
+      </div>
+      <div class="vdsUTHubSquadPreview">
+        <div class="vdsUTHubPreviewCourt"></div>
+        <div class="vdsUTHubPreviewPlayers">
+          ${filled.length?lineup.map(card=>card?`<div class="vdsUTHubPreviewPlayer">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${card.rating}</b></div>`:'').join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
+        </div>
+      </div>
+    </div>
+    <div class="vdsUTHubHomeGrid">
+      <div class="vdsUTHubHomeCard">
+        <span>MISSIONS</span><h3>${completed}/3 Daily Complete</h3><p>First win today: ${firstWin}. Keep playing to earn coins and XP.</p>
+        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('missions')">VIEW MISSIONS</button>
+      </div>
+      <div class="vdsUTHubHomeCard gold">
+        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>75% Gold · 5% Ace. Head into the dedicated Pack Store for the full opening experience.</p>
+        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">GO TO STORE</button>
+      </div>
+      <div class="vdsUTHubHomeCard">
+        <span>CLUB</span><h3>${Number(ultimateTeamState?.cards?.length||0)} Cards Owned</h3><p>${filled.length}/6 starting-six slots filled. Collection and manager profile now have their own spaces.</p>
+        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('club')">VIEW MY CLUB</button>
+      </div>
+    </div>`;
+}
+
+function vdsRenderUltimateHubProfile(){
+  const mount=document.getElementById("vdsUTHubProfile");
+  if(!mount)return;
+  const p=vdsAccountProfile||{};
+  const user=vdsAccountSession?.user||{};
+  const display=p.display_name||user.user_metadata?.full_name||user.user_metadata?.name||"VDS Manager";
+  const avatar=p.avatar_url||user.user_metadata?.avatar_url||user.user_metadata?.picture||"";
+  const coins=p.is_host_account?"∞":Number(p.coins||0).toLocaleString();
+  const winRate=Number(p.matches_played||0)>0?Math.round((Number(p.wins||0)/Number(p.matches_played||1))*100):0;
+  const rows=Array.isArray(vdsRecentMatchesCache)?vdsRecentMatchesCache.slice(0,5):[];
+  const uid=user.id;
+
+  mount.innerHTML=`
+    <div class="vdsUTHubProfileHero">
+      <div class="vdsUTHubAvatar">${avatar?`<img src="${avatar}" alt="">`:'V'}</div>
+      <div>
+        <div class="vdsUTHubProfileName">${esc(display)}</div>
+        <div class="vdsUTHubProfileUser">${p.username?`@${esc(p.username)}`:"VDS MANAGER"}${p.is_host_account?" · HOST ACCOUNT":""}</div>
+        <div class="vdsUTHubProfileStats">
+          <div class="vdsUTHubProfileStat"><span>ELO</span><b>${Number(p.elo||1000).toLocaleString()}</b></div>
+          <div class="vdsUTHubProfileStat"><span>RECORD</span><b>${Number(p.wins||0)}-${Number(p.losses||0)}</b></div>
+          <div class="vdsUTHubProfileStat"><span>WIN RATE</span><b>${winRate}%</b></div>
+          <div class="vdsUTHubProfileStat"><span>STREAK</span><b>${Number(p.win_streak||0)}</b></div>
+          <div class="vdsUTHubProfileStat"><span>LEVEL</span><b>${Number(p.manager_level||1)}</b></div>
+          <div class="vdsUTHubProfileStat coins"><span>COINS</span><b>${coins}</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="vdsUTHubRecentWrap">
+      <div class="vdsUTHubRecentTitle">RECENT ONLINE FORM</div>
+      ${rows.length?rows.map(row=>{
+        const own=String(row.team1_user_id||"")===String(uid)?1:2;
+        const won=own===1?Number(row.sets1)>Number(row.sets2):Number(row.sets2)>Number(row.sets1);
+        const opp=own===1?row.team2_name:row.team1_name;
+        const ownSets=own===1?row.sets1:row.sets2;
+        const oppSets=own===1?row.sets2:row.sets1;
+        const delta=own===1?Number(row.team1_elo_delta||0):Number(row.team2_elo_delta||0);
+        return `<div class="vdsUTHubRecentRow"><div class="vdsUTHubRecentResult ${won?"win":"loss"}">${won?"W":"L"} ${ownSets}-${oppSets}</div><div><strong>${esc(opp||"Opponent")}</strong><br><small>${row.mvp_name?`MVP ${esc(row.mvp_name)}`:"Completed online match"}</small></div><strong>${delta>=0?"+":""}${delta} ELO</strong></div>`;
+      }).join(""):'<div class="small">No completed online matches yet.</div>'}
+    </div>`;
+}
+
+// Keep hub summaries fresh whenever the existing UT renderer runs.
+const vdsStage6EOriginalRenderUltimateTeam=renderUltimateTeam;
+renderUltimateTeam=function(){
+  const result=vdsStage6EOriginalRenderUltimateTeam.apply(this,arguments);
+  if(vdsUltimateHubReady){
+    vdsRenderUltimateHubHome();
+    vdsRenderUltimateHubProfile();
+  }
+  return result;
+};
+
+function vdsStage6EInit(){
+  vdsInitUltimateHub();
+  vdsSyncUltimateWalletFromProfile?.();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(vdsStage6EInit,0),{once:true});
+else setTimeout(vdsStage6EInit,0);
+</script>
+
+
+<!--
+VDS B8.0 STAGE 6E — ULTIMATE TEAM HUB
+- Ultimate Team is now split into dedicated internal instances:
+  HOME · MISSIONS · CLUB SQUAD · PACK STORE · MY CLUB · CLUB PROFILE.
+- Desktop uses a compact sports-game navigation rail; mobile uses a dropdown selector.
+- Existing Missions panel moved into Missions instance.
+- Existing 3D court/bench moved into a full-width Club Squad instance.
+- Pack Store moved into its own full-width instance; opening/reveal mechanics unchanged.
+- Collection moved into My Club; account record moved into Club Profile.
+- New UT Home gives a concise club overview, six-player preview, daily mission status,
+  featured Gold Pack and quick links.
+- Host account entitlement is backend-protected and shows an infinite wallet (∞).
+- Host pack purchases use vds_purchase_ut_pack_hostaware and never deduct coins.
+- Normal users still use the original secure pack purchase logic through the wrapper.
+- All game, lineup, multiplayer, pack odds, reward, Google auth and account mechanics retained.
+-->
+
 </body>
 </html>
 
