@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B7.2 Ultimate Team Starter Club</title>
+<title>Volleyball Draft Simulator — B7.3 Ultimate Team Lineup Editor</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -23732,6 +23732,119 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B73_UT_EDITOR">
+/* Stage 6D — nicer Ultimate Team presentation + editable lineup */
+.vdsUTEditorPanel{position:relative;overflow:hidden}
+.vdsUTEditorPanel:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 22% 15%,rgba(73,154,232,.08),transparent 28%),radial-gradient(circle at 78% 10%,rgba(255,209,84,.07),transparent 24%);
+}
+.vdsUTPanelHeadEditor{align-items:center;gap:10px}
+.vdsUTHeadRight{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.vdsUTSmallPill{
+  appearance:none;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025);color:#90aac0;
+  border-radius:999px;padding:8px 11px;font-size:7px;font-weight:1000;letter-spacing:.12em;cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease;
+}
+.vdsUTSmallPill:hover{transform:translateY(-1px);border-color:rgba(90,171,244,.35);color:#d7e8f7}
+.vdsUTSmallPill.active{background:linear-gradient(135deg,#2d8ad9,#155791);border-color:rgba(121,193,255,.42);color:#fff}
+.vdsUTLineupHelp{margin:12px 0 0;color:#7691a6;font-size:8px;letter-spacing:.03em}
+.vdsUTCourtEnhanced{
+  position:relative;overflow:hidden;height:430px;margin-top:14px;border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 55%,rgba(255,255,255,.06),transparent 24%),
+    linear-gradient(180deg,rgba(220,126,77,.08),rgba(220,126,77,.06)),
+    linear-gradient(180deg,#a9542c 0%,#c06737 42%,#a8552f 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 24px 60px rgba(255,255,255,.05),0 30px 70px rgba(0,0,0,.28);
+}
+.vdsUTCourtAura{position:absolute;inset:auto 50% 12px auto;width:300px;height:54px;transform:translateX(50%);border-radius:50%;background:radial-gradient(circle,rgba(82,160,230,.38),rgba(82,160,230,.07) 45%,transparent 72%);filter:blur(18px);pointer-events:none}
+.vdsUTCourtEnhanced:after{
+  content:"";position:absolute;inset:18px;border:3px solid rgba(255,245,236,.88);pointer-events:none
+}
+.vdsUTBenchWrap{margin-top:16px;padding:15px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.06)}
+.vdsUTBenchHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.vdsUTBenchHead span{display:block;color:#7b95ab;font-size:7px;font-weight:1000;letter-spacing:.15em}
+.vdsUTBenchHead b{display:block;margin-top:3px;font-size:18px}
+#utBenchCount{color:#9bb4c8;font-size:8px;font-weight:1000;letter-spacing:.16em}
+.vdsUTBenchCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}
+.vdsUTBenchEmpty{padding:14px;border-radius:12px;border:1px dashed rgba(255,255,255,.12);color:#748ea4;font-size:9px;text-align:center}
+.vdsUTBenchCard{
+  position:relative;min-height:180px;border-radius:15px;overflow:hidden;border:1px solid rgba(255,255,255,.12);cursor:grab;
+  text-align:left;box-shadow:0 18px 32px rgba(0,0,0,.24);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.vdsUTBenchCard:hover{transform:translateY(-4px);box-shadow:0 24px 42px rgba(0,0,0,.3)}
+.vdsUTBenchCard.selected{outline:2px solid rgba(104,191,255,.75);box-shadow:0 0 0 4px rgba(72,149,220,.18),0 24px 42px rgba(0,0,0,.3)}
+.vdsUTBenchCard.in-squad{border-color:rgba(236,206,99,.44)}
+.vdsUTBenchCard img,.vdsUTBenchFallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
+.vdsUTBenchFallback{display:flex;align-items:center;justify-content:center;font-size:40px;background:#142536}
+.vdsUTBenchShade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(2,7,12,.15) 52%,rgba(2,7,12,.98) 100%)}
+.vdsUTBenchTag{position:absolute;z-index:4;top:8px;right:8px;padding:5px 8px;border-radius:999px;background:rgba(5,17,27,.75);border:1px solid rgba(255,255,255,.12);font-size:6px;font-weight:1000;letter-spacing:.12em}
+.vdsUTBenchRate{position:absolute;z-index:4;top:8px;left:8px;font-size:24px;font-weight:1000;line-height:.85;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.32)}
+.vdsUTBenchRate small{display:block;margin-top:4px;font-size:7px}
+.vdsUTBenchBottom{position:absolute;z-index:4;left:9px;right:9px;bottom:9px}
+.vdsUTBenchBottom b{display:block;font-size:11px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.vdsUTBenchBottom span{display:block;margin-top:3px;color:#bccddd;font-size:6px;letter-spacing:.08em}
+
+.vdsUTBenchCard.bronze{background:linear-gradient(150deg,#8b542f,#5a3421 58%,#24160f)}
+.vdsUTBenchCard.silver,.vdsUTBenchCard.rare_silver{background:linear-gradient(150deg,#9ea7b1,#5e6c77 58%,#263946)}
+.vdsUTBenchCard.gold,.vdsUTBenchCard.rare_gold{background:linear-gradient(150deg,#d7b445,#9b7a19 58%,#4e3b09)}
+.vdsUTBenchCard.ace{background:linear-gradient(150deg,#6d38a5,#3b256f 52%,#12182d)}
+
+.vdsUTSquadSlots{z-index:2}
+.vdsSquadSlot{
+  border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(7,20,31,.18);backdrop-filter:blur(6px);
+  box-shadow:0 18px 35px rgba(0,0,0,.16);padding:10px;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.vdsSquadSlot:hover{border-color:rgba(84,171,245,.34);transform:translateY(-2px)}
+.vdsSquadSlot.drag-over,.vdsSquadSlot.selected-target{border-color:rgba(96,191,255,.9);box-shadow:0 0 0 3px rgba(76,162,236,.18),0 18px 35px rgba(0,0,0,.16)}
+.vdsSquadSlot.is-empty{background:rgba(5,16,24,.18)}
+.vdsSquadSlotTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.vdsSquadZone,.vdsSquadRole{font-size:7px;font-weight:1000;letter-spacing:.12em;color:#f5f5f5}
+.vdsSquadRole{color:#ffd366}
+.vdsSquadMiniCard{position:relative;min-height:126px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 35px rgba(0,0,0,.22)}
+.vdsSquadMiniCard img,.vdsSquadMiniPhoto{height:100%;width:100%;object-fit:cover;object-position:center top}
+.vdsSquadMiniCard:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 32%,rgba(0,0,0,.15) 54%,rgba(0,0,0,.94) 100%)}
+.vdsSquadMiniCard>*{position:relative;z-index:2}
+.vdsSquadMiniCard.bronze{background:linear-gradient(150deg,#92562f,#54321d 58%,#24140d)}
+.vdsSquadMiniCard.silver,.vdsSquadMiniCard.rare_silver{background:linear-gradient(150deg,#b8c0c8,#66737d 58%,#263946)}
+.vdsSquadMiniCard.gold,.vdsSquadMiniCard.rare_gold{background:linear-gradient(150deg,#e0bb49,#a17916 58%,#4d3a08)}
+.vdsSquadMiniCard.ace{background:linear-gradient(150deg,#7a42bc,#44257a 58%,#141b33)}
+.vdsSquadMiniRemove{
+  position:absolute;top:6px;right:6px;z-index:4;width:21px;height:21px;border:0;border-radius:999px;cursor:pointer;
+  background:rgba(4,14,22,.72);color:#fff;font-size:14px;line-height:1
+}
+.vdsSquadMiniRating{font-size:24px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.vdsSquadMiniName{left:8px;right:8px;bottom:8px;font-size:10px;text-shadow:0 2px 8px rgba(0,0,0,.38)}
+.vdsSquadSlotLabel{margin-top:8px;font-size:8px;font-weight:1000;letter-spacing:.12em;color:#f3f7fb;text-align:center}
+.vdsSquadSlotHint{margin-top:3px;font-size:7px;text-align:center;color:#7f98ad}
+.vdsSquadEmpty{height:126px;border-radius:14px;border:1px dashed rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;color:#8ab5dd;font-size:34px;background:rgba(255,255,255,.02)}
+.vdsSquadFooter{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* slightly cleaner collection presentation */
+.utCollection{gap:14px}
+.utCollectionCard.utPremiumCollectionCard{box-shadow:0 20px 42px rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.10)}
+.utCollectionCard.utPremiumCollectionCard:hover{transform:translateY(-4px);box-shadow:0 28px 52px rgba(0,0,0,.28)}
+
+@media(max-width:1080px){
+  .vdsUTHeadRight{justify-content:flex-start}
+}
+@media(max-width:820px){
+  .vdsUTCourtEnhanced{height:auto;padding-bottom:16px}
+  .vdsUTBenchCards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .vdsUTBenchHead{align-items:flex-start;flex-direction:column}
+  .vdsUTHeadRight{gap:6px}
+  .vdsUTSmallPill{padding:7px 9px}
+  .vdsUTBenchCards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .vdsUTBenchCard{min-height:150px}
+  .vdsSquadSlot{padding:7px}
+  .vdsSquadMiniCard,.vdsSquadEmpty{min-height:112px;height:112px}
+  .vdsSquadMiniRating{font-size:19px}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -24348,11 +24461,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B7.2-STAGE6C">
+<section id="ultimate" class="page" data-vds-build="B7.3-STAGE6D">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6C · STARTER CLUB</div>
+        <div class="vdsUTBuildBadge">STAGE 6D · CLUB LINEUP</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Play. Earn. Build.</h2>
         <p>Online matches now earn permanent VDS Coins, XP and ELO for your signed-in manager account.</p>
@@ -24414,16 +24527,30 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
     </div>
 
     <div class="vdsUTMain">
-      <div class="vdsSquadPanel">
-        <div class="vdsUTPanelHead">
+      <div class="vdsSquadPanel vdsUTEditorPanel">
+        <div class="vdsUTPanelHead vdsUTPanelHeadEditor">
           <div><span>ACTIVE SQUAD</span><b>Your Court</b></div>
-          <div id="utSquadRating">OVR —</div>
+          <div class="vdsUTHeadRight">
+            <button class="vdsUTSmallPill active" id="utServeModeBtn" type="button">SERVING ROTATION</button>
+            <button class="vdsUTSmallPill" id="utAutoLineupBtn" type="button">AUTO BUILD</button>
+            <button class="vdsUTSmallPill" id="utClearLineupBtn" type="button">CLEAR</button>
+            <div id="utSquadRating">OVR —</div>
+          </div>
         </div>
-        <div class="vdsUTCourt">
+        <div class="vdsUTLineupHelp">Drag cards into position. On mobile, tap a bench card, then tap a court slot. Setter is auto-placed in P1 when using serving rotation.</div>
+        <div class="vdsUTCourt vdsUTCourtEnhanced">
+          <div class="vdsUTCourtAura"></div>
           <div class="vdsUTNet"></div>
           <div class="vdsUTAttackLine"></div>
-          <div class="vdsUTCourtLabel">YOUR SIX</div>
+          <div class="vdsUTCourtLabel">YOUR STARTING SIX</div>
           <div id="utSquadSlots" class="vdsUTSquadSlots"></div>
+        </div>
+        <div class="vdsUTBenchWrap">
+          <div class="vdsUTBenchHead">
+            <div><span>AVAILABLE CARDS</span><b>Bench & Selection</b></div>
+            <div id="utBenchCount">0 OPTIONS</div>
+          </div>
+          <div id="utBenchCards" class="vdsUTBenchCards"></div>
         </div>
         <div class="vdsSquadFooter">
           <span id="utSquadStatus">Open packs to build your squad.</span>
@@ -36581,6 +36708,10 @@ function vdsHydrateStarterClubCards(state=vdsStarterClubState){
   const starterIds=new Set(starterCards.map(c=>c.id));
   const nonStarter=current.filter(c=>!starterIds.has(c.id));
   ultimateTeamState.cards=[...starterCards,...nonStarter];
+  if(!Array.isArray(ultimateTeamState.lineupSlots) || !ultimateTeamState.lineupSlots.some(Boolean)){
+    ultimateTeamState.lineupSlots=utAutoBuildSlots();
+    ultimateTeamState.lineupMode="serving";
+  }
   saveUltimateTeam();
   renderUltimateTeam();
   return true;
@@ -36858,7 +36989,7 @@ const UT_RARITY={
   ace:{label:"ACE",min:90,max:99}
 };
 
-let ultimateTeamState={coins:0,cards:[]};
+let ultimateTeamState={coins:0,cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
 
 function loadUltimateTeam(){
   try{
@@ -36867,16 +36998,21 @@ function loadUltimateTeam(){
       ultimateTeamState={
         // Coins are account-owned on Supabase from Stage 6B onward.
         coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-        cards:saved.cards
+        cards:saved.cards,
+        lineupSlots:Array.isArray(saved.lineupSlots)?saved.lineupSlots.slice(0,6):Array(6).fill(null),
+        lineupMode:(saved.lineupMode||"serving")==="custom"?"custom":"serving"
       };
+      while(ultimateTeamState.lineupSlots.length<6)ultimateTeamState.lineupSlots.push(null);
     }else{
       ultimateTeamState={
         coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-        cards:[]
+        cards:[],
+        lineupSlots:Array(6).fill(null),
+        lineupMode:"serving"
       };
     }
   }catch(e){
-    ultimateTeamState={coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),cards:[]};
+    ultimateTeamState={coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
   }
   if(vdsStarterClubState?.completed)vdsHydrateStarterClubCards(vdsStarterClubState);
   renderUltimateTeam();
@@ -36885,7 +37021,11 @@ function loadUltimateTeam(){
 function saveUltimateTeam(){
   // Collection remains local in this first economy pass, but currency does not.
   // Never persist a browser-authored coin balance as authority.
-  safeStore.set(UT_SAVE_KEY,JSON.stringify({cards:ultimateTeamState.cards||[]}));
+  safeStore.set(UT_SAVE_KEY,JSON.stringify({
+    cards:ultimateTeamState.cards||[],
+    lineupSlots:Array.isArray(ultimateTeamState.lineupSlots)?ultimateTeamState.lineupSlots.slice(0,6):Array(6).fill(null),
+    lineupMode:ultimateTeamState.lineupMode||"serving"
+  }));
 }
 
 function resetUltimateTeam(){
@@ -36893,7 +37033,9 @@ function resetUltimateTeam(){
   // gameplay rewards or an authorised pack purchase.
   ultimateTeamState={
     coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-    cards:[]
+    cards:[],
+    lineupSlots:Array(6).fill(null),
+    lineupMode:"serving"
   };
 
   safeStore.remove(UT_SAVE_KEY);
@@ -37208,43 +37350,273 @@ function refreshUltimateCardsFromMaster(){
   saveUltimateTeam();
 }
 
+const UT_LINEUP_SLOTS=[
+  {index:0,zone:"P4",label:"FRONT LEFT",hint:"Outside lane",role:"OH"},
+  {index:1,zone:"P3",label:"FRONT MIDDLE",hint:"Quick / middle",role:"M"},
+  {index:2,zone:"P2",label:"FRONT RIGHT",hint:"Opposite lane",role:"OP"},
+  {index:3,zone:"P5",label:"BACK LEFT",hint:"Left-back receive",role:"OH"},
+  {index:4,zone:"P6",label:"BACK MIDDLE",hint:"Libero / defence",role:"L"},
+  {index:5,zone:"P1",label:"BACK RIGHT",hint:"Setter serve start",role:"S"}
+];
+let utSelectedBenchCardUid=null;
+
+function utCardUid(card){
+  if(!card)return null;
+  if(card.id!=null)return String(card.id);
+  return String(card.playerName||"")+"|"+String(card.rarity||"")+"|"+String(card.pulledAt||"");
+}
+
+function utBestUniqueCards(){
+  const map=new Map();
+  (ultimateTeamState.cards||[]).forEach(card=>{
+    const key=String(card.playerName||"");
+    const prev=map.get(key);
+    if(!prev || Number(card.rating||0)>Number(prev.rating||0))map.set(key,card);
+  });
+  return [...map.values()].sort((a,b)=>Number(b.rating||0)-Number(a.rating||0));
+}
+
+function utCardByUid(uid){
+  return utBestUniqueCards().find(card=>utCardUid(card)===String(uid))||null;
+}
+
+function utFindSlotOfCard(uid){
+  const slots=Array.isArray(ultimateTeamState.lineupSlots)?ultimateTeamState.lineupSlots:[];
+  return slots.findIndex(v=>String(v||"")===String(uid||""));
+}
+
+function utPickBestCard(pool, positions, used){
+  return pool.find(card=>!used.has(utCardUid(card)) && positions.includes(String(card.position||"-")))||null;
+}
+
+function utAutoBuildSlots(){
+  const pool=utBestUniqueCards();
+  const used=new Set();
+  const choose=(positions)=>{
+    const found=utPickBestCard(pool, positions, used);
+    if(found)used.add(utCardUid(found));
+    return found;
+  };
+  const fallback=()=>{
+    const found=pool.find(card=>!used.has(utCardUid(card)));
+    if(found)used.add(utCardUid(found));
+    return found;
+  };
+
+  const oh1=choose(["OH"])||fallback();
+  const middle=choose(["M"])||fallback();
+  const opposite=choose(["OP"])||fallback();
+  const oh2=choose(["OH"])||fallback();
+  const libero=choose(["L"])||choose(["OH"])||fallback();
+  const setter=choose(["S"])||fallback();
+
+  return [oh1,middle,opposite,oh2,libero,setter].map(card=>card?utCardUid(card):null);
+}
+
+function utEnsureLineup(){
+  if(!Array.isArray(ultimateTeamState.lineupSlots))ultimateTeamState.lineupSlots=Array(6).fill(null);
+  while(ultimateTeamState.lineupSlots.length<6)ultimateTeamState.lineupSlots.push(null);
+  if(!ultimateTeamState.lineupSlots.some(Boolean) && (ultimateTeamState.cards||[]).length){
+    ultimateTeamState.lineupSlots=utAutoBuildSlots();
+    ultimateTeamState.lineupMode="serving";
+    saveUltimateTeam();
+  }
+}
+
+function utAssignCardToSlot(uid, slotIndex){
+  if(!uid && uid!==0)return;
+  utEnsureLineup();
+  const slots=ultimateTeamState.lineupSlots.slice(0,6);
+  const target=Number(slotIndex);
+  if(target<0 || target>5)return;
+  const source=utFindSlotOfCard(uid);
+  const targetPrev=slots[target]||null;
+  if(source===target){
+    utSelectedBenchCardUid=null;
+    renderUltimateSquadVisual();
+    return;
+  }
+  if(source>=0){
+    slots[source]=targetPrev;
+  }
+  slots[target]=uid;
+  if(source<0){
+    // Prevent duplicates by clearing any previous accidental extra placements.
+    slots.forEach((v,i)=>{if(i!==target && String(v||"")===String(uid))slots[i]=null;});
+  }
+  ultimateTeamState.lineupSlots=slots;
+  ultimateTeamState.lineupMode="custom";
+  utSelectedBenchCardUid=null;
+  saveUltimateTeam();
+  renderUltimateSquadVisual();
+}
+
+function utClearLineup(){
+  ultimateTeamState.lineupSlots=Array(6).fill(null);
+  ultimateTeamState.lineupMode="custom";
+  utSelectedBenchCardUid=null;
+  saveUltimateTeam();
+  renderUltimateSquadVisual();
+}
+
+function utAutoBuildLineup(){
+  ultimateTeamState.lineupSlots=utAutoBuildSlots();
+  ultimateTeamState.lineupMode="serving";
+  utSelectedBenchCardUid=null;
+  saveUltimateTeam();
+  renderUltimateSquadVisual();
+}
+
+function utRemoveFromSlot(slotIndex){
+  utEnsureLineup();
+  ultimateTeamState.lineupSlots[slotIndex]=null;
+  ultimateTeamState.lineupMode="custom";
+  saveUltimateTeam();
+  renderUltimateSquadVisual();
+}
+
+function utSetSelectedBenchCard(uid){
+  utSelectedBenchCardUid=String(uid);
+  renderUltimateSquadVisual();
+}
+
+function renderUltimateBench(){
+  const bench=document.getElementById("utBenchCards");
+  const count=document.getElementById("utBenchCount");
+  if(!bench)return;
+  const pool=utBestUniqueCards();
+  const slotted=new Set((ultimateTeamState.lineupSlots||[]).filter(Boolean).map(String));
+  if(count)count.textContent=`${pool.length} OPTIONS`;
+  if(!pool.length){
+    bench.innerHTML='<div class="vdsUTBenchEmpty">Open packs or complete your starter club to fill the bench.</div>';
+    return;
+  }
+  bench.innerHTML=pool.map(card=>{
+    const uid=utCardUid(card);
+    const inSquad=slotted.has(String(uid));
+    const selected=String(uid)===String(utSelectedBenchCardUid);
+    return `<button class="vdsUTBenchCard ${card.rarity} ${inSquad?"in-squad":""} ${selected?"selected":""}" type="button" draggable="true" data-card-uid="${esc(uid)}">
+      <div class="vdsUTBenchTag">${inSquad?"IN XI":"BENCH"}</div>
+      <div class="vdsUTBenchRate">${card.rating}<small>${esc(card.position||"-")}</small></div>
+      ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsUTBenchFallback">👤</div>`}
+      <div class="vdsUTBenchShade"></div>
+      <div class="vdsUTBenchBottom"><b>${esc(card.playerName)}</b><span>${(UT_RARITY[card.rarity]?.label||card.rarity||"").toUpperCase()} · OVR ${card.overallRating??card.sourceOverall??card.rating??"—"}</span></div>
+    </button>`;
+  }).join("");
+
+  bench.querySelectorAll('[data-card-uid]').forEach(el=>{
+    const uid=String(el.dataset.cardUid);
+    el.addEventListener('click',()=>utSetSelectedBenchCard(uid));
+    el.addEventListener('dragstart',event=>{
+      event.dataTransfer?.setData('text/plain',uid);
+      event.dataTransfer.effectAllowed='move';
+      utSelectedBenchCardUid=uid;
+    });
+  });
+}
+
 function renderUltimateSquadVisual(){
   const target=document.getElementById("utSquadSlots");
   if(!target)return;
 
-  // Visual squad only: choose the highest-rated owned copy of six different players.
-  // This does not remove cards or alter pack/collection state.
-  const bestByPlayer=new Map();
-  (ultimateTeamState.cards||[]).forEach(card=>{
-    const prev=bestByPlayer.get(card.playerName);
-    if(!prev || Number(card.rating)>Number(prev.rating))bestByPlayer.set(card.playerName,card);
-  });
-  const squad=[...bestByPlayer.values()].sort((a,b)=>Number(b.rating)-Number(a.rating)).slice(0,6);
-  const labels=["FRONT LEFT","FRONT MIDDLE","FRONT RIGHT","BACK LEFT","BACK MIDDLE","BACK RIGHT"];
+  utEnsureLineup();
+  const slots=(ultimateTeamState.lineupSlots||Array(6).fill(null)).slice(0,6);
+  const lineupCards=slots.map(uid=>utCardByUid(uid));
+  const filled=lineupCards.filter(Boolean);
 
-  target.innerHTML=Array.from({length:6},(_,i)=>{
-    const card=squad[i];
-    if(!card)return `<div class="vdsSquadSlot"><div class="vdsSquadEmpty">＋</div><div class="vdsSquadSlotLabel">${labels[i]}</div></div>`;
-    return `<div class="vdsSquadSlot">
-      <div class="vdsSquadMiniCard ${card.rarity}">
+  target.innerHTML=UT_LINEUP_SLOTS.map((slot,idx)=>{
+    const card=lineupCards[idx];
+    const selectedDrop=utSelectedBenchCardUid?" selected-target":"";
+    if(!card){
+      return `<div class="vdsSquadSlot is-empty${selectedDrop}" data-slot-index="${idx}">
+        <div class="vdsSquadSlotTop"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
+        <div class="vdsSquadEmpty">＋</div>
+        <div class="vdsSquadSlotLabel">${slot.label}</div>
+        <div class="vdsSquadSlotHint">${slot.hint}</div>
+      </div>`;
+    }
+    return `<div class="vdsSquadSlot" data-slot-index="${idx}">
+      <div class="vdsSquadSlotTop"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
+      <div class="vdsSquadMiniCard ${card.rarity}" draggable="true" data-card-uid="${esc(utCardUid(card))}">
+        <button class="vdsSquadMiniRemove" type="button" data-remove-slot="${idx}" aria-label="Remove from slot">×</button>
         <div class="vdsSquadMiniRating">${card.rating}<small>${esc(card.position||"-")}</small></div>
         <div class="vdsSquadMiniPos">OVR ${card.overallRating??card.sourceOverall??"—"}</div>
         ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsSquadMiniPhoto">👤</div>`}
         <div class="vdsSquadMiniName">${esc(card.playerName)}</div>
       </div>
-      <div class="vdsSquadSlotLabel">${labels[i]}</div>
+      <div class="vdsSquadSlotLabel">${slot.label}</div>
+      <div class="vdsSquadSlotHint">${slot.hint}</div>
     </div>`;
   }).join("");
 
-  const rating=document.getElementById("utSquadRating");
-  if(rating){
-    const avg=squad.length?Math.round(squad.reduce((s,c)=>s+Number(c.overallRating??c.sourceOverall??c.rating??0),0)/squad.length):null;
-    rating.textContent=avg?`TEAM OVR ${avg}`:"TEAM OVR —";
+  const avgEl=document.getElementById("utSquadRating");
+  if(avgEl){
+    const avg=filled.length?Math.round(filled.reduce((sum,card)=>sum+Number(card.overallRating??card.sourceOverall??card.rating??0),0)/filled.length):null;
+    avgEl.textContent=avg?`TEAM OVR ${avg}`:"TEAM OVR —";
   }
+  const serveBtn=document.getElementById('utServeModeBtn');
+  if(serveBtn)serveBtn.classList.toggle('active',(ultimateTeamState.lineupMode||'serving')==='serving');
+  const autoBtn=document.getElementById('utAutoLineupBtn');
+  if(autoBtn && !autoBtn.dataset.bound){
+    autoBtn.dataset.bound='1';
+    autoBtn.addEventListener('click',utAutoBuildLineup);
+  }
+  const clearBtn=document.getElementById('utClearLineupBtn');
+  if(clearBtn && !clearBtn.dataset.bound){
+    clearBtn.dataset.bound='1';
+    clearBtn.addEventListener('click',utClearLineup);
+  }
+  if(serveBtn && !serveBtn.dataset.bound){
+    serveBtn.dataset.bound='1';
+    serveBtn.addEventListener('click',utAutoBuildLineup);
+  }
+
   const status=document.getElementById("utSquadStatus");
-  if(status)status.textContent=squad.length>=6?"Best six owned cards shown on court.":`${squad.length}/6 squad slots filled.`;
+  if(status){
+    if(!filled.length)status.textContent='No lineup selected yet. Drag cards from the bench into your six.';
+    else if(filled.length<6)status.textContent=`${filled.length}/6 starters selected · drag more players in to complete your lineup.`;
+    else status.textContent=(ultimateTeamState.lineupMode==='serving')
+      ? 'Serving rotation active · setter anchored in P1 (back right). Drag any card to customise.'
+      : 'Custom lineup active · drag cards between positions or hit Auto Build.';
+  }
   const unique=document.getElementById("utUniqueCount");
-  if(unique)unique.textContent=`${bestByPlayer.size} UNIQUE`;
+  if(unique)unique.textContent=`${utBestUniqueCards().length} UNIQUE`;
+
+  target.querySelectorAll('.vdsSquadSlot').forEach(slotEl=>{
+    const idx=Number(slotEl.dataset.slotIndex);
+    slotEl.addEventListener('click',()=>{
+      if(utSelectedBenchCardUid)utAssignCardToSlot(utSelectedBenchCardUid,idx);
+    });
+    slotEl.addEventListener('dragover',event=>{event.preventDefault();slotEl.classList.add('drag-over');});
+    slotEl.addEventListener('dragleave',()=>slotEl.classList.remove('drag-over'));
+    slotEl.addEventListener('drop',event=>{
+      event.preventDefault();
+      slotEl.classList.remove('drag-over');
+      const uid=event.dataTransfer?.getData('text/plain')||utSelectedBenchCardUid;
+      if(uid)utAssignCardToSlot(uid,idx);
+    });
+  });
+  target.querySelectorAll('[data-card-uid]').forEach(cardEl=>{
+    const uid=String(cardEl.dataset.cardUid||'');
+    cardEl.addEventListener('dragstart',event=>{
+      event.dataTransfer?.setData('text/plain',uid);
+      event.dataTransfer.effectAllowed='move';
+      utSelectedBenchCardUid=uid;
+    });
+    cardEl.addEventListener('click',event=>{
+      if(event.target.closest('[data-remove-slot]'))return;
+      utSelectedBenchCardUid=uid;
+    });
+  });
+  target.querySelectorAll('[data-remove-slot]').forEach(btn=>{
+    btn.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      utRemoveFromSlot(Number(btn.dataset.removeSlot));
+    });
+  });
+
+  renderUltimateBench();
 }
 
 function renderUltimateTeam(){
@@ -41056,6 +41428,17 @@ FRONTEND:
 - Existing account economy, daily rewards, ELO/XP, packs, ACE tier, Google auth and multiplayer retained.
 -->
 
+
+<!--
+VDS B7.3 STAGE 6D — ULTIMATE TEAM VISUAL UPGRADE + LINEUP EDITOR
+- Ultimate Team court panel visually upgraded with a more premium volleyball-court presentation.
+- Added editable starting six with drag-and-drop lineup control.
+- Bench / available-cards strip added below the court.
+- Mobile fallback supported: tap a bench card then tap a slot.
+- Auto Build creates a serving rotation: Setter -> P1, Opposite -> P2, Middle -> P3, OH -> P4, OH -> P5, Libero -> P6.
+- Manual drag changes lineupMode to custom while keeping the serving auto-build one tap away.
+- Lineup state now persists in local storage alongside the collection.
+-->
 </body>
 </html>
 
