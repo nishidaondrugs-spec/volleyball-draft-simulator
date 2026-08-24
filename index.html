@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.9 Slim Ultimate Team Topbar</title>
+<title>Volleyball Draft Simulator — B9.0 Ace + Elite Tier Split</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -27416,6 +27416,198 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B90_ACE_ELITE_TIERS">
+/* Stage 6E10 — split 90+ into ELITE (90–95) and ACE (96–99).
+   ACE becomes a black foil card with animated gleam. */
+
+:root{
+  --vds-elite:#f2cf68;
+  --vds-elite-bright:#fff1b2;
+  --vds-elite-deep:#876114;
+  --vds-ace-black:#07090d;
+  --vds-ace-black-2:#121722;
+  --vds-ace-silver:#e7edf7;
+  --vds-ace-ice:#9fd8ff;
+  --vds-ace-violet:#9a79ff;
+}
+
+@keyframes vdsAceGleam{
+  0%{background-position:0 0, 190% 0}
+  100%{background-position:0 0, -85% 0}
+}
+@keyframes vdsAcePulse{
+  0%,100%{box-shadow:0 18px 40px rgba(0,0,0,.35),0 0 0 rgba(159,216,255,0),0 0 18px rgba(154,121,255,.10)}
+  50%{box-shadow:0 22px 48px rgba(0,0,0,.45),0 0 22px rgba(159,216,255,.15),0 0 28px rgba(154,121,255,.18)}
+}
+
+/* Small badge systems */
+.tierBadge.elite{color:var(--vds-elite);border-color:rgba(242,207,104,.5)}
+.tierBadge.ace{color:var(--vds-ace-silver);border-color:rgba(231,237,247,.55);background:rgba(255,255,255,.03)}
+
+.profileTierBadge.elite{color:#f0cf73;background:rgba(240,207,115,.09)}
+.profileTierBadge.ace{color:#edf4fb;background:rgba(237,244,251,.09);border-color:rgba(237,244,251,.16)}
+
+#profileModal.show .modalCard.profileTierElite{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,228,155,.12),transparent 34%),
+    linear-gradient(145deg,#5f4514,#b0882c 48%,#f0d069);
+}
+#profileModal.show .modalCard.profileTierAce{
+  background:
+    radial-gradient(circle at 20% 18%,rgba(255,255,255,.12),transparent 20%),
+    radial-gradient(circle at 82% 8%,rgba(159,216,255,.12),transparent 18%),
+    linear-gradient(145deg,#05070a,#141924 55%,#07090c 100%);
+}
+#profileModal.show .profileSheet.profileTierElite{box-shadow:0 0 30px rgba(240,206,115,.18),0 20px 50px rgba(0,0,0,.38)}
+#profileModal.show .profileSheet.profileTierAce{box-shadow:0 0 34px rgba(175,223,255,.16),0 20px 50px rgba(0,0,0,.42)}
+
+.profileOverallBox.profileTierElite b{color:#f4d87d}
+.profileOverallBox.profileTierAce b{color:#eef5ff}
+
+/* Global ELITE treatment */
+.vdsLegacyFifaPlayerCard.elite,
+.vdsLegacyHero3dCard.elite,
+.vdsLegacyHero3dCard.vdsHeroMatchCard.elite,
+.comparePlayerHero.elite,
+.revealCard.elite,
+.utPremiumCard.elite,
+.utPremiumCollectionCard.elite,
+.utCard.elite,
+.utCollectionCard.elite,
+.vdsSquadMiniCard.elite,
+.miniDraftRevealCard.elite,
+.lineupPlayerCard.elite{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,236,176,.12),transparent 32%),
+    linear-gradient(145deg,#5d4312 0%,#a87c24 42%,#f0d068 100%)!important;
+  border-color:rgba(255,228,150,.72)!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.28),0 0 18px rgba(242,207,104,.15)!important;
+}
+
+.vdsLegacyFifaPlayerCard.elite .fifaOverall,
+.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
+.vdsLegacyHero3dCard.elite .hero3dOverall,
+.vdsLegacyHero3dCard.elite .hero3dTier,
+.vdsHeroMatchCard.elite .hero3dOverall,
+.vdsHeroMatchCard.elite .hero3dTier,
+.comparePlayerHero.elite .compareHeroRating,
+.revealCard.elite .overall,
+.revealCard.elite .revealTier,
+.utPremiumCard.elite .utPremiumRarity,
+.utPremiumCard.elite .utPremiumRating,
+.utPremiumCollectionCard.elite .utPremiumRarity,
+.utSecondaryTier.elite,
+.utRarity.elite{
+  color:#fff1bc!important;
+}
+
+/* Global ACE treatment — black base with animated foil gleam */
+.vdsLegacyFifaPlayerCard.ace,
+.vdsLegacyHero3dCard.ace,
+.vdsLegacyHero3dCard.vdsHeroMatchCard.ace,
+.comparePlayerHero.ace,
+.revealCard.ace,
+.utPremiumCard.ace,
+.utPremiumCollectionCard.ace,
+.utCard.ace,
+.utCollectionCard.ace,
+.vdsSquadMiniCard.ace,
+.miniDraftRevealCard.ace,
+.lineupPlayerCard.ace{
+  background-image:
+    linear-gradient(145deg,var(--vds-ace-black) 0%,var(--vds-ace-black-2) 52%,#05070a 100%),
+    linear-gradient(115deg,rgba(255,255,255,0) 18%,rgba(255,255,255,.03) 33%,rgba(255,255,255,.22) 48%,rgba(159,216,255,.15) 54%,rgba(255,255,255,.03) 61%,rgba(255,255,255,0) 76%)!important;
+  background-size:100% 100%, 240% 100%!important;
+  background-position:0 0, 190% 0!important;
+  background-repeat:no-repeat!important;
+  border-color:rgba(231,237,247,.7)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.4),0 0 18px rgba(159,216,255,.12),0 0 22px rgba(154,121,255,.10)!important;
+  animation:vdsAceGleam 4.6s linear infinite, vdsAcePulse 3.8s ease-in-out infinite!important;
+}
+
+.vdsLegacyFifaPlayerCard.ace .fifaOverall,
+.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+.vdsLegacyHero3dCard.ace .hero3dOverall,
+.vdsLegacyHero3dCard.ace .hero3dTier,
+.vdsHeroMatchCard.ace .hero3dOverall,
+.vdsHeroMatchCard.ace .hero3dTier,
+.comparePlayerHero.ace .compareHeroRating,
+.revealCard.ace .overall,
+.revealCard.ace .revealTier,
+.utPremiumCard.ace .utPremiumRarity,
+.utPremiumCard.ace .utPremiumRating,
+.utPremiumCollectionCard.ace .utPremiumRarity,
+.utPremiumCollectionCard.ace .utPremiumRating,
+.utSecondaryTier.ace,
+.utRarity.ace{
+  color:var(--vds-ace-silver)!important;
+  text-shadow:0 0 10px rgba(159,216,255,.18)!important;
+}
+
+.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+.vdsLegacyHero3dCard.ace .hero3dTier,
+.vdsHeroMatchCard.ace .hero3dTier{
+  border-color:rgba(231,237,247,.44)!important;
+  background:rgba(255,255,255,.05)!important;
+}
+
+/* Reveal / pack opening polish */
+.miniPickRevealCard.elite .miniRevealCardFace,
+.miniPickRevealCard.elite .futMainCard{
+  border-color:rgba(255,236,169,.82)!important;
+  box-shadow:0 28px 82px rgba(0,0,0,.58),0 0 42px rgba(255,225,137,.16),inset 0 0 45px rgba(255,241,191,.05)!important;
+}
+.miniPickRevealCard.ace .miniRevealCardFace,
+.miniPickRevealCard.ace .futMainCard{
+  background-image:
+    linear-gradient(145deg,#05070a 0%,#141924 55%,#07090c 100%),
+    linear-gradient(115deg,rgba(255,255,255,0) 18%,rgba(255,255,255,.05) 33%,rgba(255,255,255,.24) 48%,rgba(159,216,255,.16) 54%,rgba(255,255,255,.04) 61%,rgba(255,255,255,0) 76%)!important;
+  background-size:100% 100%,240% 100%!important;
+  background-position:0 0,190% 0!important;
+  border-color:rgba(231,237,247,.76)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.62),0 0 44px rgba(159,216,255,.14),0 0 26px rgba(154,121,255,.14)!important;
+  animation:vdsAceGleam 4.4s linear infinite, vdsAcePulse 3.8s ease-in-out infinite!important;
+}
+.miniPickRevealCard.ace .futRevealRating,
+.miniPickRevealCard.ace .futRevealTitle strong{color:var(--vds-ace-silver)!important}
+
+.utRevealOverlay:has(.utPremiumCard.elite) .utRevealStageRing{
+  border-color:rgba(255,224,123,.65)!important;
+  box-shadow:0 0 36px rgba(255,221,118,.16)!important;
+}
+.utRevealOverlay:has(.utPremiumCard.ace) .utRevealStageRing{
+  border-color:rgba(231,237,247,.72)!important;
+  box-shadow:0 0 42px rgba(159,216,255,.18),0 0 24px rgba(154,121,255,.14)!important;
+}
+.utRevealOverlay:has(.utPremiumCard.ace) .utPackBurst{
+  background:radial-gradient(circle,rgba(255,255,255,.22),rgba(159,216,255,.12),transparent 72%)!important;
+}
+.utRevealOverlay:has(.utPremiumCard.ace) .utRevealSpotlight{
+  background:radial-gradient(circle at 50% 0,rgba(194,230,255,.18),transparent 68%)!important;
+}
+
+/* Home / UT cards / collection helpers */
+.utCard.elite .utRarity,
+.utCollectionCard.elite .utRarity,
+.vdsSquadMiniCard.elite{color:#fff1bc!important}
+.utCard.ace .utRarity,
+.utCollectionCard.ace .utRarity,
+.vdsSquadMiniCard.ace{color:#eef5ff!important}
+
+/* If anywhere still styles rare_gold, keep it visually same as elite. */
+.vdsLegacyFifaPlayerCard.rare_gold,
+.vdsLegacyHero3dCard.rare_gold,
+.vdsLegacyHero3dCard.vdsHeroMatchCard.rare_gold,
+.utPremiumCard.rare_gold,
+.utPremiumCollectionCard.rare_gold{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,236,176,.12),transparent 32%),
+    linear-gradient(145deg,#5d4312 0%,#a87c24 42%,#f0d068 100%)!important;
+  border-color:rgba(255,228,150,.72)!important;
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -28032,11 +28224,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.9-STAGE6E9">
+<section id="ultimate" class="page" data-vds-build="B9.0-STAGE6E10">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E9 · SLIM UT TOPBAR</div>
+        <div class="vdsUTBuildBadge">STAGE 6E10 · ACE + ELITE TIER SPLIT</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -29157,9 +29349,10 @@ function effectivePositionRating(p,role){
 
 function cardTier(p){
   // Global VDS rarity system — natural-position rating drives rarity everywhere.
+  // 96–99 = ACE, 90–95 = ELITE.
   const r=mainPositionRating(p);
-  if(r>=90)return "ace";
-  if(r>=85)return "rare_gold";
+  if(r>=96)return "ace";
+  if(r>=90)return "elite";
   if(r>=80)return "gold";
   if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
@@ -29172,7 +29365,7 @@ function cardTierLabel(p){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
-    rare_gold:"GOLD",
+    elite:"ELITE",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
 }
@@ -29181,7 +29374,7 @@ function cardTierLabel(p){
 // Bronze: 1, Silver: 2, Gold: 3.
 function playstyleCapacity(p){
   const tier=cardTier(p);
-  if(tier==="gold"||tier==="rare_gold"||tier==="ace")return 3;
+  if(tier==="gold"||tier==="elite"||tier==="ace")return 3;
   if(tier==="silver"||tier==="rare_silver")return 2;
   return 1;
 }
@@ -38535,8 +38728,8 @@ function miniDraftRoleRating(p,role){
 
 function miniDraftRoleTier(p,role){
   const r=miniDraftRoleRating(p,role);
-  if(r>=90)return "ace";
-  if(r>=85)return "rare_gold";
+  if(r>=96)return "ace";
+  if(r>=90)return "elite";
   if(r>=80)return "gold";
   if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
@@ -38550,7 +38743,7 @@ function miniDraftRoleTierLabel(p,role){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
-    rare_gold:"GOLD",
+    elite:"ELITE",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
 }
@@ -40660,8 +40853,8 @@ function utPlayerTier(player){
   // Ultimate Team rarity matches the global VDS natural-position rarity system.
   const key=utMainPositionKey(player);
   const r=Math.round(positionRatings(player)[key] ?? overall(player));
-  if(r>=90)return "ace";
-  if(r>=85)return "rare_gold";
+  if(r>=96)return "ace";
+  if(r>=90)return "elite";
   if(r>=80)return "gold";
   if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
@@ -41332,9 +41525,11 @@ function toggleProfileSection(id){
 
 
 function profileTier(p){
-  const o=overall(p);
-  if(o>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
-  if(o>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
+  const r=mainPositionRating(p);
+  if(r>=96)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
+  if(r>=90)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
+  if(r>=80)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
+  if(r>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
   return {key:"bronze",label:"BRONZE",cardClass:"profileTierBronze"};
 }
 
@@ -45978,6 +46173,16 @@ VDS B8.9 STAGE 6E9 — SLIM ULTIMATE TEAM TOPBAR
 - Missions remain a compact dropdown instead of a full main navigation section.
 - Mobile uses a two-row compact layout: brand + wallet + avatar, then section selector + missions.
 - No squad, economy, pack, chemistry, auth or multiplayer mechanics changed.
+-->
+
+
+<!--
+VDS B9.0 STAGE 6E10 — ACE + ELITE TIER SPLIT
+- Added a new ELITE tier for 90–95 natural-position rating.
+- ACE now only applies to 96–99 natural-position rating.
+- ACE cards now use a black foil base with animated gleam, silver text, and stronger premium effects.
+- Updated global card rarity, mini-draft rarity, Ultimate Team rarity, and profile rarity to use the new thresholds.
+- No gameplay balance, pack odds, or simulation mechanics were changed in this pass.
 -->
 
 </body>
