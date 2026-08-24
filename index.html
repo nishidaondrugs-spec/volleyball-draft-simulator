@@ -47131,3 +47131,157 @@ This specifically overrides older #players-scoped CSS that was keeping the old a
   #miniPickReveal .rebuiltRevealStage::before,#miniPickReveal .utRevealRoof::after{animation:none!important}
 }
 </style>
+
+
+<style id="VDS_B93_ACE_BLACK_ELITE_PURPLE_FINAL_OVERRIDE">
+/* ================================================================
+   Stage 6E13 — FINAL ACE / ELITE VISUAL OVERRIDE
+   User request:
+   - ACE = black special card with subtle premium effects
+   - ELITE = purple premium card
+   This block sits at the end of the cascade so it beats earlier card art.
+   ================================================================ */
+
+/* -------- ELITE (90–95) = PURPLE PREMIUM -------- */
+.fifaPlayerCard.elite,
+.fifaPlayerCard.rare_gold,
+.vdsLegacyFifaPlayerCard.elite,
+.vdsLegacyFifaPlayerCard.rare_gold,
+#players .fifaPlayerCard.elite,
+#players .fifaPlayerCard.rare_gold,
+#players .vdsLegacyFifaPlayerCard.elite,
+#players .vdsLegacyFifaPlayerCard.rare_gold{
+  --card-base:#5b2bb7!important;
+  --card-base-2:#091320!important;
+  --card-border:#d9b2ff!important;
+  --card-accent:#f5eaff!important;
+  --card-glow:rgba(174,114,255,.30)!important;
+  color:#f8f1ff!important;
+  background:
+    radial-gradient(circle at 23% 18%,rgba(255,255,255,.17),transparent 20%),
+    radial-gradient(circle at 77% 14%,rgba(222,169,255,.18),transparent 19%),
+    radial-gradient(circle at 80% 82%,rgba(77,212,255,.10),transparent 23%),
+    linear-gradient(132deg,transparent 0 18%,rgba(255,255,255,.11) 19% 20%,transparent 21% 49%,rgba(220,174,255,.09) 50% 51%,transparent 52% 100%),
+    linear-gradient(160deg,#7a39dc 0%,#5928b1 28%,#311b71 56%,#171f48 76%,#08131f 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -72px 92px rgba(0,0,0,.28),
+    inset 0 0 58px rgba(0,0,0,.14),
+    0 0 24px rgba(190,134,255,.26)!important;
+}
+.fifaPlayerCard.elite .fifaTierTag,
+.fifaPlayerCard.rare_gold .fifaTierTag,
+.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
+.vdsLegacyFifaPlayerCard.rare_gold .fifaTierTag,
+#players .fifaPlayerCard.elite .fifaTierTag,
+#players .fifaPlayerCard.rare_gold .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard.elite .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard.rare_gold .fifaTierTag{
+  color:#f8f0ff!important;
+  border-color:rgba(243,223,255,.88)!important;
+  background:linear-gradient(180deg,rgba(130,62,225,.94),rgba(46,20,88,.98))!important;
+  box-shadow:0 0 10px rgba(214,171,255,.22), inset 0 0 10px rgba(255,255,255,.08)!important;
+}
+.fifaPlayerCard.elite .fifaOverall,
+.fifaPlayerCard.rare_gold .fifaOverall,
+.vdsLegacyFifaPlayerCard.elite .fifaOverall,
+.vdsLegacyFifaPlayerCard.rare_gold .fifaOverall,
+#players .fifaPlayerCard.elite .fifaOverall,
+#players .fifaPlayerCard.rare_gold .fifaOverall,
+#players .vdsLegacyFifaPlayerCard.elite .fifaOverall,
+#players .vdsLegacyFifaPlayerCard.rare_gold .fifaOverall{
+  color:#fff5ff!important;
+  text-shadow:0 2px 0 rgba(70,28,120,.70),0 4px 8px rgba(0,0,0,.45),0 0 12px rgba(233,193,255,.16)!important;
+}
+.fifaPlayerCard.elite::before,
+.fifaPlayerCard.rare_gold::before,
+.vdsLegacyFifaPlayerCard.elite::before,
+.vdsLegacyFifaPlayerCard.rare_gold::before,
+#players .fifaPlayerCard.elite::before,
+#players .fifaPlayerCard.rare_gold::before,
+#players .vdsLegacyFifaPlayerCard.elite::before,
+#players .vdsLegacyFifaPlayerCard.rare_gold::before{
+  background:linear-gradient(112deg,transparent 36%,rgba(255,255,255,0) 42%,rgba(255,255,255,.18) 47%,rgba(255,255,255,.68) 50%,rgba(196,136,255,.20) 54%,rgba(255,255,255,0) 58%,transparent 63%)!important;
+}
+
+/* -------- ACE (96–99) = BLACK SPECIAL -------- */
+.fifaPlayerCard.ace,
+.vdsLegacyFifaPlayerCard.ace,
+#players .fifaPlayerCard.ace,
+#players .vdsLegacyFifaPlayerCard.ace{
+  --card-base:#080b10!important;
+  --card-base-2:#04070b!important;
+  --card-border:#f0f4fb!important;
+  --card-accent:#ffffff!important;
+  --card-glow:rgba(255,255,255,.15)!important;
+  color:#fbfdff!important;
+  background:
+    radial-gradient(circle at 22% 14%,rgba(255,255,255,.13),transparent 16%),
+    radial-gradient(circle at 80% 16%,rgba(255,255,255,.08),transparent 18%),
+    radial-gradient(circle at 50% 72%,rgba(116,133,165,.12),transparent 28%),
+    linear-gradient(140deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 11%,rgba(255,255,255,.04) 18%,rgba(255,255,255,0) 25%),
+    linear-gradient(160deg,#131820 0%,#090d13 26%,#05070b 54%,#0b1017 76%,#020407 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -78px 98px rgba(0,0,0,.38),
+    inset 0 0 66px rgba(0,0,0,.18),
+    0 0 0 1px rgba(255,255,255,.09),
+    0 0 18px rgba(255,255,255,.09),
+    0 0 34px rgba(110,120,145,.10)!important;
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.52)) drop-shadow(0 0 10px rgba(255,255,255,.05))!important;
+}
+.fifaPlayerCard.ace .fifaTierTag,
+.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+#players .fifaPlayerCard.ace .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag{
+  color:#ffffff!important;
+  border-color:rgba(241,245,251,.86)!important;
+  background:linear-gradient(180deg,rgba(30,36,46,.96),rgba(6,8,12,.98))!important;
+  box-shadow:0 0 10px rgba(255,255,255,.10), inset 0 0 8px rgba(255,255,255,.06)!important;
+}
+.fifaPlayerCard.ace .fifaOverall,
+.vdsLegacyFifaPlayerCard.ace .fifaOverall,
+#players .fifaPlayerCard.ace .fifaOverall,
+#players .vdsLegacyFifaPlayerCard.ace .fifaOverall{
+  color:#ffffff!important;
+  text-shadow:0 2px 0 rgba(0,0,0,.72),0 4px 10px rgba(0,0,0,.55),0 0 10px rgba(255,255,255,.10)!important;
+}
+.fifaPlayerCard.ace::before,
+.vdsLegacyFifaPlayerCard.ace::before,
+#players .fifaPlayerCard.ace::before,
+#players .vdsLegacyFifaPlayerCard.ace::before{
+  opacity:.28!important;
+  background:linear-gradient(112deg,transparent 37%,rgba(255,255,255,0) 43%,rgba(255,255,255,.12) 48%,rgba(255,255,255,.65) 50%,rgba(255,255,255,.12) 53%,rgba(255,255,255,0) 58%,transparent 63%)!important;
+  mix-blend-mode:screen!important;
+}
+.fifaPlayerCard.ace::after,
+.vdsLegacyFifaPlayerCard.ace::after,
+#players .fifaPlayerCard.ace::after,
+#players .vdsLegacyFifaPlayerCard.ace::after{
+  content:""!important;
+  position:absolute!important;
+  inset:1px!important;
+  pointer-events:none!important;
+  border-radius:inherit!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.08),transparent 18%,transparent 82%,rgba(255,255,255,.05)),
+    radial-gradient(circle at 50% 0,rgba(255,255,255,.08),transparent 26%)!important;
+  opacity:1!important;
+}
+.fifaPlayerCard.ace:hover,
+.vdsLegacyFifaPlayerCard.ace:hover,
+#players .fifaPlayerCard.ace:hover,
+#players .vdsLegacyFifaPlayerCard.ace:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -82px 102px rgba(0,0,0,.40),
+    inset 0 0 70px rgba(0,0,0,.20),
+    0 0 0 1px rgba(255,255,255,.11),
+    0 0 22px rgba(255,255,255,.12),
+    0 0 38px rgba(118,130,160,.12)!important;
+}
+
+/* Filter chips / labels stay aligned with the new colour language */
+.vdsFilter.eliteFilter.active{background:linear-gradient(135deg,#7f43dd,#412070)!important;color:#fbf3ff!important;box-shadow:0 0 14px rgba(191,140,255,.22)!important}
+.vdsFilter.aceFilter.active{background:linear-gradient(135deg,#161b23,#030507)!important;color:#ffffff!important;box-shadow:0 0 12px rgba(255,255,255,.10)!important}
+</style>
