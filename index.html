@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B7.3 Ultimate Team Lineup Editor</title>
+<title>Volleyball Draft Simulator — B7.4 3D Ultimate Team Court</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -23845,6 +23845,272 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B74_UT_3D_COURT">
+/* Stage 6D1 — 3D court with floating cards */
+.vdsUTCourtEnhanced{
+  position:relative;
+  height:560px;
+  margin-top:16px;
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 14%,rgba(92,170,241,.15),transparent 28%),
+    linear-gradient(180deg,rgba(10,26,41,.78),rgba(6,17,26,.94));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    inset 0 40px 90px rgba(255,255,255,.03),
+    0 26px 68px rgba(0,0,0,.34);
+}
+.vdsUTCourtEnhanced:before{
+  content:"";
+  position:absolute;
+  left:4%; right:4%; top:9%; bottom:6%;
+  border-radius:26px;
+  transform:perspective(1200px) rotateX(63deg);
+  transform-origin:center center;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,255,255,.14),transparent 35%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 2px,transparent 2px 64px),
+    linear-gradient(180deg,#d88349 0%,#cb723e 38%,#b85f33 100%);
+  box-shadow:
+    inset 0 0 0 4px rgba(255,246,235,.88),
+    inset 0 -18px 45px rgba(0,0,0,.18),
+    0 40px 90px rgba(0,0,0,.32);
+}
+.vdsUTCourtEnhanced:after{
+  content:"";
+  position:absolute;
+  left:11%; right:11%; top:53%;
+  height:1px;
+  background:rgba(255,244,234,.96);
+  box-shadow:0 0 14px rgba(255,255,255,.18);
+}
+.vdsUTCourtAura{
+  position:absolute;
+  left:50%; bottom:26px;
+  width:430px; height:94px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(71,165,244,.36),rgba(71,165,244,.1) 45%,transparent 74%);
+  filter:blur(24px);
+  pointer-events:none;
+}
+.vdsUTNet,
+.vdsUTAttackLine{display:none}
+.vdsUTCourtLabel{
+  left:24px; bottom:18px;
+  color:rgba(255,245,236,.74);
+  font-size:8px;
+  letter-spacing:.22em;
+}
+.vdsUTSquadSlots{
+  position:absolute;
+  inset:0;
+  z-index:3;
+}
+.vdsSquadSlot{
+  position:absolute;
+  width:156px;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  padding:0;
+  background:none;
+  border:0;
+  box-shadow:none;
+}
+.vdsSquadSlot:nth-child(1){left:24%;top:28%}
+.vdsSquadSlot:nth-child(2){left:50%;top:25%}
+.vdsSquadSlot:nth-child(3){left:76%;top:28%}
+.vdsSquadSlot:nth-child(4){left:24%;top:67%}
+.vdsSquadSlot:nth-child(5){left:50%;top:65%}
+.vdsSquadSlot:nth-child(6){left:76%;top:67%}
+.vdsSquadSlot:hover{transform:translate(-50%,-50%)}
+.vdsSquadSlot.drag-over .vdsSquadSpot,
+.vdsSquadSlot.selected-target .vdsSquadSpot{
+  background:radial-gradient(circle,rgba(95,192,255,.5),rgba(95,192,255,.2) 42%,transparent 72%);
+  box-shadow:0 0 0 2px rgba(112,198,255,.46),0 0 32px rgba(62,163,241,.32);
+}
+.vdsSquadSlotMeta{
+  position:absolute;
+  left:50%; top:-18px;
+  transform:translateX(-50%);
+  display:flex; gap:6px; align-items:center; justify-content:center;
+  z-index:5;
+}
+.vdsSquadZone,
+.vdsSquadRole{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:34px; padding:4px 7px;
+  border-radius:999px;
+  background:rgba(5,17,28,.78);
+  border:1px solid rgba(255,255,255,.1);
+  color:#f8fbff;
+  font-size:7px; font-weight:1000; letter-spacing:.11em;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+.vdsSquadRole{color:#f4d168}
+.vdsSquadSpot{
+  position:absolute;
+  left:50%; bottom:38px;
+  width:114px; height:30px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,.07) 36%,rgba(58,150,225,.16) 48%,transparent 73%);
+  box-shadow:0 14px 24px rgba(0,0,0,.24);
+  pointer-events:none;
+}
+.vdsSquadFloatWrap{
+  position:relative;
+  display:flex; justify-content:center;
+  padding-top:10px;
+  animation:utCardFloat 3.6s ease-in-out infinite;
+}
+.vdsSquadSlot:nth-child(2) .vdsSquadFloatWrap,
+.vdsSquadSlot:nth-child(5) .vdsSquadFloatWrap{animation-delay:.4s}
+.vdsSquadSlot:nth-child(3) .vdsSquadFloatWrap,
+.vdsSquadSlot:nth-child(6) .vdsSquadFloatWrap{animation-delay:.8s}
+@keyframes utCardFloat{
+  0%,100%{transform:translateY(-7px)}
+  50%{transform:translateY(-15px)}
+}
+.vdsSquadMiniCard{
+  position:relative;
+  width:96px; height:136px;
+  margin:0 auto;
+  border-radius:17px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 45px rgba(0,0,0,.28);
+  cursor:grab;
+  isolation:isolate;
+}
+.vdsSquadMiniCard:after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.12) 54%,rgba(0,0,0,.95) 100%);
+  z-index:1;
+}
+.vdsSquadMiniCard>*{position:relative;z-index:2}
+.vdsSquadMiniCard img,.vdsSquadMiniPhoto{
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+}
+.vdsSquadMiniPhoto{display:flex;align-items:center;justify-content:center;font-size:40px;background:#142536}
+.vdsSquadMiniCard.bronze{background:linear-gradient(160deg,#996036,#57331d 62%,#24140d)}
+.vdsSquadMiniCard.silver,.vdsSquadMiniCard.rare_silver{background:linear-gradient(160deg,#c4ccd2,#6a7780 62%,#273846)}
+.vdsSquadMiniCard.gold,.vdsSquadMiniCard.rare_gold{background:linear-gradient(160deg,#ebc54b,#9b7917 62%,#4a3909)}
+.vdsSquadMiniCard.ace{background:linear-gradient(160deg,#8450d1,#4f2f91 62%,#18203b)}
+.vdsSquadMiniRemove{
+  position:absolute;
+  top:7px; right:7px;
+  z-index:4;
+  width:22px; height:22px;
+  border:0; border-radius:999px;
+  background:rgba(6,17,28,.78); color:#fff;
+  font-size:15px; line-height:1;
+  cursor:pointer;
+}
+.vdsSquadMiniRating{
+  position:absolute;
+  top:10px; left:10px;
+  text-align:left;
+  color:#f8fbff;
+  font-size:19px; font-weight:1000; line-height:.88;
+  text-shadow:0 2px 8px rgba(0,0,0,.36);
+}
+.vdsSquadMiniRating small{display:block;margin-top:4px;font-size:6px;letter-spacing:.08em}
+.vdsSquadMiniPos{
+  position:absolute;
+  top:34px; left:10px;
+  color:rgba(250,252,255,.8);
+  font-size:6px; font-weight:1000; letter-spacing:.08em;
+}
+.vdsSquadMiniName{
+  position:absolute;
+  left:8px; right:8px; bottom:9px;
+  color:#fff; font-size:9px; font-weight:1000; line-height:1.1;
+  text-shadow:0 2px 8px rgba(0,0,0,.42);
+}
+.vdsSquadEmptyWrap{
+  position:relative;
+  display:flex; justify-content:center;
+  padding-top:30px;
+}
+.vdsSquadEmpty{
+  width:78px; height:108px;
+  border-radius:17px;
+  border:1px dashed rgba(255,255,255,.18);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+  color:#87b5da;
+  display:flex; align-items:center; justify-content:center;
+  font-size:34px;
+  box-shadow:0 22px 34px rgba(0,0,0,.18);
+}
+.vdsSquadSlot.is-empty .vdsSquadEmpty{cursor:pointer}
+.vdsSquadSlotLabel{
+  margin-top:18px;
+  color:#f5f8fb;
+  font-size:8px; font-weight:1000; letter-spacing:.11em;
+  text-shadow:0 1px 4px rgba(0,0,0,.24);
+}
+.vdsSquadSlotHint{
+  margin-top:4px;
+  color:#8eabba;
+  font-size:6px; letter-spacing:.05em;
+}
+.vdsUTBenchWrap{
+  margin-top:18px;
+  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.06);
+}
+.vdsUTBenchCards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+  gap:10px;
+}
+.vdsUTBenchCard{min-height:170px;border-radius:15px}
+.vdsUTBenchBottom b{font-size:10px}
+.vdsUTBenchBottom span{font-size:5px}
+
+@media(max-width:980px){
+  .vdsUTCourtEnhanced{height:520px}
+  .vdsSquadSlot{width:132px}
+  .vdsSquadMiniCard{width:88px;height:126px}
+}
+@media(max-width:760px){
+  .vdsUTCourtEnhanced{
+    height:760px;
+    background:linear-gradient(180deg,rgba(10,26,41,.9),rgba(6,17,26,.96));
+  }
+  .vdsUTCourtEnhanced:before{
+    left:3%; right:3%; top:8%; bottom:10%;
+    transform:perspective(1100px) rotateX(55deg);
+  }
+  .vdsSquadSlot:nth-child(1){left:26%;top:22%}
+  .vdsSquadSlot:nth-child(2){left:50%;top:18%}
+  .vdsSquadSlot:nth-child(3){left:74%;top:22%}
+  .vdsSquadSlot:nth-child(4){left:26%;top:56%}
+  .vdsSquadSlot:nth-child(5){left:50%;top:52%}
+  .vdsSquadSlot:nth-child(6){left:74%;top:56%}
+  .vdsSquadSpot{bottom:30px;width:90px}
+  .vdsSquadSlotLabel{margin-top:14px;font-size:7px}
+  .vdsSquadSlotHint{font-size:5px}
+  .vdsUTBenchCards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+@media(max-width:540px){
+  .vdsUTCourtEnhanced{height:690px}
+  .vdsSquadSlot{width:110px}
+  .vdsSquadMiniCard{width:74px;height:110px;border-radius:14px}
+  .vdsSquadMiniRating{font-size:16px;top:8px;left:8px}
+  .vdsSquadMiniPos{top:30px;left:8px}
+  .vdsSquadMiniName{font-size:7px;left:6px;right:6px;bottom:7px}
+  .vdsSquadMiniRemove{width:20px;height:20px;top:6px;right:6px}
+  .vdsSquadEmpty{width:64px;height:96px}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -24461,11 +24727,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B7.3-STAGE6D">
+<section id="ultimate" class="page" data-vds-build="B7.4-STAGE6D1">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6D · CLUB LINEUP</div>
+        <div class="vdsUTBuildBadge">STAGE 6D1 · 3D COURT VIEW</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Play. Earn. Build.</h2>
         <p>Online matches now earn permanent VDS Coins, XP and ELO for your signed-in manager account.</p>
@@ -24537,7 +24803,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
             <div id="utSquadRating">OVR —</div>
           </div>
         </div>
-        <div class="vdsUTLineupHelp">Drag cards into position. On mobile, tap a bench card, then tap a court slot. Setter is auto-placed in P1 when using serving rotation.</div>
+        <div class="vdsUTLineupHelp">3D court view · drag cards above each zone. On mobile, tap a bench card, then tap a court spot. Setter is auto-placed in P1 when using serving rotation.</div>
         <div class="vdsUTCourt vdsUTCourtEnhanced">
           <div class="vdsUTCourtAura"></div>
           <div class="vdsUTNet"></div>
@@ -37529,20 +37795,24 @@ function renderUltimateSquadVisual(){
     const selectedDrop=utSelectedBenchCardUid?" selected-target":"";
     if(!card){
       return `<div class="vdsSquadSlot is-empty${selectedDrop}" data-slot-index="${idx}">
-        <div class="vdsSquadSlotTop"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
-        <div class="vdsSquadEmpty">＋</div>
+        <div class="vdsSquadSlotMeta"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
+        <div class="vdsSquadSpot"></div>
+        <div class="vdsSquadEmptyWrap"><div class="vdsSquadEmpty">+</div></div>
         <div class="vdsSquadSlotLabel">${slot.label}</div>
         <div class="vdsSquadSlotHint">${slot.hint}</div>
       </div>`;
     }
     return `<div class="vdsSquadSlot" data-slot-index="${idx}">
-      <div class="vdsSquadSlotTop"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
-      <div class="vdsSquadMiniCard ${card.rarity}" draggable="true" data-card-uid="${esc(utCardUid(card))}">
-        <button class="vdsSquadMiniRemove" type="button" data-remove-slot="${idx}" aria-label="Remove from slot">×</button>
-        <div class="vdsSquadMiniRating">${card.rating}<small>${esc(card.position||"-")}</small></div>
-        <div class="vdsSquadMiniPos">OVR ${card.overallRating??card.sourceOverall??"—"}</div>
-        ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsSquadMiniPhoto">👤</div>`}
-        <div class="vdsSquadMiniName">${esc(card.playerName)}</div>
+      <div class="vdsSquadSlotMeta"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
+      <div class="vdsSquadSpot"></div>
+      <div class="vdsSquadFloatWrap">
+        <div class="vdsSquadMiniCard ${card.rarity}" draggable="true" data-card-uid="${esc(utCardUid(card))}">
+          <button class="vdsSquadMiniRemove" type="button" data-remove-slot="${idx}" aria-label="Remove from slot">×</button>
+          <div class="vdsSquadMiniRating">${card.rating}<small>${esc(card.position||"-")}</small></div>
+          <div class="vdsSquadMiniPos">OVR ${card.overallRating??card.sourceOverall??"—"}</div>
+          ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsSquadMiniPhoto">👤</div>`}
+          <div class="vdsSquadMiniName">${esc(card.playerName)}</div>
+        </div>
       </div>
       <div class="vdsSquadSlotLabel">${slot.label}</div>
       <div class="vdsSquadSlotHint">${slot.hint}</div>
@@ -37573,11 +37843,11 @@ function renderUltimateSquadVisual(){
 
   const status=document.getElementById("utSquadStatus");
   if(status){
-    if(!filled.length)status.textContent='No lineup selected yet. Drag cards from the bench into your six.';
-    else if(filled.length<6)status.textContent=`${filled.length}/6 starters selected · drag more players in to complete your lineup.`;
+    if(!filled.length)status.textContent='No lineup selected yet. Drag cards from the bench onto the 3D court.';
+    else if(filled.length<6)status.textContent=`${filled.length}/6 starters selected · place the rest onto the court.`;
     else status.textContent=(ultimateTeamState.lineupMode==='serving')
       ? 'Serving rotation active · setter anchored in P1 (back right). Drag any card to customise.'
-      : 'Custom lineup active · drag cards between positions or hit Auto Build.';
+      : 'Custom lineup active · drag floating cards between zones or hit Auto Build.';
   }
   const unique=document.getElementById("utUniqueCount");
   if(unique)unique.textContent=`${utBestUniqueCards().length} UNIQUE`;
@@ -41438,6 +41708,15 @@ VDS B7.3 STAGE 6D — ULTIMATE TEAM VISUAL UPGRADE + LINEUP EDITOR
 - Auto Build creates a serving rotation: Setter -> P1, Opposite -> P2, Middle -> P3, OH -> P4, OH -> P5, Libero -> P6.
 - Manual drag changes lineupMode to custom while keeping the serving auto-build one tap away.
 - Lineup state now persists in local storage alongside the collection.
+-->
+
+<!--
+VDS B7.4 STAGE 6D1 — 3D ULTIMATE TEAM COURT
+- Reworked Ultimate Team squad area into a pseudo-3D volleyball court.
+- Cards now float above their corresponding zones instead of sitting inside flat boxes.
+- Drag and drop / mobile tap-to-place behavior retained.
+- Serving rotation logic retained: setter automatically starts in P1 when Auto Build is used.
+- Bench remains the source of draggable cards.
 -->
 </body>
 </html>
