@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B9.1 Black Ace + Purple Elite Odds Pass</title>
+<title>Volleyball Draft Simulator — B9.2 Base Card Tier Fix</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -27814,6 +27814,132 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B92_PLAYER_BASE_CARD_FORCE_FIX">
+/* Stage 6E12
+   Player Database page had older scoped rules overriding the new ACE / ELITE art.
+   Force the base-card visuals at the strongest scope. */
+
+/* ---------- PLAYER DATABASE BASE CARDS ---------- */
+#players .vdsLegacyFifaPlayerCard.elite,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"]{
+  background:
+    radial-gradient(circle at 74% 18%,rgba(241,210,255,.30),transparent 20%),
+    radial-gradient(circle at 26% 42%,rgba(128,100,255,.22),transparent 34%),
+    linear-gradient(118deg,transparent 0 20%,rgba(255,255,255,.11) 21% 23%,transparent 24% 49%,rgba(197,151,255,.10) 50% 52%,transparent 53% 73%,rgba(116,93,255,.09) 74% 76%,transparent 77%),
+    repeating-linear-gradient(142deg,transparent 0 28px,rgba(231,196,255,.08) 29px 31px,transparent 32px 58px),
+    linear-gradient(160deg,#5d2f9a 0%,#2b1452 36%,#1a2242 70%,#0a1421 100%)!important;
+  border-color:#e7c1ff!important;
+  box-shadow:
+    0 22px 56px rgba(0,0,0,.52),
+    0 0 12px rgba(231,189,255,.34),
+    0 0 32px rgba(118,91,255,.18),
+    inset 0 0 0 1px rgba(255,255,255,.18)!important;
+}
+#players .vdsLegacyFifaPlayerCard.elite::before,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"]::before{
+  border:none!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+#players .vdsLegacyFifaPlayerCard.elite .fifaOverall,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .fifaOverall{
+  color:#f1deff!important;
+  text-shadow:
+    0 2px 0 rgba(69,37,110,.75),
+    0 4px 8px rgba(0,0,0,.48),
+    0 0 12px rgba(232,193,255,.25)!important;
+}
+#players .vdsLegacyFifaPlayerCard.elite .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .fifaTierTag{
+  color:#f4e7ff!important;
+  border-color:rgba(238,211,255,.90)!important;
+  background:linear-gradient(180deg,rgba(113,67,176,.85),rgba(36,19,68,.92))!important;
+  box-shadow:
+    0 0 10px rgba(224,184,255,.15),
+    inset 0 0 8px rgba(255,255,255,.08)!important;
+}
+#players .vdsLegacyFifaPlayerCard.elite .vdsGoldGlint,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .vdsGoldGlint{
+  background:
+    linear-gradient(105deg,
+      transparent 0 40%,
+      rgba(235,205,255,.06) 43%,
+      rgba(255,255,255,.56) 48%,
+      rgba(187,145,255,.23) 52%,
+      transparent 58%)!important;
+  mix-blend-mode:screen!important;
+}
+#players .vdsLegacyFifaPlayerCard.elite:hover,
+#players .vdsLegacyFifaPlayerCard[data-tier="elite"]:hover{
+  box-shadow:
+    0 24px 58px rgba(0,0,0,.54),
+    0 0 15px rgba(236,206,255,.40),
+    0 0 36px rgba(118,91,255,.22),
+    inset 0 0 0 1px rgba(255,255,255,.20)!important;
+}
+
+/* ACE must be matte black / gleamless */
+#players .vdsLegacyFifaPlayerCard.ace,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"]{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,255,255,.06),transparent 24%),
+    linear-gradient(155deg,#05070a 0%,#0d1118 40%,#151b24 66%,#05070b 100%)!important;
+  border-color:#e6edf7!important;
+  box-shadow:
+    0 22px 56px rgba(0,0,0,.58),
+    0 0 10px rgba(255,255,255,.10),
+    inset 0 0 0 1px rgba(255,255,255,.10)!important;
+}
+#players .vdsLegacyFifaPlayerCard.ace::before,
+#players .vdsLegacyFifaPlayerCard.ace::after,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"]::before,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"]::after{
+  border:none!important;
+  outline:none!important;
+  box-shadow:none!important;
+  filter:none!important;
+  animation:none!important;
+}
+#players .vdsLegacyFifaPlayerCard.ace .fifaOverall,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .fifaOverall{
+  color:#f2f7ff!important;
+  text-shadow:
+    0 2px 0 rgba(26,34,44,.75),
+    0 4px 8px rgba(0,0,0,.52)!important;
+}
+#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .fifaTierTag{
+  color:#f2f7ff!important;
+  border-color:rgba(230,237,247,.72)!important;
+  background:linear-gradient(180deg,rgba(34,39,47,.85),rgba(10,12,16,.94))!important;
+  box-shadow:none!important;
+}
+#players .vdsLegacyFifaPlayerCard.ace .vdsGoldGlint,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .vdsGoldGlint{
+  display:none!important;
+}
+#players .vdsLegacyFifaPlayerCard.ace:hover,
+#players .vdsLegacyFifaPlayerCard[data-tier="ace"]:hover{
+  box-shadow:
+    0 24px 58px rgba(0,0,0,.60),
+    0 0 14px rgba(255,255,255,.08),
+    inset 0 0 0 1px rgba(255,255,255,.12)!important;
+}
+
+/* Filters / badges reflect the new colour logic */
+.vdsFilter.eliteFilter.active{
+  color:#f3e5ff!important;
+  background:linear-gradient(135deg,#7f4fd0,#4d287f)!important;
+  box-shadow:0 0 12px rgba(196,142,255,.20)!important;
+}
+.vdsFilter.aceFilter.active{
+  color:#f3f7ff!important;
+  background:linear-gradient(135deg,#202634,#090b10)!important;
+  box-shadow:0 0 10px rgba(255,255,255,.10)!important;
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -28430,11 +28556,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B9.1-STAGE6E11">
+<section id="ultimate" class="page" data-vds-build="B9.2-STAGE6E12">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E11 · BLACK ACE + PURPLE ELITE ODDS</div>
+        <div class="vdsUTBuildBadge">STAGE 6E12 · BASE CARD TIER FIX</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -46403,6 +46529,15 @@ VDS B9.1 STAGE 6E11 — BLACK ACE / PURPLE ELITE / UPDATED PACK ODDS
   Gold Pack: 15% Silver / 70% Gold / 14.5% Elite / 0.5% Ace
 - Ace chance is now 0.5% in eligible packs.
 - Updated store copy and featured-pack messaging to match the new structure.
+-->
+
+
+<!--
+VDS B9.2 STAGE 6E12 — BASE CARD TIER FIX
+Fixes the Player Database / base-card page so the new tier art actually shows:
+- ACE base cards are now matte black / gleamless
+- ELITE base cards are now purple
+This specifically overrides older #players-scoped CSS that was keeping the old art visible.
 -->
 
 </body>
