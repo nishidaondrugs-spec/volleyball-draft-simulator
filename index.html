@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B9.4 Ace Black Purple Splash</title>
+<title>Volleyball Draft Simulator — B9.5 Ultimate Team Pool First</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -28556,11 +28556,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B9.4-STAGE6E14">
+<section id="ultimate" class="page" data-vds-build="B9.5-STAGE6E15">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E14 · ACE BLACK PURPLE SPLASH</div>
+        <div class="vdsUTBuildBadge">STAGE 6E15 · ULTIMATE TEAM POOL</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -28790,11 +28790,12 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
     <div class="vdsPlayersHero">
       <div>
         <div class="vdsSectionKicker">VDS PLAYER DATABASE</div>
-        <h2>Build Around the Right Player.</h2>
-        <p>Browse the master roster, compare roles and playstyles, then open a card for the full player profile.</p>
+        <h2>Ultimate Team Pool.</h2>
+        <p>The active Ultimate Team pool appears first. Only cards in this pool can be pulled in Ultimate Team packs.</p>
       </div>
       <div class="vdsPlayersHeroStats">
-        <div><b id="playerDatabaseCount">0</b><span>PLAYERS</span></div>
+        <div><b id="playerUTPoolCount">0</b><span>UT POOL</span></div>
+        <div><b id="playerDatabaseCount">0</b><span>ALL PLAYERS</span></div>
         <div><b id="playerGoldCount">0</b><span>GOLD</span></div>
         <div><b id="playerPlaystyleCount">0</b><span>PLAYSTYLES</span></div>
       </div>
@@ -28856,7 +28857,33 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
       </div>
     </div>
 
-    <div class="playersGrid" id="playersGrid"></div>
+    <section class="vdsPlayerRosterSection vdsUTPoolRosterSection" id="vdsUTPoolRosterSection">
+      <div class="vdsPlayerRosterSectionHead">
+        <div>
+          <div class="vdsSectionKicker">PACK ELIGIBLE</div>
+          <h2>Ultimate Team Pool</h2>
+          <p>Only these cards are eligible for Ultimate Team packs and new starter-club generation.</p>
+        </div>
+        <div class="vdsUTPoolCountBadge"><b id="utPoolSectionCount">0</b><span>ACTIVE CARDS</span></div>
+      </div>
+      <div class="vdsUTPoolEmpty hidden" id="utPoolEmptyState">
+        <b>Ultimate Team pool is empty.</b>
+        <span>Add cards from the All Player Cards section below before opening packs.</span>
+      </div>
+      <div class="playersGrid vdsUTPoolGrid" id="utPoolPlayersGrid"></div>
+    </section>
+
+    <section class="vdsPlayerRosterSection vdsAllPlayersRosterSection" id="vdsAllPlayersRosterSection">
+      <div class="vdsPlayerRosterSectionHead">
+        <div>
+          <div class="vdsSectionKicker">MASTER DATABASE</div>
+          <h2>All Player Cards</h2>
+          <p>Your complete player database. Admins can add or remove any card from the Ultimate Team pool here.</p>
+        </div>
+        <div class="vdsAllPlayersCountBadge"><b id="allPlayersSectionCount">0</b><span>SHOWN</span></div>
+      </div>
+      <div class="playersGrid" id="playersGrid"></div>
+    </section>
 
     <div class="vdsCloudStrip" id="cloudAdminBar">
       <div>
@@ -29121,6 +29148,7 @@ function migratePlayer(p){
     cardArtScale: Number.isFinite(Number(p.cardArtScale)) ? Number(p.cardArtScale) : 1,
     cardArtX: Number.isFinite(Number(p.cardArtX)) ? Number(p.cardArtX) : 0,
     cardArtY: Number.isFinite(Number(p.cardArtY)) ? Number(p.cardArtY) : 0,
+    ultimateTeamPool: p.ultimateTeamPool === false ? false : true,
     mindsetTraits: p.mindsetTraits && typeof p.mindsetTraits==="object" ? {resilient:false,workEthic:false,motivator:false,exceptional:false,...p.mindsetTraits} : {resilient:false,workEthic:false,motivator:false,exceptional:false}
   };
 }
@@ -29140,7 +29168,7 @@ const cloudDb=window.supabase
 
 let cloudAdmin=false;
 let cloudLoaded=false;
-let cloudColumns={tendencies:true,final_rating:true,defense_playstyle:true,serve_type:true,card_art_scale:true,card_art_x:true,card_art_y:true};
+let cloudColumns={tendencies:true,final_rating:true,defense_playstyle:true,serve_type:true,card_art_scale:true,card_art_x:true,card_art_y:true,ultimate_team_pool:true};
 
 function cloudPlayerFromRow(r){
   return migratePlayer({
@@ -29171,7 +29199,8 @@ function cloudPlayerFromRow(r){
     finalRating:r.final_rating??undefined,
     cardArtScale:Number(r.card_art_scale??1),
     cardArtX:Number(r.card_art_x??0),
-    cardArtY:Number(r.card_art_y??0)
+    cardArtY:Number(r.card_art_y??0),
+    ultimateTeamPool:r.ultimate_team_pool===true
   });
 }
 
@@ -29205,6 +29234,7 @@ function cloudRowFromPlayer(p){
   if(cloudColumns.card_art_scale)row.card_art_scale=Number(p.cardArtScale??1);
   if(cloudColumns.card_art_x)row.card_art_x=Number(p.cardArtX??0);
   if(cloudColumns.card_art_y)row.card_art_y=Number(p.cardArtY??0);
+  if(cloudColumns.ultimate_team_pool)row.ultimate_team_pool=p.ultimateTeamPool===true;
   return row;
 }
 
@@ -29244,7 +29274,7 @@ const CLOUD_PLAYER_SELECT=[
   "service","blocking","setting","mindset",
   "attack_playstyle","defense_playstyle",
   "shots","affiliations","tendencies","final_rating",
-  "serve_type","card_art_scale","card_art_x","card_art_y"
+  "serve_type","card_art_scale","card_art_x","card_art_y","ultimate_team_pool"
 ].join(",");
 
 async function detectCloudColumns(){
@@ -29257,7 +29287,8 @@ async function detectCloudColumns(){
     serve_type:true,
     card_art_scale:true,
     card_art_x:true,
-    card_art_y:true
+    card_art_y:true,
+    ultimate_team_pool:true
   };
   return cloudColumns;
 }
@@ -30321,12 +30352,108 @@ function vdsMasterPlayerCardHTML(p,options={}){
     </div>`;
 }
 
+function vdsPoolActionButtonHTML(p,context){
+  const inPool=p?.ultimateTeamPool===true;
+  if(!cloudAdmin){
+    return context==="pool"
+      ? `<div class="vdsPoolViewerBadge">PACK ELIGIBLE</div>`
+      : "";
+  }
+
+  if(context==="pool"){
+    return `<button class="vdsPoolCardAction remove" type="button" data-ut-pool-toggle="${Number(p.cloudId||0)}" data-ut-pool-name="${esc(p.name)}" data-ut-pool-next="false">REMOVE FROM UT POOL</button>`;
+  }
+
+  return `<button class="vdsPoolCardAction ${inPool?"included":"add"}" type="button" data-ut-pool-toggle="${Number(p.cloudId||0)}" data-ut-pool-name="${esc(p.name)}" data-ut-pool-next="${inPool?"false":"true"}">${inPool?"✓ IN UT POOL":"+ ADD TO UT POOL"}</button>`;
+}
+
+function vdsBuildDatabasePlayerCard(p,context="all"){
+  const c=categoryRatings(p);
+  const tier=cardTier(p);
+  const card=document.createElement("div");
+  card.className="vdsPlayerCardWithPoolAction";
+
+  const cardFace=document.createElement("div");
+  const mainPos=(p.position||"").toUpperCase();
+  const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
+  cardFace.className=`fifaPlayerCard ${tier}${posClass}`;
+  cardFace.innerHTML=vdsMasterPlayerCardHTML(p,{
+    role:p.position&&p.position!=="-"?p.position:"POS",
+    rating:mainPositionRating(p),
+    tier,
+    tierLabel:cardTierLabel(p),
+    footer:cloudAdmin?"OPEN PLAYER · EDIT ENABLED":"OPEN PLAYER"
+  });
+  cardFace.onclick=()=>openPlayerEditor(players.indexOf(p));
+
+  card.appendChild(cardFace);
+  card.insertAdjacentHTML("beforeend",vdsPoolActionButtonHTML(p,context));
+  return card;
+}
+
+async function vdsSetUltimatePoolMembership(p,enabled){
+  if(!p)return;
+  if(!cloudAdmin){
+    alert("Admin mode is required to change the Ultimate Team pool.");
+    return;
+  }
+
+  const previous=p.ultimateTeamPool===true;
+  p.ultimateTeamPool=!!enabled;
+  savePlayers();
+  renderPlayers(document.getElementById("playerSearch")?.value||"");
+  vdsUltimateViewDirty=true;
+
+  try{
+    if(!p.cloudId){
+      const saved=await savePlayerToCloud(p);
+      if(!saved?.ok)throw new Error(saved?.error||"Could not publish player before changing pool.");
+    }else{
+      const {data,error}=await cloudDb
+        .from("players")
+        .update({ultimate_team_pool:!!enabled,updated_at:new Date().toISOString()})
+        .eq("id",p.cloudId)
+        .select("id,ultimate_team_pool")
+        .single();
+      if(error)throw error;
+      p.ultimateTeamPool=data?.ultimate_team_pool===true;
+    }
+
+    savePlayers();
+    renderPlayers(document.getElementById("playerSearch")?.value||"");
+    if(vdsPageIsActive("ultimate"))vdsRequestUltimateRender();
+  }catch(error){
+    console.error("Ultimate Team pool update failed",error);
+    p.ultimateTeamPool=previous;
+    savePlayers();
+    renderPlayers(document.getElementById("playerSearch")?.value||"");
+    alert(`Could not update the Ultimate Team pool for ${p.name}: ${error?.message||error}`);
+  }
+}
+
+function vdsBindUltimatePoolButtons(){
+  document.querySelectorAll("[data-ut-pool-toggle]").forEach(btn=>{
+    btn.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      const cloudId=Number(btn.dataset.utPoolToggle||0);
+      const name=btn.dataset.utPoolName||"";
+      const p=(cloudId?players.find(x=>Number(x.cloudId)===cloudId):null)
+        || players.find(x=>String(x.name||"")===String(name));
+      vdsSetUltimatePoolMembership(p,btn.dataset.utPoolNext==="true");
+    });
+  });
+}
+
 function renderPlayers(filter=""){
  vdsPlayersViewDirty=false;
  renderPlayerSetControls();
- const grid=document.getElementById("playersGrid");
- if(!grid)return;
- grid.innerHTML="";
+
+ const allGrid=document.getElementById("playersGrid");
+ const poolGrid=document.getElementById("utPoolPlayersGrid");
+ if(!allGrid||!poolGrid)return;
+ allGrid.innerHTML="";
+ poolGrid.innerHTML="";
 
  const query=String(filter??document.getElementById("playerSearch")?.value??"").trim().toLowerCase();
 
@@ -30345,42 +30472,37 @@ function renderPlayers(filter=""){
    return mainPositionRating(b)-mainPositionRating(a);
  });
 
+ const poolShown=shown.filter(p=>p.ultimateTeamPool===true);
+ const allPoolCount=players.filter(p=>p.ultimateTeamPool===true).length;
+
  const resultCount=document.getElementById("playerResultsCount");
- if(resultCount)resultCount.textContent=`${shown.length} player${shown.length===1?"":"s"} shown`;
+ if(resultCount)resultCount.textContent=`${shown.length} all players shown · ${poolShown.length} pool cards shown`;
 
  const countEl=document.getElementById("playerDatabaseCount");
+ const poolCountEl=document.getElementById("playerUTPoolCount");
+ const poolSectionCount=document.getElementById("utPoolSectionCount");
+ const allSectionCount=document.getElementById("allPlayersSectionCount");
  const goldEl=document.getElementById("playerGoldCount");
  const psEl=document.getElementById("playerPlaystyleCount");
  if(countEl)countEl.textContent=players.length;
+ if(poolCountEl)poolCountEl.textContent=allPoolCount;
+ if(poolSectionCount)poolSectionCount.textContent=allPoolCount;
+ if(allSectionCount)allSectionCount.textContent=shown.length;
  if(goldEl)goldEl.textContent=players.filter(p=>cardTier(p)==="gold").length;
  if(psEl)psEl.textContent=players.reduce((n,p)=>n+selectedPlaystyleCount(p),0);
 
+ const emptyPool=document.getElementById("utPoolEmptyState");
+ if(emptyPool)emptyPool.classList.toggle("hidden",poolShown.length>0);
+
+ poolShown.forEach(p=>poolGrid.appendChild(vdsBuildDatabasePlayerCard(p,"pool")));
+
  if(!shown.length){
-   grid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
-   return;
+   allGrid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
+ }else{
+   shown.forEach(p=>allGrid.appendChild(vdsBuildDatabasePlayerCard(p,"all")));
  }
 
- shown.forEach(p=>{
-   const idx=players.indexOf(p);
-   const c=categoryRatings(p);
-   const tier=cardTier(p);
-   const atk=(p.attackPlaystyle||"none")!=="none"?attackingPlaystyle(p):null;
-   const def=(p.defensePlaystyle||"none")!=="none"?defensivePlaystyle(p):null;
-
-   const card=document.createElement("div");
-   const mainPos=(p.position||"").toUpperCase();
-   const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
-   card.className=`fifaPlayerCard ${tier}${posClass}`;
-   card.innerHTML=vdsMasterPlayerCardHTML(p,{
-     role:p.position&&p.position!=="-"?p.position:"POS",
-     rating:mainPositionRating(p),
-     tier,
-     tierLabel:cardTierLabel(p),
-     footer:cloudAdmin?"OPEN PLAYER · EDIT ENABLED":"OPEN PLAYER"
-   });
-   card.onclick=()=>openPlayerEditor(idx);
-   grid.appendChild(card);
- });
+ vdsBindUltimatePoolButtons();
 }
 
 let playerEditorIndex=null;
@@ -41218,22 +41340,28 @@ function utRatingForRarity(rarity,player){
 function utScaledStat(raw,cardRating,playerOverall){
   return clamp(Math.round(Number(raw||0)),0,99);
 }
-function utPickPlayer(rarity){
-  if(!Array.isArray(players)||!players.length)return null;
+function vdsUltimatePoolPlayers(){
+  if(!Array.isArray(players))return [];
+  return players.filter(p=>p?.ultimateTeamPool===true);
+}
 
-  const exact=players.filter(p=>utPlayerTier(p)===rarity);
+function utPickPlayer(rarity){
+  const eligible=vdsUltimatePoolPlayers();
+  if(!eligible.length)return null;
+
+  const exact=eligible.filter(p=>utPlayerTier(p)===rarity);
   if(exact.length)return exact[Math.floor(Math.random()*exact.length)];
 
-  // If your current database has no player in that tier, use the nearest
-  // populated tier rather than inventing a different rarity for a player.
+  // Stay inside the Ultimate Team Pool. If the rolled tier is empty,
+  // select from the nearest populated tier within the pool only.
   const order=["bronze","silver","gold","elite","ace"];
   const wanted=order.indexOf(rarity);
   const populated=order
-    .map((tier,i)=>({tier,i,pool:players.filter(p=>utPlayerTier(p)===tier)}))
+    .map((tier,i)=>({tier,i,pool:eligible.filter(p=>utPlayerTier(p)===tier)}))
     .filter(x=>x.pool.length)
     .sort((a,b)=>Math.abs(a.i-wanted)-Math.abs(b.i-wanted));
 
-  const pool=populated[0]?.pool||players;
+  const pool=populated[0]?.pool||eligible;
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
@@ -41250,6 +41378,10 @@ async function openUltimatePack(packId){
     alert("Player database has not loaded yet.");
     return;
   }
+  if(!vdsUltimatePoolPlayers().length){
+    alert("The Ultimate Team Pool is empty. An admin must add players to the pool before packs can be opened.");
+    return;
+  }
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
@@ -41263,7 +41395,7 @@ async function openUltimatePack(packId){
   const rolledRarity=utRollRarity(packId);
   const player=utPickPlayer(rolledRarity);
   if(!player){
-    alert("No eligible player could be selected from the database.");
+    alert("No eligible player could be selected from the Ultimate Team Pool. Add at least one player to the pool first.");
     return;
   }
 
@@ -42726,7 +42858,7 @@ document.getElementById("addPlayerBtn").onclick=()=>{
     name=`New Player ${counter}`;
   }
 
-  const p={name,position:"-",photo:"",shots:[],serveType:"auto"};
+  const p={name,position:"-",photo:"",shots:[],serveType:"auto",ultimateTeamPool:false};
   STAT_KEYS.forEach(k=>p[k]=70);
   players.unshift(p);
   savePlayers();
@@ -47369,3 +47501,196 @@ This specifically overrides older #players-scoped CSS that was keeping the old a
   opacity:1 !important;
 }
 </style>
+
+
+<style id="VDS_B95_ULTIMATE_TEAM_POOL_UI">
+/* Stage 6E15 — Ultimate Team Pool first, All Player Cards second. */
+#players .vdsPlayersHeroStats{
+  grid-template-columns:repeat(4,minmax(86px,1fr))!important;
+}
+
+#players .vdsPlayerRosterSection{
+  margin-top:18px;
+  padding:16px 16px 18px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(77,179,255,.045),transparent 28%),
+    linear-gradient(180deg,rgba(7,18,29,.78),rgba(5,14,23,.70));
+}
+
+#players .vdsUTPoolRosterSection{
+  border-color:rgba(85,186,255,.16);
+  background:
+    radial-gradient(circle at 88% 0,rgba(79,173,255,.09),transparent 27%),
+    radial-gradient(circle at 12% 0,rgba(167,103,255,.055),transparent 24%),
+    linear-gradient(180deg,rgba(8,22,35,.92),rgba(5,14,23,.84));
+}
+
+#players .vdsPlayerRosterSectionHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:14px;
+}
+
+#players .vdsPlayerRosterSectionHead h2{
+  margin:4px 0 5px;
+  font-size:25px;
+  letter-spacing:-.035em;
+}
+
+#players .vdsPlayerRosterSectionHead p{
+  margin:0;
+  color:#8299ad;
+  font-size:12px;
+  line-height:1.5;
+}
+
+#players .vdsUTPoolCountBadge,
+#players .vdsAllPlayersCountBadge{
+  min-width:104px;
+  padding:10px 12px;
+  border-radius:13px;
+  text-align:center;
+  background:#081522;
+  border:1px solid rgba(255,255,255,.07);
+}
+
+#players .vdsUTPoolCountBadge b,
+#players .vdsAllPlayersCountBadge b{
+  display:block;
+  font-size:21px;
+}
+
+#players .vdsUTPoolCountBadge span,
+#players .vdsAllPlayersCountBadge span{
+  display:block;
+  margin-top:2px;
+  color:#7f96aa;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+
+#players .vdsUTPoolCountBadge{
+  border-color:rgba(89,188,255,.22);
+}
+#players .vdsUTPoolCountBadge b{color:#8dd2ff}
+
+#players .vdsPlayerCardWithPoolAction{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+}
+
+#players .vdsPlayerCardWithPoolAction > .fifaPlayerCard{
+  width:100%!important;
+}
+
+#players .vdsPoolCardAction{
+  width:calc(100% - 12px);
+  min-height:34px;
+  margin:7px 6px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#0b1826;
+  color:#a9c0d3;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.10em;
+  cursor:pointer;
+}
+
+#players .vdsPoolCardAction.add{
+  color:#8fd8ff;
+  border-color:rgba(85,184,255,.25);
+  background:rgba(38,120,180,.09);
+}
+#players .vdsPoolCardAction.included{
+  color:#83dfa9;
+  border-color:rgba(91,218,146,.24);
+  background:rgba(44,157,94,.08);
+}
+#players .vdsPoolCardAction.remove{
+  color:#f0a4ad;
+  border-color:rgba(255,107,126,.20);
+  background:rgba(167,48,67,.08);
+}
+
+#players .vdsPoolCardAction:hover{
+  filter:brightness(1.12);
+}
+
+#players .vdsPoolViewerBadge{
+  align-self:center;
+  margin-top:7px;
+  padding:6px 10px;
+  border-radius:999px;
+  color:#85d7ff;
+  border:1px solid rgba(85,184,255,.20);
+  background:rgba(43,126,185,.08);
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.13em;
+}
+
+#players .vdsUTPoolEmpty{
+  margin:8px 0 16px;
+  padding:18px;
+  border-radius:15px;
+  border:1px dashed rgba(104,187,241,.22);
+  background:rgba(33,91,132,.07);
+  text-align:center;
+}
+#players .vdsUTPoolEmpty b{
+  display:block;
+  color:#d8ecfa;
+  font-size:14px;
+}
+#players .vdsUTPoolEmpty span{
+  display:block;
+  margin-top:5px;
+  color:#8098ac;
+  font-size:11px;
+}
+
+body.cloudReadOnly #players .vdsPoolCardAction{
+  display:none!important;
+}
+
+@media(max-width:700px){
+  #players .vdsPlayersHeroStats{
+    grid-template-columns:repeat(2,1fr)!important;
+  }
+  #players .vdsPlayerRosterSection{
+    padding:11px 8px 13px;
+    border-radius:15px;
+  }
+  #players .vdsPlayerRosterSectionHead{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:10px;
+  }
+  #players .vdsUTPoolCountBadge,
+  #players .vdsAllPlayersCountBadge{
+    min-width:94px;
+  }
+}
+</style>
+
+
+<!--
+VDS B9.5 STAGE 6E15 — ULTIMATE TEAM POOL FIRST
+- Player Database now has two roster sections:
+  1) Ultimate Team Pool first
+  2) All Player Cards second
+- Only players with players.ultimate_team_pool=true are eligible for Ultimate Team pack pulls.
+- Admins can add/remove cards from the pool directly below each card.
+- Pool membership is stored in Supabase so every user sees the same pack-eligible pool.
+- Existing 43 cloud players were seeded into the pool to preserve current live behaviour.
+- Newly created players start OUTSIDE the Ultimate Team Pool until explicitly added.
+- New starter-club generation is also restricted to the Ultimate Team Pool.
+-->
