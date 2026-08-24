@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.6 Card Scale & Net Layer Fix</title>
+<title>Volleyball Draft Simulator — B8.7 FUT Proportion Pass</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -26493,6 +26493,244 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B87_FUT_PROPORTION_PASS">
+/* Stage 6E7 — make the laptop and mobile squad builder feel closer to the FUT proportions.
+   Presentation only; no squad logic / chemistry logic changed. */
+
+/* Keep the stadium, but stop the court from dominating the whole screen. */
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPanel{
+  max-width:1280px!important;
+  margin:0 auto!important;
+}
+#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+  height:720px!important;
+  min-height:720px!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+}
+
+/* Shrink the visible court so it behaves more like a squad-builder board. */
+#ultimate .vdsUTCourtEnhanced:before{
+  left:15%!important;
+  right:15%!important;
+  top:19.5%!important;
+  bottom:8.5%!important;
+  clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)!important;
+  border-radius:16px 16px 24px 24px!important;
+}
+#ultimate .vdsUTCourtEnhanced:after{
+  left:21%!important;
+  right:21%!important;
+  top:48.6%!important;
+  height:3px!important;
+}
+
+/* Net closer to FUT-style upper third board proportions. */
+#ultimate .vdsUTNetPerspective{
+  left:30%!important;
+  right:30%!important;
+  top:13.8%!important;
+  height:108px!important;
+}
+#ultimate .vdsUTNetPerspective .mesh{
+  top:24px!important;
+  height:58px!important;
+}
+
+/* Narrow the useful stadium band a little so the squad is the focal point. */
+#ultimate .vdsUTStadiumBoard{
+  top:4.2%!important;
+  width:170px!important;
+}
+#ultimate .vdsUTStadiumLamps{
+  left:12%!important;
+  right:12%!important;
+}
+#ultimate .vdsUTLightBeams span{
+  height:300px!important;
+}
+
+/* Desktop cards slightly more compact and closer to FUT proportions. */
+#ultimate .vdsSquadSlot{
+  width:120px!important;
+}
+#ultimate .vdsSquadPortrait,
+#ultimate .vdsSquadEmpty{
+  width:92px!important;
+  height:126px!important;
+  border-radius:16px!important;
+}
+#ultimate .vdsSquadRatingBadge{
+  min-width:28px!important;
+  height:28px!important;
+  font-size:15px!important;
+}
+#ultimate .vdsSquadMiniRemove{
+  width:20px!important;
+  height:20px!important;
+}
+#ultimate .vdsSquadSlotMeta{
+  top:-13px!important;
+}
+#ultimate .vdsSquadPlayerName{
+  margin-top:8px!important;
+  font-size:9px!important;
+  line-height:1.08!important;
+}
+#ultimate .vdsSquadSlotLabel{
+  margin-top:3px!important;
+  font-size:6.2px!important;
+  line-height:1.1!important;
+}
+#ultimate .vdsSquadSlotHint{
+  margin-top:2px!important;
+  font-size:5.3px!important;
+  line-height:1.1!important;
+}
+#ultimate .vdsUTPlayerChem{
+  width:92px!important;
+  margin-top:5px!important;
+}
+#ultimate .vdsUTChemClub{
+  max-width:54px!important;
+  font-size:5px!important;
+}
+
+/* Tighter, more FUT-like formation footprint. */
+#ultimate .vdsSquadSlot:nth-child(1){left:31.5%!important;top:34.5%!important}
+#ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:30.8%!important}
+#ultimate .vdsSquadSlot:nth-child(3){left:68.5%!important;top:34.5%!important}
+#ultimate .vdsSquadSlot:nth-child(4){left:26.5%!important;top:66%!important}
+#ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:72%!important}
+#ultimate .vdsSquadSlot:nth-child(6){left:73.5%!important;top:66%!important}
+
+/* Lighter shadow so they feel like placed squad items, not giant floating posters. */
+#ultimate .vdsSquadPortrait{
+  box-shadow:0 16px 28px rgba(0,0,0,.30)!important;
+}
+#ultimate .vdsSquadFloatWrap::after{
+  width:62px!important;
+  height:11px!important;
+  bottom:-8px!important;
+  opacity:.55!important;
+}
+
+/* Tone down the lower-court emptiness by raising the visible base edge slightly. */
+#ultimate .vdsUTCourtEnhanced .vdsUTCourtLabel{
+  bottom:18px!important;
+}
+
+/* Mobile: make cards clearly smaller and closer to the FIFA mobile reference. */
+@media(max-width:620px){
+  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+    height:700px!important;
+    min-height:700px!important;
+    border-radius:18px!important;
+  }
+  #ultimate .vdsUTCourtEnhanced:before{
+    left:8%!important;
+    right:8%!important;
+    top:17.5%!important;
+    bottom:8.5%!important;
+    clip-path:polygon(19% 0,81% 0,100% 100%,0 100%)!important;
+  }
+  #ultimate .vdsUTCourtEnhanced:after{
+    left:18%!important;
+    right:18%!important;
+    top:48.8%!important;
+  }
+  #ultimate .vdsUTNetPerspective{
+    left:26%!important;
+    right:26%!important;
+    top:13.2%!important;
+    height:94px!important;
+  }
+  #ultimate .vdsUTNetPerspective .mesh{
+    top:22px!important;
+    height:48px!important;
+  }
+
+  #ultimate .vdsSquadSlot{
+    width:90px!important;
+  }
+  #ultimate .vdsSquadPortrait,
+  #ultimate .vdsSquadEmpty{
+    width:64px!important;
+    height:88px!important;
+    border-radius:13px!important;
+  }
+  #ultimate .vdsSquadRatingBadge{
+    min-width:22px!important;
+    height:22px!important;
+    font-size:12px!important;
+  }
+  #ultimate .vdsSquadMiniRemove{
+    width:16px!important;
+    height:16px!important;
+  }
+  #ultimate .vdsSquadSlotMeta{
+    top:-11px!important;
+  }
+  #ultimate .vdsSquadPlayerName{
+    margin-top:7px!important;
+    font-size:7px!important;
+  }
+  #ultimate .vdsSquadSlotLabel{
+    font-size:5.1px!important;
+    margin-top:2px!important;
+  }
+  #ultimate .vdsSquadSlotHint{
+    font-size:4.4px!important;
+    margin-top:1px!important;
+  }
+  #ultimate .vdsUTPlayerChem{
+    width:64px!important;
+    gap:3px!important;
+    margin-top:4px!important;
+    min-height:11px!important;
+  }
+  #ultimate .vdsUTChemPip{
+    width:4px!important;
+    height:4px!important;
+  }
+  #ultimate .vdsUTChemClub{
+    display:none!important;
+  }
+  #ultimate .vdsSquadFloatWrap::after{
+    width:44px!important;
+    height:8px!important;
+    bottom:-7px!important;
+  }
+
+  /* Tighter mobile spacing similar to the reference phone squad view. */
+  #ultimate .vdsSquadSlot:nth-child(1){left:29%!important;top:34.8%!important}
+  #ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:31%!important}
+  #ultimate .vdsSquadSlot:nth-child(3){left:71%!important;top:34.8%!important}
+  #ultimate .vdsSquadSlot:nth-child(4){left:24%!important;top:65.5%!important}
+  #ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:71.5%!important}
+  #ultimate .vdsSquadSlot:nth-child(6){left:76%!important;top:65.5%!important}
+
+  #ultimate .vdsUTStadiumBoard{
+    width:132px!important;
+    top:4.5%!important;
+  }
+  #ultimate .vdsUTStadiumBoard span{font-size:4.3px!important}
+  #ultimate .vdsUTStadiumBoard b{font-size:7px!important}
+  #ultimate .vdsUTStadiumLamps{
+    left:8%!important;
+    right:8%!important;
+  }
+  #ultimate .vdsUTStadiumLamps i{
+    width:18px!important;
+    height:3px!important;
+  }
+  #ultimate .vdsUTLightBeams span{
+    height:220px!important;
+  }
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -27109,11 +27347,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.6-STAGE6E6">
+<section id="ultimate" class="page" data-vds-build="B8.7-STAGE6E7">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E6 · CARD SCALE + NET LAYER FIX</div>
+        <div class="vdsUTBuildBadge">STAGE 6E7 · FUT PROPORTION PASS</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -44838,6 +45076,16 @@ VDS B8.6 STAGE 6E6 — CARD SCALE + NET LAYER FIX
 - Pulled the left/right positions inward so cards feel anchored on the court instead of falling off the edge.
 - Moved the far net behind the players by lowering its layer while keeping the court slots above it.
 - Kept gameplay and chemistry logic unchanged; this is presentation-only.
+-->
+
+
+<!--
+VDS B8.7 STAGE 6E7 — FUT PROPORTION PASS
+- Volleyball court remains a volleyball court, but the overall laptop view now uses a smaller,
+  tighter formation board so it resembles the cleaner FUT squad-builder proportions.
+- Desktop squad cards were made slightly more compact and grouped more tightly.
+- Mobile squad cards were intentionally reduced to feel closer to the reference phone squad-builder UI.
+- Chemistry logic, drag/drop, roster logic, and all gameplay behaviour remain unchanged.
 -->
 
 </body>
