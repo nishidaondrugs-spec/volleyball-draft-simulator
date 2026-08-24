@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.2 Mobile Ultimate Team Fix</title>
+<title>Volleyball Draft Simulator — B8.3 Chemistry Squad Builder</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -25845,6 +25845,138 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="VDS_B83_CHEM_SQUAD_BUILDER">
+/* Stage 6E3 — FIFA-style chemistry squad builder polish for Ultimate Team Squad view. */
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPanel{
+  position:relative;
+  overflow:hidden;
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPanel:before{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% -6%,rgba(82,154,231,.14),transparent 36%),
+    radial-gradient(circle at 16% 12%,rgba(83,160,226,.10),transparent 24%),
+    radial-gradient(circle at 84% 12%,rgba(83,160,226,.10),transparent 24%);
+  pointer-events:none;
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTLineupHelp{max-width:520px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
+  position:relative;
+  min-height:730px;
+  background:
+    radial-gradient(circle at 50% 2%,rgba(102,182,255,.12),transparent 24%),
+    linear-gradient(180deg,#081725,#06131f 32%,#05111b 100%);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 26px 60px rgba(0,0,0,.22);
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtAura,
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTLightBeams{display:block!important;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTLightBeams{opacity:.5}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTLightBeams span{
+  background:linear-gradient(180deg,rgba(185,230,255,.16),transparent 72%)!important;
+  filter:blur(1.2px)!important;
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentHint,
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentGhosts,
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective,
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTNet,
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTAttackLine{display:none!important;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{
+  content:"";
+  position:absolute;
+  left:7.5%; right:7.5%; top:16%; bottom:7%;
+  clip-path:polygon(22% 0,78% 0,100% 100%,0 100%);
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(221,255,228,.18),transparent 16%),
+    linear-gradient(180deg,#1e6030,#123e20 60%,#0d2f19);
+  box-shadow:
+    inset 0 0 0 2px rgba(232,255,239,.10),
+    inset 0 55px 75px rgba(255,255,255,.04),
+    0 24px 50px rgba(0,0,0,.30);
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{
+  content:"";
+  position:absolute;
+  left:14%; right:14%; top:28%; bottom:12%;
+  clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);
+  background:
+    radial-gradient(circle at 50% 50%,transparent 0 16%,rgba(235,248,238,.55) 16.6% 17.1%,transparent 17.7%),
+    linear-gradient(180deg,transparent 49.4%,rgba(245,250,246,.54) 49.7%,rgba(245,250,246,.54) 50.3%,transparent 50.6%),
+    linear-gradient(90deg,transparent 49.4%,rgba(245,250,246,.28) 49.8%,rgba(245,250,246,.28) 50.2%,transparent 50.6%);
+  opacity:.9;
+  pointer-events:none;
+}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtLabel{color:#d4e0ea;font-size:6px;letter-spacing:.18em;opacity:.65;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemLayer{position:absolute; inset:0; z-index:2; pointer-events:none;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemLayer svg{width:100%; height:100%; overflow:visible;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemLine{fill:none;stroke:rgba(102,226,132,.84);stroke-width:4.2;stroke-linecap:round;filter:drop-shadow(0 0 8px rgba(86,221,134,.38));opacity:.95;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemLine.weak{stroke:rgba(136,158,173,.38);filter:none;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemNode{fill:#d7ffe3;stroke:rgba(76,220,123,.95);stroke-width:2;filter:drop-shadow(0 0 6px rgba(97,224,144,.42));}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTChemNode.weak{fill:rgba(150,170,182,.55);stroke:rgba(121,143,157,.55);filter:none;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTSquadSlots{position:absolute;inset:0;z-index:3;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{width:112px;border:none!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;text-align:center;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:21%;top:27%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%;top:22%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:79%;top:27%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:17%;top:59%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%;top:54%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:83%;top:59%}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotMeta{top:-13px;justify-content:center;gap:4px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadZone,
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadRole{min-width:28px;padding:4px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(6,16,26,.80);color:#ffffff;box-shadow:0 6px 14px rgba(0,0,0,.20);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadRole{color:#f6d35f;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadRallyMarker{display:none!important;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadFloatWrap{position:relative;padding-top:2px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadFloatWrap::after{content:"";position:absolute;left:50%; bottom:-8px; transform:translateX(-50%);width:64px; height:12px; border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.30),transparent 70%);filter:none!important;opacity:.9;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{position:relative;width:82px; height:112px;border-radius:15px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 16px 32px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0) 18%),linear-gradient(180deg,#15395e,#091727 73%);transform:translateZ(0);animation:vdsUTPortraitFloat 4.2s ease-in-out infinite;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait img{width:100%;height:100%;object-fit:cover;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadMiniPhoto{display:grid;place-items:center;font-size:29px;width:100%;height:100%;background:linear-gradient(180deg,#1b3553,#091727);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{display:grid;place-items:center;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 16%),linear-gradient(180deg,#15202a,#0b141c);border-style:dashed;border-color:rgba(187,204,219,.30);color:#9ec3dc;font-size:28px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadRatingBadge{top:5px; left:5px;min-width:26px; height:26px;border-radius:999px;background:rgba(4,12,20,.82);border:1px solid rgba(255,255,255,.13);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.23);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadMiniRemove{top:5px; right:5px;width:19px; height:19px;border:1px solid rgba(255,255,255,.10);background:rgba(8,15,24,.82);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{margin-top:9px;font-size:8px;font-weight:1000;letter-spacing:.02em;color:#f0f6fb;text-shadow:0 2px 6px rgba(0,0,0,.25);}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotLabel{margin-top:3px;color:#ffffff;font-size:6px;letter-spacing:.13em;opacity:.95;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotHint{margin-top:3px;font-size:5.3px;color:#89a7ba;letter-spacing:.06em;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot.is-empty .vdsSquadSlotLabel{opacity:.78;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchWrap{margin-top:14px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchHead{align-items:end;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchHead b{font-size:18px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchCards{gap:10px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchCard{border-radius:14px;min-height:158px;}
+.vdsUTInstance[data-ut-instance="squad"] .vdsUTBenchBottom b{font-size:10px;}
+@media(max-width:620px){
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{min-height:770px!important;height:770px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{left:4%!important; right:4%!important; top:14%!important; bottom:8%!important;clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{left:10%!important; right:10%!important; top:26%!important; bottom:13%!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{width:94px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:18%!important;top:30%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:25%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:82%!important;top:30%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:15%!important;top:63%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:58%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:85%!important;top:63%!important}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{width:66px!important;height:90px!important;border-radius:13px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{font-size:7px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotLabel{font-size:5.5px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotHint{display:none!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTChemLine{stroke-width:3.2!important;}
+}
+@media(max-width:390px){
+  .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{min-height:740px!important;height:740px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{width:88px!important;}
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
+  .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{width:62px!important;height:86px!important;}
+}
+@keyframes vdsUTPortraitFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){.vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{animation:none!important}}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -26461,11 +26593,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B8.2-STAGE6E2">
+<section id="ultimate" class="page" data-vds-build="B8.3-STAGE6E3">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E2 · MOBILE UT FIX</div>
+        <div class="vdsUTBuildBadge">STAGE 6E3 · CHEMISTRY SQUAD BUILDER</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -26547,6 +26679,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
           <div class="vdsUTNet"></div>
           <div class="vdsUTAttackLine"></div>
           <div class="vdsUTCourtLabel">YOUR STARTING SIX</div>
+          <div id="utChemLayer" class="vdsUTChemLayer"></div>
           <div id="utSquadSlots" class="vdsUTSquadSlots"></div>
         </div>
         <div class="vdsUTBenchWrap">
@@ -43882,6 +44015,70 @@ VDS B8.2 STAGE 6E2 — MOBILE ULTIMATE TEAM FIX
 - Bench is a compact horizontal swipe rail.
 - Pack Store, UT Home and Club Profile also receive phone-specific sizing.
 - No desktop mechanics or multiplayer/economy behavior changed.
+-->
+
+
+<script id="VDS_B83_CHEM_SQUAD_BUILDER_JS">
+const UT_CHEM_LINKS = [
+  [0,1],[1,2],
+  [3,4],[4,5],
+  [0,3],[1,4],[2,5],
+  [0,4],[2,4],[1,3],[1,5]
+];
+function vdsGetSquadAnchorRect(slotEl){
+  return slotEl.querySelector('.vdsSquadPortrait,.vdsSquadEmpty')?.getBoundingClientRect() || slotEl.getBoundingClientRect();
+}
+function vdsBuildChemPath(a,b){
+  const mx=(a.x+b.x)/2;
+  const curve=Math.abs(b.y-a.y)*0.05;
+  return `M ${a.x} ${a.y} C ${mx} ${a.y+curve}, ${mx} ${b.y-curve}, ${b.x} ${b.y}`;
+}
+function vdsRenderSquadChemistry(){
+  const layer=document.getElementById('utChemLayer');
+  const court=document.querySelector('.vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced');
+  const slots=[...document.querySelectorAll('#utSquadSlots .vdsSquadSlot')];
+  if(!layer || !court || slots.length!==6){ if(layer) layer.innerHTML=''; return; }
+  const courtRect=court.getBoundingClientRect();
+  const points=slots.map(slot=>{
+    const filled=!!slot.querySelector('.vdsSquadPortrait');
+    const anchor=vdsGetSquadAnchorRect(slot);
+    return { x:anchor.left-courtRect.left+(anchor.width/2), y:anchor.top-courtRect.top+(anchor.height/2), filled };
+  });
+  const lines = UT_CHEM_LINKS.map(([a,b])=>{
+    const strong = points[a]?.filled && points[b]?.filled;
+    return `<path class="vdsUTChemLine ${strong ? '' : 'weak'}" d="${vdsBuildChemPath(points[a], points[b])}"></path>`;
+  }).join('');
+  const nodes = points.map(p=>`<circle class="vdsUTChemNode ${p.filled ? '' : 'weak'}" cx="${p.x}" cy="${p.y}" r="5"></circle>`).join('');
+  layer.innerHTML = `<svg viewBox="0 0 ${courtRect.width} ${courtRect.height}" preserveAspectRatio="none" aria-hidden="true">${lines}${nodes}</svg>`;
+}
+const vdsB83OriginalRenderUltimateSquadVisual = renderUltimateSquadVisual;
+renderUltimateSquadVisual = function(){
+  const result = vdsB83OriginalRenderUltimateSquadVisual.apply(this, arguments);
+  requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry));
+  return result;
+};
+const vdsB83OriginalSwitchUltimateInstance = vdsSwitchUltimateInstance;
+vdsSwitchUltimateInstance = function(id, options){
+  const result = vdsB83OriginalSwitchUltimateInstance.call(this, id, options);
+  if(id === 'squad'){ requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry)); }
+  return result;
+};
+let vdsB83ChemResizeTimer = 0;
+window.addEventListener('resize',()=>{ clearTimeout(vdsB83ChemResizeTimer); vdsB83ChemResizeTimer=setTimeout(vdsRenderSquadChemistry,80); });
+window.addEventListener('orientationchange',()=>{ setTimeout(vdsRenderSquadChemistry,120); });
+setTimeout(vdsRenderSquadChemistry,250);
+</script>
+
+
+<!--
+VDS B8.3 STAGE 6E3 — CHEMISTRY SQUAD BUILDER
+- Reworked the Ultimate Team Squad view to feel more like a premium squad-builder.
+- Desktop and mobile squad view now uses a dark stadium + angled green pitch board.
+- Added chemistry-link overlay between players (green when both connected slots are filled, muted when not).
+- Squad positions remain the same volleyball mapping:
+  P5 Libero, P4 + P6 OH, P3 Middle, P1 Setter, P2 Opposite.
+- No gameplay, lineup data, bench data, pack economy or multiplayer logic changed.
+- This is a pure Squad-view presentation upgrade plus phone-safe spacing.
 -->
 
 </body>
