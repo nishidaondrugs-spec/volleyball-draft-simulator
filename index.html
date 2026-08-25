@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B9.7 Standardised Rarity Ladder</title>
+<title>Volleyball Draft Simulator — B8.4 Club Chemistry Arena</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -10129,7 +10129,7 @@ body{
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
 
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 80-84 — classic rich gold */
 #players .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -14087,7 +14087,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 80-84 — classic rich gold */
 #minidraft .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -16681,7 +16681,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 80-84 — classic rich gold */
 #miniPickReveal .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -19412,6 +19412,78 @@ body{
   position:relative!important;
   z-index:6!important;
 }
+
+
+/* B9.8 — View Only Card Showcase Mode */
+.showcaseOverlay{position:fixed;inset:0;z-index:25000;background:rgba(2,8,18,.86);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:28px}
+.showcaseOverlay.show{display:flex}
+body.showcaseOpen{overflow:hidden}
+.showcaseSheet{position:relative;width:min(1180px,96vw);max-height:92vh;overflow:auto;border-radius:28px;border:1px solid rgba(120,180,255,.18);background:radial-gradient(circle at 50% 0%, rgba(88,150,255,.18), transparent 38%), linear-gradient(180deg,#06101f 0%, #040b15 100%);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.showcaseClose{position:absolute;top:18px;right:18px;z-index:4;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:none;border-radius:999px;background:rgba(7,18,34,.92);color:#fff;font-size:18px;font-weight:900;cursor:pointer;border:1px solid rgba(255,255,255,.12)}
+.showcaseShell{position:relative;padding:34px;overflow:hidden}
+.showcaseArenaBg{position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(circle at 50% 10%, rgba(120,194,255,.14), transparent 30%),
+  radial-gradient(circle at 20% 18%, rgba(96,180,255,.11), transparent 16%),
+  radial-gradient(circle at 80% 18%, rgba(96,180,255,.11), transparent 16%),
+  linear-gradient(180deg, rgba(10,28,54,.94) 0%, rgba(4,12,24,.98) 58%, rgba(3,8,16,1) 100%)}
+.showcaseArenaBg:before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 12% 0%, rgba(255,255,255,.52), transparent 7%),
+  radial-gradient(circle at 36% 0%, rgba(255,255,255,.46), transparent 7%),
+  radial-gradient(circle at 64% 0%, rgba(255,255,255,.46), transparent 7%),
+  radial-gradient(circle at 88% 0%, rgba(255,255,255,.52), transparent 7%);opacity:.52;filter:blur(18px)}
+.showcaseArenaBg:after{content:"";position:absolute;left:8%;right:8%;top:24%;height:28%;border-radius:50% 50% 0 0/100% 100% 0 0;background:repeating-radial-gradient(circle at 50% 100%, rgba(130,180,255,.10) 0 2px, transparent 2px 10px);opacity:.4;filter:blur(.2px)}
+.showcaseTitleRow{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:24px}
+.showcaseEyebrow{font-size:11px;letter-spacing:.22em;font-weight:900;color:#78b7ff;text-transform:uppercase;margin-bottom:8px}
+.showcaseTitle{font-size:clamp(28px,4vw,50px);line-height:.92;font-weight:1000;letter-spacing:-.03em;color:#fff;margin:0}
+.showcaseSubtitle{margin-top:10px;color:#9bb5d8;max-width:580px;font-size:14px;line-height:1.45}
+.showcasePill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(5,17,33,.9);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:900;letter-spacing:.08em;color:#dfe9f7;text-transform:uppercase}
+.showcaseMain{position:relative;z-index:2;display:grid;grid-template-columns:minmax(320px,430px) minmax(340px,1fr);gap:26px;align-items:stretch}
+.showcaseCardScene{position:relative;min-height:640px;border-radius:28px;padding:32px 24px 26px;border:1px solid rgba(120,180,255,.14);background:linear-gradient(180deg,rgba(7,18,34,.55),rgba(4,10,19,.72));overflow:hidden}
+.showcaseCourtPerspective{position:absolute;left:6%;right:6%;bottom:24px;height:46%;clip-path:polygon(8% 0%,92% 0%,100% 100%,0% 100%);background:linear-gradient(180deg,#c97a45 0%, #be6f3d 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18), inset 0 24px 40px rgba(255,255,255,.05), 0 12px 36px rgba(0,0,0,.45)}
+.showcaseCourtPerspective:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg, transparent 0 49.6%, rgba(255,255,255,.13) 49.6% 50.4%, transparent 50.4% 100%)}
+.showcaseCourtPerspective:after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;background:rgba(255,255,255,.92);box-shadow:0 0 18px rgba(255,255,255,.4)}
+.showcaseFarNet{position:absolute;left:23%;right:23%;top:31%;height:62px;border-top:4px solid rgba(255,255,255,.92);background:linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.05));mask-image:linear-gradient(#000 0 0), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 16px), repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 12px);mask-composite:intersect;opacity:.92}
+.showcasePost{position:absolute;top:27%;width:6px;height:128px;background:linear-gradient(180deg,#f1f7ff,#cad5e4);border-radius:99px;box-shadow:0 0 12px rgba(255,255,255,.2)}
+.showcasePost.left{left:22%}
+.showcasePost.right{right:22%}
+.showcaseCardWrap{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);filter:drop-shadow(0 22px 44px rgba(0,0,0,.48));}
+.showcaseCardWrap .fifaPlayerCard{width:min(78vw,360px);max-width:360px;transform:scale(1.02)}
+.showcaseAmbientRing{position:absolute;inset:auto 50% 16%;transform:translateX(-50%);width:64%;height:30px;border-radius:50%;background:radial-gradient(circle, rgba(102,175,255,.26) 0%, rgba(102,175,255,.08) 45%, transparent 70%);filter:blur(12px)}
+.showcaseInfo{display:grid;grid-template-rows:auto auto 1fr;gap:16px}
+.showcasePanel{border-radius:24px;border:1px solid rgba(120,180,255,.12);background:linear-gradient(180deg,rgba(6,18,34,.92),rgba(4,11,20,.9));padding:18px 18px 16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.showcasePanel h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#79b7ff}
+.showcaseIdentityGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.showcaseIdentityItem{padding:12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.showcaseIdentityItem span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8ea9ce;margin-bottom:5px}
+.showcaseIdentityItem b{font-size:22px;color:#fff;line-height:1.05}
+.showcaseSplit{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.showcaseStatGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.showcaseStatBox{padding:12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.showcaseStatBox span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8ea9ce;margin-bottom:4px}
+.showcaseStatBox b{font-size:22px;color:#fff}
+.showcaseMiniRows{display:grid;gap:8px}
+.showcaseMiniRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:#dbe7f8}
+.showcaseMiniRow span{font-size:12px;color:#8ea9ce;text-transform:uppercase;letter-spacing:.1em}
+.showcaseMiniRow b{font-size:17px;color:#fff}
+.showcaseSideCard{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.showcaseNote{font-size:12px;line-height:1.45;color:#8ea9ce;margin-top:4px}
+@media (max-width: 980px){
+  .showcaseMain{grid-template-columns:1fr}
+  .showcaseCardScene{min-height:560px}
+}
+@media (max-width: 720px){
+  .showcaseOverlay{padding:10px}
+  .showcaseShell{padding:18px}
+  .showcaseTitleRow{flex-direction:column}
+  .showcaseIdentityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .showcaseSplit,.showcaseSideCard,.showcaseStatGrid{grid-template-columns:1fr}
+  .showcaseCardScene{min-height:500px;padding:22px 14px 20px}
+  .showcaseCardWrap .fifaPlayerCard{width:min(86vw,320px)}
+  .showcaseFarNet{left:16%;right:16%;top:34%}
+  .showcasePost.left{left:15%}
+  .showcasePost.right{right:15%}
+}
+
 </style>
 
 <style id="b350-smooth-player-name-gradient">
@@ -26183,1763 +26255,6 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
-
-<style id="VDS_B85_VOLLEYBALL_CHEMISTRY">
-/* Stage 6E5 — fix the formation board back to volleyball and simplify chemistry. */
-
-/* Keep the dramatic arena shell from B8.4, but restore a proper volleyball court. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-  height:790px!important;
-  min-height:790px!important;
-  background:
-    radial-gradient(circle at 50% 5%,rgba(87,168,236,.15),transparent 28%),
-    linear-gradient(180deg,#071624 0%,#05121e 100%)!important;
-}
-
-/* Orange volleyball half-court, receding toward the far net. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{
-  content:""!important;
-  position:absolute!important;
-  z-index:1!important;
-  left:6%!important;right:6%!important;top:19%!important;bottom:6%!important;
-  clip-path:polygon(24% 0,76% 0,100% 100%,0 100%)!important;
-  border-radius:18px 18px 26px 26px!important;
-  transform:none!important;
-  background:
-    linear-gradient(90deg,transparent 49.75%,rgba(255,255,255,.055) 49.9%,rgba(255,255,255,.055) 50.1%,transparent 50.25%),
-    linear-gradient(180deg,rgba(255,255,255,.055),transparent 26%),
-    linear-gradient(180deg,#df874d 0%,#cf7440 46%,#b75e32 100%)!important;
-  box-shadow:
-    inset 0 0 0 4px rgba(255,248,239,.91),
-    inset 0 -20px 38px rgba(86,34,10,.16),
-    0 45px 74px rgba(0,0,0,.30)!important;
-}
-
-/* 3m attack line only — no football centre circle / football pitch markings. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{
-  content:""!important;
-  position:absolute!important;
-  z-index:2!important;
-  left:15%!important;right:15%!important;top:47.5%!important;height:3px!important;
-  bottom:auto!important;
-  clip-path:none!important;
-  background:rgba(255,248,240,.90)!important;
-  box-shadow:0 0 8px rgba(255,255,255,.08)!important;
-  opacity:1!important;
-}
-
-/* Bring the volleyball net back at the FAR boundary of our court. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
-  display:block!important;
-  position:absolute!important;
-  z-index:5!important;
-  left:25.5%!important;right:25.5%!important;top:12.2%!important;height:124px!important;
-  pointer-events:none!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective .mesh{
-  display:block!important;
-  top:27px!important;height:69px!important;
-  border-top:3px solid rgba(246,251,255,.96)!important;
-  border-bottom:1px solid rgba(222,235,245,.60)!important;
-  background:
-    repeating-linear-gradient(90deg,rgba(240,247,253,.28) 0 1px,transparent 1px 13px),
-    repeating-linear-gradient(180deg,rgba(240,247,253,.22) 0 1px,transparent 1px 9px)!important;
-  box-shadow:0 7px 16px rgba(0,0,0,.22)!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective .post{
-  display:block!important;
-  top:0!important;bottom:0!important;width:7px!important;
-  background:linear-gradient(180deg,#dceaf5,#8ea7ba)!important;
-  box-shadow:0 4px 12px rgba(0,0,0,.24)!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective .post.left{left:-4px!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective .post.right{right:-4px!important}
-
-/* Keep a hint of the opposing arena beyond the net. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentHint{
-  display:block!important;
-  top:35px!important;
-  color:rgba(142,177,201,.34)!important;
-  font-size:6px!important;
-  letter-spacing:.20em!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentGhosts{
-  display:block!important;
-  top:58px!important;
-  opacity:.18!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentGhosts span{
-  filter:none!important;
-}
-
-/* Remove the spider-web chemistry links entirely. */
-#ultimate .vdsUTChemLayer{display:none!important}
-
-/* Formation: P6 stays slightly deeper. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:22%!important;top:31%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:27%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:78%!important;top:31%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:18%!important;top:63%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:70%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:82%!important;top:63%!important}
-
-/* Per-player chemistry is shown as pips + matching club tag, not arbitrary pairwise lines. */
-#ultimate .vdsUTPlayerChem{
-  width:96px;
-  margin:6px auto 0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:5px;
-  min-height:14px;
-}
-#ultimate .vdsUTChemPips{
-  display:flex;
-  gap:3px;
-}
-#ultimate .vdsUTChemPip{
-  width:6px;height:6px;border-radius:50%;
-  background:rgba(157,178,193,.20);
-  border:1px solid rgba(157,178,193,.16);
-}
-#ultimate .vdsUTChemPip.on{
-  background:#61df91;
-  border-color:#77eba2;
-  box-shadow:0 0 7px rgba(87,220,139,.35);
-}
-#ultimate .vdsUTChemClub{
-  max-width:61px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  color:#89a6ba;
-  font-size:5.3px;
-  font-weight:1000;
-  letter-spacing:.07em;
-}
-#ultimate .vdsUTPlayerChem.max .vdsUTChemClub{color:#70dc99}
-
-/* Team chemistry now means squad cohesion, max 18 = 3 pips per player. */
-#ultimate #utChemistryRating{
-  border-color:rgba(83,218,129,.16)!important;
-  background:rgba(73,204,117,.045)!important;
-  color:#6be29a!important;
-}
-#ultimate #utChemistryRating.medium{
-  border-color:rgba(223,184,72,.16)!important;
-  background:rgba(223,184,72,.045)!important;
-  color:#e5c568!important;
-}
-#ultimate #utChemistryRating.low{
-  border-color:rgba(190,89,89,.14)!important;
-  background:rgba(185,72,72,.035)!important;
-  color:#dc8888!important;
-}
-
-/* Stadium gets slightly more contrast against orange volleyball court. */
-#ultimate .vdsUTStadiumCrowd{opacity:.80!important}
-#ultimate .vdsUTStadiumLamps i{
-  box-shadow:0 0 15px rgba(184,227,255,.52),0 0 34px rgba(76,163,225,.24)!important;
-}
-#ultimate .vdsUTLightBeams{opacity:.72!important}
-
-/* Phone tuning */
-@media(max-width:620px){
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-    height:800px!important;
-    min-height:800px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:before{
-    left:2.5%!important;right:2.5%!important;top:17%!important;bottom:7%!important;
-    clip-path:polygon(17% 0,83% 0,100% 100%,0 100%)!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced:after{
-    left:10%!important;right:10%!important;top:47.5%!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
-    left:18%!important;right:18%!important;top:11.5%!important;height:110px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:18%!important;top:32%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:28%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:82%!important;top:32%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:15%!important;top:63%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:71%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:85%!important;top:63%!important}
-  #ultimate .vdsUTPlayerChem{width:74px;gap:4px}
-  #ultimate .vdsUTChemPip{width:5px;height:5px}
-  #ultimate .vdsUTChemClub{display:none}
-}
-</style>
-
-
-<style id="VDS_B86_CARD_SCALE_NET_LAYER_FIX">
-/* Stage 6E6 — cards larger, pulled inward, and net sits behind the players. */
-
-/* Keep the stadium/court, but slightly widen the useful visual area. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-  height:800px!important;
-  min-height:800px!important;
-}
-
-/* Net behind the players, not in front of them. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
-  z-index:2!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentHint,
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTOpponentGhosts{
-  z-index:1!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTSquadSlots{
-  z-index:4!important;
-}
-
-/* Make cards more prominent. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{
-  width:142px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
-  width:110px!important;
-  height:150px!important;
-  border-radius:18px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait{
-  box-shadow:0 22px 42px rgba(0,0,0,.36)!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadRatingBadge{
-  min-width:30px!important;
-  height:30px!important;
-  font-size:16px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadMiniRemove{
-  width:22px!important;
-  height:22px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{
-  margin-top:10px!important;
-  font-size:10px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotLabel{
-  margin-top:4px!important;
-  font-size:6.4px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlotHint{
-  margin-top:3px!important;
-  font-size:5.6px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTPlayerChem{
-  width:110px!important;
-  margin-top:7px!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadFloatWrap::after{
-  width:78px!important;
-  height:14px!important;
-  bottom:-10px!important;
-  background:radial-gradient(circle,rgba(0,0,0,.34),transparent 70%)!important;
-}
-
-/* Pull all positions inward so they feel safely on the court. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:25%!important;top:31.5%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:27.5%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:75%!important;top:31.5%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:21%!important;top:63.5%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:70.5%!important}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:79%!important;top:63.5%!important}
-
-/* Slightly refine the far net position relative to enlarged cards. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
-  left:24.5%!important;
-  right:24.5%!important;
-  top:12.8%!important;
-  height:126px!important;
-}
-
-/* Mobile scaling */
-@media(max-width:620px){
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-    height:820px!important;
-    min-height:820px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot{
-    width:108px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPortrait,
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadEmpty{
-    width:82px!important;
-    height:114px!important;
-    border-radius:15px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPlayerName{
-    font-size:8px!important;
-  }
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTPlayerChem{
-    width:82px!important;
-    margin-top:6px!important;
-  }
-
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(1){left:20%!important;top:33%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(2){left:50%!important;top:29%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(3){left:80%!important;top:33%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(4){left:17%!important;top:64%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(5){left:50%!important;top:71.5%!important}
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadSlot:nth-child(6){left:83%!important;top:64%!important}
-
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTNetPerspective{
-    left:17.5%!important;
-    right:17.5%!important;
-    top:12.2%!important;
-    height:112px!important;
-  }
-}
-</style>
-
-
-<style id="VDS_B87_FUT_PROPORTION_PASS">
-/* Stage 6E7 — make the laptop and mobile squad builder feel closer to the FUT proportions.
-   Presentation only; no squad logic / chemistry logic changed. */
-
-/* Keep the stadium, but stop the court from dominating the whole screen. */
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsSquadPanel{
-  max-width:1280px!important;
-  margin:0 auto!important;
-}
-#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-  height:720px!important;
-  min-height:720px!important;
-  border-radius:22px!important;
-  overflow:hidden!important;
-}
-
-/* Shrink the visible court so it behaves more like a squad-builder board. */
-#ultimate .vdsUTCourtEnhanced:before{
-  left:15%!important;
-  right:15%!important;
-  top:19.5%!important;
-  bottom:8.5%!important;
-  clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)!important;
-  border-radius:16px 16px 24px 24px!important;
-}
-#ultimate .vdsUTCourtEnhanced:after{
-  left:21%!important;
-  right:21%!important;
-  top:48.6%!important;
-  height:3px!important;
-}
-
-/* Net closer to FUT-style upper third board proportions. */
-#ultimate .vdsUTNetPerspective{
-  left:30%!important;
-  right:30%!important;
-  top:13.8%!important;
-  height:108px!important;
-}
-#ultimate .vdsUTNetPerspective .mesh{
-  top:24px!important;
-  height:58px!important;
-}
-
-/* Narrow the useful stadium band a little so the squad is the focal point. */
-#ultimate .vdsUTStadiumBoard{
-  top:4.2%!important;
-  width:170px!important;
-}
-#ultimate .vdsUTStadiumLamps{
-  left:12%!important;
-  right:12%!important;
-}
-#ultimate .vdsUTLightBeams span{
-  height:300px!important;
-}
-
-/* Desktop cards slightly more compact and closer to FUT proportions. */
-#ultimate .vdsSquadSlot{
-  width:120px!important;
-}
-#ultimate .vdsSquadPortrait,
-#ultimate .vdsSquadEmpty{
-  width:92px!important;
-  height:126px!important;
-  border-radius:16px!important;
-}
-#ultimate .vdsSquadRatingBadge{
-  min-width:28px!important;
-  height:28px!important;
-  font-size:15px!important;
-}
-#ultimate .vdsSquadMiniRemove{
-  width:20px!important;
-  height:20px!important;
-}
-#ultimate .vdsSquadSlotMeta{
-  top:-13px!important;
-}
-#ultimate .vdsSquadPlayerName{
-  margin-top:8px!important;
-  font-size:9px!important;
-  line-height:1.08!important;
-}
-#ultimate .vdsSquadSlotLabel{
-  margin-top:3px!important;
-  font-size:6.2px!important;
-  line-height:1.1!important;
-}
-#ultimate .vdsSquadSlotHint{
-  margin-top:2px!important;
-  font-size:5.3px!important;
-  line-height:1.1!important;
-}
-#ultimate .vdsUTPlayerChem{
-  width:92px!important;
-  margin-top:5px!important;
-}
-#ultimate .vdsUTChemClub{
-  max-width:54px!important;
-  font-size:5px!important;
-}
-
-/* Tighter, more FUT-like formation footprint. */
-#ultimate .vdsSquadSlot:nth-child(1){left:31.5%!important;top:34.5%!important}
-#ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:30.8%!important}
-#ultimate .vdsSquadSlot:nth-child(3){left:68.5%!important;top:34.5%!important}
-#ultimate .vdsSquadSlot:nth-child(4){left:26.5%!important;top:66%!important}
-#ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:72%!important}
-#ultimate .vdsSquadSlot:nth-child(6){left:73.5%!important;top:66%!important}
-
-/* Lighter shadow so they feel like placed squad items, not giant floating posters. */
-#ultimate .vdsSquadPortrait{
-  box-shadow:0 16px 28px rgba(0,0,0,.30)!important;
-}
-#ultimate .vdsSquadFloatWrap::after{
-  width:62px!important;
-  height:11px!important;
-  bottom:-8px!important;
-  opacity:.55!important;
-}
-
-/* Tone down the lower-court emptiness by raising the visible base edge slightly. */
-#ultimate .vdsUTCourtEnhanced .vdsUTCourtLabel{
-  bottom:18px!important;
-}
-
-/* Mobile: make cards clearly smaller and closer to the FIFA mobile reference. */
-@media(max-width:620px){
-  #ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTCourtEnhanced{
-    height:700px!important;
-    min-height:700px!important;
-    border-radius:18px!important;
-  }
-  #ultimate .vdsUTCourtEnhanced:before{
-    left:8%!important;
-    right:8%!important;
-    top:17.5%!important;
-    bottom:8.5%!important;
-    clip-path:polygon(19% 0,81% 0,100% 100%,0 100%)!important;
-  }
-  #ultimate .vdsUTCourtEnhanced:after{
-    left:18%!important;
-    right:18%!important;
-    top:48.8%!important;
-  }
-  #ultimate .vdsUTNetPerspective{
-    left:26%!important;
-    right:26%!important;
-    top:13.2%!important;
-    height:94px!important;
-  }
-  #ultimate .vdsUTNetPerspective .mesh{
-    top:22px!important;
-    height:48px!important;
-  }
-
-  #ultimate .vdsSquadSlot{
-    width:90px!important;
-  }
-  #ultimate .vdsSquadPortrait,
-  #ultimate .vdsSquadEmpty{
-    width:64px!important;
-    height:88px!important;
-    border-radius:13px!important;
-  }
-  #ultimate .vdsSquadRatingBadge{
-    min-width:22px!important;
-    height:22px!important;
-    font-size:12px!important;
-  }
-  #ultimate .vdsSquadMiniRemove{
-    width:16px!important;
-    height:16px!important;
-  }
-  #ultimate .vdsSquadSlotMeta{
-    top:-11px!important;
-  }
-  #ultimate .vdsSquadPlayerName{
-    margin-top:7px!important;
-    font-size:7px!important;
-  }
-  #ultimate .vdsSquadSlotLabel{
-    font-size:5.1px!important;
-    margin-top:2px!important;
-  }
-  #ultimate .vdsSquadSlotHint{
-    font-size:4.4px!important;
-    margin-top:1px!important;
-  }
-  #ultimate .vdsUTPlayerChem{
-    width:64px!important;
-    gap:3px!important;
-    margin-top:4px!important;
-    min-height:11px!important;
-  }
-  #ultimate .vdsUTChemPip{
-    width:4px!important;
-    height:4px!important;
-  }
-  #ultimate .vdsUTChemClub{
-    display:none!important;
-  }
-  #ultimate .vdsSquadFloatWrap::after{
-    width:44px!important;
-    height:8px!important;
-    bottom:-7px!important;
-  }
-
-  /* Tighter mobile spacing similar to the reference phone squad view. */
-  #ultimate .vdsSquadSlot:nth-child(1){left:29%!important;top:34.8%!important}
-  #ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:31%!important}
-  #ultimate .vdsSquadSlot:nth-child(3){left:71%!important;top:34.8%!important}
-  #ultimate .vdsSquadSlot:nth-child(4){left:24%!important;top:65.5%!important}
-  #ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:71.5%!important}
-  #ultimate .vdsSquadSlot:nth-child(6){left:76%!important;top:65.5%!important}
-
-  #ultimate .vdsUTStadiumBoard{
-    width:132px!important;
-    top:4.5%!important;
-  }
-  #ultimate .vdsUTStadiumBoard span{font-size:4.3px!important}
-  #ultimate .vdsUTStadiumBoard b{font-size:7px!important}
-  #ultimate .vdsUTStadiumLamps{
-    left:8%!important;
-    right:8%!important;
-  }
-  #ultimate .vdsUTStadiumLamps i{
-    width:18px!important;
-    height:3px!important;
-  }
-  #ultimate .vdsUTLightBeams span{
-    height:220px!important;
-  }
-}
-</style>
-
-
-<style id="VDS_B88_UT_TOPBAR_MISSIONS_DROPDOWN">
-/* Stage 6E8 — replace the bulky UT hero/tabs with a compact game-like UT top bar. */
-#ultimate .vdsUTHeader,
-#ultimate .vdsUTHubNavigation{
-  display:none!important;
-}
-#ultimate .vdsUTShell{
-  overflow:visible!important;
-}
-#ultimate .vdsUTHubInstances{
-  margin-top:10px!important;
-}
-#ultimate .vdsUTInstanceIntro{
-  margin-bottom:12px!important;
-}
-
-#ultimate .vdsUTCompactTopBar{
-  position:relative;
-  z-index:6;
-  width:calc(100% - 24px);
-  margin:14px auto 10px;
-  padding:14px 16px;
-  box-sizing:border-box;
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:18px;
-  background:
-    radial-gradient(circle at 80% 0,rgba(58,138,215,.13),transparent 26%),
-    linear-gradient(145deg,rgba(5,19,33,.94),rgba(3,12,22,.95));
-  box-shadow:0 18px 50px rgba(0,0,0,.18);
-  display:grid;
-  grid-template-columns:minmax(260px,1fr) auto;
-  gap:14px;
-}
-#ultimate .vdsUTCompactLeft{
-  display:flex;
-  align-items:end;
-  gap:18px;
-  min-width:0;
-}
-#ultimate .vdsUTCompactBrand{
-  min-width:0;
-}
-#ultimate .vdsUTCompactBrand small{
-  display:block;
-  color:#62aef0;
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.2em;
-}
-#ultimate .vdsUTCompactBrand b{
-  display:block;
-  margin-top:4px;
-  font-size:28px;
-  line-height:.96;
-  letter-spacing:-.04em;
-}
-#ultimate .vdsUTCompactSection{
-  min-width:170px;
-}
-#ultimate .vdsUTCompactSection label{
-  display:block;
-  margin-bottom:6px;
-  color:#6f8da3;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.16em;
-}
-#ultimate .vdsUTCompactSection select{
-  width:100%;
-  min-height:42px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.08);
-  background:#071a2b;
-  color:#eef7ff;
-  padding:0 12px;
-  font-size:9px;
-  font-weight:1000;
-  letter-spacing:.09em;
-  outline:none;
-}
-
-#ultimate .vdsUTCompactRight{
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  gap:10px;
-  flex-wrap:wrap;
-}
-#ultimate .vdsUTCompactPill,
-#ultimate .vdsUTCompactWallet,
-#ultimate .vdsUTCompactAccount{
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  background:rgba(3,15,27,.72);
-}
-#ultimate .vdsUTCompactPill{
-  position:relative;
-  min-height:46px;
-  padding:0 14px;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  cursor:pointer;
-  color:#eff6fc;
-  font-size:8px;
-  font-weight:1000;
-  letter-spacing:.14em;
-  white-space:nowrap;
-}
-#ultimate .vdsUTCompactPill b{
-  color:#55d995;
-  font-size:10px;
-  letter-spacing:0;
-}
-#ultimate .vdsUTCompactPill:hover{
-  background:rgba(255,255,255,.045);
-}
-#ultimate .vdsUTCompactStat{
-  min-width:70px;
-  min-height:46px;
-  padding:8px 11px;
-  box-sizing:border-box;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-#ultimate .vdsUTCompactStat span{
-  color:#6f8ca0;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.18em;
-}
-#ultimate .vdsUTCompactStat b{
-  display:block;
-  margin-top:4px;
-  font-size:18px;
-  line-height:1;
-}
-#ultimate .vdsUTCompactWallet{
-  min-width:125px;
-  min-height:46px;
-  padding:8px 12px;
-  box-sizing:border-box;
-  background:
-    radial-gradient(circle at 50% 0,rgba(236,198,74,.10),transparent 62%),
-    rgba(4,16,28,.86);
-  border-color:rgba(229,189,62,.18);
-}
-#ultimate .vdsUTCompactWallet span{
-  display:block;
-  color:#907f48;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.18em;
-}
-#ultimate .vdsUTCompactWallet b{
-  display:block;
-  margin-top:4px;
-  color:#f1d068;
-  font-size:22px;
-  line-height:1;
-}
-#ultimate .vdsUTCompactAccount{
-  min-height:46px;
-  min-width:180px;
-  padding:7px 10px 7px 7px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  cursor:pointer;
-}
-#ultimate .vdsUTCompactAccount:hover{
-  background:rgba(255,255,255,.04);
-}
-#ultimate .vdsUTCompactAccountAvatar{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  overflow:hidden;
-  flex:0 0 auto;
-}
-#ultimate .vdsUTCompactAccountAvatar img,
-#ultimate .vdsUTCompactAccountAvatar .vdsAccountAvatar,
-#ultimate .vdsUTCompactAccountAvatar .vdsAccountAvatarFallback{
-  width:32px!important;
-  height:32px!important;
-  margin:0!important;
-}
-#ultimate .vdsUTCompactAccountMeta{
-  min-width:0;
-}
-#ultimate .vdsUTCompactAccountMeta b{
-  display:block;
-  font-size:9px;
-  line-height:1.1;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-#ultimate .vdsUTCompactAccountMeta span{
-  display:block;
-  margin-top:3px;
-  color:#6e879b;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.12em;
-}
-
-#ultimate .vdsUTCompactMissionPanel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:16px;
-  width:min(420px,calc(100vw - 44px));
-  padding:14px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  background:
-    radial-gradient(circle at 80% 0,rgba(58,138,215,.10),transparent 24%),
-    linear-gradient(180deg,rgba(5,18,31,.98),rgba(3,11,20,.98));
-  box-shadow:0 24px 65px rgba(0,0,0,.34);
-  display:none;
-}
-#ultimate .vdsUTCompactMissionPanel.open{display:block}
-#ultimate .vdsUTCompactMissionHead{
-  display:flex;
-  align-items:end;
-  justify-content:space-between;
-  gap:12px;
-}
-#ultimate .vdsUTCompactMissionHead small{
-  display:block;
-  color:#67b4f4;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.18em;
-}
-#ultimate .vdsUTCompactMissionHead b{
-  display:block;
-  margin-top:4px;
-  font-size:19px;
-  letter-spacing:-.03em;
-}
-#ultimate .vdsUTCompactMissionOpen{
-  border:0;
-  background:rgba(36,127,199,.16);
-  color:#cce8ff;
-  border-radius:10px;
-  padding:9px 11px;
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.13em;
-  cursor:pointer;
-}
-#ultimate .vdsUTCompactMissionList{
-  margin-top:12px;
-  display:grid;
-  gap:8px;
-}
-#ultimate .vdsUTCompactMissionItem{
-  padding:10px 11px;
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:12px;
-  background:rgba(255,255,255,.025);
-}
-#ultimate .vdsUTCompactMissionItemTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-#ultimate .vdsUTCompactMissionItemTop span{
-  color:#e7f1f8;
-  font-size:8px;
-  font-weight:1000;
-  letter-spacing:.12em;
-}
-#ultimate .vdsUTCompactMissionItemTop b{
-  color:#f1d068;
-  font-size:8px;
-  font-weight:1000;
-}
-#ultimate .vdsUTCompactMissionItem small{
-  display:block;
-  margin-top:6px;
-  color:#7d97ab;
-  font-size:7px;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-#ultimate .vdsUTCompactMissionItem.done{
-  border-color:rgba(85,217,149,.18);
-  background:rgba(85,217,149,.05);
-}
-#ultimate .vdsUTCompactMissionItem.done small{color:#6cdca0}
-
-@media(max-width:980px){
-  #ultimate .vdsUTCompactTopBar{
-    grid-template-columns:1fr;
-  }
-  #ultimate .vdsUTCompactRight{
-    justify-content:flex-start;
-  }
-}
-@media(max-width:620px){
-  #ultimate .vdsUTCompactTopBar{
-    width:calc(100% - 16px);
-    margin:10px auto 8px;
-    padding:12px;
-    border-radius:16px;
-    gap:12px;
-  }
-  #ultimate .vdsUTCompactLeft{
-    align-items:stretch;
-    flex-direction:column;
-    gap:10px;
-  }
-  #ultimate .vdsUTCompactBrand b{
-    font-size:23px;
-  }
-  #ultimate .vdsUTCompactSection{
-    min-width:0;
-  }
-  #ultimate .vdsUTCompactRight{
-    gap:8px;
-  }
-  #ultimate .vdsUTCompactPill{
-    order:-1;
-    width:100%;
-    justify-content:space-between;
-  }
-  #ultimate .vdsUTCompactStat{
-    min-width:62px;
-  }
-  #ultimate .vdsUTCompactWallet{
-    min-width:105px;
-  }
-  #ultimate .vdsUTCompactAccount{
-    min-width:0;
-    flex:1 1 100%;
-  }
-  #ultimate .vdsUTCompactMissionPanel{
-    right:8px;
-    left:8px;
-    width:auto;
-  }
-}
-</style>
-
-
-<style id="VDS_B89_SLIM_UT_TOPBAR">
-/* Stage 6E9 — slim single-row Ultimate Team command bar. */
-#ultimate .vdsUTCompactTopBar{
-  width:calc(100% - 24px)!important;
-  min-height:64px!important;
-  margin:12px auto 9px!important;
-  padding:8px 10px!important;
-  box-sizing:border-box!important;
-  display:flex!important;
-  align-items:center!important;
-  gap:8px!important;
-  grid-template-columns:none!important;
-  border-radius:15px!important;
-  background:
-    radial-gradient(circle at 82% 0,rgba(55,137,211,.10),transparent 27%),
-    linear-gradient(180deg,rgba(5,18,30,.96),rgba(3,13,22,.96))!important;
-  border:1px solid rgba(255,255,255,.055)!important;
-  box-shadow:0 15px 34px rgba(0,0,0,.16)!important;
-}
-
-#ultimate .vdsUTCompactLeft,
-#ultimate .vdsUTCompactRight{
-  display:none!important;
-}
-
-#ultimate .vdsUTSlimBrand{
-  flex:0 0 auto;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 8px 0 2px;
-}
-#ultimate .vdsUTSlimMark{
-  width:36px;
-  height:36px;
-  border-radius:10px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(145deg,#44a6ef,#1a619c);
-  border:1px solid rgba(119,196,250,.24);
-  box-shadow:0 8px 18px rgba(29,113,178,.17);
-  color:#fff;
-  font-size:10px;
-  font-weight:1000;
-  letter-spacing:.04em;
-}
-#ultimate .vdsUTSlimBrandText small{
-  display:block;
-  color:#63849c;
-  font-size:5px;
-  font-weight:1000;
-  letter-spacing:.22em;
-}
-#ultimate .vdsUTSlimBrandText b{
-  display:block;
-  margin-top:2px;
-  color:#f1f7fc;
-  font-size:10px;
-  font-weight:1000;
-  letter-spacing:.09em;
-}
-
-#ultimate .vdsUTSlimSection{
-  flex:0 0 160px;
-  position:relative;
-}
-#ultimate .vdsUTSlimSection:after{
-  content:"⌄";
-  position:absolute;
-  right:11px;
-  top:50%;
-  transform:translateY(-52%);
-  color:#6f8ba0;
-  pointer-events:none;
-  font-size:9px;
-}
-#ultimate .vdsUTSlimSection select{
-  width:100%;
-  height:40px;
-  appearance:none;
-  -webkit-appearance:none;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.065);
-  background:rgba(255,255,255,.022);
-  color:#edf6fd;
-  padding:0 28px 0 11px;
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.12em;
-  outline:none;
-  cursor:pointer;
-}
-#ultimate .vdsUTSlimSection select:hover{
-  border-color:rgba(80,167,232,.20);
-  background:rgba(255,255,255,.034);
-}
-
-#ultimate .vdsUTSlimSpacer{
-  flex:1 1 auto;
-  min-width:12px;
-}
-
-#ultimate .vdsUTSlimMissionButton{
-  flex:0 0 auto;
-  min-height:40px;
-  padding:0 11px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.065);
-  background:rgba(255,255,255,.018);
-  color:#a5bbcc;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  cursor:pointer;
-  font-size:6px;
-  font-weight:1000;
-  letter-spacing:.13em;
-}
-#ultimate .vdsUTSlimMissionButton:hover{
-  color:#e6f1f8;
-  background:rgba(255,255,255,.035);
-}
-#ultimate .vdsUTSlimMissionButton b{
-  min-width:27px;
-  padding:4px 6px;
-  border-radius:999px;
-  background:rgba(75,210,138,.08);
-  color:#61db94;
-  font-size:7px;
-  letter-spacing:0;
-}
-
-#ultimate .vdsUTSlimStat{
-  flex:0 0 auto;
-  min-width:52px;
-  height:40px;
-  box-sizing:border-box;
-  padding:6px 9px;
-  border-left:1px solid rgba(255,255,255,.055);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-#ultimate .vdsUTSlimStat span{
-  color:#5f7f96;
-  font-size:5px;
-  font-weight:1000;
-  letter-spacing:.16em;
-}
-#ultimate .vdsUTSlimStat b{
-  margin-top:2px;
-  color:#e9f3fa;
-  font-size:12px;
-  line-height:1;
-}
-
-#ultimate .vdsUTSlimWallet{
-  flex:0 0 auto;
-  height:40px;
-  min-width:88px;
-  box-sizing:border-box;
-  padding:0 11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  border-radius:10px;
-  border:1px solid rgba(229,190,64,.14);
-  background:
-    radial-gradient(circle at 50% 0,rgba(237,197,68,.09),transparent 66%),
-    rgba(239,199,66,.02);
-  color:#edcc64;
-}
-#ultimate .vdsUTSlimWallet span{
-  font-size:14px;
-}
-#ultimate .vdsUTSlimWallet b{
-  font-size:13px;
-  font-weight:1000;
-}
-
-#ultimate .vdsUTSlimAccount{
-  flex:0 0 auto;
-  min-width:168px;
-  height:44px;
-  padding:5px 8px 5px 5px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.065);
-  background:rgba(255,255,255,.018);
-  color:#edf5fb;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  cursor:pointer;
-}
-#ultimate .vdsUTSlimAccount:hover{
-  background:rgba(255,255,255,.034);
-}
-#ultimate .vdsUTSlimAvatar{
-  width:32px;
-  height:32px;
-  flex:0 0 32px;
-  border-radius:50%;
-  overflow:hidden;
-}
-#ultimate .vdsUTSlimAvatar img,
-#ultimate .vdsUTSlimAvatar .vdsAccountAvatar,
-#ultimate .vdsUTSlimAvatar .vdsAccountAvatarFallback{
-  width:32px!important;
-  height:32px!important;
-  margin:0!important;
-}
-#ultimate .vdsUTSlimAccountMeta{
-  min-width:0;
-  flex:1;
-  text-align:left;
-}
-#ultimate .vdsUTSlimAccountMeta b{
-  display:block;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  font-size:8px;
-  line-height:1.1;
-}
-#ultimate .vdsUTSlimAccountMeta span{
-  display:block;
-  margin-top:3px;
-  color:#647f94;
-  font-size:5px;
-  font-weight:1000;
-  letter-spacing:.14em;
-}
-#ultimate .vdsUTSlimAccount>i{
-  color:#668299;
-  font-style:normal;
-  font-size:11px;
-}
-
-/* Missions dropdown now aligns tightly below the command bar. */
-#ultimate .vdsUTCompactMissionPanel{
-  top:calc(100% + 6px)!important;
-  right:10px!important;
-  width:min(400px,calc(100vw - 38px))!important;
-  border-radius:14px!important;
-}
-
-/* Reduce excess empty space above the actual UT instance. */
-#ultimate .vdsUTHubInstances{
-  margin-top:7px!important;
-}
-#ultimate .vdsUTInstanceIntro{
-  margin-bottom:9px!important;
-}
-#ultimate .vdsUTInstanceIntro small{
-  font-size:6px!important;
-}
-#ultimate .vdsUTInstanceIntro h2{
-  font-size:23px!important;
-  margin-top:3px!important;
-}
-#ultimate .vdsUTInstanceIntro p{
-  margin-top:4px!important;
-  font-size:7px!important;
-}
-
-/* Mobile becomes a clean two-row command bar instead of a tall dashboard. */
-@media(max-width:760px){
-  #ultimate .vdsUTCompactTopBar{
-    width:calc(100% - 12px)!important;
-    min-height:0!important;
-    padding:8px!important;
-    flex-wrap:wrap!important;
-    gap:6px!important;
-  }
-
-  #ultimate .vdsUTSlimBrand{
-    flex:1 1 auto;
-  }
-  #ultimate .vdsUTSlimBrandText b{
-    font-size:9px;
-  }
-
-  #ultimate .vdsUTSlimSection{
-    order:3;
-    flex:1 1 100%;
-  }
-  #ultimate .vdsUTSlimSection select{
-    height:38px;
-  }
-
-  #ultimate .vdsUTSlimSpacer{
-    display:none;
-  }
-
-  #ultimate .vdsUTSlimMissionButton{
-    order:4;
-    flex:1 1 auto;
-    justify-content:center;
-    min-height:38px;
-  }
-
-  #ultimate .vdsUTSlimStat{
-    display:none;
-  }
-
-  #ultimate .vdsUTSlimWallet{
-    min-width:76px;
-    height:38px;
-    padding:0 8px;
-  }
-  #ultimate .vdsUTSlimWallet b{
-    font-size:11px;
-  }
-
-  #ultimate .vdsUTSlimAccount{
-    min-width:0;
-    width:42px;
-    height:42px;
-    padding:4px;
-    justify-content:center;
-  }
-  #ultimate .vdsUTSlimAccountMeta,
-  #ultimate .vdsUTSlimAccount>i{
-    display:none;
-  }
-
-  #ultimate .vdsUTCompactMissionPanel{
-    left:6px!important;
-    right:6px!important;
-    width:auto!important;
-  }
-}
-</style>
-
-
-<style id="VDS_B90_ACE_ELITE_TIERS">
-/* Stage 6E10 — split 90+ into ELITE (90–95) and ACE (96–99).
-   ACE becomes a black foil card with animated gleam. */
-
-:root{
-  --vds-elite:#f2cf68;
-  --vds-elite-bright:#fff1b2;
-  --vds-elite-deep:#876114;
-  --vds-ace-black:#07090d;
-  --vds-ace-black-2:#121722;
-  --vds-ace-silver:#e7edf7;
-  --vds-ace-ice:#9fd8ff;
-  --vds-ace-violet:#9a79ff;
-}
-
-@keyframes vdsAceGleam{
-  0%{background-position:0 0, 190% 0}
-  100%{background-position:0 0, -85% 0}
-}
-@keyframes vdsAcePulse{
-  0%,100%{box-shadow:0 18px 40px rgba(0,0,0,.35),0 0 0 rgba(159,216,255,0),0 0 18px rgba(154,121,255,.10)}
-  50%{box-shadow:0 22px 48px rgba(0,0,0,.45),0 0 22px rgba(159,216,255,.15),0 0 28px rgba(154,121,255,.18)}
-}
-
-/* Small badge systems */
-.tierBadge.elite{color:var(--vds-elite);border-color:rgba(242,207,104,.5)}
-.tierBadge.ace{color:var(--vds-ace-silver);border-color:rgba(231,237,247,.55);background:rgba(255,255,255,.03)}
-
-.profileTierBadge.elite{color:#f0cf73;background:rgba(240,207,115,.09)}
-.profileTierBadge.ace{color:#edf4fb;background:rgba(237,244,251,.09);border-color:rgba(237,244,251,.16)}
-
-#profileModal.show .modalCard.profileTierElite{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,228,155,.12),transparent 34%),
-    linear-gradient(145deg,#5f4514,#b0882c 48%,#f0d069);
-}
-#profileModal.show .modalCard.profileTierAce{
-  background:
-    radial-gradient(circle at 20% 18%,rgba(255,255,255,.12),transparent 20%),
-    radial-gradient(circle at 82% 8%,rgba(159,216,255,.12),transparent 18%),
-    linear-gradient(145deg,#05070a,#141924 55%,#07090c 100%);
-}
-#profileModal.show .profileSheet.profileTierElite{box-shadow:0 0 30px rgba(240,206,115,.18),0 20px 50px rgba(0,0,0,.38)}
-#profileModal.show .profileSheet.profileTierAce{box-shadow:0 0 34px rgba(175,223,255,.16),0 20px 50px rgba(0,0,0,.42)}
-
-.profileOverallBox.profileTierElite b{color:#f4d87d}
-.profileOverallBox.profileTierAce b{color:#eef5ff}
-
-/* Global ELITE treatment */
-.vdsLegacyFifaPlayerCard.elite,
-.vdsLegacyHero3dCard.elite,
-.vdsLegacyHero3dCard.vdsHeroMatchCard.elite,
-.comparePlayerHero.elite,
-.revealCard.elite,
-.utPremiumCard.elite,
-.utPremiumCollectionCard.elite,
-.utCard.elite,
-.utCollectionCard.elite,
-.vdsSquadMiniCard.elite,
-.miniDraftRevealCard.elite,
-.lineupPlayerCard.elite{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,236,176,.12),transparent 32%),
-    linear-gradient(145deg,#5d4312 0%,#a87c24 42%,#f0d068 100%)!important;
-  border-color:rgba(255,228,150,.72)!important;
-  box-shadow:0 16px 34px rgba(0,0,0,.28),0 0 18px rgba(242,207,104,.15)!important;
-}
-
-.vdsLegacyFifaPlayerCard.elite .fifaOverall,
-.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-.vdsLegacyHero3dCard.elite .hero3dOverall,
-.vdsLegacyHero3dCard.elite .hero3dTier,
-.vdsHeroMatchCard.elite .hero3dOverall,
-.vdsHeroMatchCard.elite .hero3dTier,
-.comparePlayerHero.elite .compareHeroRating,
-.revealCard.elite .overall,
-.revealCard.elite .revealTier,
-.utPremiumCard.elite .utPremiumRarity,
-.utPremiumCard.elite .utPremiumRating,
-.utPremiumCollectionCard.elite .utPremiumRarity,
-.utSecondaryTier.elite,
-.utRarity.elite{
-  color:#fff1bc!important;
-}
-
-/* Global ACE treatment — black base with animated foil gleam */
-.vdsLegacyFifaPlayerCard.ace,
-.vdsLegacyHero3dCard.ace,
-.vdsLegacyHero3dCard.vdsHeroMatchCard.ace,
-.comparePlayerHero.ace,
-.revealCard.ace,
-.utPremiumCard.ace,
-.utPremiumCollectionCard.ace,
-.utCard.ace,
-.utCollectionCard.ace,
-.vdsSquadMiniCard.ace,
-.miniDraftRevealCard.ace,
-.lineupPlayerCard.ace{
-  background-image:
-    linear-gradient(145deg,var(--vds-ace-black) 0%,var(--vds-ace-black-2) 52%,#05070a 100%),
-    linear-gradient(115deg,rgba(255,255,255,0) 18%,rgba(255,255,255,.03) 33%,rgba(255,255,255,.22) 48%,rgba(159,216,255,.15) 54%,rgba(255,255,255,.03) 61%,rgba(255,255,255,0) 76%)!important;
-  background-size:100% 100%, 240% 100%!important;
-  background-position:0 0, 190% 0!important;
-  background-repeat:no-repeat!important;
-  border-color:rgba(231,237,247,.7)!important;
-  box-shadow:0 18px 42px rgba(0,0,0,.4),0 0 18px rgba(159,216,255,.12),0 0 22px rgba(154,121,255,.10)!important;
-  animation:vdsAceGleam 4.6s linear infinite, vdsAcePulse 3.8s ease-in-out infinite!important;
-}
-
-.vdsLegacyFifaPlayerCard.ace .fifaOverall,
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyHero3dCard.ace .hero3dOverall,
-.vdsLegacyHero3dCard.ace .hero3dTier,
-.vdsHeroMatchCard.ace .hero3dOverall,
-.vdsHeroMatchCard.ace .hero3dTier,
-.comparePlayerHero.ace .compareHeroRating,
-.revealCard.ace .overall,
-.revealCard.ace .revealTier,
-.utPremiumCard.ace .utPremiumRarity,
-.utPremiumCard.ace .utPremiumRating,
-.utPremiumCollectionCard.ace .utPremiumRarity,
-.utPremiumCollectionCard.ace .utPremiumRating,
-.utSecondaryTier.ace,
-.utRarity.ace{
-  color:var(--vds-ace-silver)!important;
-  text-shadow:0 0 10px rgba(159,216,255,.18)!important;
-}
-
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyHero3dCard.ace .hero3dTier,
-.vdsHeroMatchCard.ace .hero3dTier{
-  border-color:rgba(231,237,247,.44)!important;
-  background:rgba(255,255,255,.05)!important;
-}
-
-/* Reveal / pack opening polish */
-.miniPickRevealCard.elite .miniRevealCardFace,
-.miniPickRevealCard.elite .futMainCard{
-  border-color:rgba(255,236,169,.82)!important;
-  box-shadow:0 28px 82px rgba(0,0,0,.58),0 0 42px rgba(255,225,137,.16),inset 0 0 45px rgba(255,241,191,.05)!important;
-}
-.miniPickRevealCard.ace .miniRevealCardFace,
-.miniPickRevealCard.ace .futMainCard{
-  background-image:
-    linear-gradient(145deg,#05070a 0%,#141924 55%,#07090c 100%),
-    linear-gradient(115deg,rgba(255,255,255,0) 18%,rgba(255,255,255,.05) 33%,rgba(255,255,255,.24) 48%,rgba(159,216,255,.16) 54%,rgba(255,255,255,.04) 61%,rgba(255,255,255,0) 76%)!important;
-  background-size:100% 100%,240% 100%!important;
-  background-position:0 0,190% 0!important;
-  border-color:rgba(231,237,247,.76)!important;
-  box-shadow:0 28px 90px rgba(0,0,0,.62),0 0 44px rgba(159,216,255,.14),0 0 26px rgba(154,121,255,.14)!important;
-  animation:vdsAceGleam 4.4s linear infinite, vdsAcePulse 3.8s ease-in-out infinite!important;
-}
-.miniPickRevealCard.ace .futRevealRating,
-.miniPickRevealCard.ace .futRevealTitle strong{color:var(--vds-ace-silver)!important}
-
-.utRevealOverlay:has(.utPremiumCard.elite) .utRevealStageRing{
-  border-color:rgba(255,224,123,.65)!important;
-  box-shadow:0 0 36px rgba(255,221,118,.16)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utRevealStageRing{
-  border-color:rgba(231,237,247,.72)!important;
-  box-shadow:0 0 42px rgba(159,216,255,.18),0 0 24px rgba(154,121,255,.14)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utPackBurst{
-  background:radial-gradient(circle,rgba(255,255,255,.22),rgba(159,216,255,.12),transparent 72%)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utRevealSpotlight{
-  background:radial-gradient(circle at 50% 0,rgba(194,230,255,.18),transparent 68%)!important;
-}
-
-/* Home / UT cards / collection helpers */
-.utCard.elite .utRarity,
-.utCollectionCard.elite .utRarity,
-.vdsSquadMiniCard.elite{color:#fff1bc!important}
-.utCard.ace .utRarity,
-.utCollectionCard.ace .utRarity,
-.vdsSquadMiniCard.ace{color:#eef5ff!important}
-
-/* If anywhere still styles rare_gold, keep it visually same as elite. */
-.vdsLegacyFifaPlayerCard.rare_gold,
-.vdsLegacyHero3dCard.rare_gold,
-.vdsLegacyHero3dCard.vdsHeroMatchCard.rare_gold,
-.utPremiumCard.rare_gold,
-.utPremiumCollectionCard.rare_gold{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,236,176,.12),transparent 32%),
-    linear-gradient(145deg,#5d4312 0%,#a87c24 42%,#f0d068 100%)!important;
-  border-color:rgba(255,228,150,.72)!important;
-}
-</style>
-
-
-<style id="VDS_B91_ACE_BLACK_ELITE_PURPLE_OVERRIDE">
-/* Stage 6E11 — ACE becomes matte black / gleamless. ELITE becomes the purple premium tier. */
-
-:root{
-  --vds-elite:#c77dff;
-  --vds-elite-bright:#e7bcff;
-  --vds-elite-deep:#29104f;
-  --vds-elite-blue:#6f5cff;
-  --vds-ace-black:#07090d;
-  --vds-ace-black-2:#11161f;
-  --vds-ace-steel:#e7edf7;
-  --vds-ace-shadow:#000000;
-}
-
-/* ELITE = premium purple */
-.tierBadge.elite{
-  color:var(--vds-elite-bright)!important;
-  border-color:rgba(220,182,255,.55)!important;
-  background:rgba(172,113,255,.07)!important;
-}
-.profileTierBadge.elite{
-  color:#e7bcff!important;
-  background:rgba(199,125,255,.10)!important;
-  border-color:rgba(227,194,255,.18)!important;
-}
-
-.vdsLegacyFifaPlayerCard.elite,
-.vdsLegacyHero3dCard.elite,
-.vdsLegacyHero3dCard.vdsHeroMatchCard.elite,
-.comparePlayerHero.elite,
-.revealCard.elite,
-.utPremiumCard.elite,
-.utPremiumCollectionCard.elite,
-.utCard.elite,
-.utCollectionCard.elite,
-.vdsSquadMiniCard.elite,
-.miniDraftRevealCard.elite,
-.lineupPlayerCard.elite{
-  background:
-    radial-gradient(circle at 34% 18%,rgba(231,188,255,.17),transparent 26%),
-    radial-gradient(circle at 78% 12%,rgba(111,92,255,.14),transparent 22%),
-    linear-gradient(145deg,#220d40 0%,#5a2f93 42%,#b66df4 100%)!important;
-  border-color:rgba(223,188,255,.78)!important;
-  box-shadow:0 20px 42px rgba(0,0,0,.38),0 0 28px rgba(190,103,255,.22),0 0 54px rgba(108,72,255,.14)!important;
-}
-.vdsLegacyFifaPlayerCard.elite .fifaOverall,
-.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-.vdsLegacyHero3dCard.elite .hero3dOverall,
-.vdsLegacyHero3dCard.elite .hero3dTier,
-.vdsHeroMatchCard.elite .hero3dOverall,
-.vdsHeroMatchCard.elite .hero3dTier,
-.comparePlayerHero.elite .compareHeroRating,
-.revealCard.elite .overall,
-.revealCard.elite .revealTier,
-.utPremiumCard.elite .utPremiumRarity,
-.utPremiumCard.elite .utPremiumRating,
-.utPremiumCollectionCard.elite .utPremiumRarity,
-.utPremiumCollectionCard.elite .utPremiumRating,
-.utCard.elite .utRarity,
-.utCollectionCard.elite .utRarity,
-.vdsSquadMiniCard.elite,
-.profileOverallBox.profileTierElite b{
-  color:#eed3ff!important;
-  text-shadow:0 0 14px rgba(233,185,255,.18)!important;
-}
-.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-.vdsLegacyHero3dCard.elite .hero3dTier,
-.vdsHeroMatchCard.elite .hero3dTier{
-  border-color:rgba(227,194,255,.44)!important;
-  background:rgba(255,255,255,.05)!important;
-}
-#profileModal.show .modalCard.profileTierElite{
-  background:
-    radial-gradient(circle at 24% 18%,rgba(231,188,255,.16),transparent 24%),
-    radial-gradient(circle at 82% 8%,rgba(111,92,255,.14),transparent 18%),
-    linear-gradient(145deg,#1d0d39,#5f3297 56%,#b46bf0)!important;
-}
-#profileModal.show .profileSheet.profileTierElite{
-  box-shadow:0 0 34px rgba(193,128,255,.18),0 20px 50px rgba(0,0,0,.38)!important;
-}
-
-/* ACE = matte black / no gleam */
-.tierBadge.ace{
-  color:var(--vds-ace-steel)!important;
-  border-color:rgba(231,237,247,.48)!important;
-  background:rgba(255,255,255,.025)!important;
-}
-.profileTierBadge.ace{
-  color:#eef5ff!important;
-  background:rgba(255,255,255,.05)!important;
-  border-color:rgba(231,237,247,.16)!important;
-}
-
-.vdsLegacyFifaPlayerCard.ace,
-.vdsLegacyHero3dCard.ace,
-.vdsLegacyHero3dCard.vdsHeroMatchCard.ace,
-.comparePlayerHero.ace,
-.revealCard.ace,
-.utPremiumCard.ace,
-.utPremiumCollectionCard.ace,
-.utCard.ace,
-.utCollectionCard.ace,
-.vdsSquadMiniCard.ace,
-.miniDraftRevealCard.ace,
-.lineupPlayerCard.ace{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,255,255,.06),transparent 28%),
-    linear-gradient(145deg,var(--vds-ace-black) 0%,var(--vds-ace-black-2) 58%,#05070b 100%)!important;
-  background-size:100% 100%!important;
-  background-position:0 0!important;
-  background-repeat:no-repeat!important;
-  border-color:rgba(231,237,247,.62)!important;
-  box-shadow:0 22px 46px rgba(0,0,0,.50),0 0 18px rgba(255,255,255,.05)!important;
-  animation:none!important;
-}
-.vdsLegacyFifaPlayerCard.ace::before,
-.vdsLegacyFifaPlayerCard.ace::after,
-.vdsLegacyHero3dCard.ace::before,
-.vdsLegacyHero3dCard.ace::after,
-.utPremiumCard.ace::before,
-.utPremiumCard.ace::after,
-.utPremiumCollectionCard.ace::before,
-.utPremiumCollectionCard.ace::after{
-  animation:none!important;
-}
-.vdsLegacyFifaPlayerCard.ace .fifaOverall,
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyHero3dCard.ace .hero3dOverall,
-.vdsLegacyHero3dCard.ace .hero3dTier,
-.vdsHeroMatchCard.ace .hero3dOverall,
-.vdsHeroMatchCard.ace .hero3dTier,
-.comparePlayerHero.ace .compareHeroRating,
-.revealCard.ace .overall,
-.revealCard.ace .revealTier,
-.utPremiumCard.ace .utPremiumRarity,
-.utPremiumCard.ace .utPremiumRating,
-.utPremiumCollectionCard.ace .utPremiumRarity,
-.utPremiumCollectionCard.ace .utPremiumRating,
-.utCard.ace .utRarity,
-.utCollectionCard.ace .utRarity,
-.vdsSquadMiniCard.ace,
-.profileOverallBox.profileTierAce b{
-  color:#eff5fe!important;
-  text-shadow:none!important;
-}
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyHero3dCard.ace .hero3dTier,
-.vdsHeroMatchCard.ace .hero3dTier{
-  border-color:rgba(231,237,247,.38)!important;
-  background:rgba(255,255,255,.04)!important;
-}
-#profileModal.show .modalCard.profileTierAce{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,255,255,.08),transparent 28%),
-    linear-gradient(145deg,#05070a,#121722 55%,#07090c)!important;
-}
-#profileModal.show .profileSheet.profileTierAce{
-  box-shadow:0 0 18px rgba(255,255,255,.05),0 20px 50px rgba(0,0,0,.42)!important;
-}
-
-/* Pack / reveal environment follows the new language */
-.miniPickRevealCard.elite .miniRevealCardFace,
-.miniPickRevealCard.elite .futMainCard{
-  background:
-    radial-gradient(circle at 28% 18%,rgba(231,188,255,.15),transparent 24%),
-    radial-gradient(circle at 78% 12%,rgba(111,92,255,.13),transparent 22%),
-    linear-gradient(145deg,#220d40 0%,#5a2f93 42%,#b66df4 100%)!important;
-  border-color:rgba(223,188,255,.78)!important;
-  box-shadow:0 28px 90px rgba(0,0,0,.58),0 0 44px rgba(190,103,255,.22),inset 0 0 40px rgba(255,255,255,.04)!important;
-}
-.miniPickRevealCard.ace .miniRevealCardFace,
-.miniPickRevealCard.ace .futMainCard{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,255,255,.06),transparent 28%),
-    linear-gradient(145deg,#05070a 0%,#121722 55%,#07090c 100%)!important;
-  border-color:rgba(231,237,247,.70)!important;
-  box-shadow:0 28px 90px rgba(0,0,0,.64),0 0 16px rgba(255,255,255,.05)!important;
-  animation:none!important;
-}
-.miniPickRevealCard.ace .futRevealRating,
-.miniPickRevealCard.ace .futRevealTitle strong,
-.miniPickRevealCard.elite .futRevealRating,
-.miniPickRevealCard.elite .futRevealTitle strong{
-  color:inherit!important;
-}
-
-.utRevealOverlay:has(.utPremiumCard.elite) .utRevealStageRing{
-  border-color:rgba(223,188,255,.72)!important;
-  box-shadow:0 0 42px rgba(190,103,255,.24),0 0 24px rgba(108,72,255,.14)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.elite) .utPackBurst{
-  background:radial-gradient(circle,rgba(177,85,255,.30) 0%,rgba(100,52,184,.14) 42%,transparent 72%)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utRevealStageRing{
-  border-color:rgba(231,237,247,.52)!important;
-  box-shadow:0 0 20px rgba(255,255,255,.07)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utPackBurst{
-  background:radial-gradient(circle,rgba(255,255,255,.12),rgba(255,255,255,.04),transparent 72%)!important;
-}
-.utRevealOverlay:has(.utPremiumCard.ace) .utRevealSpotlight{
-  background:radial-gradient(circle at 50% 0,rgba(255,255,255,.10),transparent 68%)!important;
-}
-</style>
-
-
-<style id="VDS_B92_PLAYER_BASE_CARD_FORCE_FIX">
-/* Stage 6E12
-   Player Database page had older scoped rules overriding the new ACE / ELITE art.
-   Force the base-card visuals at the strongest scope. */
-
-/* ---------- PLAYER DATABASE BASE CARDS ---------- */
-#players .vdsLegacyFifaPlayerCard.elite,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"]{
-  background:
-    radial-gradient(circle at 74% 18%,rgba(241,210,255,.30),transparent 20%),
-    radial-gradient(circle at 26% 42%,rgba(128,100,255,.22),transparent 34%),
-    linear-gradient(118deg,transparent 0 20%,rgba(255,255,255,.11) 21% 23%,transparent 24% 49%,rgba(197,151,255,.10) 50% 52%,transparent 53% 73%,rgba(116,93,255,.09) 74% 76%,transparent 77%),
-    repeating-linear-gradient(142deg,transparent 0 28px,rgba(231,196,255,.08) 29px 31px,transparent 32px 58px),
-    linear-gradient(160deg,#5d2f9a 0%,#2b1452 36%,#1a2242 70%,#0a1421 100%)!important;
-  border-color:#e7c1ff!important;
-  box-shadow:
-    0 22px 56px rgba(0,0,0,.52),
-    0 0 12px rgba(231,189,255,.34),
-    0 0 32px rgba(118,91,255,.18),
-    inset 0 0 0 1px rgba(255,255,255,.18)!important;
-}
-#players .vdsLegacyFifaPlayerCard.elite::before,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"]::before{
-  border:none!important;
-  box-shadow:none!important;
-  filter:none!important;
-}
-#players .vdsLegacyFifaPlayerCard.elite .fifaOverall,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .fifaOverall{
-  color:#f1deff!important;
-  text-shadow:
-    0 2px 0 rgba(69,37,110,.75),
-    0 4px 8px rgba(0,0,0,.48),
-    0 0 12px rgba(232,193,255,.25)!important;
-}
-#players .vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .fifaTierTag{
-  color:#f4e7ff!important;
-  border-color:rgba(238,211,255,.90)!important;
-  background:linear-gradient(180deg,rgba(113,67,176,.85),rgba(36,19,68,.92))!important;
-  box-shadow:
-    0 0 10px rgba(224,184,255,.15),
-    inset 0 0 8px rgba(255,255,255,.08)!important;
-}
-#players .vdsLegacyFifaPlayerCard.elite .vdsGoldGlint,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"] .vdsGoldGlint{
-  background:
-    linear-gradient(105deg,
-      transparent 0 40%,
-      rgba(235,205,255,.06) 43%,
-      rgba(255,255,255,.56) 48%,
-      rgba(187,145,255,.23) 52%,
-      transparent 58%)!important;
-  mix-blend-mode:screen!important;
-}
-#players .vdsLegacyFifaPlayerCard.elite:hover,
-#players .vdsLegacyFifaPlayerCard[data-tier="elite"]:hover{
-  box-shadow:
-    0 24px 58px rgba(0,0,0,.54),
-    0 0 15px rgba(236,206,255,.40),
-    0 0 36px rgba(118,91,255,.22),
-    inset 0 0 0 1px rgba(255,255,255,.20)!important;
-}
-
-/* ACE must be matte black / gleamless */
-#players .vdsLegacyFifaPlayerCard.ace,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"]{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,255,255,.06),transparent 24%),
-    linear-gradient(155deg,#05070a 0%,#0d1118 40%,#151b24 66%,#05070b 100%)!important;
-  border-color:#e6edf7!important;
-  box-shadow:
-    0 22px 56px rgba(0,0,0,.58),
-    0 0 10px rgba(255,255,255,.10),
-    inset 0 0 0 1px rgba(255,255,255,.10)!important;
-}
-#players .vdsLegacyFifaPlayerCard.ace::before,
-#players .vdsLegacyFifaPlayerCard.ace::after,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"]::before,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"]::after{
-  border:none!important;
-  outline:none!important;
-  box-shadow:none!important;
-  filter:none!important;
-  animation:none!important;
-}
-#players .vdsLegacyFifaPlayerCard.ace .fifaOverall,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .fifaOverall{
-  color:#f2f7ff!important;
-  text-shadow:
-    0 2px 0 rgba(26,34,44,.75),
-    0 4px 8px rgba(0,0,0,.52)!important;
-}
-#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .fifaTierTag{
-  color:#f2f7ff!important;
-  border-color:rgba(230,237,247,.72)!important;
-  background:linear-gradient(180deg,rgba(34,39,47,.85),rgba(10,12,16,.94))!important;
-  box-shadow:none!important;
-}
-#players .vdsLegacyFifaPlayerCard.ace .vdsGoldGlint,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"] .vdsGoldGlint{
-  display:none!important;
-}
-#players .vdsLegacyFifaPlayerCard.ace:hover,
-#players .vdsLegacyFifaPlayerCard[data-tier="ace"]:hover{
-  box-shadow:
-    0 24px 58px rgba(0,0,0,.60),
-    0 0 14px rgba(255,255,255,.08),
-    inset 0 0 0 1px rgba(255,255,255,.12)!important;
-}
-
-/* Filters / badges reflect the new colour logic */
-.vdsFilter.eliteFilter.active{
-  color:#f3e5ff!important;
-  background:linear-gradient(135deg,#7f4fd0,#4d287f)!important;
-  box-shadow:0 0 12px rgba(196,142,255,.20)!important;
-}
-.vdsFilter.aceFilter.active{
-  color:#f3f7ff!important;
-  background:linear-gradient(135deg,#202634,#090b10)!important;
-  box-shadow:0 0 10px rgba(255,255,255,.10)!important;
-}
-</style>
-
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -28556,11 +26871,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B9.7-STAGE6E17">
+<section id="ultimate" class="page" data-vds-build="B8.4-STAGE6E4">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E17 · STANDARD RARITY LADDER</div>
+        <div class="vdsUTBuildBadge">STAGE 6E4 · CLUB CHEMISTRY ARENA</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -28790,12 +27105,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
     <div class="vdsPlayersHero">
       <div>
         <div class="vdsSectionKicker">VDS PLAYER DATABASE</div>
-        <h2>Ultimate Team Pool.</h2>
-        <p>The active Ultimate Team pool appears first. Only cards in this pool can be pulled in Ultimate Team packs.</p>
+        <h2>Build Around the Right Player.</h2>
+        <p>Browse the master roster, compare roles and playstyles, then open a card for the full player profile.</p>
       </div>
       <div class="vdsPlayersHeroStats">
-        <div><b id="playerUTPoolCount">0</b><span>UT POOL</span></div>
-        <div><b id="playerDatabaseCount">0</b><span>ALL PLAYERS</span></div>
+        <div><b id="playerDatabaseCount">0</b><span>PLAYERS</span></div>
         <div><b id="playerGoldCount">0</b><span>GOLD</span></div>
         <div><b id="playerPlaystyleCount">0</b><span>PLAYSTYLES</span></div>
       </div>
@@ -28831,11 +27145,9 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 
       <div class="vdsFilterGroup tierFilters" id="playerTierFilters">
         <button class="vdsFilter active" type="button" data-player-tier="ALL">ALL TIERS</button>
-        <button class="vdsFilter aceFilter" type="button" data-player-tier="ace">ACE 96–99</button>
-        <button class="vdsFilter eliteFilter" type="button" data-player-tier="elite">ELITE 90–95</button>
-        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD 75–89</button>
-        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER 60–74</button>
-        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE 1–59</button>
+        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD</button>
+        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER</button>
+        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE</button>
       </div>
 
       <select id="playerSort" class="vdsPlayerSort" aria-label="Sort players">
@@ -28844,14 +27156,6 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
         <option value="attack">Best Attack</option>
         <option value="defense">Best Defence</option>
       </select>
-    </div>
-
-    <div class="vdsTierRangeLegend" aria-label="VDS rarity ranges">
-      <span class="bronze">BRONZE <b>1–59</b></span>
-      <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–89</b></span>
-      <span class="elite">ELITE <b>90–95</b></span>
-      <span class="ace">ACE <b>96–99</b></span>
     </div>
 
     <div class="vdsPlayerStatusRow">
@@ -28867,33 +27171,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
       </div>
     </div>
 
-    <section class="vdsPlayerRosterSection vdsUTPoolRosterSection" id="vdsUTPoolRosterSection">
-      <div class="vdsPlayerRosterSectionHead">
-        <div>
-          <div class="vdsSectionKicker">PACK ELIGIBLE</div>
-          <h2>Ultimate Team Pool</h2>
-          <p>Only these cards are eligible for Ultimate Team packs and new starter-club generation.</p>
-        </div>
-        <div class="vdsUTPoolCountBadge"><b id="utPoolSectionCount">0</b><span>ACTIVE CARDS</span></div>
-      </div>
-      <div class="vdsUTPoolEmpty hidden" id="utPoolEmptyState">
-        <b>Ultimate Team pool is empty.</b>
-        <span>Add cards from the All Player Cards section below before opening packs.</span>
-      </div>
-      <div class="playersGrid vdsUTPoolGrid" id="utPoolPlayersGrid"></div>
-    </section>
-
-    <section class="vdsPlayerRosterSection vdsAllPlayersRosterSection" id="vdsAllPlayersRosterSection">
-      <div class="vdsPlayerRosterSectionHead">
-        <div>
-          <div class="vdsSectionKicker">MASTER DATABASE</div>
-          <h2>All Player Cards</h2>
-          <p>Your complete player database. Admins can add or remove any card from the Ultimate Team pool here.</p>
-        </div>
-        <div class="vdsAllPlayersCountBadge"><b id="allPlayersSectionCount">0</b><span>SHOWN</span></div>
-      </div>
-      <div class="playersGrid" id="playersGrid"></div>
-    </section>
+    <div class="playersGrid" id="playersGrid"></div>
 
     <div class="vdsCloudStrip" id="cloudAdminBar">
       <div>
@@ -29068,6 +27346,14 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
   </div>
 </div>
 
+
+<div class="showcaseOverlay" id="showcaseOverlay">
+  <div class="showcaseSheet">
+    <button class="showcaseClose" id="closeShowcaseBtn" type="button">✕</button>
+    <div id="showcaseContent"></div>
+  </div>
+</div>
+
 <div class="revealOverlay" id="revealOverlay"><div id="revealContent"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -29158,7 +27444,6 @@ function migratePlayer(p){
     cardArtScale: Number.isFinite(Number(p.cardArtScale)) ? Number(p.cardArtScale) : 1,
     cardArtX: Number.isFinite(Number(p.cardArtX)) ? Number(p.cardArtX) : 0,
     cardArtY: Number.isFinite(Number(p.cardArtY)) ? Number(p.cardArtY) : 0,
-    ultimateTeamPool: p.ultimateTeamPool === false ? false : true,
     mindsetTraits: p.mindsetTraits && typeof p.mindsetTraits==="object" ? {resilient:false,workEthic:false,motivator:false,exceptional:false,...p.mindsetTraits} : {resilient:false,workEthic:false,motivator:false,exceptional:false}
   };
 }
@@ -29178,7 +27463,7 @@ const cloudDb=window.supabase
 
 let cloudAdmin=false;
 let cloudLoaded=false;
-let cloudColumns={tendencies:true,final_rating:true,defense_playstyle:true,serve_type:true,card_art_scale:true,card_art_x:true,card_art_y:true,ultimate_team_pool:true};
+let cloudColumns={tendencies:true,final_rating:true,defense_playstyle:true,serve_type:true,card_art_scale:true,card_art_x:true,card_art_y:true};
 
 function cloudPlayerFromRow(r){
   return migratePlayer({
@@ -29209,8 +27494,7 @@ function cloudPlayerFromRow(r){
     finalRating:r.final_rating??undefined,
     cardArtScale:Number(r.card_art_scale??1),
     cardArtX:Number(r.card_art_x??0),
-    cardArtY:Number(r.card_art_y??0),
-    ultimateTeamPool:r.ultimate_team_pool===true
+    cardArtY:Number(r.card_art_y??0)
   });
 }
 
@@ -29244,7 +27528,6 @@ function cloudRowFromPlayer(p){
   if(cloudColumns.card_art_scale)row.card_art_scale=Number(p.cardArtScale??1);
   if(cloudColumns.card_art_x)row.card_art_x=Number(p.cardArtX??0);
   if(cloudColumns.card_art_y)row.card_art_y=Number(p.cardArtY??0);
-  if(cloudColumns.ultimate_team_pool)row.ultimate_team_pool=p.ultimateTeamPool===true;
   return row;
 }
 
@@ -29284,7 +27567,7 @@ const CLOUD_PLAYER_SELECT=[
   "service","blocking","setting","mindset",
   "attack_playstyle","defense_playstyle",
   "shots","affiliations","tendencies","final_rating",
-  "serve_type","card_art_scale","card_art_x","card_art_y","ultimate_team_pool"
+  "serve_type","card_art_scale","card_art_x","card_art_y"
 ].join(",");
 
 async function detectCloudColumns(){
@@ -29297,8 +27580,7 @@ async function detectCloudColumns(){
     serve_type:true,
     card_art_scale:true,
     card_art_x:true,
-    card_art_y:true,
-    ultimate_team_pool:true
+    card_art_y:true
   };
   return cloudColumns;
 }
@@ -29721,12 +28003,12 @@ function effectivePositionRating(p,role){
 }
 
 function cardTier(p){
-  // Standard VDS rarity ladder:
-  // 1–59 BRONZE · 60–74 SILVER · 75–89 GOLD · 90–95 ELITE · 96–99 ACE.
+  // Global VDS rarity system — natural-position rating drives rarity everywhere.
   const r=mainPositionRating(p);
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=75)return "gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "rare_gold";
+  if(r>=80)return "gold";
+  if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -29737,16 +28019,16 @@ function cardTierLabel(p){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
-    elite:"ELITE",
+    rare_gold:"GOLD",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
 }
 
 // Total playstyle allowance by card tier.
-// Bronze: 1, Silver / Rare Silver: 2, Gold / Elite / Ace: 3.
+// Bronze: 1, Silver: 2, Gold: 3.
 function playstyleCapacity(p){
   const tier=cardTier(p);
-  if(tier==="gold"||tier==="elite"||tier==="ace")return 3;
+  if(tier==="gold"||tier==="rare_gold"||tier==="ace")return 3;
   if(tier==="silver"||tier==="rare_silver")return 2;
   return 1;
 }
@@ -30361,108 +28643,12 @@ function vdsMasterPlayerCardHTML(p,options={}){
     </div>`;
 }
 
-function vdsPoolActionButtonHTML(p,context){
-  const inPool=p?.ultimateTeamPool===true;
-  if(!cloudAdmin){
-    return context==="pool"
-      ? `<div class="vdsPoolViewerBadge">PACK ELIGIBLE</div>`
-      : "";
-  }
-
-  if(context==="pool"){
-    return `<button class="vdsPoolCardAction remove" type="button" data-ut-pool-toggle="${Number(p.cloudId||0)}" data-ut-pool-name="${esc(p.name)}" data-ut-pool-next="false">REMOVE FROM UT POOL</button>`;
-  }
-
-  return `<button class="vdsPoolCardAction ${inPool?"included":"add"}" type="button" data-ut-pool-toggle="${Number(p.cloudId||0)}" data-ut-pool-name="${esc(p.name)}" data-ut-pool-next="${inPool?"false":"true"}">${inPool?"✓ IN UT POOL":"+ ADD TO UT POOL"}</button>`;
-}
-
-function vdsBuildDatabasePlayerCard(p,context="all"){
-  const c=categoryRatings(p);
-  const tier=cardTier(p);
-  const card=document.createElement("div");
-  card.className="vdsPlayerCardWithPoolAction";
-
-  const cardFace=document.createElement("div");
-  const mainPos=(p.position||"").toUpperCase();
-  const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
-  cardFace.className=`fifaPlayerCard ${tier}${posClass}`;
-  cardFace.innerHTML=vdsMasterPlayerCardHTML(p,{
-    role:p.position&&p.position!=="-"?p.position:"POS",
-    rating:mainPositionRating(p),
-    tier,
-    tierLabel:cardTierLabel(p),
-    footer:cloudAdmin?"OPEN PLAYER · EDIT ENABLED":"OPEN PLAYER"
-  });
-  cardFace.onclick=()=>openPlayerEditor(players.indexOf(p));
-
-  card.appendChild(cardFace);
-  card.insertAdjacentHTML("beforeend",vdsPoolActionButtonHTML(p,context));
-  return card;
-}
-
-async function vdsSetUltimatePoolMembership(p,enabled){
-  if(!p)return;
-  if(!cloudAdmin){
-    alert("Admin mode is required to change the Ultimate Team pool.");
-    return;
-  }
-
-  const previous=p.ultimateTeamPool===true;
-  p.ultimateTeamPool=!!enabled;
-  savePlayers();
-  renderPlayers(document.getElementById("playerSearch")?.value||"");
-  vdsUltimateViewDirty=true;
-
-  try{
-    if(!p.cloudId){
-      const saved=await savePlayerToCloud(p);
-      if(!saved?.ok)throw new Error(saved?.error||"Could not publish player before changing pool.");
-    }else{
-      const {data,error}=await cloudDb
-        .from("players")
-        .update({ultimate_team_pool:!!enabled,updated_at:new Date().toISOString()})
-        .eq("id",p.cloudId)
-        .select("id,ultimate_team_pool")
-        .single();
-      if(error)throw error;
-      p.ultimateTeamPool=data?.ultimate_team_pool===true;
-    }
-
-    savePlayers();
-    renderPlayers(document.getElementById("playerSearch")?.value||"");
-    if(vdsPageIsActive("ultimate"))vdsRequestUltimateRender();
-  }catch(error){
-    console.error("Ultimate Team pool update failed",error);
-    p.ultimateTeamPool=previous;
-    savePlayers();
-    renderPlayers(document.getElementById("playerSearch")?.value||"");
-    alert(`Could not update the Ultimate Team pool for ${p.name}: ${error?.message||error}`);
-  }
-}
-
-function vdsBindUltimatePoolButtons(){
-  document.querySelectorAll("[data-ut-pool-toggle]").forEach(btn=>{
-    btn.addEventListener("click",event=>{
-      event.preventDefault();
-      event.stopPropagation();
-      const cloudId=Number(btn.dataset.utPoolToggle||0);
-      const name=btn.dataset.utPoolName||"";
-      const p=(cloudId?players.find(x=>Number(x.cloudId)===cloudId):null)
-        || players.find(x=>String(x.name||"")===String(name));
-      vdsSetUltimatePoolMembership(p,btn.dataset.utPoolNext==="true");
-    });
-  });
-}
-
 function renderPlayers(filter=""){
  vdsPlayersViewDirty=false;
  renderPlayerSetControls();
-
- const allGrid=document.getElementById("playersGrid");
- const poolGrid=document.getElementById("utPoolPlayersGrid");
- if(!allGrid||!poolGrid)return;
- allGrid.innerHTML="";
- poolGrid.innerHTML="";
+ const grid=document.getElementById("playersGrid");
+ if(!grid)return;
+ grid.innerHTML="";
 
  const query=String(filter??document.getElementById("playerSearch")?.value??"").trim().toLowerCase();
 
@@ -30481,37 +28667,42 @@ function renderPlayers(filter=""){
    return mainPositionRating(b)-mainPositionRating(a);
  });
 
- const poolShown=shown.filter(p=>p.ultimateTeamPool===true);
- const allPoolCount=players.filter(p=>p.ultimateTeamPool===true).length;
-
  const resultCount=document.getElementById("playerResultsCount");
- if(resultCount)resultCount.textContent=`${shown.length} all players shown · ${poolShown.length} pool cards shown`;
+ if(resultCount)resultCount.textContent=`${shown.length} player${shown.length===1?"":"s"} shown`;
 
  const countEl=document.getElementById("playerDatabaseCount");
- const poolCountEl=document.getElementById("playerUTPoolCount");
- const poolSectionCount=document.getElementById("utPoolSectionCount");
- const allSectionCount=document.getElementById("allPlayersSectionCount");
  const goldEl=document.getElementById("playerGoldCount");
  const psEl=document.getElementById("playerPlaystyleCount");
  if(countEl)countEl.textContent=players.length;
- if(poolCountEl)poolCountEl.textContent=allPoolCount;
- if(poolSectionCount)poolSectionCount.textContent=allPoolCount;
- if(allSectionCount)allSectionCount.textContent=shown.length;
  if(goldEl)goldEl.textContent=players.filter(p=>cardTier(p)==="gold").length;
  if(psEl)psEl.textContent=players.reduce((n,p)=>n+selectedPlaystyleCount(p),0);
 
- const emptyPool=document.getElementById("utPoolEmptyState");
- if(emptyPool)emptyPool.classList.toggle("hidden",poolShown.length>0);
-
- poolShown.forEach(p=>poolGrid.appendChild(vdsBuildDatabasePlayerCard(p,"pool")));
-
  if(!shown.length){
-   allGrid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
- }else{
-   shown.forEach(p=>allGrid.appendChild(vdsBuildDatabasePlayerCard(p,"all")));
+   grid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
+   return;
  }
 
- vdsBindUltimatePoolButtons();
+ shown.forEach(p=>{
+   const idx=players.indexOf(p);
+   const c=categoryRatings(p);
+   const tier=cardTier(p);
+   const atk=(p.attackPlaystyle||"none")!=="none"?attackingPlaystyle(p):null;
+   const def=(p.defensePlaystyle||"none")!=="none"?defensivePlaystyle(p):null;
+
+   const card=document.createElement("div");
+   const mainPos=(p.position||"").toUpperCase();
+   const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
+   card.className=`fifaPlayerCard ${tier}${posClass}`;
+   card.innerHTML=vdsMasterPlayerCardHTML(p,{
+     role:p.position&&p.position!=="-"?p.position:"POS",
+     rating:mainPositionRating(p),
+     tier,
+     tierLabel:cardTierLabel(p),
+     footer:cloudAdmin?"OPEN PLAYER · EDIT ENABLED":"OPEN PLAYER"
+   });
+   card.onclick=()=>openPlayerEditor(idx);
+   grid.appendChild(card);
+ });
 }
 
 let playerEditorIndex=null;
@@ -30681,10 +28872,12 @@ function renderPlayerEditor(){
    </div>
 
    <div class="playerEditorActions">
+    <button class="btn primary editorViewShowcase" type="button" data-name="${esc(p.name)}">View Only Mode</button>
     <button class="btn secondary editorViewProfile" type="button" data-name="${esc(p.name)}">View Profile</button>
     <button class="btn danger deletePlayer" ${cloudAdmin?"":"disabled"} data-idx="${idx}">Delete Player</button>
    </div>`;
   bindPlayerInputs();
+  document.querySelector("#playerEditorModal .editorViewShowcase")?.addEventListener("click",e=>openShowcaseMode(e.currentTarget.dataset.name));
   document.querySelector("#playerEditorModal .editorViewProfile")?.addEventListener("click",e=>openProfile(e.currentTarget.dataset.name));
 }
 
@@ -39191,9 +37384,10 @@ function miniDraftRoleRating(p,role){
 
 function miniDraftRoleTier(p,role){
   const r=miniDraftRoleRating(p,role);
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=75)return "gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "rare_gold";
+  if(r>=80)return "gold";
+  if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -39205,7 +37399,7 @@ function miniDraftRoleTierLabel(p,role){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
-    elite:"ELITE",
+    rare_gold:"GOLD",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
 }
@@ -41213,24 +39407,25 @@ const UT_SAVE_KEY="volleyballUltimateTeamV1";
 const UT_PACKS={
   bronze:{
     cost:750,
-    odds:[["bronze",.82],["silver",.17],["gold",.01]]
+    odds:[["bronze",.80],["silver",.18],["gold",.02]]
   },
   silver:{
     cost:1500,
-    odds:[["bronze",.10],["silver",.69],["gold",.20],["elite",.005],["ace",.005]]
+    odds:[["bronze",.15],["silver",.70],["gold",.14],["ace",.01]]
   },
   gold:{
     cost:2500,
-    odds:[["silver",.15],["gold",.70],["elite",.145],["ace",.005]]
+    odds:[["silver",.20],["gold",.75],["ace",.05]]
   }
 };
 
 const UT_RARITY={
-  bronze:{label:"BRONZE",min:1,max:59},
-  silver:{label:"SILVER",min:60,max:74},
-  gold:{label:"GOLD",min:75,max:89},
-  elite:{label:"ELITE",min:90,max:95},
-  ace:{label:"ACE",min:96,max:99}
+  bronze:{label:"BRONZE",min:45,max:64},
+  silver:{label:"SILVER",min:65,max:79},
+  rare_silver:{label:"SILVER",className:"rare_silver"},
+  gold:{label:"GOLD",min:80,max:91},
+  rare_gold:{label:"GOLD",className:"rare_gold"},
+  ace:{label:"ACE",min:90,max:99}
 };
 
 let ultimateTeamState={coins:0,cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
@@ -41311,12 +39506,13 @@ function resetUltimateTeam(){
 
 
 function utPlayerTier(player){
-  // Ultimate Team uses the same five-tier VDS ladder everywhere.
+  // Ultimate Team rarity matches the global VDS natural-position rarity system.
   const key=utMainPositionKey(player);
   const r=Math.round(positionRatings(player)[key] ?? overall(player));
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=75)return "gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "rare_gold";
+  if(r>=80)return "gold";
+  if(r>=69)return "rare_silver";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -41345,28 +39541,22 @@ function utRatingForRarity(rarity,player){
 function utScaledStat(raw,cardRating,playerOverall){
   return clamp(Math.round(Number(raw||0)),0,99);
 }
-function vdsUltimatePoolPlayers(){
-  if(!Array.isArray(players))return [];
-  return players.filter(p=>p?.ultimateTeamPool===true);
-}
-
 function utPickPlayer(rarity){
-  const eligible=vdsUltimatePoolPlayers();
-  if(!eligible.length)return null;
+  if(!Array.isArray(players)||!players.length)return null;
 
-  const exact=eligible.filter(p=>utPlayerTier(p)===rarity);
+  const exact=players.filter(p=>utPlayerTier(p)===rarity);
   if(exact.length)return exact[Math.floor(Math.random()*exact.length)];
 
-  // Stay inside the Ultimate Team Pool. If the rolled tier is empty,
-  // select from the nearest populated tier within the pool only.
-  const order=["bronze","silver","gold","elite","ace"];
+  // If your current database has no player in that tier, use the nearest
+  // populated tier rather than inventing a different rarity for a player.
+  const order=["bronze","silver","gold","ace"];
   const wanted=order.indexOf(rarity);
   const populated=order
-    .map((tier,i)=>({tier,i,pool:eligible.filter(p=>utPlayerTier(p)===tier)}))
+    .map((tier,i)=>({tier,i,pool:players.filter(p=>utPlayerTier(p)===tier)}))
     .filter(x=>x.pool.length)
     .sort((a,b)=>Math.abs(a.i-wanted)-Math.abs(b.i-wanted));
 
-  const pool=populated[0]?.pool||eligible;
+  const pool=populated[0]?.pool||players;
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
@@ -41383,10 +39573,6 @@ async function openUltimatePack(packId){
     alert("Player database has not loaded yet.");
     return;
   }
-  if(!vdsUltimatePoolPlayers().length){
-    alert("The Ultimate Team Pool is empty. An admin must add players to the pool before packs can be opened.");
-    return;
-  }
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
@@ -41400,7 +39586,7 @@ async function openUltimatePack(packId){
   const rolledRarity=utRollRarity(packId);
   const player=utPickPlayer(rolledRarity);
   if(!player){
-    alert("No eligible player could be selected from the Ultimate Team Pool. Add at least one player to the pool first.");
+    alert("No eligible player could be selected from the database.");
     return;
   }
 
@@ -41995,11 +40181,9 @@ function toggleProfileSection(id){
 
 
 function profileTier(p){
-  const r=mainPositionRating(p);
-  if(r>=96)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
-  if(r>=90)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
-  if(r>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
-  if(r>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
+  const o=overall(p);
+  if(o>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
+  if(o>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
   return {key:"bronze",label:"BRONZE",cardClass:"profileTierBronze"};
 }
 
@@ -42266,6 +40450,110 @@ function openProfile(name){
   void modal.offsetWidth;
   modal.classList.add("show");
 }
+
+
+
+function openShowcaseMode(name){
+  const p=players.find(x=>x.name===name);
+  if(!p)return;
+  const overlay=document.getElementById("showcaseOverlay");
+  const content=document.getElementById("showcaseContent");
+  if(!overlay||!content)return;
+  const cats=categoryRatings(p);
+  const posRates=positionRatings(p);
+  const tier=cardTier(p);
+  const tierLabel=cardTierLabel(p);
+  const playstyleNames=[];
+  if(p.attackPlaystyle && p.attackPlaystyle!=="none")playstyleNames.push(attackingPlaystyle(p).name);
+  if(p.defensePlaystyle && p.defensePlaystyle!=="none")playstyleNames.push(defensivePlaystyle(p).name);
+  const affiliations=(p.affiliations||[]).length ? p.affiliations.join(" · ") : "No affiliations assigned";
+  content.innerHTML=`
+    <div class="showcaseShell">
+      <div class="showcaseArenaBg"></div>
+      <div class="showcaseTitleRow">
+        <div>
+          <div class="showcaseEyebrow">View Only Mode</div>
+          <h2 class="showcaseTitle">${esc(p.name)}</h2>
+          <div class="showcaseSubtitle">A clean stadium showcase for aesthetics, screenshots and front-card viewing. Use this when you just want the card to breathe without editing controls.</div>
+        </div>
+        <div class="showcasePill">${esc(tierLabel)} · ${esc((p.position&&p.position!=="-")?p.position:"PLAYER")} · ${mainPositionRating(p)}</div>
+      </div>
+
+      <div class="showcaseMain">
+        <div class="showcaseCardScene">
+          <div class="showcasePost left"></div>
+          <div class="showcasePost right"></div>
+          <div class="showcaseFarNet"></div>
+          <div class="showcaseCourtPerspective"></div>
+          <div class="showcaseAmbientRing"></div>
+          <div class="showcaseCardWrap">
+            <div class="fifaPlayerCard ${tier}">
+              ${vdsMasterPlayerCardHTML(p,{role:p.position&&p.position!=="-"?p.position:"POS",rating:mainPositionRating(p),tier,tierLabel,footer:"VIEW ONLY MODE"})}
+            </div>
+          </div>
+        </div>
+
+        <div class="showcaseInfo">
+          <div class="showcasePanel">
+            <h3>Identity</h3>
+            <div class="showcaseIdentityGrid">
+              <div class="showcaseIdentityItem"><span>Overall</span><b>${overall(p)}</b></div>
+              <div class="showcaseIdentityItem"><span>Main Role</span><b>${esc((p.position&&p.position!=="-")?p.position:"—")}</b></div>
+              <div class="showcaseIdentityItem"><span>Main Rating</span><b>${mainPositionRating(p)}</b></div>
+              <div class="showcaseIdentityItem"><span>Serve Type</span><b>${esc((({standing_float:"Float",jump_float:"Jump Float",jump_topspin:"Topspin",auto:"Auto"})[p.serveType||"auto"]||"Auto"))}</b></div>
+            </div>
+          </div>
+
+          <div class="showcaseSplit">
+            <div class="showcasePanel">
+              <h3>Core Ratings</h3>
+              <div class="showcaseStatGrid">
+                <div class="showcaseStatBox"><span>Attack</span><b>${cats.attacking}</b></div>
+                <div class="showcaseStatBox"><span>Defence</span><b>${cats.defense}</b></div>
+                <div class="showcaseStatBox"><span>Physical</span><b>${cats.physical}</b></div>
+                <div class="showcaseStatBox"><span>Mindset</span><b>${p.mindset}</b></div>
+              </div>
+            </div>
+            <div class="showcasePanel">
+              <h3>Playstyles & Chemistry</h3>
+              <div class="showcaseMiniRows">
+                <div class="showcaseMiniRow"><span>Playstyles</span><b>${esc(playstyleNames.length?playstyleNames.join(" + "):"None")}</b></div>
+                <div class="showcaseMiniRow"><span>Affiliations</span><b>${esc(affiliations)}</b></div>
+              </div>
+              <div class="showcaseNote">This panel is view-only and built for checking aesthetics, player identity and rating flavour at a glance.</div>
+            </div>
+          </div>
+
+          <div class="showcaseSideCard">
+            <div class="showcasePanel">
+              <h3>Specialists</h3>
+              <div class="showcaseMiniRows">
+                <div class="showcaseMiniRow"><span>Service</span><b>${p.service}</b></div>
+                <div class="showcaseMiniRow"><span>Blocking</span><b>${p.blocking}</b></div>
+                <div class="showcaseMiniRow"><span>Setting</span><b>${p.setting}</b></div>
+                <div class="showcaseMiniRow"><span>Serve Receive</span><b>${p.serveReceive}</b></div>
+              </div>
+            </div>
+            <div class="showcasePanel">
+              <h3>Position Ratings</h3>
+              <div class="showcaseMiniRows">
+                ${["OH","OP","S","L","M"].map(role=>`<div class="showcaseMiniRow"><span>${role}</span><b>${posRates[role]}</b></div>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  overlay.classList.add("show");
+  document.body.classList.add("showcaseOpen");
+}
+function closeShowcaseMode(){
+  document.getElementById("showcaseOverlay")?.classList.remove("show");
+  document.body.classList.remove("showcaseOpen");
+}
+document.getElementById("closeShowcaseBtn")?.addEventListener("click",closeShowcaseMode);
+document.getElementById("showcaseOverlay")?.addEventListener("click",e=>{if(e.target.id==="showcaseOverlay")closeShowcaseMode();});
+
 
 function revealWonPlayer(name){
   const p=players.find(x=>x.name===name); if(!p)return;
@@ -42863,7 +41151,7 @@ document.getElementById("addPlayerBtn").onclick=()=>{
     name=`New Player ${counter}`;
   }
 
-  const p={name,position:"-",photo:"",shots:[],serveType:"auto",ultimateTeamPool:false};
+  const p={name,position:"-",photo:"",shots:[],serveType:"auto"};
   STAT_KEYS.forEach(k=>p[k]=70);
   players.unshift(p);
   savePlayers();
@@ -43952,7 +42240,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - Player Database, homepage carousel, Compare, Player Reveal,
    Ultimate Team/pack reveal and Mini Draft reveal all use purple ACE.
  - Ultimate Team threshold aligned from 92+ to 90+.
- - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–89, Elite 90–95, Ace 96–99.
+ - Gold is now strictly 80–89.
 */
 
 /*
@@ -45895,7 +44183,7 @@ function vdsRenderUltimateHubHome(){
         <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('missions')">VIEW MISSIONS</button>
       </div>
       <div class="vdsUTHubHomeCard gold">
-        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>70% Gold (75–89) · 14.5% Elite (90–95) · 0.5% Ace (96–99). Head into the Pack Store for the full reveal experience.</p>
+        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>75% Gold · 5% Ace. Head into the dedicated Pack Store for the full opening experience.</p>
         <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">GO TO STORE</button>
       </div>
       <div class="vdsUTHubHomeCard">
@@ -45990,20 +44278,20 @@ let vdsPackStoreSelection="gold";
 const VDS_PACK_STORE_UI={
   bronze:{
     name:"Bronze Pack",tier:"BRONZE",cost:750,players:3,tag:"STARTER VALUE",
-    body:"Affordable club depth. Bronze cards are rated 1–59, with a route into Silver 60–74 and Gold 75–89.",
-    odds:[['Bronze',82],['Silver',17],['Gold',1]],
+    body:"Affordable club depth. A low-cost way to add options to a new squad and begin building your collection.",
+    odds:[['Bronze',80],['Silver',18],['Gold',2]],
     glow:'rgba(184,105,62,.18)'
   },
   silver:{
     name:"Silver Pack",tier:"SILVER",cost:1500,players:4,tag:"BALANCED BUILD",
-    body:"A balanced upgrade pack built around Silver 60–74, with Gold 75–89 upgrades and rare Elite 90–95 or Ace 96–99 pulls.",
-    odds:[['Bronze',10],['Silver',69],['Gold',20],['Elite',0.5],['Ace',0.5]],
+    body:"A balanced upgrade pack with a strong Silver core, a meaningful Gold chance and a rare route to an Ace pull.",
+    odds:[['Bronze',15],['Silver',70],['Gold',14],['Ace',1]],
     glow:'rgba(178,204,225,.14)'
   },
   gold:{
     name:"Gold Pack",tier:"GOLD",cost:2500,players:5,tag:"ELITE HUNT",
-    body:"The premium VDS pack. Hunt Gold 75–89 starters, purple Elite 90–95 cards, and the ultra-rare black Ace 96–99 pull.",
-    odds:[['Silver',15],['Gold',70],['Elite',14.5],['Ace',0.5]],
+    body:"The premium VDS pack. Built for managers hunting elite starters, high ratings and the best chance of finding an Ace.",
+    odds:[['Silver',20],['Gold',75],['Ace',5]],
     glow:'rgba(225,181,54,.20)'
   }
 };
@@ -46032,13 +44320,6 @@ function vdsRenderPackStoreShowcase(){
     <div class="vdsUTPackShowcaseTop">
       <div class="vdsUTPackShowcaseTitle"><small>VDS CLUB STORE</small><b>Player Packs</b></div>
       <div class="vdsUTPackShowcaseWallet"><span>AVAILABLE BALANCE</span><b>${vdsPackStoreWalletText()} ◉</b></div>
-    </div>
-    <div class="vdsUTRarityStrip">
-      <span class="bronze">BRONZE <b>1–59</b></span>
-      <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–89</b></span>
-      <span class="elite">ELITE <b>90–95</b></span>
-      <span class="ace">ACE <b>96–99</b></span>
     </div>
     <div class="vdsUTPackStoreBody">
       <aside class="vdsUTPackRail">
@@ -46074,7 +44355,7 @@ function vdsRenderPackStoreShowcase(){
             <div class="vdsUTPackPrice"><span>OPEN FOR</span><b>${pack.cost.toLocaleString()} ◉</b></div>
             <button class="vdsUTPackOpenHero ${vdsPackStoreSelection==='gold'?'gold':''}" id="vdsUTPackHeroOpen" type="button">OPEN ${pack.tier} PACK</button>
           </div>
-          <div class="vdsUTPackFootnote">VDS rarity ladder: Bronze 1–59 · Silver 60–74 · Gold 75–89 · Elite 90–95 · Ace 96–99. Probabilities shown above apply per player slot.</div>
+          <div class="vdsUTPackFootnote">Pack outcomes use the existing VDS Ultimate Team rarity system. Opening this pack launches the same full reveal sequence and account-backed coin purchase.</div>
         </div>
       </main>
     </div>`;
@@ -46321,377 +44602,6 @@ VDS B8.4 STAGE 6E4 — CLUB CHEMISTRY ARENA
 - Formation board is now a FUT-inspired dark-green pitch while retaining volleyball role/position labels.
 -->
 
-
-<script id="VDS_B85_VOLLEYBALL_CHEMISTRY_JS">
-function vdsUTPlayerChemScore(card,allCards){
-  if(!card)return {score:0,clubs:[],bestClub:null};
-  const own=vdsUTCardAffiliations(card);
-  if(!own.length)return {score:0,clubs:[],bestClub:null};
-
-  let matchingTeammates=0;
-  const matchingClubs=new Map();
-
-  allCards.forEach(other=>{
-    if(!other || other===card)return;
-    const shared=vdsUTSharedClubs(card,other);
-    if(shared.length){
-      matchingTeammates++;
-      shared.forEach(club=>matchingClubs.set(club,(matchingClubs.get(club)||0)+1));
-    }
-  });
-
-  const score=Math.max(0,Math.min(3,matchingTeammates));
-  const bestClub=[...matchingClubs.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0] || own[0] || null;
-  return {score,clubs:own,bestClub};
-}
-
-function vdsRenderSquadChemistry(){
-  const dataSlots=(ultimateTeamState?.lineupSlots||Array(6).fill(null)).slice(0,6);
-  const visualCards=UT_LINEUP_SLOTS.map(slot=>utCardByUid(dataSlots[slot.dataIndex]));
-  const slotEls=[...document.querySelectorAll('#utSquadSlots .vdsSquadSlot')];
-
-  let total=0;
-
-  slotEls.forEach((slotEl,index)=>{
-    slotEl.querySelector('.vdsUTPlayerChem')?.remove();
-    const card=visualCards[index];
-    if(!card)return;
-
-    const chem=vdsUTPlayerChemScore(card,visualCards);
-    total+=chem.score;
-
-    const mount=document.createElement('div');
-    mount.className=`vdsUTPlayerChem ${chem.score===3?'max':''}`;
-    mount.title=chem.bestClub
-      ? `${chem.score}/3 chemistry · ${chem.bestClub}`
-      : `${chem.score}/3 chemistry · no club match`;
-    mount.innerHTML=`
-      <div class="vdsUTChemPips">
-        ${[1,2,3].map(n=>`<i class="vdsUTChemPip ${chem.score>=n?'on':''}"></i>`).join('')}
-      </div>
-      <span class="vdsUTChemClub">${chem.bestClub||'NO CLUB LINK'}</span>`;
-    slotEl.appendChild(mount);
-  });
-
-  const head=document.querySelector('#ultimate .vdsUTInstance[data-ut-instance="squad"] .vdsUTHeadRight');
-  if(head){
-    let chem=document.getElementById('utChemistryRating');
-    if(!chem){
-      chem=document.createElement('div');
-      chem.id='utChemistryRating';
-      const teamOvr=document.getElementById('utSquadRating');
-      if(teamOvr)head.insertBefore(chem,teamOvr);
-      else head.appendChild(chem);
-    }
-    chem.textContent=`TEAM CHEM ${total}/18`;
-    chem.classList.toggle('low',total<6);
-    chem.classList.toggle('medium',total>=6 && total<12);
-    chem.title='Each player earns up to 3 chemistry pips from teammates who share a club/affiliation.';
-  }
-
-  /* B8.5 intentionally removes line-based chemistry. */
-  const layer=document.getElementById('utChemLayer');
-  if(layer)layer.innerHTML='';
-}
-
-/* Re-run chemistry after every squad render, but only as pips / team score. */
-const vdsB85OriginalRenderUltimateSquadVisual=renderUltimateSquadVisual;
-renderUltimateSquadVisual=function(){
-  const result=vdsB85OriginalRenderUltimateSquadVisual.apply(this,arguments);
-  requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry));
-  return result;
-};
-
-const vdsB85OriginalSwitchUltimateInstance=vdsSwitchUltimateInstance;
-vdsSwitchUltimateInstance=function(id,options){
-  const result=vdsB85OriginalSwitchUltimateInstance.call(this,id,options);
-  if(id==='squad')requestAnimationFrame(()=>requestAnimationFrame(vdsRenderSquadChemistry));
-  return result;
-};
-
-setTimeout(vdsRenderSquadChemistry,320);
-</script>
-
-
-<!--
-VDS B8.5 STAGE 6E5 — VOLLEYBALL CHEMISTRY
-- Restored a proper orange volleyball court with a far net and 3m attack line.
-- Removed the football-style green pitch / football field markings.
-- Retained the dramatic stadium bowl, crowd, scoreboard and floodlights.
-- Replaced spider-web pairwise chemistry lines with volleyball-appropriate squad cohesion:
-  each player has 0–3 chemistry pips based on how many teammates share a club/affiliation.
-- TEAM CHEM is now /18 (six players × three pips).
-- Club/affiliation name appears beside the player's chemistry pips on desktop.
-- Chemistry remains visual only and does not modify match simulation yet.
-- P6 remains slightly deeper than the other back-row positions.
--->
-
-
-<!--
-VDS B8.6 STAGE 6E6 — CARD SCALE + NET LAYER FIX
-- Enlarged squad cards so they read more like featured starters rather than tiny markers.
-- Pulled the left/right positions inward so cards feel anchored on the court instead of falling off the edge.
-- Moved the far net behind the players by lowering its layer while keeping the court slots above it.
-- Kept gameplay and chemistry logic unchanged; this is presentation-only.
--->
-
-
-<!--
-VDS B8.7 STAGE 6E7 — FUT PROPORTION PASS
-- Volleyball court remains a volleyball court, but the overall laptop view now uses a smaller,
-  tighter formation board so it resembles the cleaner FUT squad-builder proportions.
-- Desktop squad cards were made slightly more compact and grouped more tightly.
-- Mobile squad cards were intentionally reduced to feel closer to the reference phone squad-builder UI.
-- Chemistry logic, drag/drop, roster logic, and all gameplay behaviour remain unchanged.
--->
-
-
-<script id="VDS_B88_UT_TOPBAR_MISSIONS_JS">
-(function(){
-  const SECTION_OPTIONS=[
-    ["home","HOME"],
-    ["squad","CLUB SQUAD"],
-    ["packs","PACK STORE"],
-    ["club","MY CLUB"],
-    ["profile","CLUB PROFILE"]
-  ];
-
-  function vdsB88ParseProgress(text){
-    const m=(text||"").match(/(\d+)\s*\/\s*(\d+)/);
-    if(!m) return {done:false, current:0, total:0};
-    return {done:Number(m[1])>=Number(m[2]) && Number(m[2])>0, current:Number(m[1]), total:Number(m[2])};
-  }
-
-  function vdsB88MissionData(){
-    const firstWinStatus=(document.getElementById("utFirstWinStatus")?.textContent||"").trim();
-    const play1=(document.getElementById("utObjPlay1Status")?.textContent||"0 / 1").trim();
-    const win1=(document.getElementById("utObjWin1Status")?.textContent||"0 / 1").trim();
-    const play3=(document.getElementById("utObjPlay3Status")?.textContent||"0 / 3").trim();
-
-    const firstDone=/CLAIMED|COMPLETED|DONE/i.test(firstWinStatus);
-    const p1=vdsB88ParseProgress(play1);
-    const w1=vdsB88ParseProgress(win1);
-    const p3=vdsB88ParseProgress(play3);
-
-    return [
-      {title:"First Win Today", reward:"+200 ◉", status:firstWinStatus||"AVAILABLE TODAY", done:firstDone},
-      {title:"Play 1 Match", reward:"+100 ◉", status:play1, done:p1.done},
-      {title:"Win 1 Match", reward:"+150 ◉", status:win1, done:w1.done},
-      {title:"Play 3 Matches", reward:"+200 ◉", status:play3, done:p3.done}
-    ];
-  }
-
-  function vdsB88ActiveSection(){
-    const activeBtn=document.querySelector('#ultimate .vdsUTHubTab.active');
-    const activeSelect=document.getElementById('vdsUTCompactSectionSelect');
-    if(activeSelect && activeSelect.value) return activeSelect.value;
-    if(activeBtn?.dataset.utNav) return activeBtn.dataset.utNav;
-    return (typeof vdsUltimateHubActive!=="undefined" && vdsUltimateHubActive) ? vdsUltimateHubActive : "squad";
-  }
-
-  function vdsB88ActiveLabel(id){
-    const hit=SECTION_OPTIONS.find(x=>x[0]===id);
-    return hit?hit[1]:"CLUB SQUAD";
-  }
-
-  function vdsB88RenderMissionPanel(){
-    const panel=document.getElementById("vdsUTCompactMissionPanel");
-    const badge=document.getElementById("vdsUTCompactMissionCount");
-    if(!panel || !badge) return;
-    const missions=vdsB88MissionData();
-    const done=missions.filter(m=>m.done).length;
-    badge.textContent=`${done}/${missions.length}`;
-    panel.innerHTML=`
-      <div class="vdsUTCompactMissionHead">
-        <div><small>LIVE OBJECTIVES</small><b>Missions</b></div>
-        <button type="button" class="vdsUTCompactMissionOpen" id="vdsUTCompactMissionOpen">OPEN FULL MISSIONS</button>
-      </div>
-      <div class="vdsUTCompactMissionList">
-        ${missions.map(m=>`
-          <div class="vdsUTCompactMissionItem ${m.done?'done':''}">
-            <div class="vdsUTCompactMissionItemTop"><span>${m.title}</span><b>${m.reward}</b></div>
-            <small>${m.status}</small>
-          </div>
-        `).join("")}
-      </div>`;
-    document.getElementById("vdsUTCompactMissionOpen")?.addEventListener("click",()=>{
-      panel.classList.remove("open");
-      if(typeof vdsSwitchUltimateInstance==="function") vdsSwitchUltimateInstance("missions");
-    });
-  }
-
-  function vdsB88SyncTopBar(){
-    const select=document.getElementById("vdsUTCompactSectionSelect");
-    const id=vdsB88ActiveSection();
-    if(select && select.value!==id && [...select.options].some(o=>o.value===id)) select.value=id;
-
-    const lv=document.getElementById("utManagerLevel")?.textContent?.trim() || "1";
-    const elo=document.getElementById("utManagerElo")?.textContent?.trim() || "1000";
-    const coins=document.getElementById("utCoins")?.textContent?.trim() || "1,000";
-    const lvOut=document.getElementById("vdsUTCompactLevel");
-    const eloOut=document.getElementById("vdsUTCompactElo");
-    const coinOut=document.getElementById("vdsUTCompactCoins");
-    if(lvOut) lvOut.textContent=lv;
-    if(eloOut) eloOut.textContent=elo;
-    if(coinOut) coinOut.textContent=coins;
-
-    const name=document.getElementById("vdsAccountHeaderName")?.textContent?.trim() || "Manager";
-    const nameOut=document.getElementById("vdsUTCompactProfileName");
-    if(nameOut) nameOut.textContent=name;
-
-    const avatarHTML=document.getElementById("vdsAccountHeaderAvatar")?.innerHTML || '<div class="vdsAccountAvatarFallback">M</div>';
-    const avatarOut=document.getElementById("vdsUTCompactProfileAvatar");
-    if(avatarOut) avatarOut.innerHTML=avatarHTML;
-
-    vdsB88RenderMissionPanel();
-  }
-
-  function vdsB88InitTopBar(){
-    const ultimate=document.getElementById("ultimate");
-    const shell=ultimate?.querySelector(".vdsUTShell");
-    const instances=shell?.querySelector(".vdsUTHubInstances");
-    if(!ultimate || !shell || !instances) return;
-    if(document.getElementById("vdsUTCompactTopBar")) return;
-
-    const top=document.createElement("div");
-    top.id="vdsUTCompactTopBar";
-    top.className="vdsUTCompactTopBar";
-    top.innerHTML=`
-      <div class="vdsUTSlimBrand">
-        <div class="vdsUTSlimMark">UT</div>
-        <div class="vdsUTSlimBrandText">
-          <small>VDS</small>
-          <b>ULTIMATE TEAM</b>
-        </div>
-      </div>
-
-      <div class="vdsUTSlimSection">
-        <select id="vdsUTCompactSectionSelect" aria-label="Ultimate Team section">
-          ${SECTION_OPTIONS.map(([id,label])=>`<option value="${id}">${label}</option>`).join("")}
-        </select>
-      </div>
-
-      <div class="vdsUTSlimSpacer"></div>
-
-      <button type="button" class="vdsUTSlimMissionButton" id="vdsUTCompactMissionsBtn">
-        <span>MISSIONS</span>
-        <b id="vdsUTCompactMissionCount">0/4</b>
-      </button>
-
-      <div class="vdsUTSlimStat"><span>LV</span><b id="vdsUTCompactLevel">1</b></div>
-      <div class="vdsUTSlimStat"><span>ELO</span><b id="vdsUTCompactElo">1000</b></div>
-
-      <div class="vdsUTSlimWallet">
-        <span>◉</span>
-        <b id="vdsUTCompactCoins">1,000</b>
-      </div>
-
-      <button type="button" class="vdsUTSlimAccount" id="vdsUTCompactAccountBtn">
-        <div class="vdsUTSlimAvatar" id="vdsUTCompactProfileAvatar"></div>
-        <div class="vdsUTSlimAccountMeta">
-          <b id="vdsUTCompactProfileName">Manager</b>
-          <span>ACCOUNT</span>
-        </div>
-        <i>⌄</i>
-      </button>
-
-      <div id="vdsUTCompactMissionPanel" class="vdsUTCompactMissionPanel"></div>
-    `;
-    shell.insertBefore(top, instances);
-
-    document.getElementById("vdsUTCompactSectionSelect")?.addEventListener("change",(e)=>{
-      if(typeof vdsSwitchUltimateInstance==="function") vdsSwitchUltimateInstance(e.target.value);
-      setTimeout(vdsB88SyncTopBar, 40);
-    });
-    document.getElementById("vdsUTCompactMissionsBtn")?.addEventListener("click",(e)=>{
-      e.stopPropagation();
-      document.getElementById("vdsUTCompactMissionPanel")?.classList.toggle("open");
-      vdsB88RenderMissionPanel();
-    });
-    document.getElementById("vdsUTCompactAccountBtn")?.addEventListener("click",()=>{
-      document.getElementById("vdsAccountOpenBtn")?.click();
-    });
-    document.addEventListener("click",(e)=>{
-      const panel=document.getElementById("vdsUTCompactMissionPanel");
-      const btn=document.getElementById("vdsUTCompactMissionsBtn");
-      if(!panel || !btn) return;
-      if(panel.contains(e.target) || btn.contains(e.target)) return;
-      panel.classList.remove("open");
-    });
-
-    const observer=new MutationObserver(()=>vdsB88SyncTopBar());
-    ["utManagerLevel","utManagerElo","utCoins","utFirstWinStatus","utObjPlay1Status","utObjWin1Status","utObjPlay3Status","vdsAccountHeaderName","vdsAccountHeaderAvatar"].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el) observer.observe(el,{childList:true,subtree:true,characterData:true});
-    });
-
-    vdsB88SyncTopBar();
-    if(typeof vdsSwitchUltimateInstance==="function"){
-      setTimeout(()=>{
-        vdsSwitchUltimateInstance("squad",{scroll:false});
-        setTimeout(vdsB88SyncTopBar,60);
-      },80);
-    }
-  }
-
-  const boot=()=>setTimeout(vdsB88InitTopBar, 500);
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
-})();
-</script>
-
-
-<!--
-VDS B8.9 STAGE 6E9 — SLIM ULTIMATE TEAM TOPBAR
-- Reworked the Stage 6E8 UT header into a slimmer single-row game-style command bar.
-- Desktop now shows:
-  VDS Ultimate Team · Section dropdown · Missions · Level · ELO · Coins · Account.
-- Coins and account profile are visually grouped at the far right.
-- Missions remain a compact dropdown instead of a full main navigation section.
-- Mobile uses a two-row compact layout: brand + wallet + avatar, then section selector + missions.
-- No squad, economy, pack, chemistry, auth or multiplayer mechanics changed.
--->
-
-
-<!--
-VDS B9.0 STAGE 6E10 — ACE + ELITE TIER SPLIT
-- Added a new ELITE tier for 90–95 natural-position rating.
-- ACE now only applies to 96–99 natural-position rating.
-- ACE cards now use a black foil base with animated gleam, silver text, and stronger premium effects.
-- Updated global card rarity, mini-draft rarity, Ultimate Team rarity, and profile rarity to use the new thresholds.
-- No gameplay balance, pack odds, or simulation mechanics were changed in this pass.
--->
-
-
-<!--
-VDS B9.6 STAGE 6E16 — GOLD STARTS AT 75 / STANDARDISED TIER CUTS
-- Gold now starts at 75 everywhere in VDS.
-- Standard tier cuts: Bronze <60, Silver 60–68, Rare Silver 69–74, Gold 75–89, Elite 90–95, Ace 96–99.
-- Applied to player cards, mini draft tiering, Ultimate Team rarity, and profile tier displays.
--->
-<!--
-VDS B9.1 STAGE 6E11 — BLACK ACE / PURPLE ELITE / UPDATED PACK ODDS
-- ACE cards are now matte black and gleamless.
-- ELITE cards now inherit the premium purple treatment.
-- Pack rarity odds updated:
-  Bronze Pack: 82% Bronze / 17% Silver / 1% Gold
-  Silver Pack: 10% Bronze / 69% Silver / 20% Gold / 0.5% Elite / 0.5% Ace
-  Gold Pack: 15% Silver / 70% Gold / 14.5% Elite / 0.5% Ace
-- Ace chance is now 0.5% in eligible packs.
-- Updated store copy and featured-pack messaging to match the new structure.
--->
-
-
-<!--
-VDS B9.2 STAGE 6E12 — BASE CARD TIER FIX
-Fixes the Player Database / base-card page so the new tier art actually shows:
-- ACE base cards are now matte black / gleamless
-- ELITE base cards are now purple
-This specifically overrides older #players-scoped CSS that was keeping the old art visible.
--->
-
-
-<!-- B9.4: ACE cards now keep a black premium base with subtle purple splashes / accents. -->
 </body>
 </html>
 
@@ -47283,532 +45193,3 @@ This specifically overrides older #players-scoped CSS that was keeping the old a
   #miniPickReveal .rebuiltRevealStage::before,#miniPickReveal .utRevealRoof::after{animation:none!important}
 }
 </style>
-
-
-<style id="VDS_B93_ACE_BLACK_ELITE_PURPLE_FINAL_OVERRIDE">
-/* ================================================================
-   Stage 6E13 — FINAL ACE / ELITE VISUAL OVERRIDE
-   User request:
-   - ACE = black special card with subtle premium effects
-   - ELITE = purple premium card
-   This block sits at the end of the cascade so it beats earlier card art.
-   ================================================================ */
-
-/* -------- ELITE (90–95) = PURPLE PREMIUM -------- */
-.fifaPlayerCard.elite,
-.fifaPlayerCard.rare_gold,
-.vdsLegacyFifaPlayerCard.elite,
-.vdsLegacyFifaPlayerCard.rare_gold,
-#players .fifaPlayerCard.elite,
-#players .fifaPlayerCard.rare_gold,
-#players .vdsLegacyFifaPlayerCard.elite,
-#players .vdsLegacyFifaPlayerCard.rare_gold{
-  --card-base:#5b2bb7!important;
-  --card-base-2:#091320!important;
-  --card-border:#d9b2ff!important;
-  --card-accent:#f5eaff!important;
-  --card-glow:rgba(174,114,255,.30)!important;
-  color:#f8f1ff!important;
-  background:
-    radial-gradient(circle at 23% 18%,rgba(255,255,255,.17),transparent 20%),
-    radial-gradient(circle at 77% 14%,rgba(222,169,255,.18),transparent 19%),
-    radial-gradient(circle at 80% 82%,rgba(77,212,255,.10),transparent 23%),
-    linear-gradient(132deg,transparent 0 18%,rgba(255,255,255,.11) 19% 20%,transparent 21% 49%,rgba(220,174,255,.09) 50% 51%,transparent 52% 100%),
-    linear-gradient(160deg,#7a39dc 0%,#5928b1 28%,#311b71 56%,#171f48 76%,#08131f 100%)!important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.09),
-    inset 0 -72px 92px rgba(0,0,0,.28),
-    inset 0 0 58px rgba(0,0,0,.14),
-    0 0 24px rgba(190,134,255,.26)!important;
-}
-.fifaPlayerCard.elite .fifaTierTag,
-.fifaPlayerCard.rare_gold .fifaTierTag,
-.vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-.vdsLegacyFifaPlayerCard.rare_gold .fifaTierTag,
-#players .fifaPlayerCard.elite .fifaTierTag,
-#players .fifaPlayerCard.rare_gold .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard.elite .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard.rare_gold .fifaTierTag{
-  color:#f8f0ff!important;
-  border-color:rgba(243,223,255,.88)!important;
-  background:linear-gradient(180deg,rgba(130,62,225,.94),rgba(46,20,88,.98))!important;
-  box-shadow:0 0 10px rgba(214,171,255,.22), inset 0 0 10px rgba(255,255,255,.08)!important;
-}
-.fifaPlayerCard.elite .fifaOverall,
-.fifaPlayerCard.rare_gold .fifaOverall,
-.vdsLegacyFifaPlayerCard.elite .fifaOverall,
-.vdsLegacyFifaPlayerCard.rare_gold .fifaOverall,
-#players .fifaPlayerCard.elite .fifaOverall,
-#players .fifaPlayerCard.rare_gold .fifaOverall,
-#players .vdsLegacyFifaPlayerCard.elite .fifaOverall,
-#players .vdsLegacyFifaPlayerCard.rare_gold .fifaOverall{
-  color:#fff5ff!important;
-  text-shadow:0 2px 0 rgba(70,28,120,.70),0 4px 8px rgba(0,0,0,.45),0 0 12px rgba(233,193,255,.16)!important;
-}
-.fifaPlayerCard.elite::before,
-.fifaPlayerCard.rare_gold::before,
-.vdsLegacyFifaPlayerCard.elite::before,
-.vdsLegacyFifaPlayerCard.rare_gold::before,
-#players .fifaPlayerCard.elite::before,
-#players .fifaPlayerCard.rare_gold::before,
-#players .vdsLegacyFifaPlayerCard.elite::before,
-#players .vdsLegacyFifaPlayerCard.rare_gold::before{
-  background:linear-gradient(112deg,transparent 36%,rgba(255,255,255,0) 42%,rgba(255,255,255,.18) 47%,rgba(255,255,255,.68) 50%,rgba(196,136,255,.20) 54%,rgba(255,255,255,0) 58%,transparent 63%)!important;
-}
-
-/* -------- ACE (96–99) = BLACK SPECIAL -------- */
-.fifaPlayerCard.ace,
-.vdsLegacyFifaPlayerCard.ace,
-#players .fifaPlayerCard.ace,
-#players .vdsLegacyFifaPlayerCard.ace{
-  --card-base:#080b10!important;
-  --card-base-2:#04070b!important;
-  --card-border:#f0f4fb!important;
-  --card-accent:#ffffff!important;
-  --card-glow:rgba(255,255,255,.15)!important;
-  color:#fbfdff!important;
-  background:
-    radial-gradient(circle at 22% 14%,rgba(255,255,255,.13),transparent 16%),
-    radial-gradient(circle at 80% 16%,rgba(255,255,255,.08),transparent 18%),
-    radial-gradient(circle at 50% 72%,rgba(116,133,165,.12),transparent 28%),
-    linear-gradient(140deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 11%,rgba(255,255,255,.04) 18%,rgba(255,255,255,0) 25%),
-    linear-gradient(160deg,#131820 0%,#090d13 26%,#05070b 54%,#0b1017 76%,#020407 100%)!important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.10),
-    inset 0 -78px 98px rgba(0,0,0,.38),
-    inset 0 0 66px rgba(0,0,0,.18),
-    0 0 0 1px rgba(255,255,255,.09),
-    0 0 18px rgba(255,255,255,.09),
-    0 0 34px rgba(110,120,145,.10)!important;
-  filter:drop-shadow(0 18px 24px rgba(0,0,0,.52)) drop-shadow(0 0 10px rgba(255,255,255,.05))!important;
-}
-.fifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-#players .fifaPlayerCard.ace .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag{
-  color:#ffffff!important;
-  border-color:rgba(241,245,251,.86)!important;
-  background:linear-gradient(180deg,rgba(30,36,46,.96),rgba(6,8,12,.98))!important;
-  box-shadow:0 0 10px rgba(255,255,255,.10), inset 0 0 8px rgba(255,255,255,.06)!important;
-}
-.fifaPlayerCard.ace .fifaOverall,
-.vdsLegacyFifaPlayerCard.ace .fifaOverall,
-#players .fifaPlayerCard.ace .fifaOverall,
-#players .vdsLegacyFifaPlayerCard.ace .fifaOverall{
-  color:#ffffff!important;
-  text-shadow:0 2px 0 rgba(0,0,0,.72),0 4px 10px rgba(0,0,0,.55),0 0 10px rgba(255,255,255,.10)!important;
-}
-.fifaPlayerCard.ace::before,
-.vdsLegacyFifaPlayerCard.ace::before,
-#players .fifaPlayerCard.ace::before,
-#players .vdsLegacyFifaPlayerCard.ace::before{
-  opacity:.28!important;
-  background:linear-gradient(112deg,transparent 37%,rgba(255,255,255,0) 43%,rgba(255,255,255,.12) 48%,rgba(255,255,255,.65) 50%,rgba(255,255,255,.12) 53%,rgba(255,255,255,0) 58%,transparent 63%)!important;
-  mix-blend-mode:screen!important;
-}
-.fifaPlayerCard.ace::after,
-.vdsLegacyFifaPlayerCard.ace::after,
-#players .fifaPlayerCard.ace::after,
-#players .vdsLegacyFifaPlayerCard.ace::after{
-  content:""!important;
-  position:absolute!important;
-  inset:1px!important;
-  pointer-events:none!important;
-  border-radius:inherit!important;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.08),transparent 18%,transparent 82%,rgba(255,255,255,.05)),
-    radial-gradient(circle at 50% 0,rgba(255,255,255,.08),transparent 26%)!important;
-  opacity:1!important;
-}
-.fifaPlayerCard.ace:hover,
-.vdsLegacyFifaPlayerCard.ace:hover,
-#players .fifaPlayerCard.ace:hover,
-#players .vdsLegacyFifaPlayerCard.ace:hover{
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.12),
-    inset 0 -82px 102px rgba(0,0,0,.40),
-    inset 0 0 70px rgba(0,0,0,.20),
-    0 0 0 1px rgba(255,255,255,.11),
-    0 0 22px rgba(255,255,255,.12),
-    0 0 38px rgba(118,130,160,.12)!important;
-}
-
-/* Filter chips / labels stay aligned with the new colour language */
-.vdsFilter.eliteFilter.active{background:linear-gradient(135deg,#7f43dd,#412070)!important;color:#fbf3ff!important;box-shadow:0 0 14px rgba(191,140,255,.22)!important}
-.vdsFilter.aceFilter.active{background:linear-gradient(135deg,#161b23,#030507)!important;color:#ffffff!important;box-shadow:0 0 12px rgba(255,255,255,.10)!important}
-</style>
-
-<style id="VDS_B94_ACE_PURPLE_SPLASH_OVERRIDE">
-/* Stage 6E14 — add subtle purple splashes to ACE black cards */
-.fifaPlayerCard.ace,
-.vdsLegacyFifaPlayerCard.ace,
-#players .fifaPlayerCard.ace,
-#players .vdsLegacyFifaPlayerCard.ace,
-.utPremiumCard.ace,
-.utPremiumCollectionCard.ace,
-.utCard.ace,
-.utCollectionCard.ace{
-  background:
-    radial-gradient(circle at 18% 16%, rgba(185,115,255,.20), transparent 14%),
-    radial-gradient(circle at 82% 18%, rgba(134,76,255,.14), transparent 18%),
-    radial-gradient(circle at 50% 76%, rgba(132,74,255,.12), transparent 24%),
-    radial-gradient(circle at 72% 68%, rgba(214,167,255,.08), transparent 18%),
-    linear-gradient(138deg, rgba(185,115,255,.10) 0%, rgba(255,255,255,0) 12%, rgba(125,77,255,.08) 21%, rgba(255,255,255,0) 31%),
-    linear-gradient(160deg,#141824 0%,#0a0d14 28%,#05070b 54%,#100a18 74%,#04060a 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.10),
-    inset 0 -78px 98px rgba(0,0,0,.38),
-    inset 0 0 66px rgba(0,0,0,.18),
-    0 0 0 1px rgba(255,255,255,.09),
-    0 0 14px rgba(194,137,255,.10),
-    0 0 34px rgba(111,72,180,.14) !important;
-}
-.fifaPlayerCard.ace .fifaTierTag,
-.vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-#players .fifaPlayerCard.ace .fifaTierTag,
-#players .vdsLegacyFifaPlayerCard.ace .fifaTierTag,
-.utPremiumCard.ace .utPremiumRarity,
-.utPremiumCollectionCard.ace .utPremiumRarity,
-.utCard.ace .utRarity,
-.utCollectionCard.ace .utRarity{
-  border-color: rgba(220,186,255,.85) !important;
-  color: #f6edff !important;
-  background: linear-gradient(180deg, rgba(53,31,82,.96), rgba(10,10,16,.98)) !important;
-  box-shadow: 0 0 10px rgba(180,120,255,.15), inset 0 0 8px rgba(255,255,255,.05) !important;
-}
-.fifaPlayerCard.ace .fifaOverall,
-.vdsLegacyFifaPlayerCard.ace .fifaOverall,
-#players .fifaPlayerCard.ace .fifaOverall,
-#players .vdsLegacyFifaPlayerCard.ace .fifaOverall,
-.utPremiumCard.ace .utPremiumRating,
-.utPremiumCollectionCard.ace .utPremiumRating{
-  color:#ffffff !important;
-  text-shadow: 0 2px 0 rgba(0,0,0,.72), 0 4px 10px rgba(0,0,0,.55), 0 0 10px rgba(191,132,255,.12) !important;
-}
-.fifaPlayerCard.ace::before,
-.vdsLegacyFifaPlayerCard.ace::before,
-#players .fifaPlayerCard.ace::before,
-#players .vdsLegacyFifaPlayerCard.ace::before,
-.utPremiumCard.ace::before,
-.utPremiumCollectionCard.ace::before{
-  opacity:.34 !important;
-  background: linear-gradient(110deg,
-    transparent 38%,
-    rgba(188,120,255,0) 44%,
-    rgba(207,156,255,.10) 47%,
-    rgba(255,255,255,.54) 50%,
-    rgba(177,108,255,.12) 53%,
-    rgba(188,120,255,0) 57%,
-    transparent 63%) !important;
-}
-.fifaPlayerCard.ace::after,
-.vdsLegacyFifaPlayerCard.ace::after,
-#players .fifaPlayerCard.ace::after,
-#players .vdsLegacyFifaPlayerCard.ace::after,
-.utPremiumCard.ace::after,
-.utPremiumCollectionCard.ace::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:1px !important;
-  pointer-events:none !important;
-  border-radius:inherit !important;
-  background:
-    radial-gradient(circle at 50% 0, rgba(207,156,255,.10), transparent 26%),
-    radial-gradient(circle at 0 100%, rgba(120,70,255,.08), transparent 28%),
-    linear-gradient(180deg, rgba(255,255,255,.06), transparent 18%, transparent 82%, rgba(171,112,255,.05)) !important;
-  opacity:1 !important;
-}
-</style>
-
-
-<style id="VDS_B95_ULTIMATE_TEAM_POOL_UI">
-/* Stage 6E15 — Ultimate Team Pool first, All Player Cards second. */
-#players .vdsPlayersHeroStats{
-  grid-template-columns:repeat(4,minmax(86px,1fr))!important;
-}
-
-#players .vdsPlayerRosterSection{
-  margin-top:18px;
-  padding:16px 16px 18px;
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:20px;
-  background:
-    radial-gradient(circle at 100% 0,rgba(77,179,255,.045),transparent 28%),
-    linear-gradient(180deg,rgba(7,18,29,.78),rgba(5,14,23,.70));
-}
-
-#players .vdsUTPoolRosterSection{
-  border-color:rgba(85,186,255,.16);
-  background:
-    radial-gradient(circle at 88% 0,rgba(79,173,255,.09),transparent 27%),
-    radial-gradient(circle at 12% 0,rgba(167,103,255,.055),transparent 24%),
-    linear-gradient(180deg,rgba(8,22,35,.92),rgba(5,14,23,.84));
-}
-
-#players .vdsPlayerRosterSectionHead{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:18px;
-  margin-bottom:14px;
-}
-
-#players .vdsPlayerRosterSectionHead h2{
-  margin:4px 0 5px;
-  font-size:25px;
-  letter-spacing:-.035em;
-}
-
-#players .vdsPlayerRosterSectionHead p{
-  margin:0;
-  color:#8299ad;
-  font-size:12px;
-  line-height:1.5;
-}
-
-#players .vdsUTPoolCountBadge,
-#players .vdsAllPlayersCountBadge{
-  min-width:104px;
-  padding:10px 12px;
-  border-radius:13px;
-  text-align:center;
-  background:#081522;
-  border:1px solid rgba(255,255,255,.07);
-}
-
-#players .vdsUTPoolCountBadge b,
-#players .vdsAllPlayersCountBadge b{
-  display:block;
-  font-size:21px;
-}
-
-#players .vdsUTPoolCountBadge span,
-#players .vdsAllPlayersCountBadge span{
-  display:block;
-  margin-top:2px;
-  color:#7f96aa;
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.15em;
-}
-
-#players .vdsUTPoolCountBadge{
-  border-color:rgba(89,188,255,.22);
-}
-#players .vdsUTPoolCountBadge b{color:#8dd2ff}
-
-#players .vdsPlayerCardWithPoolAction{
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-}
-
-#players .vdsPlayerCardWithPoolAction > .fifaPlayerCard{
-  width:100%!important;
-}
-
-#players .vdsPoolCardAction{
-  width:calc(100% - 12px);
-  min-height:34px;
-  margin:7px 6px 0;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.08);
-  background:#0b1826;
-  color:#a9c0d3;
-  font-size:8px;
-  font-weight:1000;
-  letter-spacing:.10em;
-  cursor:pointer;
-}
-
-#players .vdsPoolCardAction.add{
-  color:#8fd8ff;
-  border-color:rgba(85,184,255,.25);
-  background:rgba(38,120,180,.09);
-}
-#players .vdsPoolCardAction.included{
-  color:#83dfa9;
-  border-color:rgba(91,218,146,.24);
-  background:rgba(44,157,94,.08);
-}
-#players .vdsPoolCardAction.remove{
-  color:#f0a4ad;
-  border-color:rgba(255,107,126,.20);
-  background:rgba(167,48,67,.08);
-}
-
-#players .vdsPoolCardAction:hover{
-  filter:brightness(1.12);
-}
-
-#players .vdsPoolViewerBadge{
-  align-self:center;
-  margin-top:7px;
-  padding:6px 10px;
-  border-radius:999px;
-  color:#85d7ff;
-  border:1px solid rgba(85,184,255,.20);
-  background:rgba(43,126,185,.08);
-  font-size:7px;
-  font-weight:1000;
-  letter-spacing:.13em;
-}
-
-#players .vdsUTPoolEmpty{
-  margin:8px 0 16px;
-  padding:18px;
-  border-radius:15px;
-  border:1px dashed rgba(104,187,241,.22);
-  background:rgba(33,91,132,.07);
-  text-align:center;
-}
-#players .vdsUTPoolEmpty b{
-  display:block;
-  color:#d8ecfa;
-  font-size:14px;
-}
-#players .vdsUTPoolEmpty span{
-  display:block;
-  margin-top:5px;
-  color:#8098ac;
-  font-size:11px;
-}
-
-body.cloudReadOnly #players .vdsPoolCardAction{
-  display:none!important;
-}
-
-@media(max-width:700px){
-  #players .vdsPlayersHeroStats{
-    grid-template-columns:repeat(2,1fr)!important;
-  }
-  #players .vdsPlayerRosterSection{
-    padding:11px 8px 13px;
-    border-radius:15px;
-  }
-  #players .vdsPlayerRosterSectionHead{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:10px;
-  }
-  #players .vdsUTPoolCountBadge,
-  #players .vdsAllPlayersCountBadge{
-    min-width:94px;
-  }
-}
-</style>
-
-
-<!--
-VDS B9.5 STAGE 6E15 — ULTIMATE TEAM POOL FIRST
-- Player Database now has two roster sections:
-  1) Ultimate Team Pool first
-  2) All Player Cards second
-- Only players with players.ultimate_team_pool=true are eligible for Ultimate Team pack pulls.
-- Admins can add/remove cards from the pool directly below each card.
-- Pool membership is stored in Supabase so every user sees the same pack-eligible pool.
-- Existing 43 cloud players were seeded into the pool to preserve current live behaviour.
-- Newly created players start OUTSIDE the Ultimate Team Pool until explicitly added.
-- New starter-club generation is also restricted to the Ultimate Team Pool.
--->
-
-
-<style id="VDS_B97_STANDARD_RARITY_UI">
-/* Stage 6E17 — one public rarity ladder everywhere. */
-#players .vdsTierRangeLegend,
-#ultimate .vdsUTRarityStrip{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-#players .vdsTierRangeLegend{
-  margin:10px 0 2px;
-}
-
-#players .vdsTierRangeLegend span,
-#ultimate .vdsUTRarityStrip span{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  min-height:26px;
-  padding:5px 9px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.08);
-  background:#081522;
-  color:#9db2c4;
-  font-size:8px;
-  font-weight:1000;
-  letter-spacing:.09em;
-}
-
-#players .vdsTierRangeLegend span b,
-#ultimate .vdsUTRarityStrip span b{
-  font-size:8px;
-  color:inherit;
-}
-
-#players .vdsTierRangeLegend .bronze,
-#ultimate .vdsUTRarityStrip .bronze{color:#d29a72;border-color:rgba(201,139,93,.22)}
-#players .vdsTierRangeLegend .silver,
-#ultimate .vdsUTRarityStrip .silver{color:#dce7ee;border-color:rgba(208,226,236,.20)}
-#players .vdsTierRangeLegend .gold,
-#ultimate .vdsUTRarityStrip .gold{color:#f1d36f;border-color:rgba(238,201,87,.25)}
-#players .vdsTierRangeLegend .elite,
-#ultimate .vdsUTRarityStrip .elite{color:#ddb7ff;border-color:rgba(192,127,255,.26)}
-#players .vdsTierRangeLegend .ace,
-#ultimate .vdsUTRarityStrip .ace{
-  color:#f4f7fb;
-  border-color:rgba(238,243,249,.22);
-  background:linear-gradient(135deg,#141821,#07090d);
-}
-
-#ultimate .vdsUTRarityStrip{
-  padding:8px 0 13px;
-}
-
-#players .tierFilters .vdsFilter{
-  white-space:nowrap;
-}
-
-#players .vdsFilter.eliteFilter.active{
-  color:#f5eaff!important;
-  background:linear-gradient(135deg,#7b42d4,#40206f)!important;
-  border-color:rgba(219,181,255,.30)!important;
-}
-#players .vdsFilter.aceFilter.active{
-  color:#fff!important;
-  background:linear-gradient(135deg,#171c24,#05070a)!important;
-  border-color:rgba(255,255,255,.18)!important;
-}
-
-@media(max-width:700px){
-  #players .vdsTierRangeLegend,
-  #ultimate .vdsUTRarityStrip{
-    gap:5px;
-  }
-  #players .vdsTierRangeLegend span,
-  #ultimate .vdsUTRarityStrip span{
-    padding:5px 7px;
-    font-size:7px;
-  }
-}
-</style>
-
-<!--
-VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
-- Public rarity ladder is now fully standardised:
-  Bronze 1–59
-  Silver 60–74
-  Gold 75–89
-  Elite 90–95
-  Ace 96–99
-- Removed Rare Silver / Rare Gold from active rarity assignment logic.
-- Player Database filters now show all five tiers and their rating ranges.
-- Player Database includes a visible rarity-range legend.
-- Pack Store includes the same rarity-range legend and updated descriptive copy.
-- Featured-pack text and pack footnote now use the same ranges.
-- Starter Silver captain backend range updated to 60–74 in Supabase.
--->
