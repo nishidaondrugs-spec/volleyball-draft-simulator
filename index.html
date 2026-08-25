@@ -47251,9 +47251,6 @@ The final first-login screen now recommends Mini Draft as PLAY YOUR FIRST MATCH,
 with Ultimate Team and Player Cards offered as secondary routes.
 -->
 <!-- B9.13: onboarding now promotes Ultimate Team as the main mode, speeds next-slide transitions, replaces the UT-pool/pack-eligible explainer with a pack-opening visual, and renames UI labels from PACK ELIGIBLE to UT POOL. -->
-</body>
-</html>
-
 <!-- B3.49: Players card fade now starts at the name zone and fades lighter to transparent at the bottom. -->
 
 <style id="VDS_B356_DEEP_METALLIC_RARITY_MATCH">
@@ -48371,3 +48368,483 @@ VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
 - Featured-pack text and pack footnote now use the same ranges.
 - Starter Silver captain backend range updated to 60–74 in Supabase.
 -->
+
+
+<style id="ACE_B914_PHONE_OPTIMISATION">
+/* ============================================================
+   THE ACE PROJECT B9.14 — PHONE-FIRST OPTIMISATION PASS
+   Covers: auth, onboarding, global navigation, Home, Players,
+   editor/showcase, Draft, Mini Draft, lineup, live match,
+   Ultimate Team, packs, collection, modals and results.
+   ============================================================ */
+@media (max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  .app{width:100%!important;max-width:none!important;padding:8px!important}
+  input,select,textarea{font-size:16px!important} /* prevents iOS focus zoom */
+  button{-webkit-tap-highlight-color:transparent}
+  .card{padding:13px!important;border-radius:15px!important}
+  .grid{grid-template-columns:1fr!important;gap:10px!important}
+  .full{grid-column:1!important}
+  table{font-size:11px!important}
+  .profileSheet table,.card table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* ---------- App header / navigation ---------- */
+  .vdsGlobalHeader{
+    position:sticky!important;top:0!important;z-index:5000!important;
+    min-height:0!important;height:auto!important;
+    padding:6px 7px 5px!important;margin:0 0 8px!important;
+    display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+    gap:4px 6px!important;border-radius:0 0 13px 13px!important;
+    backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;
+  }
+  .vdsBrand{order:1!important;padding:2px 4px!important;gap:7px!important;min-width:0!important}
+  .vdsBrandLogo{width:34px!important;height:34px!important}
+  .vdsBrand span:last-child{display:block!important;min-width:0!important}
+  .vdsBrand b{font-size:9px!important;letter-spacing:.055em!important;white-space:nowrap}
+  .vdsBrand small{display:none!important}
+  .vdsAccountChip{order:2!important;margin-left:auto!important;padding:3px!important}
+  .vdsAccountAvatar,.vdsAccountAvatarFallback{width:29px!important;height:29px!important}
+  .vdsAccountChipBtn{min-width:32px!important;min-height:32px!important}
+  .vdsMainNav{
+    order:3!important;width:100%!important;max-width:100%!important;
+    display:flex!important;overflow-x:auto!important;overflow-y:hidden!important;
+    gap:2px!important;padding:2px!important;scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+  }
+  .vdsMainNav::-webkit-scrollbar{display:none}
+  .vdsMainNav .tab,.vdsMainNav .navDrop,.vdsMainNav .navDropBtn{
+    flex:0 0 auto!important
+  }
+  .vdsMainNav .tab,.vdsMainNav .navDropBtn{
+    min-height:36px!important;height:36px!important;padding:0 10px!important;
+    font-size:7px!important;letter-spacing:.08em!important
+  }
+  .vdsMainNav .navDropMenu{
+    position:fixed!important;left:8px!important;right:8px!important;top:88px!important;
+    width:auto!important;min-width:0!important;max-height:65dvh!important;overflow:auto!important
+  }
+
+  /* ---------- Login / first screen ---------- */
+  .vdsAccountGate{
+    overflow-x:hidden!important;overflow-y:auto!important;
+    background:linear-gradient(180deg,#070812,#060912 56%,#05070d)!important
+  }
+  .vdsSignInShell{display:flex!important;flex-direction:column!important;min-height:100dvh!important;width:100%!important}
+  .vdsSignInVisual{
+    order:0!important;position:relative!important;inset:auto!important;
+    width:100%!important;height:clamp(340px,42dvh,390px)!important;
+    min-height:340px!important;max-height:390px!important;overflow:hidden!important;
+  }
+  .vdsSignInVisual:after{
+    background:linear-gradient(180deg,rgba(5,6,13,.02),rgba(5,6,13,.12) 50%,rgba(5,7,14,.78) 88%,#05070d 100%)!important
+  }
+  .vdsSignInCopy{
+    order:1!important;position:relative!important;z-index:10!important;
+    width:100%!important;min-height:0!important;padding:4px 13px max(18px,env(safe-area-inset-bottom))!important;
+    background:#05070d!important
+  }
+  .vdsSignInBrand{
+    position:absolute!important;z-index:70!important;left:13px!important;
+    top:calc(-42dvh + max(12px,env(safe-area-inset-top)))!important;
+    margin:0!important;gap:8px!important
+  }
+  .vdsSignInBrandLogo{width:38px!important;height:38px!important}
+  .vdsSignInBrandText b{font-size:8px!important;letter-spacing:.12em!important}
+  .vdsSignInBrandText small{font-size:5.5px!important}
+  .vdsSignInEyebrow{font-size:6.5px!important;margin:0 0 5px!important}
+  .vdsSignInHeadline{
+    font-size:clamp(34px,9.9vw,43px)!important;line-height:.93!important;
+    max-width:100%!important;margin:0!important
+  }
+  .vdsSignInIntro{font-size:10px!important;line-height:1.42!important;margin:9px 0 0!important;max-width:100%!important}
+  .vdsSignInAuthBox{width:100%!important;margin-top:11px!important;padding:8px!important;border-radius:13px!important}
+  .vdsSignInAuthBox .vdsGoogleButton{min-height:49px!important;font-size:12px!important}
+  .vdsSignInAuthMeta{font-size:6px!important;padding-top:7px!important}
+  .vdsSignInTrust{margin-top:7px!important;gap:4px!important}
+  .vdsSignInTrust span{font-size:5.3px!important;padding:5px 3px!important}
+  .vdsAuthDbCards{position:absolute!important;inset:32px 0 0!important;width:100%!important;height:calc(100% - 32px)!important}
+  .vdsAuthCarouselViewport{
+    inset:0!important;padding:20px calc(50% - 105px) 48px!important;
+    scroll-snap-type:x mandatory!important;scroll-behavior:smooth!important
+  }
+  .vdsAuthCarouselTrack{gap:11px!important;min-height:315px!important}
+  .vdsAuthCarouselSlide{flex:0 0 210px!important;width:210px!important;min-height:330px!important;transform:scale(.91)!important}
+  .vdsAuthCarouselSlide.isActive{transform:scale(1)!important}
+  .vdsAuthCarouselSlide .vdsAuthDbCard{width:204px!important;min-height:336px!important}
+  .vdsAuthCarouselControls{bottom:20px!important}
+  .vdsAuthCarouselProgress{bottom:9px!important;width:140px!important}
+  .vdsAuthCarouselArrow{width:30px!important;height:30px!important}
+  .vdsSignInPortrait{opacity:.055!important}
+  .vdsSignInWord{font-size:98px!important;opacity:.55!important}
+  .vdsAuthDbSource,.vdsAuthLiveTag,.vdsAuthFeatureStrip{display:none!important}
+
+  /* ---------- First-login onboarding ---------- */
+  .aceOnboarding{padding:0!important;background:#05070d!important;backdrop-filter:none!important}
+  .aceOnboardingShell{
+    width:100vw!important;height:100dvh!important;border:0!important;border-radius:0!important;
+    box-shadow:none!important
+  }
+  .aceOnboardingBrand{left:13px!important;top:max(12px,env(safe-area-inset-top))!important}
+  .aceOnboardingBrand img{width:34px!important;height:34px!important}
+  .aceOnboardingBrand b{font-size:8px!important}.aceOnboardingBrand small{font-size:5.5px!important}
+  .aceOnboardingSkip{right:8px!important;top:max(10px,env(safe-area-inset-top))!important;min-height:38px!important}
+  .aceOnboardingSlides{
+    inset:58px 0 66px!important;overflow:hidden!important
+  }
+  .aceOnboardingSlide{
+    grid-template-columns:1fr!important;align-content:start!important;gap:12px!important;
+    padding:13px!important;overflow-y:auto!important;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;transform:none!important;
+    transition:opacity .07s linear!important
+  }
+  .aceSlideKicker{font-size:7px!important;margin-bottom:7px!important}
+  .aceSlideCopy h2,.aceFinishCopy h2{font-size:clamp(32px,10vw,40px)!important;line-height:.92!important}
+  .aceSlideCopy p,.aceFinishCopy p{font-size:10.5px!important;line-height:1.45!important;margin-top:10px!important}
+  .aceFeaturePills{margin-top:11px!important}
+  .aceBestFor,.aceCommunityNote{margin-top:11px!important}
+  .aceIntroVisual{min-height:245px!important;border-radius:19px!important}
+  .aceLogoVisual img{width:170px!important}
+  .aceMiniCards div{width:74px!important;height:108px!important}
+  .aceFlow{left:3%!important;right:3%!important;top:8%!important}
+  .aceFlow>div{padding:10px 5px!important}.aceFlow small{display:none!important}
+  .aceMockAuction{bottom:8%!important;width:67%!important;padding:11px!important}.aceMockAuction b{font-size:28px!important}
+  .aceUTLoop{gap:4px!important}.aceUTLoop div{width:56px!important;height:56px!important;font-size:16px!important}
+  .acePackMock{height:98px!important;width:55%!important}
+  .acePackEntryFlow{gap:5px!important}
+  .acePackEntryNode{width:80%!important;min-height:64px!important;padding:10px!important}
+  .acePackEntryReveal{width:170px!important;height:165px!important}
+  .acePackShell{width:96px!important;height:122px!important}
+  .aceRevealCard{width:86px!important;height:120px!important}.aceRevealCard b{font-size:31px!important}
+  .aceRallyScore b{font-size:44px!important}
+  .aceFirstMatchFinish>img{width:54px!important;height:54px!important}
+  .aceRecommendedStart{
+    width:100%!important;min-height:92px!important;margin-top:16px!important;padding:16px 12px!important;
+    grid-template-columns:42px 1fr 20px!important;gap:9px!important
+  }
+  .aceRecommendedIcon{width:40px!important;height:40px!important}
+  .aceRecommendedCopy b{font-size:13px!important}.aceRecommendedCopy small{font-size:6.2px!important}
+  .aceLaunchChoicesSecondary{grid-template-columns:1fr!important;gap:6px!important}
+  .aceLaunchChoicesSecondary button{min-height:55px!important}
+  .aceOnboardingFooter{
+    left:10px!important;right:10px!important;bottom:max(8px,env(safe-area-inset-bottom))!important;
+    grid-template-columns:70px 1fr 70px!important;height:44px!important;padding-top:8px!important
+  }
+
+  /* ---------- Home ---------- */
+  #home .gameHome{width:100%!important}
+  #home .gameHero{
+    grid-template-columns:1fr!important;min-height:0!important;border-radius:18px!important;overflow:hidden!important
+  }
+  #home .gameHeroCopy{padding:18px 14px 12px!important}
+  #home .gameEyebrow{font-size:6.5px!important;margin-bottom:4px!important}
+  #home .gameAceIdentity{
+    width:100%!important;margin:5px 0 8px!important;padding:8px 10px!important;gap:9px!important;border-radius:14px!important
+  }
+  #home .gameAceLogo{width:44px!important;height:44px!important}
+  #home .gameAceMini{font-size:6px!important}
+  #home .gameAceText strong{font-size:20px!important}
+  #home .gameHero h1{font-size:clamp(36px,10.5vw,44px)!important;line-height:.93!important;margin:8px 0!important}
+  #home .gameHeroCopy>p{font-size:11px!important;line-height:1.45!important;margin:10px 0 14px!important}
+  #home .gamePrimaryActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+  #home .gamePlayBtn,#home .gameSecondaryBtn{width:100%!important;min-height:54px!important;padding:8px!important}
+  #home .gameQuickLinks{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important;margin-top:8px!important}
+  #home .gameQuickLinks button{min-height:40px!important;padding:7px 3px!important;font-size:6.5px!important}
+  #home .gameHeroVisual{min-height:340px!important;height:340px!important}
+  #home .heroCardCarousel{inset:4px 2px 13px!important}
+  #home .heroCardStage{transform:scale(.88)!important;transform-origin:center center!important}
+  #home .heroCardNav{width:31px!important;height:31px!important;font-size:17px!important}
+  #home .heroCardNav.prev{left:4px!important}#home .heroCardNav.next{right:4px!important}
+  #home .heroWordmark{font-size:43px!important;letter-spacing:.12em!important;opacity:.6!important}
+  #home .homeLightSweep,#home .homeParticleField{animation:none!important;opacity:.15!important}
+
+  /* ---------- Player Database ---------- */
+  #players .vdsPlayersShell{width:100%!important;padding:0!important}
+  #players .vdsPlayersHero{padding:16px 12px!important;border-radius:16px!important}
+  #players .vdsPlayersHeroStats{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+  #players .vdsPlayerToolbar{display:grid!important;grid-template-columns:1fr!important;gap:7px!important;padding:9px!important}
+  #players .vdsPlayerSearchWrap,#players .vdsPlayerSort{width:100%!important;max-width:none!important}
+  #players .tierFilters{
+    display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important;gap:5px!important;
+    padding-bottom:3px!important;scrollbar-width:none!important
+  }
+  #players .tierFilters::-webkit-scrollbar{display:none}
+  #players .tierFilters .vdsFilter{flex:0 0 auto!important;min-height:36px!important}
+  #players .vdsTierRangeLegend{
+    overflow-x:auto!important;flex-wrap:nowrap!important;padding-bottom:4px!important;scrollbar-width:none!important
+  }
+  #players .vdsPlayerStatusRow{align-items:flex-start!important;gap:7px!important;flex-direction:column!important}
+  #players .vdsPlayerAdminActions{width:100%!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+  #players .vdsPlayerRosterSection{padding:12px 7px 14px!important;border-radius:17px!important}
+  #players .vdsPlayerRosterSectionHead{align-items:flex-start!important;gap:8px!important}
+  #players .vdsPlayerRosterSectionHead h2{font-size:20px!important}
+  #players .playersGrid{
+    display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:8px 0!important
+  }
+  #players .vdsPlayerCardWithPoolAction{
+    width:min(100%,340px)!important;max-width:340px!important;margin-inline:auto!important
+  }
+  #players .vdsPlayerCardWithPoolAction>.fifaPlayerCard{
+    width:100%!important;max-width:320px!important;margin-inline:auto!important;min-height:420px!important
+  }
+  #players .vdsPoolActionBtn{width:100%!important;min-height:42px!important}
+  #players .fifaPlayerCard:hover{transform:none!important}
+
+  /* ---------- Player editor / profile / showcase / dialogs ---------- */
+  .playerEditorOverlay{padding:0!important;align-items:stretch!important}
+  .playerEditorSheet{
+    width:100vw!important;height:100dvh!important;max-height:100dvh!important;
+    border-radius:0!important;border-left:0!important;border-right:0!important
+  }
+  .playerEditorHeader{
+    position:sticky!important;top:0!important;z-index:20!important;
+    padding:9px!important;gap:7px!important;background:rgba(7,14,27,.97)!important
+  }
+  .playerEditorHeaderInfo{min-width:0!important}
+  .playerEditorThumb{width:42px!important;height:42px!important}
+  .playerEditorBody{padding:10px!important}
+  .playerEditorCols,.playerEditorIdentity{grid-template-columns:1fr!important;gap:9px!important}
+  .playerEditorSection{padding:11px!important;border-radius:14px!important}
+  .playerEditorActions{display:grid!important;grid-template-columns:1fr!important}
+  .profileModal{padding:0!important;align-items:stretch!important}
+  .profileModal .profileSheet{
+    width:100vw!important;max-width:100vw!important;max-height:100dvh!important;height:100dvh!important;
+    border-radius:0!important;padding:12px!important
+  }
+  .profileTop,.profileHero{grid-template-columns:1fr!important}
+  .profileRatings{grid-template-columns:repeat(3,1fr)!important}
+  .profileRaw,.profileStandaloneGrid{grid-template-columns:repeat(2,1fr)!important}
+  .vdsProfileStats{grid-template-columns:repeat(3,1fr)!important}
+  .vdsCardShowcaseOverlay{padding:0!important;align-items:stretch!important}
+  .vdsCardShowcaseSheet{width:100vw!important;max-width:100vw!important;max-height:100dvh!important;height:100dvh!important;border-radius:0!important}
+  .vdsCardShowcaseInner{padding:14px 10px 22px!important}
+  .vdsCardShowcaseTop{padding-right:42px!important;margin-bottom:10px!important}
+  .vdsCardShowcaseName{font-size:31px!important}
+  .vdsCardShowcaseDesc{font-size:10px!important}
+  .vdsCardShowcaseGrid{grid-template-columns:1fr!important;gap:10px!important}
+  .vdsCardShowcaseCardStage{min-height:415px!important}
+  .vdsCardShowcaseCardFrame{width:min(275px,78vw)!important}
+  .vdsCardShowcaseIdentity,.vdsCardShowcaseTwo{grid-template-columns:repeat(2,1fr)!important}
+
+  /* ---------- Full Draft ---------- */
+  #draft .auctionLayout{grid-template-columns:1fr!important;gap:9px!important}
+  #draft .auctionCenter{order:-1!important;padding:12px!important}
+  #draft .auctionTeam{padding:12px!important}
+  #draft .auctionCard{max-width:280px!important;margin:9px auto!important;padding:12px!important}
+  #draft .auctionName{font-size:21px!important}#draft .auctionFinal{font-size:38px!important}
+  #draft .bidRow{display:grid!important;grid-template-columns:1fr 1fr!important}
+  #draft .bidRow input{grid-column:1/-1!important}
+  #draft .controls{display:grid!important;grid-template-columns:1fr!important}
+  #draft .btn{min-height:44px!important}
+
+  /* ---------- Mini Draft ---------- */
+  #minidraft{overflow-x:hidden!important}
+  #minidraft .miniDraftTeams,#minidraft .miniDraftTeams.ownDraftOnly{
+    grid-template-columns:1fr!important;gap:8px!important
+  }
+  #minidraft .miniDraftTeamPanel{padding:10px!important;border-radius:14px!important}
+  #minidraft .miniDraftCenter{min-width:0!important;width:100%!important;padding:8px!important}
+  #minidraft .miniDraftCards{
+    display:flex!important;grid-template-columns:none!important;gap:10px!important;
+    width:calc(100vw - 16px)!important;max-width:none!important;
+    margin-left:calc(50% - 50vw + 8px)!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    padding:8px calc(50vw - 130px) 16px!important;
+    scroll-snap-type:x mandatory!important;scroll-padding-inline:calc(50vw - 130px)!important;
+    scrollbar-width:none!important;-webkit-overflow-scrolling:touch
+  }
+  #minidraft .miniDraftCards::-webkit-scrollbar{display:none}
+  #minidraft .miniDraftMysteryCard,#minidraft .miniDraftPlayerCard{
+    flex:0 0 250px!important;width:250px!important;max-width:250px!important;
+    scroll-snap-align:center!important;scroll-snap-stop:always!important;margin:0!important
+  }
+  #minidraft .miniDraftMysteryCard{min-height:365px!important}
+  #minidraft .miniDraftPlayerCard{min-height:390px!important}
+  #minidraft .miniDraftSlot{min-height:48px!important}
+  #minidraft .miniDraftFinishBtn{width:100%!important;min-height:46px!important}
+
+  /* ---------- Normal lineup ---------- */
+  #lineup .saveBar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+  #lineup .roster{grid-template-columns:1fr!important;gap:7px!important}
+  #lineup .slot{grid-template-columns:60px 1fr!important}
+  #lineup .controls{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}
+  #lineup .control{min-width:0!important;width:100%!important}
+  #lineup .lineupConfirmStates{grid-template-columns:1fr 1fr!important;gap:6px!important}
+  #lineup .lineupConfirmBtn{width:100%!important;min-height:48px!important}
+
+  /* ---------- Live match / post-match ---------- */
+  #sim .simulationOnlyGrid{grid-template-columns:1fr!important}
+  #liveMatchCard .liveArena{grid-template-columns:1fr 1fr!important;gap:7px!important}
+  #liveMatchCard .liveCenter{grid-column:1/-1!important;order:-1!important}
+  #liveMatchCard .liveSide{padding:10px!important}
+  #liveMatchCard .liveTeamName{font-size:13px!important}
+  #liveMatchCard .livePoints{font-size:45px!important}
+  .liveControls,.playbackControls,.simTestActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+  .playbackControl{min-width:0!important}
+  .postMatchTop{grid-template-columns:1fr auto 1fr!important;padding:13px 7px!important}
+  .postMatchScore{font-size:43px!important}
+  .postMatchAwards{grid-template-columns:1fr!important}
+  .postMatchMvp{grid-template-columns:auto 1fr!important}
+  .postMatchSection{padding:10px!important}
+  .postMatchRatingsTable{overflow-x:auto!important}
+  .postMatchDecisionButtons{grid-template-columns:1fr!important}
+  .postMatchActions{display:grid!important;grid-template-columns:1fr 1fr!important}
+  .postMatchActions .btn{min-width:0!important;width:100%!important}
+
+  /* ---------- Ultimate Team: overall shell ---------- */
+  #ultimate{overflow-x:hidden!important}
+  #ultimate .vdsUTShell,#ultimate .vdsUTHubNavigation,#ultimate .vdsUTHubInstances,
+  #ultimate .vdsUTMain,#ultimate .vdsCollectionPanel{
+    width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important
+  }
+  #ultimate .vdsUTHeader{
+    display:grid!important;grid-template-columns:1fr!important;gap:9px!important;padding:13px!important
+  }
+  #ultimate .vdsUTHeader h2{font-size:27px!important}
+  #ultimate .vdsUTHeader p{font-size:9px!important}
+  #ultimate .vdsUTWallet{width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:10px!important}
+  #ultimate .vdsUTEconomyHero{padding:12px!important}
+  #ultimate .vdsUTEconomyHeroTop{grid-template-columns:1fr!important;gap:10px!important}
+  #ultimate .vdsUTEconomyStats{grid-template-columns:repeat(3,1fr)!important;gap:5px!important}
+  #ultimate .vdsUTRewardStrip{
+    display:flex!important;overflow-x:auto!important;gap:7px!important;padding-bottom:5px!important;
+    scroll-snap-type:x proximity!important;scrollbar-width:none!important
+  }
+  #ultimate .vdsUTRewardStrip>*{flex:0 0 180px!important;scroll-snap-align:start!important}
+  #ultimate .vdsUTHubNavigation{
+    position:sticky!important;top:82px!important;z-index:1200!important;
+    padding:6px!important;border-radius:12px!important;backdrop-filter:blur(7px)!important
+  }
+  #ultimate .vdsUTHubTabs{overflow-x:auto!important}
+  #ultimate .vdsUTHubTab{flex:0 0 auto!important;min-height:38px!important;padding:0 11px!important}
+  #ultimate .vdsUTHubNavMeta{display:none!important}
+  #ultimate .vdsUTInstanceIntro{padding:10px 2px!important}
+  #ultimate .vdsUTInstanceIntro h2{font-size:23px!important}
+  #ultimate .vdsUTHubHomeHero{grid-template-columns:1fr!important;min-height:0!important;padding:16px!important}
+  #ultimate .vdsUTHubClubName{font-size:42px!important}
+  #ultimate .vdsUTHubHomeActions{display:grid!important;grid-template-columns:1fr 1fr!important}
+  #ultimate .vdsUTHubHomeActions button{width:100%!important}
+
+  /* Squad court is deliberately shorter on phones while keeping all six spots. */
+  #ultimate .vdsUTPanelHead{align-items:flex-start!important;gap:8px!important;flex-direction:column!important}
+  #ultimate .vdsUTHeadRight{width:100%!important;display:flex!important;overflow-x:auto!important;gap:5px!important}
+  #ultimate .vdsUTSmallPill{flex:0 0 auto!important;min-height:36px!important}
+  #ultimate .vdsUTLineupHelp{font-size:7px!important;line-height:1.45!important}
+  #ultimate .vdsUTCourtEnhanced{height:530px!important;border-radius:18px!important}
+  #ultimate .vdsUTStadiumLamps,#ultimate .vdsUTLightBeams,#ultimate .vdsUTOpponentGhosts{display:none!important}
+  #ultimate .vdsUTNetPerspective{left:22%!important;right:22%!important;top:16%!important;height:88px!important}
+  #ultimate .vdsSquadSlot{width:96px!important}
+  #ultimate .vdsSquadPortrait,#ultimate .vdsSquadEmpty{width:68px!important;height:88px!important;border-radius:13px!important}
+  #ultimate .vdsSquadSlot:nth-child(1){left:22%!important;top:30%!important}
+  #ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:27%!important}
+  #ultimate .vdsSquadSlot:nth-child(3){left:78%!important;top:30%!important}
+  #ultimate .vdsSquadSlot:nth-child(4){left:20%!important;top:70%!important}
+  #ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:65%!important}
+  #ultimate .vdsSquadSlot:nth-child(6){left:80%!important;top:70%!important}
+  #ultimate .vdsSquadRatingBadge{min-width:24px!important;height:24px!important;font-size:11px!important}
+  #ultimate .vdsSquadPlayerName{font-size:8px!important}
+  #ultimate .vdsSquadSlotLabel,#ultimate .vdsSquadSlotHint{font-size:6px!important}
+  #ultimate .vdsUTBenchCards{
+    display:flex!important;grid-template-columns:none!important;overflow-x:auto!important;
+    gap:8px!important;padding:2px 2px 8px!important;scroll-snap-type:x proximity!important;scrollbar-width:none!important
+  }
+  #ultimate .vdsUTBenchCard{flex:0 0 116px!important;width:116px!important;min-height:142px!important;scroll-snap-align:start!important}
+  #ultimate .vdsPackPanel .utPackGrid{grid-template-columns:1fr!important;gap:8px!important}
+  #ultimate .vdsPackPanel .utPack{min-height:132px!important;padding:12px 11px 55px 93px!important;border-radius:16px!important}
+  #ultimate .vdsPackPanel .utPackIcon{left:12px!important;top:12px!important;width:60px!important;height:80px!important}
+  #ultimate .vdsPackPanel .utPackName{font-size:18px!important}
+  #ultimate .vdsPackPanel .utPackCost{font-size:21px!important}
+  #ultimate .vdsUTRarityStrip{overflow-x:auto!important;flex-wrap:nowrap!important;scrollbar-width:none!important}
+  #ultimate .vdsCollectionPanel .utCollection{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+  }
+  #ultimate .utCollectionCard{width:100%!important;min-width:0!important;min-height:185px!important}
+  #ultimate .utCollectionTop{align-items:flex-start!important}
+  #ultimate .vdsUTCollectionActions{width:100%!important}
+
+  /* Ultimate Team entry + pack reveal */
+  .vdsUTEntryOverlay{overflow:hidden!important}
+  .vdsUTEntryBrand{left:14px!important;top:14px!important;transform:scale(.82)!important;transform-origin:left top!important}
+  .vdsUTEntryCopy{left:14px!important;right:14px!important;bottom:60px!important}
+  .vdsUTEntryCopy h2{font-size:38px!important}
+  .vdsUTEntryFan{transform:scale(.72)!important;transform-origin:center bottom!important}
+  .utFullRevealScene{height:100dvh!important;min-height:0!important}
+  .utRevealTopbar{
+    top:10px!important;left:10px!important;right:10px!important;
+    grid-template-columns:1fr auto!important;gap:6px!important
+  }
+  .utRevealBrand b{font-size:21px!important}.utRevealBrand span{font-size:5px!important}
+  .utRevealHeading{display:none!important}
+  .utRevealClubCount b{font-size:18px!important}
+  .utRevealAtmosphere{inset:50px 0 130px!important}
+  .utRevealAtmosphere::before{width:360px!important;height:340px!important;filter:none!important}
+  .utRevealSpotlight{opacity:.14!important;filter:none!important}
+  .utRevealParticles{animation:none!important;opacity:.14!important}
+  #utRevealCard .fifaPlayerCard{width:min(270px,72vw)!important;min-height:390px!important}
+  .utRevealStageRing{width:260px!important;height:48px!important;bottom:2%!important}
+  .utRevealSteps{bottom:91px!important;width:94vw!important;gap:2px!important}
+  .utRevealSteps b{width:23px!important;height:23px!important;font-size:7px!important}
+  .utRevealSteps em{font-size:4.8px!important}
+  .utRevealFooter{bottom:max(16px,env(safe-area-inset-bottom))!important;width:94vw!important}
+  .utRevealContinue{width:100%!important;min-width:0!important;min-height:48px!important}
+
+  /* ---------- Performance: touch devices ---------- */
+  .fifaPlayerCard:hover,.utCollectionCard:hover,.vdsUTBenchCard:hover,.gamePlayBtn:hover,
+  .gameSecondaryBtn:hover,.aceLaunchChoices button:hover{transform:none!important}
+  .fifaPlayerCard::before{animation:none!important;opacity:.08!important}
+  .homeLightSweep,.homeParticleField,.utRevealParticles,.vdsUTLightBeams{animation:none!important}
+  .vdsCardShowcaseOverlay,.profileModal,.playerEditorOverlay,.aceOnboarding{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+
+@media (max-width:430px){
+  #home .gamePrimaryActions{grid-template-columns:1fr!important}
+  #home .gameQuickLinks{grid-template-columns:1fr 1fr 1fr!important}
+  #players .vdsPlayersHeroStats{grid-template-columns:1fr 1fr 1fr!important}
+  .postMatchTop{grid-template-columns:1fr auto 1fr!important}
+  #ultimate .vdsUTCourtEnhanced{height:500px!important}
+  #ultimate .vdsSquadPortrait,#ultimate .vdsSquadEmpty{width:62px!important;height:82px!important}
+  #ultimate .vdsSquadSlot{width:90px!important}
+}
+
+@media (max-width:380px){
+  .vdsSignInVisual{height:335px!important;min-height:335px!important}
+  .vdsSignInBrand{top:-321px!important}
+  .vdsSignInHeadline{font-size:33px!important}
+  .vdsAuthCarouselViewport{padding-left:calc(50% - 98px)!important;padding-right:calc(50% - 98px)!important}
+  .vdsAuthCarouselSlide{flex-basis:196px!important;width:196px!important}
+  .vdsAuthCarouselSlide .vdsAuthDbCard{width:191px!important}
+  #home .gameHero h1{font-size:34px!important}
+  #players .vdsPlayerCardWithPoolAction{max-width:318px!important}
+  #ultimate .vdsUTCourtEnhanced{height:480px!important}
+  #ultimate .vdsSquadPortrait,#ultimate .vdsSquadEmpty{width:58px!important;height:76px!important}
+  #ultimate .vdsSquadSlot{width:84px!important}
+  #ultimate .vdsCollectionPanel .utCollection{gap:6px!important}
+}
+</style>
+
+<!-- THE ACE PROJECT B9.14: full phone optimisation audit. -->
+
+<style id="ACE_B914_SHORT_PHONE_FIX">
+@media (max-width:760px) and (max-height:720px){
+  .vdsSignInVisual{height:320px!important;min-height:320px!important;max-height:320px!important}
+  .vdsSignInBrand{top:-306px!important}
+  .vdsAuthDbCards{inset:27px 0 0!important;height:293px!important}
+  .vdsAuthCarouselViewport{padding-top:14px!important;padding-bottom:42px!important}
+  .vdsAuthCarouselTrack{min-height:285px!important}
+  .vdsAuthCarouselSlide{flex-basis:188px!important;width:188px!important;min-height:290px!important}
+  .vdsAuthCarouselSlide .vdsAuthDbCard{width:184px!important;min-height:306px!important}
+  .vdsAuthCarouselControls{bottom:17px!important}
+  .vdsAuthCarouselProgress{bottom:7px!important}
+  .vdsSignInHeadline{font-size:31px!important}
+  .vdsSignInIntro{font-size:9.5px!important;margin-top:7px!important}
+  .vdsSignInAuthBox{margin-top:8px!important}
+  .vdsSignInTrust{margin-top:5px!important}
+  .aceOnboardingSlide{padding-top:9px!important}
+  .aceIntroVisual{min-height:210px!important}
+  .aceSlideCopy h2,.aceFinishCopy h2{font-size:30px!important}
+  .aceSlideCopy p,.aceFinishCopy p{font-size:9.5px!important}
+}
+</style>
+
+</body>
+</html>
