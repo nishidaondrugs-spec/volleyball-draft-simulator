@@ -4,6 +4,21 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
+
+<meta name="theme-color" content="#07080d">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="THE ACE PROJECT — build your volleyball Ultimate Team, collect player cards, open packs and compete.">
+<meta name="application-name" content="THE ACE PROJECT">
+<meta name="apple-mobile-web-app-title" content="THE ACE PROJECT">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="THE ACE PROJECT">
+<meta property="og:description" content="Volleyball Ultimate Team. Build your club. Find your Ace.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="ace-project-logo.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="ace-project-logo.png">
+
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -2437,7 +2452,7 @@ body.multiplayerSpectator #timeout2Btn{
   padding-bottom:18px;
 }
 .vdsPlayersShell::before{
-  content:"VDS";
+  content:"ACE";
   position:absolute;
   right:-18px;
   top:22px;
@@ -2976,7 +2991,7 @@ body.cloudReadOnly #resetStatsBtn{
   color:#667d94;font-size:8px!important;font-weight:1000;letter-spacing:.22em;
   text-transform:uppercase
 }
-#liveMatchCard>h2::after{content:" · VDS BROADCAST";color:#3f5368}
+#liveMatchCard>h2::after{content:" · ACE LIVE";color:#3f5368}
 
 /* Scoreboard */
 #liveMatchCard .liveArena{
@@ -23709,7 +23724,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 .vdsUTEntryOverlay.animate .vdsUTEntryFanCard:nth-child(2){opacity:1;transform:translate(-50%,-50%) translateZ(100px) scale(1)}
 .vdsUTEntryOverlay.animate .vdsUTEntryFanCard:nth-child(3){opacity:.52;filter:brightness(.64);transform:translate(-50%,-50%) translateX(198px) translateY(20px) rotateY(-33deg) rotateZ(8deg) scale(.80)}
 .vdsUTEntryFanCard img{width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.66}
-.vdsUTEntryFanCard:after{content:"VDS";position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:18px;font-weight:1000;letter-spacing:.18em;text-shadow:0 3px 14px #000}
+.vdsUTEntryFanCard:after{content:"ACE";position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:18px;font-weight:1000;letter-spacing:.18em;text-shadow:0 3px 14px #000}
 .vdsUTEntryCopy{
   position:absolute;left:50%;bottom:8%;transform:translateX(-50%);z-index:30;
   text-align:center;width:min(760px,90vw);
@@ -25301,7 +25316,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
   box-shadow:0 24px 60px rgba(0,0,0,.22);
 }
 .vdsUTHubHomeHero:after{
-  content:"VDS";
+  content:"ACE";
   position:absolute;
   right:-25px;
   top:-25px;
@@ -28359,7 +28374,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="navDropMenu vdsPlayMenu">
         <div class="vdsMenuKicker">CHOOSE MODE</div>
         <button class="navDropItem" data-page="sim" type="button">
-          <span class="navDropIcon">01</span>
+          <span class="navDropIcon aceNavIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
           <span><b>MATCH</b><small>Play or simulate a volleyball match</small></span>
         </button>
       </div>
@@ -28373,15 +28388,15 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="navDropMenu navDropMenuRight">
         <div class="vdsMenuKicker">CLUB</div>
         <button class="navDropItem" data-page="setup" type="button">
-          <span class="navDropIcon">⚙</span>
+          <span class="navDropIcon aceNavIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M8 14v6"/></svg></span>
           <span><b>SETUP</b><small>Managers, format and match options</small></span>
         </button>
         <button class="navDropItem" data-page="history" type="button">
-          <span class="navDropIcon">↺</span>
+          <span class="navDropIcon aceNavIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5v5h5M5.5 9A8 8 0 1 1 5 15"/></svg></span>
           <span><b>HISTORY</b><small>Previous match results</small></span>
         </button>
         <button class="navDropItem" id="aceHowToPlayBtn" type="button" onclick="aceOpenOnboarding(true)">
-          <span class="navDropIcon">?</span>
+          <span class="navDropIcon aceNavIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 9a2.8 2.8 0 1 1 4.7 2c-1.5 1.2-2.2 1.7-2.2 3M12 18h.01"/></svg></span>
           <span><b>HOW TO PLAY</b><small>Replay the ACE PROJECT introduction</small></span>
         </button>
       </div>
@@ -28538,7 +28553,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="lineupConfirmCopy">
         <div class="homeKicker">FINAL LINEUPS</div>
         <h2>Ready to Play?</h2>
-        <p>Set your OH1, OH2, Opposite, Setter, Libero and Middle. When both managers confirm, VDS will automatically open the live simulation.</p>
+        <p>Set your OH1, OH2, Opposite, Setter, Libero and Middle. When both managers confirm, THE ACE PROJECT will automatically open the live match.</p>
       </div>
       <div class="lineupConfirmStates">
         <div class="lineupManagerConfirm" id="lineupConfirmState1"><span>TEAM 1</span><b>EDITING</b></div>
@@ -28906,7 +28921,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E17 · STANDARD RARITY LADDER</div>
+        
         <div class="homeKicker">THE ACE PROJECT</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -29019,7 +29034,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
         <div class="utPackGrid">
           <div class="utPack bronze" data-ut-pack="bronze">
             <div class="vdsPackTier">BRONZE</div>
-            <div class="utPackIcon">VDS</div>
+            <div class="utPackIcon">ACE</div>
             <div class="utPackName">Bronze Pack</div>
             <div class="vdsPackMeta"><span>3 PLAYERS</span><span>STARTER VALUE</span></div>
             <div class="utPackOdds">80% Bronze · 18% Silver · 2% Gold</div>
@@ -29028,7 +29043,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
           </div>
           <div class="utPack silver" data-ut-pack="silver">
             <div class="vdsPackTier">SILVER</div>
-            <div class="utPackIcon">VDS</div>
+            <div class="utPackIcon">ACE</div>
             <div class="utPackName">Silver Pack</div>
             <div class="vdsPackMeta"><span>4 PLAYERS</span><span>BALANCED BUILD</span></div>
             <div class="utPackOdds">15% Bronze · 70% Silver · 14% Gold · 1% Ace</div>
@@ -29037,7 +29052,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
           </div>
           <div class="utPack gold" data-ut-pack="gold">
             <div class="vdsPackTier">GOLD</div>
-            <div class="utPackIcon">VDS</div>
+            <div class="utPackIcon">ACE</div>
             <div class="utPackName">Gold Pack</div>
             <div class="vdsPackMeta"><span>5 PLAYERS</span><span>ELITE HUNT</span></div>
             <div class="utPackOdds">20% Silver · 75% Gold · 5% Ace</div>
@@ -29088,7 +29103,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
   <div class="vdsUTEntryCourt"></div>
   <div class="vdsUTEntryBrand">
     <div class="vdsUTEntryV">V</div>
-    <div><b>VDS</b><span>ULTIMATE TEAM</span></div>
+    <div><b>ACE</b><span>ULTIMATE TEAM</span></div>
   </div>
   <div class="vdsUTEntryFan" id="vdsUTEntryFan"></div>
   <div class="vdsUTEntryCopy">
@@ -29102,7 +29117,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
 <div class="vdsStarterOverlay" id="vdsStarterOverlay" aria-hidden="true">
   <div class="vdsStarterBackdrop"></div>
   <div class="vdsStarterTopbar">
-    <div><b>VDS</b><span>ULTIMATE TEAM</span></div>
+    <div><b>ACE</b><span>ULTIMATE TEAM</span></div>
     <small>FIRST CLUB SETUP</small>
   </div>
   <div class="vdsStarterStage" id="vdsStarterStage"></div>
@@ -29197,7 +29212,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       </select>
     </div>
 
-    <div class="vdsTierRangeLegend" aria-label="VDS rarity ranges">
+    <div class="vdsTierRangeLegend" aria-label="ACE rarity ranges">
       <span class="bronze">BRONZE <b>1–59</b></span>
       <span class="silver">SILVER <b>60–74</b></span>
       <span class="gold">GOLD <b>75–84</b></span>
@@ -29299,11 +29314,11 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
     </div>
 
     <div id="mpDisconnected">
-      <p class="small" style="margin-top:12px">Create or join a verified VDS room with your signed-in VDS account. Your account UUID and Host/Guest role are verified by Supabase rather than trusted from the browser.</p>
+      <p class="small" style="margin-top:12px">Create or join a verified ACE room with your signed-in ACE account. Your account UUID and Host/Guest role are verified by Supabase rather than trusted from the browser.</p>
       <div class="grid" style="margin-top:12px">
         <div>
           <label class="small">MANAGER NAME</label>
-          <input id="mpName" value="Manager" placeholder="Your VDS display name">
+          <input id="mpName" value="Manager" placeholder="Your ACE display name">
         </div>
         <div>
           <label class="small">ROOM CODE</label>
@@ -29365,7 +29380,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
     <div class="vdsProfileRecent">
       <div class="vdsProfileRecentHead"><span>RECENT ONLINE MATCHES</span><b>RANKED</b></div>
       <div id="vdsProfileRecentMatches" class="vdsProfileRecentList">
-        <div class="small">No online matches yet.</div>
+        <div class="aceInlineEmpty"><i>♠</i><span>No online matches yet.</span></div>
       </div>
     </div>
 
@@ -29374,7 +29389,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <input id="vdsProfileDisplayName" maxlength="40" autocomplete="nickname" placeholder="Manager name">
       <label class="small" for="vdsProfileUsername">ACE USERNAME</label>
       <input id="vdsProfileUsername" maxlength="24" autocomplete="off" placeholder="e.g. VolleyKing">
-      <div class="vdsAccountFormHint">3–24 characters · letters, numbers and underscores only · unique across VDS.</div>
+      <div class="vdsAccountFormHint">3–24 characters · letters, numbers and underscores only · unique across THE ACE PROJECT.</div>
       <button id="vdsSaveProfileBtn" class="btn primary" type="button" style="width:100%;margin-top:13px">Save Profile</button>
       <div id="vdsAccountProfileStatus" class="vdsAccountProfileStatus"></div>
       <button id="vdsSignOutBtn" class="btn secondary" type="button" style="width:100%;margin-top:8px">Sign Out</button>
@@ -30904,7 +30919,7 @@ function renderPlayers(filter=""){
  poolShown.forEach(p=>poolGrid.appendChild(vdsBuildDatabasePlayerCard(p,"pool")));
 
  if(!shown.length){
-   allGrid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
+   allGrid.innerHTML=`<div class="vdsNoPlayers aceEmptyState"><i>♠</i><b>NO PLAYERS FOUND</b><span>Try another name, position or card tier.</span></div>`;
  }else{
    shown.forEach(p=>allGrid.appendChild(vdsBuildDatabasePlayerCard(p,"all")));
  }
@@ -36950,7 +36965,7 @@ function renderResult(aw,bw,sets,stats){
           </tbody>
         </table>
       </div>
-      <div class="statsFootnote">PASS = average reception grade on the 0–3 scale · HIT% = (kills − attack errors) ÷ attempts · Match Rating = VDS performance score.</div>
+      <div class="statsFootnote">PASS = average reception grade on the 0–3 scale · HIT% = (kills − attack errors) ÷ attempts · Match Rating = ACE performance score.</div>
     </div>
 
     <div id="postMatchDecisionMount"></div>
@@ -37087,7 +37102,7 @@ function updateMultiplayerUI(){
     "You are a Spectator — read only";
   document.getElementById("mpStatus").innerHTML=
     mpRoomBacked
-      ? '<span class="mpOnline">● Private VDS room · authority protection 4D</span>'
+      ? '<span class="mpOnline">● Private ACE room · secure match authority</span>'
       : '<span class="mpOnline">● Connected to Supabase Realtime</span>';
 
   const authorityEl=document.getElementById("mpAuthorityStatus");
@@ -38109,7 +38124,7 @@ async function vdsSignInWithGoogle(){
   }
 
   const redirectTo=vdsAuthReturnUrl();
-  if(!redirectTo){vdsSetAuthStatus("VDS could not determine a safe sign-in return URL.","error");return;}
+  if(!redirectTo){vdsSetAuthStatus("THE ACE PROJECT could not determine a safe sign-in return URL.","error");return;}
 
   vdsAccountAuthBusy=true;
   const btn=document.getElementById("vdsGoogleSignIn");
@@ -38170,7 +38185,7 @@ async function vdsSaveProfile(){
     console.warn("VDS profile update failed",error);
     const duplicate=String(error.code||"")==="23505" || /duplicate|unique/i.test(error.message||"");
     if(status){
-      status.textContent=duplicate?"That VDS username is already taken.":"Profile could not be saved. Please try again.";
+      status.textContent=duplicate?"That ACE username is already taken.":"Profile could not be saved. Please try again.";
       status.className="vdsAccountProfileStatus error";
     }
     return;
@@ -38625,7 +38640,7 @@ async function vdsInitAccountGate(){
     await vdsApplySignedInSession(session,{resumeRoom:true});
   }else{
     vdsShowAccountGate(location.protocol==="file:"
-      ?"Run VDS from localhost or HTTPS, then sign in with Google."
+      ?"Open THE ACE PROJECT over HTTPS, then sign in with Google."
       :"Sign in with Google to play THE ACE PROJECT.");
   }
 
@@ -38674,18 +38689,18 @@ function multiplayerRoomErrorCode(error){
 
 function multiplayerRoomErrorMessage(code){
   return {
-    ROOM_CODE_TAKEN:"That room code was already taken. VDS will generate another one.",
+    ROOM_CODE_TAKEN:"That room code was already taken. THE ACE PROJECT will generate another one.",
     ROOM_NOT_FOUND:"That room does not exist, has expired, or was closed by the host.",
     ROOM_FULL:"That room already has two players. You can still join as a spectator.",
-    INVALID_ROOM_CODE:"Enter a valid VDS room code.",
-    AUTH_REQUIRED:"VDS could not verify your signed-in account.",
-    PERMANENT_ACCOUNT_REQUIRED:"Sign in with a permanent VDS account before creating or joining a room.",
+    INVALID_ROOM_CODE:"Enter a valid ACE room code.",
+    AUTH_REQUIRED:"THE ACE PROJECT could not verify your signed-in account.",
+    PERMANENT_ACCOUNT_REQUIRED:"Sign in with a permanent ACE account before creating or joining a room.",
     ROOM_ACCESS_DENIED:"This multiplayer identity is not a member of that room.",
     HOST_REQUIRED:"Only the verified host can save the authoritative room state.",
     ANONYMOUS_AUTH_DISABLED:"This build no longer uses anonymous multiplayer accounts.",
     SUPABASE_UNAVAILABLE:"Supabase did not load, so online multiplayer is unavailable.",
-    MULTIPLAYER_AUTH_FAILED:"VDS could not verify your player account. Please sign in again."
-  }[code] || "VDS could not connect to that multiplayer room.";
+    MULTIPLAYER_AUTH_FAILED:"THE ACE PROJECT could not verify your player account. Please sign in again."
+  }[code] || "THE ACE PROJECT could not connect to that multiplayer room.";
 }
 
 async function claimPersistentMultiplayerRoom(requestedRole,code,managerName){
@@ -39212,7 +39227,7 @@ async function hostMultiplayer(){
     if(mpLastConnectError!=="ROOM_CODE_TAKEN")return;
   }
 
-  alert("VDS could not reserve a unique room code. Please try again.");
+  alert("THE ACE PROJECT could not reserve a unique room code. Please try again.");
 }
 
 async function joinMultiplayer(){
@@ -40294,7 +40309,7 @@ async function playMiniDraftReveal(name,slotKey,options={}){
           <div class="miniDraftUtFloorGlow"></div>
 
           <div class="miniDraftUtSide left">
-            <small>VDS PLAYER ITEM</small>
+            <small>ACE PLAYER ITEM</small>
             <b>?</b>
             <span>MYSTERY PLAYER</span>
           </div>
@@ -41375,7 +41390,7 @@ function vdsRunUTEntryCinematic({first=false,state=null}={}){
   }
   if(kicker)kicker.textContent=first?"YOUR CLUB BEGINS":"ENTERING CLUB";
   if(title)title.textContent=first?"EVERY CLUB STARTS SOMEWHERE.":"PLAY. EARN. BUILD.";
-  if(status)status.textContent=first?"Preparing your first VDS Ultimate Team…":"Loading your manager club…";
+  if(status)status.textContent=first?"Preparing your first ACE Ultimate Team…":"Loading your manager club…";
 
   overlay.classList.remove("animate");
   overlay.classList.add("show");
@@ -42360,7 +42375,7 @@ function renderUltimateTeam(){
   });
 
   if(!entries.length){
-    grid.innerHTML='<div class="vdsUTEmpty aceClubEmpty">No cards match this view.</div>';
+    grid.innerHTML='<div class="vdsUTEmpty aceClubEmpty aceEmptyState"><i>♠</i><b>NO CARDS HERE YET</b><span>Change the filter or open a pack to grow your club.</span></div>';
   }else{
     grid.innerHTML=entries.map(({card,count})=>{
       const player=aceUltimateMasterPlayer(card);
@@ -46567,7 +46582,7 @@ function vdsRenderUltimateHubProfile(){
   if(!mount)return;
   const p=vdsAccountProfile||{};
   const user=vdsAccountSession?.user||{};
-  const display=p.display_name||user.user_metadata?.full_name||user.user_metadata?.name||"VDS Manager";
+  const display=p.display_name||user.user_metadata?.full_name||user.user_metadata?.name||"ACE Manager";
   const avatar=p.avatar_url||user.user_metadata?.avatar_url||user.user_metadata?.picture||"";
   const coins=p.is_host_account?"∞":Number(p.coins||0).toLocaleString();
   const winRate=Number(p.matches_played||0)>0?Math.round((Number(p.wins||0)/Number(p.matches_played||1))*100):0;
@@ -46579,7 +46594,7 @@ function vdsRenderUltimateHubProfile(){
       <div class="vdsUTHubAvatar">${avatar?`<img src="${avatar}" alt="">`:'V'}</div>
       <div>
         <div class="vdsUTHubProfileName">${esc(display)}</div>
-        <div class="vdsUTHubProfileUser">${p.username?`@${esc(p.username)}`:"VDS MANAGER"}${p.is_host_account?" · HOST ACCOUNT":""}</div>
+        <div class="vdsUTHubProfileUser">${p.username?`@${esc(p.username)}`:"ACE MANAGER"}${p.is_host_account?" · HOST ACCOUNT":""}</div>
         <div class="vdsUTHubProfileStats">
           <div class="vdsUTHubProfileStat"><span>ELO</span><b>${Number(p.elo||1000).toLocaleString()}</b></div>
           <div class="vdsUTHubProfileStat"><span>RECORD</span><b>${Number(p.wins||0)}-${Number(p.losses||0)}</b></div>
@@ -47239,7 +47254,7 @@ VDS B8.7 STAGE 6E7 — FUT PROPORTION PASS
       <div class="vdsUTSlimBrand">
         <div class="vdsUTSlimMark">UT</div>
         <div class="vdsUTSlimBrandText">
-          <small>VDS</small>
+          <small>ACE</small>
           <b>ULTIMATE TEAM</b>
         </div>
       </div>
@@ -50105,3 +50120,361 @@ body.cloudReadOnly .vdsPlayerManagePanel{display:none!important}
 </style>
 
 <!-- THE ACE PROJECT B9.19 — Club Squad + My Club + pack-to-squad journey. -->
+
+
+<style id="ACE_B920_PROFESSIONAL_POLISH">
+:root{
+  --ace-bg-0:#05060a;
+  --ace-bg-1:#080a10;
+  --ace-bg-2:#0b0e16;
+  --ace-bg-3:#10141e;
+  --ace-surface:#0b0e16;
+  --ace-surface-raised:#10141f;
+  --ace-surface-soft:#0d111a;
+  --ace-text:#f6f5fa;
+  --ace-text-2:#c9c5d2;
+  --ace-muted:#807b8d;
+  --ace-muted-2:#5d5968;
+  --ace-purple:#9b62ff;
+  --ace-purple-hi:#bd89ff;
+  --ace-gold:#dfc16e;
+  --ace-danger:#ff6b78;
+  --ace-success:#53d7a3;
+  --ace-line:rgba(191,151,251,.085);
+  --ace-line-hi:rgba(194,151,255,.18);
+  --ace-shadow-1:0 12px 32px rgba(0,0,0,.20);
+  --ace-shadow-2:0 24px 64px rgba(0,0,0,.30);
+  --ace-r-sm:9px;
+  --ace-r-md:13px;
+  --ace-r-lg:18px;
+  --ace-r-xl:24px;
+  --ace-s1:4px;
+  --ace-s2:8px;
+  --ace-s3:12px;
+  --ace-s4:16px;
+  --ace-s5:24px;
+  --ace-s6:32px;
+  --ace-ease:cubic-bezier(.2,.7,.2,1);
+}
+
+/* ---------- typography ---------- */
+html{
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body{
+  color:var(--ace-text)!important;
+  background:
+    radial-gradient(circle at 70% -8%,rgba(126,73,214,.08),transparent 29%),
+    linear-gradient(180deg,var(--ace-bg-0),var(--ace-bg-1) 46%,#06070b)!important;
+}
+button,input,select,textarea{font-family:inherit!important}
+.small,.sub{color:var(--ace-muted)!important;line-height:1.45}
+.homeKicker,.gameEyebrow,.vdsSectionKicker,.vdsMenuKicker,
+.aceClubTitle>span,.aceUTHomeManager,.vdsUTInstanceIntro small{
+  font-weight:800!important;
+  letter-spacing:.16em!important;
+}
+.gameHeroCopy h1,.vdsPlayersHero h2,.aceUTHomeCopy h1,.aceClubTitle h2,
+.vdsUTInstanceIntro h2,.playerEditorHeader h2,.profileModal h2{
+  font-weight:850!important;
+  letter-spacing:-.052em!important;
+  text-wrap:balance;
+}
+
+/* ---------- page rhythm ---------- */
+.app{max-width:1440px!important;padding:20px!important}
+.page.active{animation:acePageIn .16s var(--ace-ease)}
+@keyframes acePageIn{from{opacity:.72;transform:translateY(3px)}to{opacity:1;transform:none}}
+.card{
+  border-radius:var(--ace-r-lg)!important;
+  border-color:var(--ace-line)!important;
+  background:var(--ace-surface)!important;
+  box-shadow:var(--ace-shadow-1)!important;
+}
+
+/* ---------- global header ---------- */
+.vdsGlobalHeader{
+  min-height:64px!important;
+  margin-bottom:16px!important;
+  padding:7px 9px!important;
+  border:1px solid var(--ace-line)!important;
+  border-radius:16px!important;
+  background:rgba(7,8,13,.92)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.19)!important;
+}
+.vdsBrand{gap:10px!important}
+.vdsBrandLogo{
+  width:38px!important;height:38px!important;
+  border-radius:9px!important;
+  filter:drop-shadow(0 6px 13px rgba(88,46,158,.18))!important;
+}
+.vdsBrand span b{
+  font-size:10px!important;letter-spacing:.12em!important;font-weight:800!important;
+}
+.vdsBrand span small{
+  margin-top:2px!important;font-size:5.4px!important;letter-spacing:.14em!important;color:#716a7c!important;
+}
+.vdsMainNav{
+  padding:3px!important;gap:2px!important;
+  border:0!important;background:#080a10!important;border-radius:11px!important;
+}
+.vdsMainNav .tab,.vdsMainNav .navDropBtn{
+  min-height:36px!important;
+  padding:0 12px!important;
+  border-radius:8px!important;
+  color:#787382!important;
+  font-size:6.4px!important;
+  font-weight:800!important;
+  letter-spacing:.10em!important;
+  transition:background .14s ease,color .14s ease,transform .14s ease!important;
+}
+.vdsMainNav .tab:hover,.vdsMainNav .navDropBtn:hover{
+  background:rgba(255,255,255,.035)!important;color:#d7d2df!important;
+}
+.vdsMainNav .tab.active{
+  color:#fff!important;
+  background:linear-gradient(135deg,#7846cf,#9a5cf2)!important;
+  box-shadow:0 7px 18px rgba(91,47,160,.22)!important;
+}
+.vdsMainNav .tab.active:after{height:2px!important;background:#c69aff!important}
+.vdsAccountChip{
+  min-height:42px!important;padding:4px 5px 4px 7px!important;
+  border-color:var(--ace-line)!important;background:#090c13!important;
+}
+.vdsAccountIdentity b{font-size:8px!important;font-weight:800!important}
+.vdsAccountIdentity small{font-size:5px!important;color:#6b6574!important}
+.vdsAccountChipBtn{
+  min-height:31px!important;border-radius:7px!important;
+  background:#11151f!important;border-color:var(--ace-line)!important;
+  color:#a19baa!important;font-size:5.8px!important;font-weight:800!important;
+}
+
+/* Dropdowns share one shell */
+.navDropMenu{
+  padding:7px!important;
+  border-radius:13px!important;
+  border-color:var(--ace-line-hi)!important;
+  background:rgba(9,11,17,.98)!important;
+  box-shadow:0 22px 55px rgba(0,0,0,.42)!important;
+}
+.navDropItem{
+  min-height:48px!important;padding:7px 9px!important;border-radius:9px!important;
+  transition:background .13s ease!important;
+}
+.navDropItem:hover{background:rgba(151,93,241,.065)!important}
+.navDropItem b{font-size:7px!important;font-weight:800!important;letter-spacing:.07em!important}
+.navDropItem small{font-size:5.8px!important;color:#6f6978!important}
+.navDropIcon.aceNavIcon{
+  width:29px!important;height:29px!important;
+  display:grid!important;place-items:center!important;
+  border-radius:8px!important;
+  border:1px solid rgba(188,145,248,.09)!important;
+  background:#0f121b!important;
+}
+.navDropIcon.aceNavIcon svg{
+  width:15px;height:15px;fill:none;stroke:#a88ad0;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.navDropIcon.aceNavIcon svg path[d*="v14"]{fill:#a88ad0;stroke:none}
+
+/* ---------- button hierarchy ---------- */
+.btn,.gamePlayBtn,.gameSecondaryBtn,.miniBtn,
+.vdsQuietAction,.aceClubTopActions button,.aceClubCardActions button,
+.acePackOpen,.aceSquadPlayBtn,.aceRevealAddSquad,.aceRevealSendClub{
+  transition:transform .13s ease,filter .13s ease,border-color .13s ease,background .13s ease!important;
+}
+.btn:hover,.gamePlayBtn:hover,.gameSecondaryBtn:hover,.miniBtn:hover,
+.vdsQuietAction:hover,.aceClubTopActions button:hover,.aceClubCardActions button:hover{
+  filter:brightness(1.055);
+}
+button:active{transform:translateY(1px) scale(.992)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid rgba(179,125,255,.72)!important;
+  outline-offset:2px!important;
+}
+.btn{min-height:40px!important;border-radius:var(--ace-r-sm)!important;font-weight:800!important}
+.btn.primary,.gamePlayBtn{
+  background:linear-gradient(135deg,#7845ce,#a365f7)!important;
+  color:#fff!important;box-shadow:0 10px 25px rgba(91,48,158,.18)!important;
+}
+.btn.secondary,.gameSecondaryBtn{
+  background:#10141e!important;color:#c4bfcc!important;border:1px solid var(--ace-line)!important;
+  box-shadow:none!important;
+}
+.btn.success{background:#173c31!important;color:#82e1bd!important;border:1px solid rgba(83,215,163,.12)!important}
+.btn.danger,.danger{background:#35181e!important;color:#ff9ca5!important}
+
+/* ---------- form language ---------- */
+input,select,textarea{
+  border-radius:var(--ace-r-sm)!important;
+  border-color:rgba(185,145,242,.10)!important;
+  background:#090d14!important;
+  color:var(--ace-text)!important;
+  box-shadow:none!important;
+  transition:border-color .14s ease,background .14s ease!important;
+}
+input:hover,select:hover,textarea:hover{border-color:rgba(185,145,242,.17)!important}
+input:focus,select:focus,textarea:focus{
+  border-color:rgba(169,105,255,.44)!important;background:#0b0f18!important;
+}
+label{color:#817b8b!important;font-weight:750!important}
+
+/* ---------- home: quieter UI around the cards ---------- */
+.gameHero{
+  border-radius:25px!important;
+  border-color:var(--ace-line)!important;
+  background:
+    radial-gradient(circle at 83% 18%,rgba(135,77,226,.13),transparent 29%),
+    linear-gradient(145deg,#0b0e16,#07090f 70%)!important;
+  box-shadow:var(--ace-shadow-2)!important;
+}
+.gameHeroCopy{padding-right:12px!important}
+.gameEyebrow{color:#9673bd!important}
+.gameAceLogo{filter:drop-shadow(0 12px 22px rgba(91,46,165,.24))!important}
+.gameHeroCopy h1{line-height:.91!important}
+.gameHeroCopy>p{color:#918b9b!important;max-width:560px!important;line-height:1.58!important}
+.gamePrimaryActions{gap:7px!important}
+.gamePlayBtn,.gameSecondaryBtn{border-radius:12px!important}
+.gameQuickLinks{margin-top:14px!important;gap:5px!important}
+.gameQuickLinks button{
+  border-radius:8px!important;
+  border-color:rgba(183,143,238,.07)!important;
+  background:rgba(8,11,17,.48)!important;
+  color:#7c7686!important;
+}
+.gameQuickLinks button[data-go="ultimate"]{
+  color:#c4a7e8!important;border-color:rgba(172,115,255,.14)!important;
+  background:rgba(123,70,207,.055)!important;
+}
+
+/* ---------- panels: fewer visible outlines ---------- */
+.vdsPlayersShell,.vdsSquadPanel,.vdsCollectionPanel,.acePackStore,
+.aceUTHomeStage,.vdsUTInstanceIntro,.vdsPackPanel,.vdsUTEconomyHero{
+  border-color:var(--ace-line)!important;
+}
+.vdsPlayersHero,.vdsPlayerToolbar,.playerSetManager,
+.vdsUTBenchWrap,.aceClubControls,.acePackOdds{
+  box-shadow:none!important;
+}
+
+/* ---------- modal consistency ---------- */
+.playerEditorOverlay,.profileModal,.draftPoolOverlay,.revealOverlay,
+.vdsCardShowcaseOverlay,.vdsStarterOverlay,.vdsUTEntryOverlay,.utRevealOverlay{
+  background:rgba(2,3,7,.84)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.playerEditorModal,.profileModal .profileModalInner,.draftPoolModal,
+.vdsCardShowcaseSheet,.vdsStarterCard,.vdsUTEntryCard{
+  border-radius:22px!important;
+  border-color:rgba(188,145,248,.13)!important;
+  background:#090c13!important;
+  box-shadow:0 32px 88px rgba(0,0,0,.48)!important;
+}
+.modalX,.playerEditorClose,.vdsCardShowcaseClose,.profileClose{
+  width:36px!important;height:36px!important;
+  border-radius:9px!important;
+  border:1px solid rgba(188,145,248,.09)!important;
+  background:#10141d!important;color:#91899d!important;
+}
+.modalX:hover,.playerEditorClose:hover,.vdsCardShowcaseClose:hover,.profileClose:hover{
+  color:#fff!important;background:#161b27!important;
+}
+
+/* ---------- branded empty states ---------- */
+.aceEmptyState{
+  grid-column:1/-1;
+  min-height:210px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  text-align:center!important;
+  gap:7px!important;
+  padding:28px!important;
+  border:1px dashed rgba(180,138,243,.13)!important;
+  border-radius:17px!important;
+  background:
+    radial-gradient(circle at 50% 32%,rgba(137,79,226,.07),transparent 35%),
+    #080b12!important;
+}
+.aceEmptyState i{
+  width:39px;height:39px;display:grid;place-items:center;
+  border-radius:50%;font-style:normal;font-size:15px;
+  color:#a376e5;background:rgba(141,83,231,.08);
+  border:1px solid rgba(177,121,255,.12);
+}
+.aceEmptyState b{
+  margin-top:5px;font-size:10px!important;font-weight:850!important;letter-spacing:.11em!important;color:#d6d0df!important;
+}
+.aceEmptyState span{font-size:7px!important;color:#6f6a79!important;line-height:1.5}
+.aceInlineEmpty{
+  min-height:70px;display:flex;align-items:center;justify-content:center;gap:8px;
+  color:#6d6875;font-size:7px;
+}
+.aceInlineEmpty i{font-style:normal;color:#8c61c4}
+
+/* ---------- loading polish usable by existing loading/status states ---------- */
+@keyframes aceShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.vdsLoading,.loading,.aceLoading{
+  color:#777180!important;
+}
+.vdsLoading:before,.aceLoading:before{
+  content:"";display:inline-block;width:10px;height:10px;margin-right:7px;border-radius:50%;
+  border:2px solid rgba(172,116,255,.16);border-top-color:#9e69ef;
+  animation:aceSpin .7s linear infinite;vertical-align:-2px;
+}
+@keyframes aceSpin{to{transform:rotate(360deg)}}
+.aceSkeleton{
+  background:linear-gradient(90deg,#0c1018 25%,#131825 45%,#0c1018 65%)!important;
+  background-size:220% 100%!important;animation:aceShimmer 1.25s linear infinite!important;
+}
+
+/* ---------- utility / technical UI gets quieter ---------- */
+.vdsPlayerManagePanel,.vdsUTCloudCollectionNote,.vdsUTBuildBadge{
+  color:#6b6574!important;
+}
+.vdsPlayerManagePanel>summary{border-color:transparent!important}
+.statsFootnote{color:#5f5a67!important;font-size:6px!important}
+
+/* ---------- phone final polish ---------- */
+@media(max-width:760px){
+  .app{padding:7px!important}
+  .vdsGlobalHeader{
+    margin:0 0 8px!important;padding:5px 6px!important;border-radius:13px!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.18)!important;
+  }
+  .vdsBrandLogo{width:33px!important;height:33px!important}
+  .vdsBrand span b{font-size:8px!important}
+  .vdsBrand span small{display:none!important}
+  .vdsMainNav .tab,.vdsMainNav .navDropBtn{
+    min-height:34px!important;padding:0 10px!important;font-size:6px!important;
+  }
+  .vdsAccountIdentity{display:none!important}
+  .vdsAccountChip{padding:3px!important}
+  .vdsAccountChipBtn{display:none!important}
+  .gameHero{border-radius:18px!important;box-shadow:0 17px 42px rgba(0,0,0,.25)!important}
+  .gameHeroCopy>p{font-size:9.5px!important}
+  .gameQuickLinks button{min-height:38px!important}
+  .playerEditorOverlay,.profileModal,.draftPoolOverlay,.revealOverlay,
+  .vdsCardShowcaseOverlay,.vdsStarterOverlay,.vdsUTEntryOverlay,.utRevealOverlay{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  }
+  .aceEmptyState{min-height:155px!important;padding:20px 12px!important}
+  .aceEmptyState b{font-size:8px!important}
+  .aceEmptyState span{font-size:6.3px!important}
+}
+
+/* ---------- motion accessibility ---------- */
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+
+<!-- THE ACE PROJECT B9.20 — PROFESSIONAL POLISH PASS -->
