@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VDS Portrait Group Average Spinner</title>
+<style>
+:root{
+  --bg:#04101a;--panel:#071724;--text:#f4f8fc;--muted:#7f98ad;--line:rgba(255,255,255,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000;color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+button,input,select{font:inherit}
+.app{max-width:1160px;margin:0 auto;padding:12px}
+.controlBar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#07131e}
+.controlBar strong{font-size:13px;letter-spacing:.08em}
+.controlActions{display:flex;gap:7px;flex-wrap:wrap}
+.ctrlBtn{min-height:38px;padding:0 11px;border-radius:10px;border:1px solid var(--line);background:#0a1927;color:#dbe8f2;cursor:pointer;font-weight:900;font-size:9px;letter-spacing:.08em}
+.ctrlBtn.primary{border:0;color:#04111a;background:linear-gradient(135deg,#6ae3a5,#5ebfff)}
+.workspace{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px}
+.controls{padding:12px;border-radius:16px;border:1px solid var(--line);background:#07131e}
+.field{margin-bottom:9px}.field label{display:block;margin-bottom:5px;font-size:8px;color:#89a2b7;letter-spacing:.12em;font-weight:1000}
+.field input,.field select{width:100%;min-height:40px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#04101a;color:#eff6fb}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.bigBtn{width:100%;min-height:47px;border:0;border-radius:12px;background:linear-gradient(135deg,#6ae3a5,#5ebfff);color:#04111a;font-weight:1000;letter-spacing:.1em;cursor:pointer}
+.bigBtn:disabled{opacity:.55}.smallBtn{width:100%;min-height:38px;margin-top:7px;border:1px solid var(--line);border-radius:10px;background:#0a1825;color:#dbe7f1;font-weight:900;cursor:pointer}
+.toggle{display:flex;gap:7px;align-items:center;margin-top:9px;color:#8fa6b8;font-size:9px}.toggle input{width:auto}
+.note{margin-top:10px;color:#70899d;font-size:9px;line-height:1.45}
+
+.preview{display:flex;justify-content:center;min-width:0}
+.reel{width:min(410px,100%);aspect-ratio:9/16;position:relative;overflow:hidden;border-radius:18px;background:radial-gradient(circle at 50% 0,rgba(74,164,255,.09),transparent 28%),linear-gradient(180deg,#061521 0%,#04111a 56%,#030a10 100%);border:1px solid rgba(255,255,255,.08);box-shadow:0 28px 60px rgba(0,0,0,.40)}
+.reelInner{position:absolute;inset:0;padding:4.5% 4.5% 5.5%;display:flex;flex-direction:column}
+.topMeta{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#668195;font-size:1.2cqw;font-weight:1000;letter-spacing:.12em}.topMeta b{color:#d7e7f3}
+.groupCard{margin-top:2.2%;padding:2.5% 2.7%;border-radius:2.2cqw;border:1px solid rgba(255,255,255,.06);background:linear-gradient(180deg,#081a28,#06131e)}
+.groupHeader{display:flex;align-items:center;justify-content:space-between;gap:8px}.groupHeader h2{margin:0;font-size:2.35cqw;letter-spacing:-.02em}
+.groupAverage{font-size:2.8cqw;font-weight:1000}.groupAverage.gold{color:#f0d273}.groupAverage.elite{color:#d9b5ff}.groupAverage.ace{color:#fff}
+.groupStats{display:grid;gap:.8%;margin-top:1.6%}
+.groupStat{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-height:3.5cqw;padding:.9% 0;border-top:1px solid rgba(255,255,255,.035)}
+.groupStat:first-child{border-top:0}.groupStat span{color:#89a1b4;font-size:1.5cqw;font-weight:800}.groupStat b{font-size:1.9cqw}
+.groupStat.active{margin:0 -1.2%;padding-left:1.2%;padding-right:1.2%;border-radius:1cqw;background:rgba(83,181,247,.07)}.groupStat.active span{color:#bfe6ff}.groupStat.active b{color:#79caff}
+.currentLabel{margin-top:2.3%;text-align:center}.currentLabel small{display:block;color:#688296;font-size:1.25cqw;font-weight:1000;letter-spacing:.14em}.currentLabel h3{margin:.5% 0 0;font-size:2.8cqw;letter-spacing:-.03em}
+.pointer{width:0;height:0;margin:1.1% auto -2.8%;border-left:2.5cqw solid transparent;border-right:2.5cqw solid transparent;border-top:4.1cqw solid #f4f8fb;z-index:4;filter:drop-shadow(0 .6cqw .6cqw rgba(0,0,0,.4))}
+.wheelWrap{width:72%;aspect-ratio:1/1;margin:0 auto;position:relative;display:grid;place-items:center}
+canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 2.2cqw 4cqw rgba(0,0,0,.30))}
+.wheelCenter{display:none!important}
+.centerHubBar{width:56%;height:12%;border-radius:999px;background:linear-gradient(180deg,#f5f7fa,#d9e2ea);box-shadow:0 .15cqw .5cqw rgba(255,255,255,.16)}
+.resultBox{position:absolute;top:9%;right:-2%;min-width:20%;max-width:25%;padding:2.1% 2.3%;border-radius:1.4cqw;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(8,24,36,.96),rgba(5,15,24,.96));box-shadow:0 1.4cqw 2.8cqw rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:5}
+.centerStat{color:#8ba4b8;font-size:.82cqw;font-weight:1000;letter-spacing:.10em;line-height:1;white-space:nowrap}
+.centerResult{margin-top:.18cqw;font-size:2.4cqw;line-height:.92;font-weight:1000;letter-spacing:-.04em;white-space:nowrap}
+.centerResult.text{font-size:1.02cqw;line-height:1.02;letter-spacing:-.01em;max-width:100%;white-space:normal;word-break:break-word}
+.centerResult.empty{font-size:1.7cqw;line-height:1}
+.centerRange{margin-top:.20cqw;color:#758da0;font-size:.72cqw;font-weight:900;line-height:1.05;white-space:nowrap}
+@media(max-width:560px){.resultBox{top:10%;right:-1%;min-width:22%;padding:2.3% 2.6%}.centerResult{font-size:2.9cqw}.centerResult.text{font-size:1.22cqw}.centerStat{font-size:.95cqw}.centerRange{font-size:.84cqw}}
+.bottomStrip{margin-top:.8%;padding:1.3% 1.7%;border-radius:1.5cqw;border:1px solid rgba(255,255,255,.05);background:#06131e}
+.bottomStripTitle{display:flex;justify-content:space-between;gap:8px;color:#7891a5;font-size:.95cqw;font-weight:1000;letter-spacing:.11em}
+.rawGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:.55%;margin-top:.8%}.raw{min-width:0;text-align:center;padding:.75% .15%;border-radius:.85cqw;background:#081722;border:1px solid rgba(255,255,255,.035)}.raw span{display:block;color:#6f899d;font-size:.78cqw;font-weight:1000}.raw b{display:block;margin-top:.2cqw;font-size:1.18cqw}
+.playstyleArea{margin-top:.8%;min-height:3.2cqw;display:flex;gap:.8%;flex-wrap:wrap;justify-content:center}.playstylePill{padding:.65% 1.2%;border-radius:999px;border:1px solid rgba(174,108,255,.18);background:rgba(122,61,178,.08);color:#e5d0fa;font-size:.9cqw;font-weight:900}
+.footer{margin-top:auto;padding-top:.8%;text-align:center;color:#40596c;font-size:.82cqw;font-weight:1000;letter-spacing:.12em}
+
+body.recordMode{overflow:hidden;background:#000}body.recordMode .app{padding:0;max-width:none;height:100vh;display:grid;place-items:center}body.recordMode .controlBar,body.recordMode .controls{display:none!important}body.recordMode .workspace{display:block}body.recordMode .preview{width:100vw;height:100vh;display:grid;place-items:center}body.recordMode .reel{height:100vh;width:auto;max-width:100vw;border:0;border-radius:0;box-shadow:none}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.controls{order:2}.preview{order:1}}
+@media(max-width:560px){.app{padding:6px}.controlBar{align-items:flex-start;flex-direction:column}.controlActions{width:100%}.ctrlBtn{flex:1}.reel{width:100%;border-radius:14px}}
+
+.vdsCloudBox{
+  margin-top:12px;padding:10px;border-radius:12px;border:1px solid rgba(87,187,255,.14);
+  background:linear-gradient(180deg,rgba(9,28,42,.90),rgba(6,18,28,.94))
+}
+.vdsCloudHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.vdsCloudHead b{font-size:9px;letter-spacing:.12em}
+.vdsCloudStatus{font-size:8px;color:#8da6b9;text-align:right}
+.vdsCloudStatus.ok{color:#71e2a3}
+.vdsCloudStatus.bad{color:#ff9b9b}
+.vdsCloudLogin{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.vdsCloudLogin input{width:100%;min-width:0;min-height:37px;padding:8px;border-radius:9px;border:1px solid var(--line);background:#04101a;color:#eef6fb;font-size:9px}
+.vdsCloudLogin button,.acceptCardBtn,.openSiteBtn{
+  min-height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.08);cursor:pointer;
+  font-size:9px;font-weight:1000;letter-spacing:.08em
+}
+.vdsCloudLogin button{grid-column:1/-1;background:#0b1c2a;color:#b9d9ee}
+.cardPublishOptions{margin-top:9px;display:grid;gap:7px}
+.photoFileLabel{display:block;color:#829bad;font-size:8px;font-weight:900;letter-spacing:.08em}
+.photoFileLabel input{margin-top:5px;width:100%;font-size:8px;color:#a9bfd0}
+.acceptCardBtn{
+  width:100%;margin-top:9px;border:0;color:#041019;
+  background:linear-gradient(135deg,#72e4a7,#63c6ff)
+}
+.acceptCardBtn:disabled{opacity:.38;cursor:not-allowed}
+.openSiteBtn{width:100%;margin-top:6px;background:#0a1927;color:#b7d9ee}
+.acceptResult{margin-top:7px;min-height:12px;color:#7f98aa;font-size:8px;line-height:1.4}
+.acceptResult.ok{color:#6ee3a5}.acceptResult.bad{color:#ff9494}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="controlBar">
+    <strong>VDS · PORTRAIT GROUP-AVERAGE SPINNER</strong>
+    <div class="controlActions">
+      <button class="ctrlBtn" id="resetBtn" type="button">RESET</button>
+      <button class="ctrlBtn primary" id="recordBtn" type="button">RECORD MODE</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <aside class="controls">
+      <div class="field">
+        <label>PLAYER / @USERNAME</label>
+        <input id="playerName" value="@player">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>POSITION</label>
+          <select id="position">
+            <option value="OH">OH</option><option value="OP">OP</option><option value="M">M</option><option value="S">S</option><option value="L">L</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>START STEP</label>
+          <select id="startSelect"></select>
+        </div>
+      </div>
+      <button class="bigBtn" id="spinBtn" type="button">ROLL CREATIVITY</button>
+      <button class="smallBtn" id="nextBtn" type="button">NEXT STEP →</button>
+      <label class="toggle"><input type="checkbox" id="soundToggle" checked> Soft clicking + landing sound</label>
+      <label class="toggle"><input type="checkbox" id="autoAdvance" checked> Auto-switch to next stat</label>
+      <div class="note">Roll order now starts with <b>Position</b>, then moves through the stat groups automatically. Serve Type still rolls before Service, and Silver cards now visibly roll whether their single playstyle is <b>Attack</b> or <b>Defence</b> before the final playstyle roll.</div>
+
+      <div class="vdsCloudBox">
+        <div class="vdsCloudHead">
+          <b>VDS WEBSITE CONNECTION</b>
+          <span class="vdsCloudStatus" id="vdsCloudStatus">Checking login…</span>
+        </div>
+
+        <div class="vdsCloudLogin" id="vdsCloudLogin">
+          <input id="vdsAdminEmail" type="email" autocomplete="username" placeholder="Admin email">
+          <input id="vdsAdminPassword" type="password" autocomplete="current-password" placeholder="Password">
+          <button type="button" id="vdsAdminLoginBtn">SIGN IN TO VDS ADMIN</button>
+        </div>
+
+        <div class="cardPublishOptions">
+          <label class="photoFileLabel">CARD IMAGE — OPTIONAL
+            <input id="vdsCardPhotoFile" type="file" accept="image/png,image/jpeg,image/webp">
+          </label>
+          <label class="toggle"><input type="checkbox" id="vdsAddToUTPool"> Add accepted card directly to Ultimate Team Pool</label>
+        </div>
+
+        <button type="button" class="acceptCardBtn" id="acceptCardBtn" disabled>ACCEPT + CREATE CARD</button>
+        <button type="button" class="openSiteBtn" id="openSiteBtn">OPEN VDS WEBSITE</button>
+        <div class="acceptResult" id="acceptResult">Finish the card first. Nothing is published until you press Accept.</div>
+      </div>
+    </aside>
+
+    <section class="preview">
+      <div class="reel">
+        <div class="reelInner">
+          <div class="topMeta"><span>COMMENT TO CARD</span><b id="playerMeta">@player · OH</b></div>
+
+          <section class="groupCard">
+            <div class="groupHeader"><h2 id="groupTitle">⚔️ Attacking</h2><div class="groupAverage" id="groupAverage">—</div></div>
+            <div class="groupStats" id="groupStats"></div>
+          </section>
+
+          <div class="currentLabel"><small id="phaseLabel">ROLLING STAT</small><h3 id="currentStatTitle">Creativity</h3></div>
+          <div class="pointer"></div>
+
+          <div class="wheelWrap">
+            <canvas id="wheel" width="760" height="760"></canvas>
+            <div class="resultBox">
+              <div class="centerStat" id="centerStat">CRE</div>
+              <div class="centerResult" id="centerResult">—</div>
+              <div class="centerRange" id="centerRange">READY</div>
+            </div>
+            <div class="wheelCenter">
+              <div class="centerHubBar"></div>
+            </div>
+          </div>
+
+          <div class="bottomStrip">
+            <div class="bottomStripTitle"><span>VDS RAW STATS</span><b id="cardPreview">CARD —</b></div>
+            <div class="rawGrid" id="rawGrid"></div>
+          </div>
+
+          <div class="playstyleArea" id="playstyleArea"></div>
+          <div class="footer">DAY 1 · ADDING MY FOLLOWERS TO VDS</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const $=id=>document.getElementById(id), canvas=$('wheel'), ctx=canvas.getContext('2d');
+
+  const VDS_SUPABASE_URL='https://vpkvjvyxadjzjbsvlqws.supabase.co';
+  const VDS_SUPABASE_KEY='sb_publishable_fNXCiKev7n2v40GF3TMUbg_9MoeG2qk';
+  const VDS_ADMIN_UID='e9b02045-3b2e-43d3-b80b-c22c63bc6007';
+  const VDS_SITE_URL='https://nishidaondrugs-spec.github.io/volleyball-draft-simulator/';
+  const vdsDb=window.supabase
+    ? window.supabase.createClient(VDS_SUPABASE_URL,VDS_SUPABASE_KEY,{auth:{detectSessionInUrl:false}})
+    : null;
+  let vdsAdminReady=false;
+
+  const BANDS=[
+    {min:1,max:19,weight:1,label:'1–19',color:'#6d442f'},
+    {min:20,max:39,weight:4,label:'20–39',color:'#7a523b'},
+    {min:40,max:59,weight:12,label:'40–59',color:'#a56c48'},
+    {min:60,max:69,weight:20,label:'60–69',color:'#8999a7'},
+    {min:70,max:79,weight:25,label:'70–79',color:'#a7b4bf'},
+    {min:80,max:89,weight:18,label:'80–89',color:'#a5811d'},
+    {min:90,max:95,weight:11,label:'90–95',color:'#7134ad'},
+    {min:96,max:99,weight:2,label:'96–99',color:'#2b183e'},
+    {min:100,max:100,weight:.5,label:'100',color:'#080a0d'}
+  ];
+  const SERVE_TYPES=[
+    {id:'standing_float',label:'Standing Float',weight:1,color:'#315b78'},
+    {id:'jump_float',label:'Jump Float',weight:1,color:'#4f4a87'},
+    {id:'jump_topspin',label:'Jump Topspin',weight:1,color:'#73365f'}
+  ];
+  const POSITION_ITEMS=[
+    {label:'Outside Hitter',code:'OH',weight:28,color:'#4a82bd'},
+    {label:'Opposite',code:'OP',weight:18,color:'#7d4ca8'},
+    {label:'Middle',code:'M',weight:18,color:'#2f8b76'},
+    {label:'Setter',code:'S',weight:18,color:'#9b6e2f'},
+    {label:'Libero',code:'L',weight:18,color:'#7f909f'}
+  ];
+  const PLAYSTYLE_CATEGORY_ITEMS=[
+    {label:'Attack',code:'attack',weight:1,color:'#8c3fb6'},
+    {label:'Defence',code:'defense',weight:1,color:'#3f77b6'}
+  ];
+  const ATTACK_PS=[
+    {id:'power_hitter',label:'💥 Power Hitter'},{id:'precision_hitter',label:'🎯 Precision Hitter'},
+    {id:'shot_maker',label:'🎨 Shot Maker'},{id:'block_reader',label:'🧠 Block Reader'},
+    {id:'tooler',label:'🛠️ Tooler'},{id:'fast_arm',label:'⚡ Fast Arm'},
+    {id:'soft_touch',label:'🪶 Soft Touch'},{id:'high_arc_hitter',label:'🌙 High-Arc Hitter'},
+    {id:'back_row_threat',label:'🚀 Back-Row Threat'},{id:'clutch_hitter',label:'🧊 Clutch Hitter'}
+  ];
+  const DEF_PS=[
+    {id:'oobleck_body',label:'🫠 Oobleck Body'},{id:'court_reader',label:'🧠 Court Reader'},
+    {id:'chaser',label:'🏃 Chaser'},{id:'cover_specialist',label:'🧹 Cover Specialist'},
+    {id:'deep_court_guardian',label:'🦅 Deep Court Guardian'},{id:'reliable_receiver',label:'🛡️ Reliable Receiver'}
+  ];
+
+  const STEPS=[
+    {key:'positionRoll',label:'Position',short:'POS',group:'setup',kind:'position'},
+    {key:'creativity',label:'Creativity',short:'CRE',group:'attack'},
+    {key:'accuracy',label:'Hitting Accuracy',short:'ACC',group:'attack'},
+    {key:'hittingPower',label:'Hitting Power',short:'PWR',group:'attack'},
+    {key:'serveReceive',label:'Serve Receive',short:'REC',group:'defense'},
+    {key:'positioning',label:'Positioning',short:'POS',group:'defense'},
+    {key:'covering',label:'Covering',short:'COV',group:'defense'},
+    {key:'workRate',label:'Work Rate',short:'WRK',group:'physical'},
+    {key:'vertical',label:'Vertical',short:'VRT',group:'physical'},
+    {key:'speed',label:'Speed',short:'SPD',group:'physical'},
+    {key:'reactionTime',label:'Reaction Time',short:'REA',group:'physical'},
+    {key:'serveType',label:'Serve Type',short:'TYPE',group:'special',kind:'serve'},
+    {key:'service',label:'Service',short:'SRV',group:'special'},
+    {key:'blocking',label:'Blocking',short:'BLK',group:'special'},
+    {key:'setting',label:'Setting',short:'SET',group:'special'},
+    {key:'mindset',label:'Mindset',short:'MND',group:'special'}
+  ];
+  const GROUPS={
+    setup:{title:'🧩 Card Setup',keys:[]},
+    attack:{title:'⚔️ Attacking',keys:['creativity','accuracy','hittingPower']},
+    defense:{title:'🛡️ Defence',keys:['serveReceive','positioning','covering']},
+    physical:{title:'💪 Physical',keys:['workRate','vertical','speed','reactionTime']},
+    special:{title:'🎯 Specialist Ratings',keys:['service','blocking','setting','mindset']}
+  };
+  const LABELS=Object.fromEntries(STEPS.map(s=>[s.key,s.label]));
+  const RAW_ORDER=['creativity','accuracy','hittingPower','serveReceive','positioning','covering','workRate','vertical','speed','reactionTime','service','blocking','setting','mindset'];
+  const state={step:0,values:{},serveType:null,playstyles:[],playQueue:[],rotation:0,spinning:false,audio:null,lastTick:null,wheelItems:BANDS,rolledPosition:null};
+  const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n)), val=k=>Number(state.values[k]??0);
+
+  function groupAverage(group){
+    const keys=GROUPS[group].keys, rolled=keys.filter(k=>state.values[k]!=null);
+    if(!rolled.length)return null;
+    if(group==='attack')return Math.round(val('creativity')*.20+val('accuracy')*.40+val('hittingPower')*.40);
+    if(group==='defense')return Math.round(val('serveReceive')*.50+val('positioning')*.25+val('covering')*.25);
+    if(group==='physical')return Math.round(val('workRate')*.20+val('vertical')*.40+val('speed')*.20+val('reactionTime')*.20);
+    return Math.round(rolled.reduce((s,k)=>s+val(k),0)/rolled.length);
+  }
+
+  function positionRatings(){
+    const a={creativity:val('creativity'),accuracy:val('accuracy'),hittingPower:val('hittingPower'),serveReceive:val('serveReceive'),positioning:val('positioning'),covering:val('covering'),workRate:val('workRate'),vertical:val('vertical'),speed:val('speed'),reactionTime:val('reactionTime'),service:val('service'),blocking:val('blocking'),setting:val('setting'),mindset:val('mindset')};
+    const W={
+      OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:18,positioning:8,covering:6,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setting:2,mindset:6},
+      OP:{accuracy:18,hittingPower:18,creativity:4,serveReceive:4,positioning:4,covering:6,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:10,setting:2,mindset:7},
+      M:{accuracy:11,hittingPower:11,creativity:3,serveReceive:1,positioning:5,covering:4,workRate:4,vertical:13,speed:5,reactionTime:8,service:5,blocking:22,setting:1,mindset:7},
+      S:{accuracy:4,hittingPower:7,creativity:6,serveReceive:6,positioning:7,covering:5,workRate:5,vertical:6,speed:5,reactionTime:9,service:6,blocking:7,setting:20,mindset:7},
+      L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:30,positioning:15,covering:15,workRate:6,vertical:2,speed:6,reactionTime:10,service:2,blocking:0,setting:5,mindset:7}
+    };
+    const calc=w=>{let score=0;for(const [k,p] of Object.entries(w))score+=(a[k]||0)*p/100;return Math.round(clamp(score))};
+    return Object.fromEntries(Object.entries(W).map(([p,w])=>[p,calc(w)]));
+  }
+  const finalRating=()=>positionRatings()[$('position').value]??0;
+  const cardTier=r=>r>=96?'ACE':r>=90?'ELITE':r>=75?'GOLD':r>=60?'SILVER':'BRONZE';
+  const tierClass=r=>{const t=cardTier(r);return t==='GOLD'?'gold':t==='ELITE'?'elite':t==='ACE'?'ace':''};
+  const playCount=t=>t==='BRONZE'?0:t==='SILVER'?1:2;
+
+  function arcs(items){
+    const total=items.reduce((s,x)=>s+(x.weight||1),0);let acc=0;
+    return items.map((item,index)=>{const frac=(item.weight||1)/total,start=acc*Math.PI*2-Math.PI/2;acc+=frac;const end=acc*Math.PI*2-Math.PI/2;return {...item,index,start,end,mid:(start+end)/2,frac}})
+  }
+  function drawWheel(items=state.wheelItems){
+    const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(cx,cy)-24,aa=arcs(items);
+    ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(cx,cy);ctx.rotate(state.rotation);
+    aa.forEach((a,i)=>{ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,a.start,a.end);ctx.closePath();ctx.fillStyle=a.color||['#274d6a','#43547c','#5c3d78','#34586a','#6b425d'][i%5];ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.075)';ctx.stroke();
+      const txt=a.label||String(a.min);if(a.frac>.045||items.length<7){ctx.save();ctx.rotate(a.mid);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#f2f7fb';ctx.font=`900 ${items.length>8?18:22}px Inter, Arial`;ctx.fillText(txt.length>17?txt.slice(0,16)+'…':txt,r-22,0);ctx.restore();}});
+    ctx.restore();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.lineWidth=10;ctx.strokeStyle='rgba(255,255,255,.12)';ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,132,0,Math.PI*2);ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.07)';ctx.stroke();
+  }
+  function weighted(items){const total=items.reduce((s,x)=>s+(x.weight||1),0);let r=Math.random()*total;for(const item of items){if(r<(item.weight||1))return item;r-=(item.weight||1)}return items[items.length-1]}
+  const exact=b=>b.min===b.max?b.min:Math.floor(Math.random()*(b.max-b.min+1))+b.min;
+  function ensureAudio(){if(!state.audio){const AC=window.AudioContext||window.webkitAudioContext;if(AC)state.audio=new AC()}if(state.audio?.state==='suspended')state.audio.resume()}
+  function tick(){if(!$('soundToggle').checked)return;ensureAudio();if(!state.audio)return;const t=state.audio.currentTime,o=state.audio.createOscillator(),g=state.audio.createGain();o.type='sine';o.frequency.value=520;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.034,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.034);o.connect(g).connect(state.audio.destination);o.start(t);o.stop(t+.04)}
+  function land(){if(!$('soundToggle').checked)return;ensureAudio();if(!state.audio)return;const now=state.audio.currentTime;[500,690].forEach((f,i)=>{const t=now+i*.07,o=state.audio.createOscillator(),g=state.audio.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.05,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.connect(g).connect(state.audio.destination);o.start(t);o.stop(t+.14)})}
+  function pointerIndex(rotation,items){const aa=arcs(items);let x=(-Math.PI/2-rotation)%(Math.PI*2);while(x< -Math.PI/2)x+=Math.PI*2;for(const a of aa){let y=x;while(y<a.start)y+=Math.PI*2;if(y>=a.start&&y<a.end)return a.index}return 0}
+  function forward(d){const tau=Math.PI*2;d%=tau;if(d<0)d+=tau;return d}
+  function targetFor(index,items){const a=arcs(items)[index],pointer=-Math.PI/2,desired=pointer-a.mid;return state.rotation+Math.PI*2*(6+Math.floor(Math.random()*2))+forward(desired-state.rotation)}
+  function animate(items,winner,done){
+    state.spinning=true;$('spinBtn').disabled=true;const index=items.indexOf(winner),start=state.rotation,end=targetFor(index,items),duration=3600,t0=performance.now();state.lastTick=pointerIndex(start,items);
+    function frame(now){const t=Math.min((now-t0)/duration,1),eased=1-Math.pow(1-t,4);state.rotation=start+(end-start)*eased;drawWheel(items);const idx=pointerIndex(state.rotation,items);if(idx!==state.lastTick){state.lastTick=idx;tick()}if(t<1){requestAnimationFrame(frame);return}state.rotation%=Math.PI*2;drawWheel(items);tick();done()}requestAnimationFrame(frame)
+  }
+  function numberShuffle(b,final,done){const t0=performance.now();let last=0;function frame(now){const t=Math.min((now-t0)/650,1);if(now-last>50){last=now;$('centerResult').textContent=exact(b)}if(t<1)requestAnimationFrame(frame);else{$('centerResult').textContent=final;done()}}requestAnimationFrame(frame)}
+
+  const currentGroup=()=>STEPS[state.step]?.group||'special';
+  function renderGroup(){
+    const group=currentGroup(),info=GROUPS[group],avg=groupAverage(group),currentKey=STEPS[state.step]?.key;
+    $('groupTitle').textContent=info.title;$('groupAverage').textContent=avg==null?'—':avg;$('groupAverage').className='groupAverage '+(avg==null?'':tierClass(avg));
+    $('groupStats').innerHTML=(info.keys||[]).map(k=>`<div class="groupStat ${currentKey===k?'active':''}"><span>${LABELS[k]}</span><b>${state.values[k]??'—'}</b></div>`).join('');
+  }
+  function renderBottom(){
+    const ab={creativity:'CRE',accuracy:'ACC',hittingPower:'PWR',serveReceive:'REC',positioning:'POS',covering:'COV',workRate:'WRK',vertical:'VRT',speed:'SPD',reactionTime:'REA',service:'SRV',blocking:'BLK',setting:'SET',mindset:'MND'};
+    $('rawGrid').innerHTML=RAW_ORDER.map(k=>`<div class="raw"><span>${ab[k]}</span><b>${state.values[k]??'—'}</b></div>`).join('');
+    const complete=RAW_ORDER.every(k=>state.values[k]!=null);$('cardPreview').textContent=complete?`${finalRating()} ${cardTier(finalRating())}`:'CARD —';
+    $('playstyleArea').innerHTML=state.playstyles.map(p=>`<span class="playstylePill">${p.label}</span>`).join('');
+    updateAcceptState();
+  }
+  function renderMeta(){$('playerMeta').textContent=`${$('playerName').value.trim()||'@player'} · ${$('position').value}`}
+
+  function setupStep(){
+    const step=STEPS[state.step];if(!step){preparePlaystyles();return}
+    $('phaseLabel').textContent=step.kind==='position'?'POSITION ROLL':(step.kind==='serve'?'SERVE TYPE':'ROLLING STAT');
+    $('currentStatTitle').textContent=step.label;
+    $('centerStat').textContent=step.short;
+    $('centerResult').textContent='—';
+    $('centerResult').className='centerResult empty';
+    $('centerRange').textContent='READY';
+    $('spinBtn').textContent=step.kind==='position'?'ROLL POSITION':(step.kind==='serve'?'ROLL SERVE TYPE':`ROLL ${step.label.toUpperCase()}`);
+    state.rotation=0;
+    state.wheelItems=step.kind==='position'?POSITION_ITEMS:(step.kind==='serve'?SERVE_TYPES:BANDS);
+    drawWheel(state.wheelItems);renderGroup();renderBottom();
+  }
+  function advance(){if(state.spinning)return;state.step++;setupStep()}
+  function finishRoll(){renderGroup();renderBottom();setTimeout(()=>{state.spinning=false;$('spinBtn').disabled=false;if($('autoAdvance').checked)advance()},520)}
+  function rollStep(){
+    if(state.spinning)return;const step=STEPS[state.step];if(!step){rollPlaystyle();return}
+    if(step.kind==='position'){
+      const winner=weighted(POSITION_ITEMS);
+      $('centerResult').textContent='…';$('centerResult').className='centerResult text';$('centerRange').textContent='ROLLING POSITION';
+      animate(POSITION_ITEMS,winner,()=>{
+        state.rolledPosition=winner.code;
+        $('position').value=winner.code;
+        renderMeta();renderBottom();
+        $('centerResult').textContent=winner.code;
+        $('centerResult').className='centerResult';
+        $('centerRange').textContent=winner.label.toUpperCase();
+        land();finishRoll()
+      });return;
+    }
+    if(step.kind==='serve'){
+      const winner=weighted(SERVE_TYPES);$('centerResult').textContent='…';$('centerResult').className='centerResult text';$('centerRange').textContent='ROLLING TYPE';
+      animate(SERVE_TYPES,winner,()=>{state.serveType=winner;$('centerResult').textContent=winner.label;$('centerResult').className='centerResult text';$('centerRange').textContent='SERVE TYPE';land();finishRoll()});return;
+    }
+    const band=weighted(BANDS);$('centerResult').textContent='—';$('centerResult').className='centerResult empty';$('centerRange').textContent='SPINNING';
+    animate(BANDS,band,()=>{const final=exact(band);$('centerRange').textContent='RANGE '+band.label;setTimeout(()=>{numberShuffle(band,final,()=>{state.values[step.key]=final;$('centerResult').className='centerResult '+tierClass(final);$('centerRange').textContent=step.label.toUpperCase();land();finishRoll()})},180)});
+  }
+
+  function preparePlaystyles(){
+    const complete=RAW_ORDER.every(k=>state.values[k]!=null);if(!complete){$('phaseLabel').textContent='INCOMPLETE';$('currentStatTitle').textContent='Finish the missing stats';$('spinBtn').disabled=true;return}
+    const r=finalRating(),tier=cardTier(r),count=playCount(tier);renderBottom();
+    if(!state.playQueue.length&&state.playstyles.length===0){
+      if(count===1) state.playQueue=['categoryRoll'];
+      else if(count===2) state.playQueue=['attack','defense'];
+    }
+    if(!state.playQueue.length){
+      $('phaseLabel').textContent='FINAL CARD';
+      $('currentStatTitle').textContent=`${r} ${tier}`;
+      $('centerStat').textContent=tier;
+      $('centerResult').textContent=r;
+      $('centerResult').className='centerResult '+tierClass(r);
+      $('centerRange').textContent=state.playstyles.length?`${state.playstyles.length} PLAYSTYLES`:'COMPLETE';
+      $('spinBtn').textContent='CARD COMPLETE';
+      $('spinBtn').disabled=true;
+      renderGroup();
+      return
+    }
+    if(state.playQueue[0]==='categoryRoll'){
+      $('phaseLabel').textContent='PLAYSTYLE CATEGORY';
+      $('currentStatTitle').textContent='Attack or Defence';
+      $('centerStat').textContent='TYPE';
+      $('centerResult').textContent='—';
+      $('centerResult').className='centerResult text';
+      $('centerRange').textContent='READY';
+      $('spinBtn').textContent='ROLL PLAYSTYLE TYPE';
+      $('spinBtn').disabled=false;
+      state.rotation=0;
+      state.wheelItems=PLAYSTYLE_CATEGORY_ITEMS;
+      drawWheel(state.wheelItems);
+      renderGroup();
+      return
+    }
+    const category=state.playQueue[0],items=category==='attack'?ATTACK_PS:DEF_PS;
+    $('phaseLabel').textContent='PLAYSTYLE ROLL';
+    $('currentStatTitle').textContent=category==='attack'?'Attacking Playstyle':'Defensive Playstyle';
+    $('centerStat').textContent=category==='attack'?'ATK':'DEF';
+    $('centerResult').textContent='—';
+    $('centerResult').className='centerResult text';
+    $('centerRange').textContent='READY';
+    $('spinBtn').textContent=category==='attack'?'ROLL ATTACK PLAYSTYLE':'ROLL DEFENCE PLAYSTYLE';
+    $('spinBtn').disabled=false;
+    state.rotation=0;
+    state.wheelItems=items;
+    drawWheel(items);
+    renderGroup();
+  }
+  function rollPlaystyle(){
+    if(state.spinning||!state.playQueue.length)return;
+    if(state.playQueue[0]==='categoryRoll'){
+      const winner=weighted(PLAYSTYLE_CATEGORY_ITEMS);
+      $('centerResult').textContent='…';
+      $('centerResult').className='centerResult text';
+      $('centerRange').textContent='ROLLING TYPE';
+      animate(PLAYSTYLE_CATEGORY_ITEMS,winner,()=>{
+        state.playQueue = [winner.code];
+        $('centerResult').textContent=winner.label;
+        $('centerResult').className='centerResult text';
+        $('centerRange').textContent='PLAYSTYLE TYPE';
+        land();
+        setTimeout(()=>{state.spinning=false;$('spinBtn').disabled=false;preparePlaystyles()},650)
+      });
+      return;
+    }
+    const category=state.playQueue[0],items=category==='attack'?ATTACK_PS:DEF_PS,winner=weighted(items);
+    $('centerResult').textContent='…';$('centerResult').className='centerResult text';$('centerRange').textContent='ROLLING';
+    animate(items,winner,()=>{state.playstyles.push({...winner,category});state.playQueue.shift();$('centerResult').textContent=winner.label;$('centerResult').className='centerResult text';$('centerRange').textContent='LOCKED IN';land();renderBottom();setTimeout(()=>{state.spinning=false;$('spinBtn').disabled=false;preparePlaystyles()},650)});
+  }
+
+  function expectedPlaystyleCount(){
+    if(!RAW_ORDER.every(k=>state.values[k]!=null))return null;
+    return playCount(cardTier(finalRating()));
+  }
+
+  function cardReadyForAccept(){
+    const expected=expectedPlaystyleCount();
+    if(expected===null)return false;
+    if(state.playQueue.length)return false;
+    return state.playstyles.length===expected;
+  }
+
+  function updateAcceptState(){
+    const btn=$('acceptCardBtn');
+    if(!btn)return;
+    const ready=cardReadyForAccept();
+    btn.disabled=!(ready&&vdsAdminReady&&!state.spinning);
+    if(!ready){
+      $('acceptResult').className='acceptResult';
+      $('acceptResult').textContent='Finish the card first. Nothing is published until you press Accept.';
+    }else if(!vdsAdminReady){
+      $('acceptResult').className='acceptResult';
+      $('acceptResult').textContent='Card finished. Sign in as the VDS admin to create it on the website.';
+    }else if(!$('acceptResult').classList.contains('ok')){
+      $('acceptResult').className='acceptResult';
+      $('acceptResult').textContent='Card finished. Press ACCEPT + CREATE CARD when you want to keep it.';
+    }
+  }
+
+  async function refreshVdsAdminSession(){
+    if(!vdsDb){
+      $('vdsCloudStatus').textContent='Supabase unavailable';
+      $('vdsCloudStatus').className='vdsCloudStatus bad';
+      return false;
+    }
+    const {data}=await vdsDb.auth.getSession();
+    const user=data?.session?.user||null;
+    vdsAdminReady=!!user&&user.id===VDS_ADMIN_UID;
+    $('vdsCloudStatus').textContent=vdsAdminReady?'ADMIN CONNECTED':'NOT SIGNED IN';
+    $('vdsCloudStatus').className='vdsCloudStatus '+(vdsAdminReady?'ok':'');
+    $('vdsCloudLogin').style.display=vdsAdminReady?'none':'grid';
+    updateAcceptState();
+    return vdsAdminReady;
+  }
+
+  async function signInVdsAdmin(){
+    if(!vdsDb)return;
+    const email=$('vdsAdminEmail').value.trim();
+    const password=$('vdsAdminPassword').value;
+    $('vdsCloudStatus').textContent='Signing in…';
+    $('vdsCloudStatus').className='vdsCloudStatus';
+    const {data,error}=await vdsDb.auth.signInWithPassword({email,password});
+    if(error){
+      $('vdsCloudStatus').textContent=error.message;
+      $('vdsCloudStatus').className='vdsCloudStatus bad';
+      return;
+    }
+    if(data?.user?.id!==VDS_ADMIN_UID){
+      await vdsDb.auth.signOut();
+      vdsAdminReady=false;
+      $('vdsCloudStatus').textContent='Not authorised';
+      $('vdsCloudStatus').className='vdsCloudStatus bad';
+      return;
+    }
+    await refreshVdsAdminSession();
+  }
+
+  function safeFileStem(name){
+    return String(name||'player').toLowerCase().replace(/^@/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'player';
+  }
+
+  async function uploadAcceptedPhoto(playerName){
+    const file=$('vdsCardPhotoFile')?.files?.[0];
+    if(!file)return null;
+    const ext=(file.name.split('.').pop()||'png').toLowerCase().replace(/[^a-z0-9]/g,'')||'png';
+    const path=`${safeFileStem(playerName)}-${Date.now()}.${ext}`;
+    const {error}=await vdsDb.storage.from('player-images').upload(path,file,{upsert:false});
+    if(error)throw error;
+    const {data}=vdsDb.storage.from('player-images').getPublicUrl(path);
+    return data?.publicUrl||null;
+  }
+
+  function acceptedPlaystyleIds(){
+    let attack='none',defense='none';
+    for(const p of state.playstyles){
+      if(p.category==='attack')attack=p.id||'none';
+      if(p.category==='defense')defense=p.id||'none';
+    }
+    return {attack,defense};
+  }
+
+  async function acceptCardToWebsite(){
+    if(!cardReadyForAccept()){
+      $('acceptResult').className='acceptResult bad';
+      $('acceptResult').textContent='Finish all rolls before accepting the card.';
+      return;
+    }
+    if(!await refreshVdsAdminSession()){
+      $('acceptResult').className='acceptResult bad';
+      $('acceptResult').textContent='Sign in as VDS admin first.';
+      return;
+    }
+
+    const name=$('playerName').value.trim();
+    if(!name){
+      $('acceptResult').className='acceptResult bad';
+      $('acceptResult').textContent='Enter a player name or @username first.';
+      return;
+    }
+
+    const acceptBtn=$('acceptCardBtn');
+    acceptBtn.disabled=true;
+    acceptBtn.textContent='CREATING CARD…';
+    $('acceptResult').className='acceptResult';
+    $('acceptResult').textContent='Publishing the finished card to VDS…';
+
+    try{
+      const {data:existing,error:lookupError}=await vdsDb
+        .from('players')
+        .select('id,name,photo_url')
+        .eq('name',name)
+        .maybeSingle();
+      if(lookupError)throw lookupError;
+
+      if(existing&&!window.confirm(`${name} already exists in VDS. Replace its card stats with this roll?`)){
+        throw new Error('Publish cancelled.');
+      }
+
+      const uploadedPhoto=await uploadAcceptedPhoto(name);
+      const styles=acceptedPlaystyleIds();
+      const row={
+        name,
+        position:$('position').value,
+        creativity:val('creativity'),
+        accuracy:val('accuracy'),
+        hitting_power:val('hittingPower'),
+        serve_receive:val('serveReceive'),
+        positioning:val('positioning'),
+        covering:val('covering'),
+        work_rate:val('workRate'),
+        vertical:val('vertical'),
+        speed:val('speed'),
+        reaction_time:val('reactionTime'),
+        service:val('service'),
+        blocking:val('blocking'),
+        setting:val('setting'),
+        mindset:val('mindset'),
+        attack_playstyle:styles.attack,
+        defense_playstyle:styles.defense,
+        serve_type:state.serveType?.id||'auto',
+        final_rating:finalRating(),
+        shots:[],
+        affiliations:[],
+        tendencies:{},
+        card_art_scale:1,
+        card_art_x:0,
+        card_art_y:0,
+        secondary_positions:[],
+        ultimate_team_pool:$('vdsAddToUTPool').checked,
+        updated_at:new Date().toISOString()
+      };
+      if(uploadedPhoto)row.photo_url=uploadedPhoto;
+      else if(existing?.photo_url)row.photo_url=existing.photo_url;
+
+      let query;
+      if(existing?.id){
+        query=vdsDb.from('players').update(row).eq('id',existing.id).select('id,name,final_rating,ultimate_team_pool').single();
+      }else{
+        query=vdsDb.from('players').insert(row).select('id,name,final_rating,ultimate_team_pool').single();
+      }
+      const {data,error}=await query;
+      if(error)throw error;
+
+      $('acceptResult').className='acceptResult ok';
+      $('acceptResult').textContent=`✓ ${data.name} created on VDS as ${data.final_rating} ${cardTier(data.final_rating)}${data.ultimate_team_pool?' · added to UT Pool':''}.`;
+      acceptBtn.textContent='✓ CARD CREATED';
+    }catch(error){
+      $('acceptResult').className='acceptResult bad';
+      $('acceptResult').textContent=error?.message||String(error);
+      acceptBtn.textContent='ACCEPT + CREATE CARD';
+      updateAcceptState();
+      return;
+    }
+  }
+
+  function reset(){if(state.spinning)return;state.step=0;state.values={};state.serveType=null;state.playstyles=[];state.playQueue=[];state.rolledPosition=null;$('spinBtn').disabled=false;$('acceptCardBtn').textContent='ACCEPT + CREATE CARD';$('acceptResult').className='acceptResult';setupStep();updateAcceptState()}
+
+  STEPS.forEach((s,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=`${i+1}. ${s.label}`;$('startSelect').appendChild(opt)});
+  $('spinBtn').addEventListener('click',()=>STEPS[state.step]?rollStep():rollPlaystyle());
+  $('nextBtn').addEventListener('click',advance);
+  $('resetBtn').addEventListener('click',reset);
+  $('recordBtn').addEventListener('click',()=>{document.body.classList.toggle('recordMode');$('recordBtn').textContent=document.body.classList.contains('recordMode')?'EXIT RECORD MODE':'RECORD MODE'});
+  $('startSelect').addEventListener('change',e=>{if(state.spinning)return;state.step=Number(e.target.value)||0;setupStep()});
+  $('playerName').addEventListener('input',renderMeta);
+  $('position').addEventListener('change',()=>{renderMeta();renderBottom()});
+  $('vdsAdminLoginBtn').addEventListener('click',signInVdsAdmin);
+  $('acceptCardBtn').addEventListener('click',acceptCardToWebsite);
+  $('openSiteBtn').addEventListener('click',()=>window.open(VDS_SITE_URL,'_blank','noopener'));
+  document.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.code==='Space'){e.preventDefault();STEPS[state.step]?rollStep():rollPlaystyle()}if(e.key==='r'||e.key==='R')document.body.classList.toggle('recordMode')});
+
+  renderMeta();setupStep();renderBottom();refreshVdsAdminSession();
+})();
+</script>
+</body>
+</html>
