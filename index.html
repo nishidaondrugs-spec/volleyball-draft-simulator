@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B9.5 Ultimate Team Pool First</title>
+<title>Volleyball Draft Simulator — B9.7 Standardised Rarity Ladder</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -10129,7 +10129,7 @@ body{
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
 
-/* GOLD 80-84 — classic rich gold */
+/* GOLD 75-89 — standardised rich gold */
 #players .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -14087,7 +14087,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 80-84 — classic rich gold */
+/* GOLD 75-89 — standardised rich gold */
 #minidraft .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -16681,7 +16681,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 80-84 — classic rich gold */
+/* GOLD 75-89 — standardised rich gold */
 #miniPickReveal .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -28556,11 +28556,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 </section>
 
 
-<section id="ultimate" class="page" data-vds-build="B9.5-STAGE6E15">
+<section id="ultimate" class="page" data-vds-build="B9.7-STAGE6E17">
   <div class="vdsUTShell">
     <div class="vdsUTHeader vdsUTHeaderStage6B">
       <div>
-        <div class="vdsUTBuildBadge">STAGE 6E15 · ULTIMATE TEAM POOL</div>
+        <div class="vdsUTBuildBadge">STAGE 6E17 · STANDARD RARITY LADDER</div>
         <div class="homeKicker">VDS ULTIMATE TEAM</div>
         <h2>Your Club. Your Way.</h2>
         <p>Squad, missions, packs, collection and club profile now live inside one dedicated Ultimate Team hub.</p>
@@ -28831,9 +28831,11 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 
       <div class="vdsFilterGroup tierFilters" id="playerTierFilters">
         <button class="vdsFilter active" type="button" data-player-tier="ALL">ALL TIERS</button>
-        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD</button>
-        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER</button>
-        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE</button>
+        <button class="vdsFilter aceFilter" type="button" data-player-tier="ace">ACE 96–99</button>
+        <button class="vdsFilter eliteFilter" type="button" data-player-tier="elite">ELITE 90–95</button>
+        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD 75–89</button>
+        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER 60–74</button>
+        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE 1–59</button>
       </div>
 
       <select id="playerSort" class="vdsPlayerSort" aria-label="Sort players">
@@ -28842,6 +28844,14 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
         <option value="attack">Best Attack</option>
         <option value="defense">Best Defence</option>
       </select>
+    </div>
+
+    <div class="vdsTierRangeLegend" aria-label="VDS rarity ranges">
+      <span class="bronze">BRONZE <b>1–59</b></span>
+      <span class="silver">SILVER <b>60–74</b></span>
+      <span class="gold">GOLD <b>75–89</b></span>
+      <span class="elite">ELITE <b>90–95</b></span>
+      <span class="ace">ACE <b>96–99</b></span>
     </div>
 
     <div class="vdsPlayerStatusRow">
@@ -29711,13 +29721,12 @@ function effectivePositionRating(p,role){
 }
 
 function cardTier(p){
-  // Global VDS rarity system — natural-position rating drives rarity everywhere.
-  // 96–99 = ACE, 90–95 = ELITE.
+  // Standard VDS rarity ladder:
+  // 1–59 BRONZE · 60–74 SILVER · 75–89 GOLD · 90–95 ELITE · 96–99 ACE.
   const r=mainPositionRating(p);
   if(r>=96)return "ace";
   if(r>=90)return "elite";
-  if(r>=80)return "gold";
-  if(r>=69)return "rare_silver";
+  if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -29734,7 +29743,7 @@ function cardTierLabel(p){
 }
 
 // Total playstyle allowance by card tier.
-// Bronze: 1, Silver: 2, Gold: 3.
+// Bronze: 1, Silver / Rare Silver: 2, Gold / Elite / Ace: 3.
 function playstyleCapacity(p){
   const tier=cardTier(p);
   if(tier==="gold"||tier==="elite"||tier==="ace")return 3;
@@ -39184,8 +39193,7 @@ function miniDraftRoleTier(p,role){
   const r=miniDraftRoleRating(p,role);
   if(r>=96)return "ace";
   if(r>=90)return "elite";
-  if(r>=80)return "gold";
-  if(r>=69)return "rare_silver";
+  if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -41218,12 +41226,10 @@ const UT_PACKS={
 };
 
 const UT_RARITY={
-  bronze:{label:"BRONZE",min:45,max:59},
-  silver:{label:"SILVER",min:60,max:79},
-  rare_silver:{label:"SILVER",className:"rare_silver"},
-  gold:{label:"GOLD",min:80,max:89},
+  bronze:{label:"BRONZE",min:1,max:59},
+  silver:{label:"SILVER",min:60,max:74},
+  gold:{label:"GOLD",min:75,max:89},
   elite:{label:"ELITE",min:90,max:95},
-  rare_gold:{label:"ELITE",className:"elite"},
   ace:{label:"ACE",min:96,max:99}
 };
 
@@ -41305,13 +41311,12 @@ function resetUltimateTeam(){
 
 
 function utPlayerTier(player){
-  // Ultimate Team rarity matches the global VDS natural-position rarity system.
+  // Ultimate Team uses the same five-tier VDS ladder everywhere.
   const key=utMainPositionKey(player);
   const r=Math.round(positionRatings(player)[key] ?? overall(player));
   if(r>=96)return "ace";
   if(r>=90)return "elite";
-  if(r>=80)return "gold";
-  if(r>=69)return "rare_silver";
+  if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
 }
@@ -41993,7 +41998,7 @@ function profileTier(p){
   const r=mainPositionRating(p);
   if(r>=96)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
   if(r>=90)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
-  if(r>=80)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
+  if(r>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
   if(r>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
   return {key:"bronze",label:"BRONZE",cardClass:"profileTierBronze"};
 }
@@ -43947,7 +43952,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - Player Database, homepage carousel, Compare, Player Reveal,
    Ultimate Team/pack reveal and Mini Draft reveal all use purple ACE.
  - Ultimate Team threshold aligned from 92+ to 90+.
- - Gold is now strictly 80–89.
+ - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–89, Elite 90–95, Ace 96–99.
 */
 
 /*
@@ -45890,7 +45895,7 @@ function vdsRenderUltimateHubHome(){
         <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('missions')">VIEW MISSIONS</button>
       </div>
       <div class="vdsUTHubHomeCard gold">
-        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>70% Gold · 14.5% Elite · 0.5% Ace. Head into the dedicated Pack Store for the full opening experience.</p>
+        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>70% Gold (75–89) · 14.5% Elite (90–95) · 0.5% Ace (96–99). Head into the Pack Store for the full reveal experience.</p>
         <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">GO TO STORE</button>
       </div>
       <div class="vdsUTHubHomeCard">
@@ -45985,19 +45990,19 @@ let vdsPackStoreSelection="gold";
 const VDS_PACK_STORE_UI={
   bronze:{
     name:"Bronze Pack",tier:"BRONZE",cost:750,players:3,tag:"STARTER VALUE",
-    body:"Affordable club depth. A low-cost way to add options to a new squad and begin building your collection.",
+    body:"Affordable club depth. Bronze cards are rated 1–59, with a route into Silver 60–74 and Gold 75–89.",
     odds:[['Bronze',82],['Silver',17],['Gold',1]],
     glow:'rgba(184,105,62,.18)'
   },
   silver:{
     name:"Silver Pack",tier:"SILVER",cost:1500,players:4,tag:"BALANCED BUILD",
-    body:"A balanced upgrade pack with a strong Silver core, a solid Gold route, and a tiny chance of pulling Elite or Ace talent.",
+    body:"A balanced upgrade pack built around Silver 60–74, with Gold 75–89 upgrades and rare Elite 90–95 or Ace 96–99 pulls.",
     odds:[['Bronze',10],['Silver',69],['Gold',20],['Elite',0.5],['Ace',0.5]],
     glow:'rgba(178,204,225,.14)'
   },
   gold:{
     name:"Gold Pack",tier:"GOLD",cost:2500,players:5,tag:"ELITE HUNT",
-    body:"The premium VDS pack. Built for managers hunting Gold starters, purple Elite cards, and the ultra-rare black Ace pull.",
+    body:"The premium VDS pack. Hunt Gold 75–89 starters, purple Elite 90–95 cards, and the ultra-rare black Ace 96–99 pull.",
     odds:[['Silver',15],['Gold',70],['Elite',14.5],['Ace',0.5]],
     glow:'rgba(225,181,54,.20)'
   }
@@ -46027,6 +46032,13 @@ function vdsRenderPackStoreShowcase(){
     <div class="vdsUTPackShowcaseTop">
       <div class="vdsUTPackShowcaseTitle"><small>VDS CLUB STORE</small><b>Player Packs</b></div>
       <div class="vdsUTPackShowcaseWallet"><span>AVAILABLE BALANCE</span><b>${vdsPackStoreWalletText()} ◉</b></div>
+    </div>
+    <div class="vdsUTRarityStrip">
+      <span class="bronze">BRONZE <b>1–59</b></span>
+      <span class="silver">SILVER <b>60–74</b></span>
+      <span class="gold">GOLD <b>75–89</b></span>
+      <span class="elite">ELITE <b>90–95</b></span>
+      <span class="ace">ACE <b>96–99</b></span>
     </div>
     <div class="vdsUTPackStoreBody">
       <aside class="vdsUTPackRail">
@@ -46062,7 +46074,7 @@ function vdsRenderPackStoreShowcase(){
             <div class="vdsUTPackPrice"><span>OPEN FOR</span><b>${pack.cost.toLocaleString()} ◉</b></div>
             <button class="vdsUTPackOpenHero ${vdsPackStoreSelection==='gold'?'gold':''}" id="vdsUTPackHeroOpen" type="button">OPEN ${pack.tier} PACK</button>
           </div>
-          <div class="vdsUTPackFootnote">Pack outcomes use the existing VDS Ultimate Team rarity system. Opening this pack launches the same full reveal sequence and account-backed coin purchase.</div>
+          <div class="vdsUTPackFootnote">VDS rarity ladder: Bronze 1–59 · Silver 60–74 · Gold 75–89 · Elite 90–95 · Ace 96–99. Probabilities shown above apply per player slot.</div>
         </div>
       </main>
     </div>`;
@@ -46651,6 +46663,12 @@ VDS B9.0 STAGE 6E10 — ACE + ELITE TIER SPLIT
 -->
 
 
+<!--
+VDS B9.6 STAGE 6E16 — GOLD STARTS AT 75 / STANDARDISED TIER CUTS
+- Gold now starts at 75 everywhere in VDS.
+- Standard tier cuts: Bronze <60, Silver 60–68, Rare Silver 69–74, Gold 75–89, Elite 90–95, Ace 96–99.
+- Applied to player cards, mini draft tiering, Ultimate Team rarity, and profile tier displays.
+-->
 <!--
 VDS B9.1 STAGE 6E11 — BLACK ACE / PURPLE ELITE / UPDATED PACK ODDS
 - ACE cards are now matte black and gleamless.
@@ -47693,4 +47711,104 @@ VDS B9.5 STAGE 6E15 — ULTIMATE TEAM POOL FIRST
 - Existing 43 cloud players were seeded into the pool to preserve current live behaviour.
 - Newly created players start OUTSIDE the Ultimate Team Pool until explicitly added.
 - New starter-club generation is also restricted to the Ultimate Team Pool.
+-->
+
+
+<style id="VDS_B97_STANDARD_RARITY_UI">
+/* Stage 6E17 — one public rarity ladder everywhere. */
+#players .vdsTierRangeLegend,
+#ultimate .vdsUTRarityStrip{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+#players .vdsTierRangeLegend{
+  margin:10px 0 2px;
+}
+
+#players .vdsTierRangeLegend span,
+#ultimate .vdsUTRarityStrip span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  min-height:26px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#081522;
+  color:#9db2c4;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+
+#players .vdsTierRangeLegend span b,
+#ultimate .vdsUTRarityStrip span b{
+  font-size:8px;
+  color:inherit;
+}
+
+#players .vdsTierRangeLegend .bronze,
+#ultimate .vdsUTRarityStrip .bronze{color:#d29a72;border-color:rgba(201,139,93,.22)}
+#players .vdsTierRangeLegend .silver,
+#ultimate .vdsUTRarityStrip .silver{color:#dce7ee;border-color:rgba(208,226,236,.20)}
+#players .vdsTierRangeLegend .gold,
+#ultimate .vdsUTRarityStrip .gold{color:#f1d36f;border-color:rgba(238,201,87,.25)}
+#players .vdsTierRangeLegend .elite,
+#ultimate .vdsUTRarityStrip .elite{color:#ddb7ff;border-color:rgba(192,127,255,.26)}
+#players .vdsTierRangeLegend .ace,
+#ultimate .vdsUTRarityStrip .ace{
+  color:#f4f7fb;
+  border-color:rgba(238,243,249,.22);
+  background:linear-gradient(135deg,#141821,#07090d);
+}
+
+#ultimate .vdsUTRarityStrip{
+  padding:8px 0 13px;
+}
+
+#players .tierFilters .vdsFilter{
+  white-space:nowrap;
+}
+
+#players .vdsFilter.eliteFilter.active{
+  color:#f5eaff!important;
+  background:linear-gradient(135deg,#7b42d4,#40206f)!important;
+  border-color:rgba(219,181,255,.30)!important;
+}
+#players .vdsFilter.aceFilter.active{
+  color:#fff!important;
+  background:linear-gradient(135deg,#171c24,#05070a)!important;
+  border-color:rgba(255,255,255,.18)!important;
+}
+
+@media(max-width:700px){
+  #players .vdsTierRangeLegend,
+  #ultimate .vdsUTRarityStrip{
+    gap:5px;
+  }
+  #players .vdsTierRangeLegend span,
+  #ultimate .vdsUTRarityStrip span{
+    padding:5px 7px;
+    font-size:7px;
+  }
+}
+</style>
+
+<!--
+VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
+- Public rarity ladder is now fully standardised:
+  Bronze 1–59
+  Silver 60–74
+  Gold 75–89
+  Elite 90–95
+  Ace 96–99
+- Removed Rare Silver / Rare Gold from active rarity assignment logic.
+- Player Database filters now show all five tiers and their rating ranges.
+- Player Database includes a visible rarity-range legend.
+- Pack Store includes the same rarity-range legend and updated descriptive copy.
+- Featured-pack text and pack footnote now use the same ranges.
+- Starter Silver captain backend range updated to 60–74 in Supabase.
 -->
