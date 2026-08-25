@@ -28922,7 +28922,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="vdsUTEconomyHeroTop">
         <div>
           <span class="vdsUTEconomyKicker">MANAGER PROGRESSION</span>
-          <h3>Earn coins by actually playing VDS.</h3>
+          <h3>Earn coins by playing THE ACE PROJECT.</h3>
           <p>Complete online matches, finish daily objectives and spend your account balance on Ultimate Team packs.</p>
         </div>
         <div class="vdsUTEconomyStats">
@@ -28978,7 +28978,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
             <div id="utSquadRating">OVR —</div>
           </div>
         </div>
-        <div class="vdsUTLineupHelp">Club arena · your six play from the near side with the net at the far end. Drag portraits into each zone; mobile users can tap a bench card, then a court spot.</div>
+        <div class="vdsUTLineupHelp">Build your starting six. Drag a card into position — or tap a bench card, then tap the court on mobile.</div>
         <div class="vdsUTCourt vdsUTCourtEnhanced">
           <div class="vdsUTCourtAura"></div>
           <div class="vdsUTStadiumBackdrop">
@@ -29004,9 +29004,9 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
           </div>
           <div id="utBenchCards" class="vdsUTBenchCards"></div>
         </div>
-        <div class="vdsSquadFooter">
-          <span id="utSquadStatus">Open packs to build your squad.</span>
-          <span id="utUniqueCount">0 UNIQUE</span>
+        <div class="vdsSquadFooter aceSquadFooter">
+          <div><span id="utSquadStatus">Open packs to build your squad.</span><small id="utUniqueCount">0 UNIQUE</small></div>
+          <button class="aceSquadPlayBtn" id="aceUTPlayFromSquad" type="button"><span>▶</span><b>PLAY MATCH</b><small>TAKE THIS SIX ON COURT</small></button>
         </div>
       </div>
 
@@ -29049,16 +29049,29 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
     </div>
 
     <div class="vdsCollectionPanel">
-      <div class="utCollectionTop">
-        <div>
-          <div class="homeKicker">CLUB</div>
-          <h2>My Collection</h2>
-          <div class="small"><span id="utCollectionCount">0</span> cards collected · duplicates are kept</div>
+      <div class="aceClubTop">
+        <div class="aceClubTitle">
+          <span>THE ACE PROJECT · MY CLUB</span>
+          <h2>Your Cards.</h2>
+          <p><b id="utCollectionCount">0</b> cards owned · <b id="aceClubUniqueCount">0</b> unique players</p>
         </div>
-        <div class="vdsUTCollectionActions vdsUTCloudCollectionNote">
-          <span>ACCOUNT ECONOMY ACTIVE</span>
-          <small>Coins cannot be reset from the browser.</small>
+        <div class="aceClubTopActions">
+          <button type="button" onclick="vdsSwitchUltimateInstance('packs')">＋ OPEN PACKS</button>
+          <button type="button" onclick="vdsSwitchUltimateInstance('squad')">MANAGE SQUAD →</button>
         </div>
+      </div>
+      <div class="aceClubControls">
+        <label class="aceClubSearch"><span>⌕</span><input id="aceClubSearch" type="search" placeholder="Search your club" autocomplete="off"></label>
+        <div class="aceClubFilters" id="aceClubFilters">
+          <button class="active" type="button" data-club-filter="all">ALL</button>
+          <button type="button" data-club-filter="ace">ACE</button>
+          <button type="button" data-club-filter="elite">ELITE</button>
+          <button type="button" data-club-filter="rare_gold">RARE GOLD</button>
+          <button type="button" data-club-filter="gold">GOLD</button>
+          <button type="button" data-club-filter="silver">SILVER</button>
+          <button type="button" data-club-filter="bronze">BRONZE</button>
+        </div>
+        <select id="aceClubSort" aria-label="Sort My Club"><option value="rating">RATING ↓</option><option value="newest">NEWEST</option><option value="name">NAME A–Z</option></select>
       </div>
       <div class="utCollection" id="utCollection">
         <div class="vdsUTEmpty">Open your first pack to start your collection.</div>
@@ -29098,7 +29111,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
 <div class="utRevealOverlay" id="utRevealOverlay">
   <div class="utFullRevealScene">
     <div class="utRevealTopbar">
-      <div class="utRevealBrand"><b>VDS</b><span>ULTIMATE TEAM</span></div>
+      <div class="utRevealBrand aceRevealBrand"><img src="ace-project-logo.png" alt=""><span><b>THE ACE PROJECT</b><small>ULTIMATE TEAM</small></span></div>
       <div class="utRevealHeading"><small>PACK OPENING</small><strong>PLAYER REVEAL</strong></div>
       <div class="utRevealClubCount"><small>CLUB CARDS</small><b id="utRevealClubCount">0</b></div>
     </div>
@@ -29112,6 +29125,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="utRevealStageRing"></div>
 
       <div class="utPackBurst" id="utPackBurst">◆</div>
+      <div class="aceRevealPackDoor" id="aceRevealPackDoor" aria-hidden="true"></div>
       <div id="utRevealCard"></div>
     </div>
 
@@ -29124,9 +29138,12 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <span><b>6</b><em>CLUB</em></span>
     </div>
 
-    <div class="utRevealFooter">
+    <div class="utRevealFooter aceRevealFooter">
       <div class="utRevealStatus" id="utRevealStatus">OPENING PACK...</div>
-      <button class="utRevealContinue hidden" id="utRevealContinue" type="button">ADD TO CLUB <span>✓</span></button>
+      <div class="aceRevealActions hidden" id="aceRevealActions">
+        <button class="aceRevealAddSquad" id="aceRevealAddSquad" type="button"><span>＋</span><b>ADD TO SQUAD</b><small>PLACE THE CARD IN YOUR SIX</small></button>
+        <button class="aceRevealSendClub" id="aceRevealSendClub" type="button"><b>SEND TO MY CLUB</b><span>→</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -29153,19 +29170,6 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
         <input class="search" id="playerSearch" placeholder="Search player…">
       </div>
 
-      <div class="playerSetManager" id="playerSetManager">
-        <div class="playerSetTop">
-          <span>PLAYER SET</span>
-          <select id="playerSetSelect" aria-label="Active player set"></select>
-        </div>
-        <div class="playerSetActions">
-          <button class="miniBtn" type="button" id="createPlayerSetBtn">＋ New Set</button>
-          <button class="miniBtn" type="button" id="renamePlayerSetBtn">Rename</button>
-          <button class="miniBtn danger" type="button" id="deletePlayerSetBtn">Delete</button>
-        </div>
-        <div class="playerSetStatus" id="playerSetStatus">Loading groups from Supabase…</div>
-      </div>
-
       <div class="vdsFilterGroup" id="playerPositionFilters">
         <button class="vdsFilter active" type="button" data-player-pos="ALL">ALL</button>
         <button class="vdsFilter" type="button" data-player-pos="OH">OH</button>
@@ -29177,12 +29181,12 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
 
       <div class="vdsFilterGroup tierFilters" id="playerTierFilters">
         <button class="vdsFilter active" type="button" data-player-tier="ALL">ALL TIERS</button>
-        <button class="vdsFilter aceFilter" type="button" data-player-tier="ace">ACE 96–99</button>
-        <button class="vdsFilter eliteFilter" type="button" data-player-tier="elite">ELITE 90–95</button>
-        <button class="vdsFilter rareGoldFilter" type="button" data-player-tier="rare_gold">RARE GOLD 85–89</button>
-        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD 75–84</button>
-        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER 60–74</button>
-        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE 1–59</button>
+        <button class="vdsFilter aceFilter" type="button" data-player-tier="ace">ACE</button>
+        <button class="vdsFilter eliteFilter" type="button" data-player-tier="elite">ELITE</button>
+        <button class="vdsFilter rareGoldFilter" type="button" data-player-tier="rare_gold">RARE GOLD</button>
+        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD</button>
+        <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER</button>
+        <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE</button>
       </div>
 
       <select id="playerSort" class="vdsPlayerSort" aria-label="Sort players">
@@ -29208,12 +29212,36 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
         <span class="vdsStatusDivider">•</span>
         <span id="rosterStatus"></span>
       </div>
-      <div class="vdsPlayerAdminActions">
-        <button class="btn primary" id="comparePlayersBtn">⚖ Compare Players</button>
-        <button class="btn success" id="addPlayerBtn">＋ Add Player</button>
-        <button class="btn secondary" id="resetStatsBtn">Reload Official Stats</button>
+      <div class="vdsPlayerPublicActions">
+        <button class="vdsQuietAction" id="comparePlayersBtn" type="button">COMPARE PLAYERS</button>
       </div>
     </div>
+
+    <details class="vdsPlayerManagePanel" id="vdsPlayerManagePanel">
+      <summary>
+        <span>DATABASE TOOLS</span>
+        <b>Manage players & sets</b>
+        <i>＋</i>
+      </summary>
+      <div class="vdsPlayerManageBody">
+        <div class="playerSetManager" id="playerSetManager">
+        <div class="playerSetTop">
+          <span>PLAYER SET</span>
+          <select id="playerSetSelect" aria-label="Active player set"></select>
+        </div>
+        <div class="playerSetActions">
+          <button class="miniBtn" type="button" id="createPlayerSetBtn">＋ New Set</button>
+          <button class="miniBtn" type="button" id="renamePlayerSetBtn">Rename</button>
+          <button class="miniBtn danger" type="button" id="deletePlayerSetBtn">Delete</button>
+        </div>
+        <div class="playerSetStatus" id="playerSetStatus">Loading groups from Supabase…</div>
+      </div>
+        <div class="vdsPlayerAdminActions">
+          <button class="btn success" id="addPlayerBtn">＋ Add Player</button>
+          <button class="btn secondary" id="resetStatsBtn">Reload Official Stats</button>
+        </div>
+      </div>
+    </details>
 
     <section class="vdsPlayerRosterSection vdsUTPoolRosterSection" id="vdsUTPoolRosterSection">
       <div class="vdsPlayerRosterSectionHead">
@@ -41734,7 +41762,7 @@ async function openUltimatePack(packId){
   if(!pack)return;
 
   if(!vdsHasPermanentAccount()){
-    alert("Sign in to your VDS account before opening Ultimate Team packs.");
+    alert("Sign in to your ACE account before opening Ultimate Team packs.");
     return;
   }
 
@@ -41750,7 +41778,7 @@ async function openUltimatePack(packId){
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
   if(!isHostWallet && currentCoins<pack.cost){
-    alert(`Not enough VDS coins. ${pack.cost.toLocaleString()} coins required.`);
+    alert(`Not enough ACE coins. ${pack.cost.toLocaleString()} coins required.`);
     return;
   }
 
@@ -41815,6 +41843,7 @@ async function openUltimatePack(packId){
     };
 
     ultimateTeamState.cards.unshift(card);
+    aceLastRevealedCardUid=utCardUid(card);
     saveUltimateTeam();
     renderUltimateTeam();
     await showUltimateReveal(card,packId);
@@ -41823,7 +41852,7 @@ async function openUltimatePack(packId){
     console.error("VDS pack purchase failed",error);
     const msg=String(error?.message||"");
     if(/NOT_ENOUGH_COINS/i.test(msg)){
-      alert("Your account does not have enough VDS coins for this pack.");
+      alert("Your account does not have enough ACE coins for this pack.");
       await vdsRefreshAccountProgression({loadPanels:false});
     }else{
       alert("Pack purchase could not be completed. Your collection was not changed.");
@@ -41837,62 +41866,40 @@ async function showUltimateReveal(card,packId){
   const player=players.find(p=>p.name===card.playerName);
   const overlay=document.getElementById("utRevealOverlay");
   const burst=document.getElementById("utPackBurst");
+  const packDoor=document.getElementById("aceRevealPackDoor");
   const target=document.getElementById("utRevealCard");
   const status=document.getElementById("utRevealStatus");
-  const continueBtn=document.getElementById("utRevealContinue");
+  const revealActions=document.getElementById("aceRevealActions");
   const count=document.getElementById("utRevealClubCount");
-  if(!overlay||!target)return;
+  if(!overlay||!target||!player)return;
 
   if(count)count.textContent=String(ultimateTeamState.cards.length);
-  if(continueBtn)continueBtn.classList.add("hidden");
+  if(revealActions)revealActions.classList.add("hidden");
 
-  burst.textContent=
-    card.rarity==="ace"?"✦":
-    card.rarity==="rare_gold"?"✧":
-    card.rarity==="gold"?"◆":
-    card.rarity==="rare_silver"?"◈":
-    card.rarity==="silver"?"◇":"●";
+  const rarity=UT_RARITY[card.rarity]||{label:({rare_gold:"RARE GOLD",ace:"ACE",gold:"GOLD",silver:"SILVER",bronze:"BRONZE"})[card.rarity]||String(card.rarity).toUpperCase()};
+  const packName=String(packId||"gold").toUpperCase();
 
-  const rarity=UT_RARITY[card.rarity]||{label:({rare_silver:"SILVER",rare_gold:"RARE GOLD",ace:"ACE",gold:"GOLD",silver:"SILVER",bronze:"BRONZE"})[card.rarity]||String(card.rarity).toUpperCase()};
+  if(packDoor){
+    packDoor.className=`aceRevealPackDoor ${String(packId||'gold')}`;
+    packDoor.innerHTML=`<div class="aceRevealPackFoil"></div><img src="ace-project-logo.png" alt=""><small>THE ACE PROJECT</small><b>${packName}</b><span>PLAYER PACK</span><i>♠</i>`;
+  }
+
+  burst.textContent=card.rarity==="ace"?"♠":card.rarity==="elite"?"✦":card.rarity==="rare_gold"?"◆":"·";
+
   target.innerHTML=`
-    <div class="utPremiumCard utAnimatedCard ${card.rarity}">
-      <div class="utPremiumTexture"></div>
-      <div class="utPremiumBrand">VDS</div>
-
-      <div class="utPremiumRarity">${rarity.label}</div>
-
-      <div class="utPremiumRating">
-        ${card.rating}
-        <span>${esc(card.position||"-")}</span>
-      </div>
-
-      <div class="utPremiumPortraitWrap">
-        <div class="utPremiumMystery">?</div>
-        ${card.photo
-          ? `<img class="utPremiumPortrait" src="${card.photo}" alt="${esc(card.playerName)}">`
-          : `<div class="utPremiumPortrait utPremiumFallback">👤</div>`}
-      </div>
-
-      <div class="utPremiumEnergy"></div>
-      <div class="utPremiumHexes"><i></i><i></i><i></i><i></i><i></i></div>
-
-      <div class="utPremiumName">${esc(card.playerName)}</div>
-      <div class="utPremiumMeta">${esc(card.position||"-")} · OVR ${card.overallRating??card.sourceOverall??overall(player||{})}</div>
-
-      <div class="utPremiumStats">
-        <span>ATT <b>${card.stats.attack}</b></span>
-        <span>DEF <b>${card.stats.defense}</b></span>
-        <span>PHY <b>${card.stats.physical}</b></span>
-        <span>SRV <b>${card.stats.service}</b></span>
-        <span>BLK <b>${card.stats.blocking}</b></span>
-        <span>SET <b>${card.stats.setting}</b></span>
-      </div>
-
-      <div class="utPremiumV">V</div>
+    <div class="fifaPlayerCard aceUTRevealCard ${card.rarity}" data-ace-reveal="sealed">
+      ${vdsMasterPlayerCardHTML(player,{
+        role:card.position||player.position||"POS",
+        rating:card.rating,
+        tier:card.rarity,
+        tierLabel:rarity.label,
+        footer:"PACK PULL · THE ACE PROJECT",
+        reveal:true
+      })}
     </div>`;
 
-  overlay.classList.remove("finish","rarityOn","ratingOn","playerOn","nameOn","clubOn");
-  overlay.classList.add("show");
+  overlay.classList.remove("finish","packOpen","rarityOn","ratingOn","playerOn","nameOn","clubOn");
+  overlay.classList.add("show","packSealed");
 
   const steps=[...overlay.querySelectorAll(".utRevealSteps span")];
   const setStep=(index,text)=>{
@@ -41900,29 +41907,34 @@ async function showUltimateReveal(card,packId){
     if(status)status.textContent=text;
   };
 
-  setStep(0,"CARD ENTERING...");
-  await new Promise(r=>setTimeout(r,520));
+  setStep(0,"PACK SEALED");
+  await new Promise(r=>setTimeout(r,360));
+
+  overlay.classList.add("packOpen");
+  overlay.classList.remove("packSealed");
+  setStep(0,"CARD ENTERING");
+  await new Promise(r=>setTimeout(r,300));
 
   overlay.classList.add("rarityOn");
-  setStep(1,`${rarity.label} CARD`);
-  await new Promise(r=>setTimeout(r,480));
+  setStep(1,`${rarity.label}`);
+  await new Promise(r=>setTimeout(r,300));
 
   overlay.classList.add("ratingOn");
-  setStep(2,"RATING REVEAL");
-  await new Promise(r=>setTimeout(r,520));
+  setStep(2,`${card.rating} RATING`);
+  await new Promise(r=>setTimeout(r,330));
 
   overlay.classList.add("playerOn");
   setStep(3,"PLAYER REVEAL");
-  await new Promise(r=>setTimeout(r,680));
+  await new Promise(r=>setTimeout(r,430));
 
   overlay.classList.add("nameOn");
-  setStep(4,"NAME REVEAL");
-  await new Promise(r=>setTimeout(r,520));
+  setStep(4,card.playerName.toUpperCase());
+  await new Promise(r=>setTimeout(r,300));
 
   overlay.classList.add("clubOn");
-  setStep(5,"READY FOR YOUR CLUB");
-  if(status)status.textContent="Take a look at your card, then add it to your club.";
-  if(continueBtn)continueBtn.classList.remove("hidden");
+  setStep(5,"NEW CLUB CARD");
+  if(status)status.textContent="Card added to your collection.";
+  if(revealActions)revealActions.classList.remove("hidden");
 }
 function refreshUltimateCardsFromMaster(){
   if(!Array.isArray(ultimateTeamState.cards))return;
@@ -41975,6 +41987,61 @@ const UT_LINEUP_SLOTS=[
   {viewIndex:5,dataIndex:5,zone:"P1",label:"BACK RIGHT",hint:"Setter serve start",role:"S"}
 ];
 let utSelectedBenchCardUid=null;
+let aceLastRevealedCardUid=null;
+let aceClubFilter="all";
+let aceClubSort="rating";
+let aceClubSearch="";
+
+function aceIsRecentClubCard(card){
+  if(!card)return false;
+  if(aceLastRevealedCardUid && String(utCardUid(card))===String(aceLastRevealedCardUid))return true;
+  const t=Date.parse(card.pulledAt||"");
+  return Number.isFinite(t) && Date.now()-t < 15*60*1000;
+}
+
+function aceUltimateMasterPlayer(card){
+  if(!card||!Array.isArray(players))return null;
+  if(card.playerId!=null){
+    const byId=players.find(p=>Number(p.cloudId)===Number(card.playerId));
+    if(byId)return byId;
+  }
+  return players.find(p=>String(p.name||"")===String(card.playerName||""))||null;
+}
+
+function aceAssignFreshCardToSquad(card){
+  if(!card)return false;
+  utEnsureLineup();
+  const uid=utCardUid(card);
+  const slots=(ultimateTeamState.lineupSlots||Array(6).fill(null)).slice(0,6);
+  const desired={OH:[0,3],M:[1],OP:[2],L:[4],S:[5]}[String(card.position||"").toUpperCase()]||[];
+  let target=desired.find(i=>!slots[i]);
+  if(target==null)target=slots.findIndex(v=>!v);
+  if(target>=0){
+    const existing=slots.findIndex(v=>String(v||"")===String(uid));
+    if(existing>=0)slots[existing]=null;
+    slots[target]=uid;
+    ultimateTeamState.lineupSlots=slots;
+    ultimateTeamState.lineupMode="custom";
+    utSelectedBenchCardUid=null;
+    saveUltimateTeam();
+    renderUltimateSquadVisual();
+    return true;
+  }
+  utSelectedBenchCardUid=uid;
+  renderUltimateSquadVisual();
+  return false;
+}
+
+function aceCloseUltimateReveal(destination){
+  const overlay=document.getElementById("utRevealOverlay");
+  if(!overlay)return;
+  overlay.classList.add("finish");
+  setTimeout(()=>{
+    overlay.classList.remove("show","finish","packSealed","packOpen","rarityOn","ratingOn","playerOn","nameOn","clubOn");
+    if(destination)vdsSwitchUltimateInstance(destination);
+  },190);
+}
+
 
 function utCardUid(card){
   if(!card)return null;
@@ -42111,8 +42178,9 @@ function renderUltimateBench(){
     const uid=utCardUid(card);
     const inSquad=slotted.has(String(uid));
     const selected=String(uid)===String(utSelectedBenchCardUid);
-    return `<button class="vdsUTBenchCard ${card.rarity} ${inSquad?"in-squad":""} ${selected?"selected":""}" type="button" draggable="true" data-card-uid="${esc(uid)}">
-      <div class="vdsUTBenchTag">${inSquad?"IN XI":"BENCH"}</div>
+    const fresh=aceIsRecentClubCard(card);
+    return `<button class="vdsUTBenchCard ${card.rarity} ${inSquad?"in-squad":""} ${selected?"selected":""} ${fresh?"recently-packed":""}" type="button" draggable="true" data-card-uid="${esc(uid)}">
+      <div class="vdsUTBenchTag">${fresh?"NEW":inSquad?"IN SIX":"BENCH"}</div>
       <div class="vdsUTBenchRate">${card.rating}<small>${esc(card.position||"-")}</small></div>
       ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsUTBenchFallback">👤</div>`}
       <div class="vdsUTBenchShade"></div>
@@ -42190,13 +42258,19 @@ function renderUltimateSquadVisual(){
     serveBtn.addEventListener('click',utAutoBuildLineup);
   }
 
+  const playBtn=document.getElementById("aceUTPlayFromSquad");
+  if(playBtn && !playBtn.dataset.bound){
+    playBtn.dataset.bound="1";
+    playBtn.addEventListener("click",()=>goPage("sim"));
+  }
+
   const status=document.getElementById("utSquadStatus");
   if(status){
-    if(!filled.length)status.textContent='No lineup selected yet. Drag cards from the bench onto the rally view court.';
-    else if(filled.length<6)status.textContent=`${filled.length}/6 starters selected · place the rest onto the court.`;
+    if(!filled.length)status.textContent='Select a bench card and place it on court.';
+    else if(filled.length<6)status.textContent=`${filled.length}/6/6 starters · complete your starting six.`;
     else status.textContent=(ultimateTeamState.lineupMode==='serving')
-      ? 'Serving rotation active · setter anchored in P1 (back right). View uses rally positioning only.'
-      : 'Custom lineup active · drag portraits between zones or hit Auto Build.';
+      ? 'Starting six ready · serving rotation active.'
+      : 'Starting six ready · custom lineup active.';
   }
   const unique=document.getElementById("utUniqueCount");
   if(unique)unique.textContent=`${utBestUniqueCards().length} UNIQUE`;
@@ -42260,26 +42334,97 @@ function renderUltimateTeam(){
     return;
   }
 
-  const counts={};
-  ultimateTeamState.cards.forEach(c=>{
-    const k=`${c.playerName}|${c.rarity}`;
-    counts[k]=(counts[k]||0)+1;
+  const grouped=new Map();
+  ultimateTeamState.cards.forEach(card=>{
+    const key=`${card.playerId||card.playerName}|${card.rarity}`;
+    if(!grouped.has(key))grouped.set(key,{card,count:0,newest:0});
+    const entry=grouped.get(key);
+    entry.count+=1;
+    const pulled=Date.parse(card.pulledAt||"")||0;
+    if(pulled>=entry.newest){entry.newest=pulled;entry.card=card;}
   });
 
-  grid.innerHTML=ultimateTeamState.cards.map(card=>{
-    const dupes=counts[`${card.playerName}|${card.rarity}`]||1;
-    return `<div class="utCollectionCard utPremiumCollectionCard ${card.rarity}">
-      ${dupes>1?`<span class="utDupe">x${dupes}</span>`:""}
-      <div class="utCollectionBrand">VDS</div>
-      <div class="utCollectionRating">${card.rating}<span>${esc(card.position||"-")}</span></div>
-      ${card.photo
-        ? `<img class="utCollectionPhoto utPremiumCollectionPhoto" src="${card.photo}" alt="${esc(card.playerName)}">`
-        : `<div class="utCollectionPhoto utPremiumCollectionPhoto utPhotoFallback" style="display:flex;margin:7px auto">👤</div>`}
-      <div class="utCollectionName">${esc(card.playerName)}</div>
-      <div class="utCollectionMeta">${UT_RARITY[card.rarity]?.label||card.rarity.toUpperCase()} · OVR ${card.overallRating??card.sourceOverall??"—"}</div>
-      <div class="utCollectionMeta" style="margin-top:7px">ATT ${card.stats.attack} · DEF ${card.stats.defense} · PHY ${card.stats.physical}</div>
-    </div>`;
-  }).join("");
+  const uniqueEntries=[...grouped.values()];
+  const uniqueCount=document.getElementById("aceClubUniqueCount");
+  if(uniqueCount)uniqueCount.textContent=String(uniqueEntries.length);
+
+  let entries=uniqueEntries.filter(({card})=>{
+    const rarityOk=aceClubFilter==="all"||card.rarity===aceClubFilter;
+    const searchOk=!aceClubSearch||String(card.playerName||"").toLowerCase().includes(aceClubSearch.toLowerCase())||String(card.position||"").toLowerCase().includes(aceClubSearch.toLowerCase());
+    return rarityOk&&searchOk;
+  });
+  entries.sort((a,b)=>{
+    if(aceClubSort==="newest")return Number(b.newest||0)-Number(a.newest||0);
+    if(aceClubSort==="name")return String(a.card.playerName||"").localeCompare(String(b.card.playerName||""));
+    return Number(b.card.rating||0)-Number(a.card.rating||0)||String(a.card.playerName||"").localeCompare(String(b.card.playerName||""));
+  });
+
+  if(!entries.length){
+    grid.innerHTML='<div class="vdsUTEmpty aceClubEmpty">No cards match this view.</div>';
+  }else{
+    grid.innerHTML=entries.map(({card,count})=>{
+      const player=aceUltimateMasterPlayer(card);
+      const uid=utCardUid(card);
+      const fresh=aceIsRecentClubCard(card);
+      const inSquad=utFindSlotOfCard(uid)>=0;
+      const cardMarkup=player?vdsMasterPlayerCardHTML(player,{
+        role:card.position||player.position||"POS",
+        rating:card.rating,
+        tier:card.rarity,
+        tierLabel:UT_RARITY[card.rarity]?.label||card.rarity.toUpperCase(),
+        footer:"MY CLUB"
+      }):`<div class="aceClubFallback"><b>${card.rating}</b><span>${esc(card.playerName)}</span></div>`;
+      return `<article class="aceClubCard ${card.rarity} ${fresh?"is-new":""}" data-club-card-uid="${esc(uid)}" data-club-player="${esc(card.playerName)}">
+        <div class="aceClubCardFlags">
+          ${fresh?'<span class="aceClubNew">NEW</span>':''}
+          ${count>1?`<span class="aceClubDupe">x${count}</span>`:''}
+          ${inSquad?'<span class="aceClubInSquad">IN SIX</span>':''}
+        </div>
+        <button class="aceClubCardView" type="button" aria-label="View ${esc(card.playerName)}">
+          <div class="fifaPlayerCard ${card.rarity}">${cardMarkup}</div>
+        </button>
+        <div class="aceClubCardActions">
+          <button type="button" data-club-squad="${esc(uid)}">${inSquad?'SELECT IN SQUAD':'ADD TO SQUAD'}</button>
+          <button type="button" data-club-view="${esc(card.playerName)}">VIEW CARD</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  const search=document.getElementById("aceClubSearch");
+  if(search && !search.dataset.bound){
+    search.dataset.bound="1";
+    search.addEventListener("input",()=>{aceClubSearch=search.value.trim();renderUltimateTeam();});
+  }
+  if(search && search.value!==aceClubSearch)search.value=aceClubSearch;
+
+  const sort=document.getElementById("aceClubSort");
+  if(sort && !sort.dataset.bound){
+    sort.dataset.bound="1";
+    sort.addEventListener("change",()=>{aceClubSort=sort.value;renderUltimateTeam();});
+  }
+  if(sort)sort.value=aceClubSort;
+
+  document.querySelectorAll("#aceClubFilters [data-club-filter]").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.clubFilter===aceClubFilter);
+    if(!btn.dataset.bound){
+      btn.dataset.bound="1";
+      btn.addEventListener("click",()=>{aceClubFilter=btn.dataset.clubFilter||"all";renderUltimateTeam();});
+    }
+  });
+  grid.querySelectorAll("[data-club-view]").forEach(btn=>btn.addEventListener("click",e=>{
+    e.stopPropagation();openVdsCardShowcase(btn.dataset.clubView);
+  }));
+  grid.querySelectorAll(".aceClubCardView").forEach(btn=>btn.addEventListener("click",()=>{
+    const article=btn.closest("[data-club-player]");if(article)openVdsCardShowcase(article.dataset.clubPlayer);
+  }));
+  grid.querySelectorAll("[data-club-squad]").forEach(btn=>btn.addEventListener("click",e=>{
+    e.stopPropagation();
+    const uid=btn.dataset.clubSquad;
+    const card=ultimateTeamState.cards.find(c=>String(utCardUid(c))===String(uid));
+    if(card)aceAssignFreshCardToSquad(card);
+    vdsSwitchUltimateInstance("squad");
+  }));
 }
 
 
@@ -43219,13 +43364,14 @@ document.querySelectorAll("[data-ut-pack]").forEach(pack=>{
   };
 });
 
-document.getElementById("utRevealContinue")?.addEventListener("click",()=>{
-  const overlay=document.getElementById("utRevealOverlay");
-  if(!overlay)return;
-  overlay.classList.add("finish");
-  setTimeout(()=>{
-    overlay.classList.remove("show","finish","rarityOn","ratingOn","playerOn","nameOn","clubOn");
-  },240);
+document.getElementById("aceRevealAddSquad")?.addEventListener("click",()=>{
+  const card=ultimateTeamState.cards.find(c=>String(utCardUid(c))===String(aceLastRevealedCardUid));
+  if(card)aceAssignFreshCardToSquad(card);
+  aceCloseUltimateReveal("squad");
+});
+document.getElementById("aceRevealSendClub")?.addEventListener("click",()=>{
+  renderUltimateTeam();
+  aceCloseUltimateReveal("club");
 });
 
 
@@ -46282,7 +46428,7 @@ function vdsInitUltimateHub(){
     <section class="vdsUTInstance active" data-ut-instance="home"><div id="vdsUTHubHome"></div></section>
     <section class="vdsUTInstance" data-ut-instance="missions">${vdsUltimateInstanceIntro("PROGRESSION","Missions","Complete daily objectives, collect bonuses and keep your club moving forward.")}<div id="vdsUTHubMissionsMount"></div></section>
     <section class="vdsUTInstance" data-ut-instance="squad">${vdsUltimateInstanceIntro("TEAM MANAGEMENT","Club Squad","Build the starting six, set the serving rotation and organise your bench.")}<div id="vdsUTHubSquadMount"></div></section>
-    <section class="vdsUTInstance" data-ut-instance="packs">${vdsUltimateInstanceIntro("CLUB STORE","Pack Store","Spend VDS Coins on packs and launch the full player-reveal experience.")}<div id="vdsUTHubPacksMount"></div></section>
+    <section class="vdsUTInstance" data-ut-instance="packs">${vdsUltimateInstanceIntro("CLUB STORE","Pack Store","Spend ACE Coins on packs and launch the full player-reveal experience.")}<div id="vdsUTHubPacksMount"></div></section>
     <section class="vdsUTInstance" data-ut-instance="club">${vdsUltimateInstanceIntro("COLLECTION","My Club","Browse every card you own. Squad management stays separate so the collection can breathe.")}<div id="vdsUTHubClubMount"></div></section>
     <section class="vdsUTInstance" data-ut-instance="profile">${vdsUltimateInstanceIntro("MANAGER","Club Profile","Your permanent record, rating, progression and recent online form.")}<div id="vdsUTHubProfile"></div></section>`;
 
@@ -46337,52 +46483,82 @@ function vdsRenderUltimateHubHome(){
   const mount=document.getElementById("vdsUTHubHome");
   if(!mount)return;
   const p=vdsAccountProfile||{};
-  const display=p.display_name||vdsAccountSession?.user?.user_metadata?.full_name||"VDS Manager";
-  const username=p.username?`@${p.username}`:"VDS CLUB";
+  const display=p.display_name||vdsAccountSession?.user?.user_metadata?.full_name||"ACE Manager";
+  const username=p.username?`@${p.username}`:"ACE CLUB";
   const coins=p.is_host_account?"∞":Number(p.coins||0).toLocaleString();
   const lineup=vdsHubOwnedLineupCards();
   const filled=lineup.filter(Boolean);
   const d=vdsDailyProgressCache||{};
   const completed=[d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded].filter(Boolean).length;
   const firstWin=d.first_win_rewarded?"CLAIMED":"+200 AVAILABLE";
+  const owned=Number(ultimateTeamState?.cards?.length||0);
 
   mount.innerHTML=`
-    <div class="vdsUTHubHomeHero">
-      <div>
-        <div class="vdsUTHubClubKicker">${esc(username)} · ULTIMATE TEAM</div>
-        <h1 class="vdsUTHubClubName">${esc(display)}</h1>
-        <div class="vdsUTHubClubMeta">
-          <span>LV ${Number(p.manager_level||1)}</span>
-          <span>ELO ${Number(p.elo||1000).toLocaleString()}</span>
-          <span>${Number(p.wins||0)} W · ${Number(p.losses||0)} L</span>
-          <span>${coins} ◉</span>
-          ${p.is_host_account?'<span>HOST · UNLIMITED WALLET</span>':""}
+    <div class="aceUTHomeStage">
+      <div class="aceUTHomeCopy">
+        <div class="aceUTHomeBrand">
+          <img src="ace-project-logo.png" alt="">
+          <div><span>THE ACE PROJECT</span><b>ULTIMATE TEAM</b></div>
         </div>
-        <div class="vdsUTHubHomeActions">
-          <button class="vdsUTHubPrimary" type="button" onclick="vdsSwitchUltimateInstance('squad')">MANAGE SQUAD</button>
-          <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">OPEN PACKS</button>
+
+        <div class="aceUTHomeManager">${esc(username)} · YOUR CLUB</div>
+        <h1>${esc(display)}</h1>
+        <p>Open packs. Build your six. Play matches. Keep the club moving.</p>
+
+        <div class="aceUTHomeMainActions">
+          <button class="aceUTHomePrimary" type="button" onclick="vdsSwitchUltimateInstance('packs')">
+            <span>♠</span><b>OPEN PACKS</b><small>CHASE YOUR NEXT ACE</small>
+          </button>
+          <button class="aceUTHomeSecondary" type="button" onclick="vdsSwitchUltimateInstance('squad')">
+            <span>⬡</span><b>MANAGE SQUAD</b><small>${filled.length}/6 STARTERS SET</small>
+          </button>
+          <button class="aceUTHomeGhost" type="button" onclick="goPage('sim')">
+            <span>▶</span><b>PLAY MATCH</b><small>TAKE YOUR TEAM ON COURT</small>
+          </button>
+        </div>
+
+        <div class="aceUTHomeStats">
+          <div><span>LEVEL</span><b>${Number(p.manager_level||1)}</b></div>
+          <div><span>ELO</span><b>${Number(p.elo||1000).toLocaleString()}</b></div>
+          <div><span>RECORD</span><b>${Number(p.wins||0)}-${Number(p.losses||0)}</b></div>
+          <div><span>COINS</span><b>${coins}</b></div>
         </div>
       </div>
-      <div class="vdsUTHubSquadPreview">
-        <div class="vdsUTHubPreviewCourt"></div>
-        <div class="vdsUTHubPreviewPlayers">
-          ${filled.length?lineup.map(card=>card?`<div class="vdsUTHubPreviewPlayer">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${card.rating}</b></div>`:'').join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
+
+      <div class="aceUTHomeVisual">
+        <div class="aceUTHomeVisualGlow"></div>
+        <div class="aceUTHomeSquadLabel"><span>STARTING SIX</span><b>${filled.length}/6 READY</b></div>
+        <div class="vdsUTHubSquadPreview aceUTSquadPreview">
+          <div class="vdsUTHubPreviewCourt"></div>
+          <div class="vdsUTHubPreviewPlayers">
+            ${filled.length?lineup.map(card=>card?`<div class="vdsUTHubPreviewPlayer">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${card.rating}</b></div>`:'').join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
+          </div>
         </div>
+
+        <button class="aceUTFeaturedPack" type="button" onclick="vdsSwitchUltimateInstance('packs')">
+          <div class="aceUTFeaturedPackArt">
+            <span>THE ACE PROJECT</span><b>GOLD</b><i>PACK</i>
+          </div>
+          <div>
+            <small>FEATURED PACK</small>
+            <strong>Rare Gold Hunt</strong>
+            <em>2,500 ◉ · 85–89 Rare Gold available</em>
+          </div>
+          <span class="aceUTFeaturedArrow">→</span>
+        </button>
       </div>
     </div>
-    <div class="vdsUTHubHomeGrid">
-      <div class="vdsUTHubHomeCard">
-        <span>MISSIONS</span><h3>${completed}/3 Daily Complete</h3><p>First win today: ${firstWin}. Keep playing to earn coins and XP.</p>
-        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('missions')">VIEW MISSIONS</button>
-      </div>
-      <div class="vdsUTHubHomeCard gold">
-        <span>FEATURED PACK</span><h3>Gold Pack · 2,500 ◉</h3><p>70% Gold (75–89) · 14.5% Elite (90–95) · 0.5% Ace (96–99). Head into the Pack Store for the full reveal experience.</p>
-        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('packs')">GO TO STORE</button>
-      </div>
-      <div class="vdsUTHubHomeCard">
-        <span>CLUB</span><h3>${Number(ultimateTeamState?.cards?.length||0)} Cards Owned</h3><p>${filled.length}/6 starting-six slots filled. Collection and manager profile now have their own spaces.</p>
-        <button class="vdsUTHubSecondary" type="button" onclick="vdsSwitchUltimateInstance('club')">VIEW MY CLUB</button>
-      </div>
+
+    <div class="aceUTHomeRail">
+      <button type="button" onclick="vdsSwitchUltimateInstance('missions')">
+        <span>DAILY MISSIONS</span><b>${completed}/3 COMPLETE</b><small>First win: ${firstWin}</small><i>→</i>
+      </button>
+      <button type="button" onclick="vdsSwitchUltimateInstance('club')">
+        <span>MY CLUB</span><b>${owned} CARDS OWNED</b><small>Browse your collection</small><i>→</i>
+      </button>
+      <button type="button" onclick="vdsSwitchUltimateInstance('profile')">
+        <span>MANAGER</span><b>LV ${Number(p.manager_level||1)} · ${Number(p.elo||1000).toLocaleString()} ELO</b><small>Profile & recent form</small><i>→</i>
+      </button>
     </div>`;
 }
 
@@ -46504,59 +46680,80 @@ function vdsRenderPackStoreShowcase(){
   if(!showcase){
     showcase=document.createElement('div');
     showcase.id='vdsUTPackShowcase';
-    showcase.className='vdsUTPackShowcase';
+    showcase.className='vdsUTPackShowcase acePackStore';
     mount.prepend(showcase);
   }
   const pack=VDS_PACK_STORE_UI[vdsPackStoreSelection]||VDS_PACK_STORE_UI.gold;
+  const selection=vdsPackStoreSelection;
+  const isGold=selection==='gold';
+  showcase.dataset.pack=selection;
   showcase.style.setProperty('--pack-glow',pack.glow);
   showcase.innerHTML=`
-    <div class="vdsUTPackShowcaseTop">
-      <div class="vdsUTPackShowcaseTitle"><small>VDS CLUB STORE</small><b>Player Packs</b></div>
-      <div class="vdsUTPackShowcaseWallet"><span>AVAILABLE BALANCE</span><b>${vdsPackStoreWalletText()} ◉</b></div>
+    <div class="acePackStoreHero">
+      <div class="acePackStoreBrand">
+        <img src="ace-project-logo.png" alt="">
+        <div><span>THE ACE PROJECT</span><b>PACK STORE</b></div>
+      </div>
+      <div class="acePackStoreHeroCopy">
+        <small>${isGold?'FEATURED PACK':'CLUB STORE'}</small>
+        <h2>${isGold?'CHASE YOUR NEXT ACE.':'BUILD YOUR COLLECTION.'}</h2>
+        <p>${isGold?'Rare Gold 85–89, Elite 90–95 and the ultra-rare Ace 96–99 are all in play.':'Choose a pack, check the odds and add a new card to your club.'}</p>
+      </div>
+      <div class="acePackWallet">
+        <span>ACE COINS</span><b>${vdsPackStoreWalletText()} ◉</b>
+      </div>
     </div>
-    <div class="vdsUTRarityStrip">
-      <span class="bronze">BRONZE <b>1–59</b></span>
-      <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–84</b></span>
-      <span class="rare_gold">RARE GOLD <b>85–89</b></span>
-      <span class="elite">ELITE <b>90–95</b></span>
-      <span class="ace">ACE <b>96–99</b></span>
-    </div>
-    <div class="vdsUTPackStoreBody">
-      <aside class="vdsUTPackRail">
-        <div class="vdsUTPackRailHead">CHOOSE PACK</div>
+
+    <div class="acePackStoreBody">
+      <nav class="acePackSelector" aria-label="Choose pack">
         ${['gold','silver','bronze'].map(id=>{
           const p=VDS_PACK_STORE_UI[id];
-          return `<button class="vdsUTPackChoice ${id} ${id===vdsPackStoreSelection?'active':''}" data-vds-store-pack="${id}" type="button">
-            <div class="vdsUTPackChoiceArt">VDS</div>
-            <div class="vdsUTPackChoiceInfo"><b>${p.name}</b><small>${p.players} players · ${p.tag}</small></div>
-            <div class="vdsUTPackChoicePrice">${p.cost.toLocaleString()} ◉</div>
+          const rare=id==='gold'?'RARE GOLD HUNT':id==='silver'?'BALANCED CLUB':'STARTER VALUE';
+          return `<button class="acePackChoice ${id} ${id===selection?'active':''}" data-vds-store-pack="${id}" type="button">
+            <div class="acePackChoiceMini"><img src="ace-project-logo.png" alt=""><b>${p.tier}</b></div>
+            <div class="acePackChoiceCopy"><small>${rare}</small><strong>${p.name}</strong><span>${p.players} CARDS · ${p.cost.toLocaleString()} ◉</span></div>
+            <i>→</i>
           </button>`;
         }).join('')}
-      </aside>
-      <main class="vdsUTPackStage">
-        <div class="vdsUTPackArtScene">
-          <div class="vdsUTPackAura"></div>
-          <div class="vdsUTPackHeroArt ${vdsPackStoreSelection}">
-            <div class="vdsUTPackHeroTop"><span>${pack.tier}</span><span>${pack.players} PLAYERS</span></div>
-            <div class="vdsUTPackHeroLogo"><b>VDS</b><span>ULTIMATE TEAM</span></div>
-            <div class="vdsUTPackHeroBottom"><b>${pack.name.toUpperCase()}</b><span>PLAYER PACK</span></div>
+      </nav>
+
+      <main class="acePackFeature">
+        <div class="acePackArtZone">
+          <div class="acePackStageGlow"></div>
+          <div class="acePackStageRing"></div>
+          <div class="acePackHero ${selection}">
+            <div class="acePackFoil"></div>
+            <div class="acePackTopline"><span>${pack.tier}</span><span>${pack.players} CARDS</span></div>
+            <img src="ace-project-logo.png" alt="THE ACE PROJECT">
+            <div class="acePackHeroWord"><small>THE ACE PROJECT</small><b>${pack.tier}</b><span>PLAYER PACK</span></div>
+            <div class="acePackSeal">♠</div>
           </div>
+          ${isGold?'<div class="acePackFeaturedTag">FEATURED · RARE GOLD HUNT</div>':''}
         </div>
-        <div class="vdsUTPackDetail">
-          <div class="vdsUTPackDetailKicker">${pack.tier} · ${pack.tag}</div>
-          <h2>${pack.name}</h2>
-          <p class="vdsUTPackDetailText">${pack.body}</p>
-          <div class="vdsUTPackTags"><span>${pack.players} PLAYER CARDS</span><span>REAL DATABASE RATINGS</span><span>ACE ELIGIBLE</span></div>
-          <div class="vdsUTPackOddsPanel">
-            <div class="vdsUTPackOddsTitle"><span>PACK PROBABILITIES</span><span>PER PLAYER SLOT</span></div>
-            <div class="vdsUTPackOddsRows">${vdsPackStoreOddsHTML(pack)}</div>
+
+        <div class="acePackInfo">
+          <div class="acePackInfoKicker">${pack.tier} · ${pack.tag}</div>
+          <h3>${pack.name}</h3>
+          <p>${pack.body}</p>
+
+          <div class="acePackPromise">
+            <span><b>${pack.players}</b><small>PLAYER CARDS</small></span>
+            <span><b>LIVE</b><small>PLAYER DATABASE</small></span>
+            <span><b>96–99</b><small>ACE RANGE</small></span>
           </div>
-          <div class="vdsUTPackCheckout">
-            <div class="vdsUTPackPrice"><span>OPEN FOR</span><b>${pack.cost.toLocaleString()} ◉</b></div>
-            <button class="vdsUTPackOpenHero ${vdsPackStoreSelection==='gold'?'gold':''}" id="vdsUTPackHeroOpen" type="button">OPEN ${pack.tier} PACK</button>
+
+          <div class="acePackOdds">
+            <div class="acePackOddsHead"><span>PACK ODDS</span><small>PER PLAYER SLOT</small></div>
+            <div class="acePackOddsGrid">${vdsPackStoreOddsHTML(pack)}</div>
           </div>
-          <div class="vdsUTPackFootnote">VDS rarity ladder: Bronze 1–59 · Silver 60–74 · Gold 75–84 · Elite 90–95 · Ace 96–99. Probabilities shown above apply per player slot.</div>
+
+          <div class="acePackCheckout">
+            <div><small>OPEN FOR</small><b>${pack.cost.toLocaleString()} ◉</b></div>
+            <button class="acePackOpen ${selection}" id="vdsUTPackHeroOpen" type="button">
+              <span>♠</span><b>OPEN ${pack.tier} PACK</b><small>ADD ${pack.players} CARD${pack.players===1?'':'S'} TO THE CLUB</small>
+            </button>
+          </div>
+          <div class="acePackOddsNote">Bronze 1–59 · Silver 60–74 · Gold 75–84 · Rare Gold 85–89 · Elite 90–95 · Ace 96–99</div>
         </div>
       </main>
     </div>`;
@@ -48873,3 +49070,1038 @@ VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
 <!-- B9.15: Rare Gold 85–89 + canonical Player Database cards on login/home reels. -->
 </body>
 </html>
+
+
+<style id="ACE_B916_PHONE_VISUAL_FIXES">
+/* ============================================================
+   THE ACE PROJECT B9.16 — PHONE VISUAL AUDIT
+   Based on live iPhone screenshots:
+   - Players hero stats no longer clip.
+   - Players tab is less cluttered.
+   - Tutorial fills the phone instead of leaving dead space.
+   - Tutorial diagrams no longer overlap.
+   - View Only playstyles use the real compact card-pill language.
+   ============================================================ */
+
+@media (max-width:760px){
+
+  /* ---------- PLAYER DATABASE: cleaner top section ---------- */
+  #players .vdsPlayersShell{
+    border-radius:16px!important;
+    padding-bottom:10px!important;
+  }
+  #players .vdsPlayersShell::before{display:none!important}
+
+  #players .vdsPlayersHero{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+    gap:13px!important;
+    min-height:0!important;
+    padding:17px 12px 14px!important;
+  }
+  #players .vdsSectionKicker{
+    font-size:7px!important;
+    margin-bottom:7px!important;
+    letter-spacing:.20em!important;
+  }
+  #players .vdsPlayersHero h2{
+    font-size:29px!important;
+    line-height:.96!important;
+  }
+  #players .vdsPlayersHero p{
+    margin-top:8px!important;
+    font-size:10px!important;
+    line-height:1.4!important;
+  }
+
+  /* Three useful numbers fit the phone. Playstyle count is hidden here;
+     it is not useful enough to steal 25% of the hero width. */
+  #players .vdsPlayersHeroStats{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:0!important;
+    overflow:hidden!important;
+    border-radius:12px!important;
+  }
+  #players .vdsPlayersHeroStats>div{
+    min-width:0!important;
+    width:auto!important;
+    padding:10px 3px!important;
+  }
+  #players .vdsPlayersHeroStats>div:nth-child(4){display:none!important}
+  #players .vdsPlayersHeroStats b{
+    font-size:21px!important;
+    white-space:nowrap!important;
+  }
+  #players .vdsPlayersHeroStats span{
+    font-size:5.4px!important;
+    letter-spacing:.12em!important;
+    white-space:nowrap!important;
+  }
+
+  /* Search / set manager / filters use less vertical space. */
+  #players .vdsPlayerToolbar{
+    padding:8px!important;
+    gap:6px!important;
+  }
+  #players .vdsPlayerSearchWrap{min-height:44px!important}
+  #players .playerSetManager{
+    padding:8px!important;
+    border-radius:12px!important;
+  }
+  #players .playerSetTop{
+    grid-template-columns:54px minmax(0,1fr)!important;
+    gap:5px!important;
+  }
+  #players .playerSetActions{
+    display:flex!important;
+    gap:4px!important;
+    overflow-x:auto!important;
+    scrollbar-width:none!important;
+  }
+  #players .playerSetActions::-webkit-scrollbar{display:none!important}
+  #players .playerSetActions .miniBtn{
+    flex:0 0 auto!important;
+    min-height:35px!important;
+    padding:6px 9px!important;
+    font-size:6.5px!important;
+  }
+  #players .playerSetStatus{
+    font-size:5.6px!important;
+    margin-top:5px!important;
+  }
+
+  #players .vdsFilterGroup{
+    min-height:40px!important;
+    padding:4px!important;
+  }
+  #players .vdsFilter{
+    min-height:32px!important;
+    padding:0 10px!important;
+    font-size:6.5px!important;
+    letter-spacing:.08em!important;
+  }
+
+  /* Keep the tier filter because it is useful, but remove all "75–84" etc.
+     from the phone UI. The extra legend is redundant and disappears. */
+  #players .tierFilters{
+    min-height:40px!important;
+  }
+  #players .vdsTierRangeLegend{
+    display:none!important;
+  }
+
+  #players .vdsPlayerSort{
+    min-height:43px!important;
+    padding:8px 10px!important;
+  }
+
+  /* Performance mode is automatic in our phone CSS; don't spend a full row
+     advertising an engineering toggle to a normal player. */
+  #players #vdsPerfToggle{
+    display:none!important;
+  }
+
+  #players .vdsPlayerStatusRow{
+    margin:0 8px!important;
+    padding:7px 0 8px!important;
+    gap:5px!important;
+  }
+  #players .vdsPlayerStatusRow>div:first-child{
+    font-size:6.4px!important;
+    line-height:1.35!important;
+  }
+  #players #resetStatsBtn{
+    display:none!important;
+  }
+  #players .vdsPlayerAdminActions{
+    grid-template-columns:1fr 1fr!important;
+    gap:6px!important;
+  }
+  #players .vdsPlayerAdminActions .btn{
+    min-height:40px!important;
+    font-size:6.6px!important;
+    padding:7px 5px!important;
+  }
+
+  /* The hero already told the user this is the UT pool.
+     Don't repeat the same giant heading immediately below the controls. */
+  #players .vdsUTPoolRosterSection>.vdsPlayerRosterSectionHead{
+    display:none!important;
+  }
+  #players .vdsUTPoolRosterSection{
+    padding-top:8px!important;
+    margin-top:8px!important;
+  }
+
+  /* ---------- FIRST-LOGIN TUTORIAL: use the whole viewport ---------- */
+  .aceOnboardingSlides{
+    inset:56px 0 52px!important;
+    overflow:hidden!important;
+  }
+  .aceOnboardingSlide{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    gap:9px!important;
+    height:100%!important;
+    min-height:0!important;
+    padding:9px 11px 8px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    transform:none!important;
+    transition:opacity .055s linear!important;
+  }
+  .aceOnboardingSlide.active{transform:none!important}
+
+  .aceSlideCopy{
+    flex:0 0 auto!important;
+    width:100%!important;
+  }
+  .aceSlideKicker{
+    margin-bottom:5px!important;
+  }
+  .aceSlideCopy h2,.aceFinishCopy h2{
+    font-size:clamp(29px,9.3vw,38px)!important;
+  }
+  .aceSlideCopy p,.aceFinishCopy p{
+    margin-top:7px!important;
+    font-size:9.5px!important;
+    line-height:1.38!important;
+  }
+  .aceFeaturePills{
+    margin-top:8px!important;
+    gap:4px!important;
+  }
+  .aceFeaturePills span{
+    padding:5px 7px!important;
+    font-size:5.8px!important;
+  }
+  .aceBestFor,.aceCommunityNote{
+    margin-top:8px!important;
+    padding:8px 9px!important;
+  }
+
+  /* Visual panel expands to consume the old dead area. */
+  .aceIntroVisual{
+    flex:1 1 0!important;
+    width:100%!important;
+    min-height:245px!important;
+    max-height:none!important;
+    margin:0!important;
+    border-radius:17px!important;
+  }
+
+  /* Slide 1 logo grows with the available visual panel. */
+  [data-ace-slide="0"] .aceLogoVisual img{
+    width:min(210px,62vw)!important;
+  }
+
+  /* Draft diagram remains vertically centred. */
+  [data-ace-slide="1"] .aceIntroVisual{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    gap:18px!important;
+    padding:14px!important;
+  }
+  [data-ace-slide="1"] .aceFlow{
+    position:relative!important;
+    left:auto!important;right:auto!important;top:auto!important;
+    width:100%!important;
+  }
+  [data-ace-slide="1"] .aceMockAuction{
+    position:relative!important;
+    left:auto!important;right:auto!important;bottom:auto!important;
+    width:min(220px,72%)!important;
+    margin:0 auto!important;
+  }
+
+  /* Mini Draft cards are centred in the available panel. */
+  [data-ace-slide="2"] .aceIntroVisual{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    gap:18px!important;
+    padding:12px!important;
+  }
+  [data-ace-slide="2"] .aceMiniLine{
+    position:relative!important;
+    bottom:auto!important;
+    text-align:center!important;
+    line-height:1.6!important;
+  }
+
+  /* Ultimate Team explanation: pack is BELOW the loop, never on top of it. */
+  [data-ace-slide="3"] .aceIntroVisual{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    gap:18px!important;
+    padding:14px 9px!important;
+  }
+  [data-ace-slide="3"] .aceUTLoop{
+    position:relative!important;
+    width:100%!important;
+    justify-content:center!important;
+    gap:4px!important;
+  }
+  [data-ace-slide="3"] .aceUTLoop div{
+    width:55px!important;
+    height:55px!important;
+  }
+  [data-ace-slide="3"] .acePackMock{
+    position:relative!important;
+    left:auto!important;right:auto!important;bottom:auto!important;
+    width:min(205px,64%)!important;
+    height:98px!important;
+    margin:0 auto!important;
+  }
+
+  /* UT-pool / pack visual remains compact and centred. */
+  [data-ace-slide="4"] .aceIntroVisual{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:9px!important;
+  }
+  [data-ace-slide="4"] .acePackEntryFlow{
+    max-height:100%!important;
+    overflow:visible!important;
+  }
+
+  /* Match-engine screenshot previously overlapped 14:13 with the arrows.
+     Score now has its own row under the rally sequence. */
+  [data-ace-slide="5"] .aceIntroVisual{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:20px!important;
+    padding:14px 8px!important;
+  }
+  [data-ace-slide="5"] .aceRallyFlow{
+    width:100%!important;
+    justify-content:center!important;
+    gap:3px!important;
+  }
+  [data-ace-slide="5"] .aceRallyFlow span{
+    padding:7px 6px!important;
+    font-size:5.4px!important;
+  }
+  [data-ace-slide="5"] .aceRallyFlow i{
+    font-size:8px!important;
+  }
+  [data-ace-slide="5"] .aceRallyScore{
+    position:relative!important;
+    left:auto!important;right:auto!important;bottom:auto!important;
+    margin:0!important;
+  }
+  [data-ace-slide="5"] .aceRallyScore b{
+    margin:6px 0!important;
+    font-size:46px!important;
+  }
+
+  /* Last screen centres itself rather than sitting at the top of a tall slide. */
+  [data-ace-slide="6"]{
+    justify-content:center!important;
+  }
+  .aceFirstMatchFinish{
+    margin:auto 0!important;
+  }
+  .aceAlternativeLabel{
+    margin-top:11px!important;
+  }
+  .aceReplayHint{
+    margin-top:9px!important;
+  }
+
+  .aceOnboardingFooter{
+    height:42px!important;
+    bottom:max(5px,env(safe-area-inset-bottom))!important;
+    padding-top:6px!important;
+  }
+
+  /* ---------- VIEW ONLY: exact compact playstyle pills ---------- */
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyles{
+    position:relative!important;
+    z-index:40!important;
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:wrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:3px!important;
+    width:100%!important;
+    min-height:16px!important;
+    margin:3px 0 2px!important;
+    padding:0 4px!important;
+    overflow:visible!important;
+  }
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyle{
+    display:inline-flex!important;
+    flex:0 0 auto!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:2px!important;
+    width:auto!important;
+    max-width:46%!important;
+    min-width:0!important;
+    height:16px!important;
+    margin:0!important;
+    padding:2px 5px!important;
+    border-radius:999px!important;
+    border:1px solid rgba(228,197,88,.30)!important;
+    background:rgba(2,11,19,.78)!important;
+    box-shadow:0 2px 5px rgba(0,0,0,.22)!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyle.defense{
+    border-color:rgba(104,181,225,.27)!important;
+  }
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyleEmoji{
+    display:inline-block!important;
+    flex:0 0 auto!important;
+    font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+    font-size:7px!important;
+    line-height:1!important;
+    font-weight:400!important;
+  }
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyleLabel{
+    display:block!important;
+    min-width:0!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    color:#dce6ed!important;
+    font-size:4.4px!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+  .vdsCardShowcaseCardFrame .vdsCardPlaystyles + .fifaServeType{
+    margin-top:1px!important;
+  }
+
+  /* View-only layout itself: card gets a clean first screen, information follows. */
+  .vdsCardShowcaseSheet{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  .vdsCardShowcaseInner{
+    overflow:visible!important;
+    padding:12px 9px 20px!important;
+  }
+  .vdsCardShowcaseTop{
+    margin-bottom:8px!important;
+  }
+  .vdsCardShowcaseKicker{font-size:7px!important}
+  .vdsCardShowcaseName{font-size:27px!important}
+  .vdsCardShowcaseDesc{
+    display:none!important;
+  }
+  .vdsCardShowcaseTier{
+    padding:6px 8px!important;
+    font-size:6.5px!important;
+  }
+  .vdsCardShowcaseGrid{
+    gap:9px!important;
+  }
+  .vdsCardShowcaseCardStage{
+    min-height:405px!important;
+    height:auto!important;
+    padding:8px 0!important;
+    border-radius:18px!important;
+  }
+  .vdsCardShowcaseCardFrame{
+    width:min(272px,78vw)!important;
+  }
+  .vdsCardShowcaseInfo{
+    gap:8px!important;
+  }
+  .vdsCardShowcasePanel{
+    padding:10px!important;
+    border-radius:14px!important;
+  }
+  .vdsCardShowcasePanel h3{
+    margin-bottom:7px!important;
+    font-size:8px!important;
+  }
+  .vdsCardShowcaseMetric{
+    padding:8px!important;
+    border-radius:10px!important;
+  }
+  .vdsCardShowcaseMetric span{font-size:6.5px!important}
+  .vdsCardShowcaseMetric b{font-size:15px!important}
+  .vdsCardShowcaseRow{
+    padding:7px 8px!important;
+  }
+  .vdsCardShowcaseRow span{font-size:6.5px!important}
+  .vdsCardShowcaseRow b{font-size:13px!important}
+
+  /* ---------- Small global polish spotted in screenshots ---------- */
+  .vdsMainNav .tab,.vdsMainNav .navDropBtn{
+    white-space:nowrap!important;
+  }
+
+  /* Lower GPU load on phones; the game still retains its visual identity. */
+  .aceOnboardingShell:before,
+  .vdsPlayersHeroStats{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+}
+
+/* Short iPhones: shrink tutorial copy slightly but keep the visual area useful. */
+@media (max-width:760px) and (max-height:700px){
+  .aceOnboardingSlides{inset:54px 0 48px!important}
+  .aceSlideCopy h2,.aceFinishCopy h2{font-size:28px!important}
+  .aceSlideCopy p,.aceFinishCopy p{font-size:8.8px!important}
+  .aceIntroVisual{min-height:210px!important}
+  [data-ace-slide="0"] .aceLogoVisual img{width:165px!important}
+  .aceRecommendedStart{margin-top:11px!important;min-height:82px!important}
+}
+</style>
+
+
+
+<style id="ACE_B917_AESTHETIC_FOUNDATION">
+:root{
+  --ace-bg:#06070d;
+  --ace-surface:#0b0e18;
+  --ace-surface-2:#101422;
+  --ace-surface-3:#15192a;
+  --ace-line:rgba(189,151,255,.11);
+  --ace-line-strong:rgba(190,143,255,.23);
+  --ace-purple:#9a62ff;
+  --ace-purple-2:#be82ff;
+  --ace-text:#f7f5fb;
+  --ace-muted:#88849a;
+}
+
+/* ---------- One visual language ---------- */
+body{
+  background:
+    radial-gradient(circle at 78% 0%,rgba(120,69,212,.09),transparent 28%),
+    linear-gradient(180deg,#05060b,#080a11 42%,#06070d)!important;
+}
+.vdsGlobalHeader{
+  background:rgba(7,8,14,.92)!important;
+  border-color:rgba(176,129,255,.11)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.24)!important;
+}
+.card,
+.vdsPlayersShell,
+.vdsUTShell,
+.vdsUTInstanceIntro,
+.vdsCollectionPanel,
+.vdsPackPanel,
+.vdsSquadPanel{
+  border-color:rgba(177,138,234,.09)!important;
+}
+.btn.primary,.gamePlayBtn,.vdsUTHubPrimary{
+  background:linear-gradient(135deg,#8550ed,#a966ff)!important;
+}
+.btn.secondary,.vdsUTHubSecondary{
+  background:#111522!important;
+  border-color:rgba(180,142,239,.10)!important;
+}
+.vdsUTBuildBadge{display:none!important}
+
+/* ---------- Players: cards first, controls second ---------- */
+#players .vdsPlayersHero{
+  background:
+    radial-gradient(circle at 92% 12%,rgba(128,73,222,.13),transparent 27%),
+    linear-gradient(145deg,#0b101d,#080b13 72%)!important;
+  border-color:var(--ace-line)!important;
+}
+#players .vdsPlayersHero h2{
+  letter-spacing:-.055em!important;
+}
+#players .vdsPlayersHeroStats{
+  background:rgba(7,9,15,.52)!important;
+  border-color:rgba(255,255,255,.045)!important;
+}
+#players .vdsPlayersHeroStats>div{
+  border-left-color:rgba(255,255,255,.045)!important;
+}
+#players .vdsPlayerToolbar{
+  margin:10px 0 0!important;
+  background:transparent!important;
+  border:0!important;
+  padding:6px 0!important;
+}
+#players .vdsPlayerSearchWrap,
+#players .vdsFilterGroup,
+#players .vdsPlayerSort{
+  background:#080c14!important;
+  border-color:rgba(177,138,234,.10)!important;
+  box-shadow:none!important;
+}
+#players .vdsFilter{
+  color:#747387!important;
+}
+#players .vdsFilter.active{
+  background:linear-gradient(135deg,#5f389d,#8e55e8)!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+#players .vdsPlayerStatusRow{
+  padding-left:4px!important;
+  padding-right:4px!important;
+  border:0!important;
+}
+.vdsPlayerPublicActions{
+  display:flex;align-items:center;gap:6px;
+}
+.vdsQuietAction{
+  min-height:34px;padding:0 11px;border:1px solid rgba(185,146,243,.10);
+  border-radius:9px;background:transparent;color:#88839a;
+  font-size:7px;font-weight:1000;letter-spacing:.10em;cursor:pointer;
+}
+.vdsQuietAction:hover{color:#fff;border-color:rgba(185,146,243,.23);background:rgba(151,91,246,.055)}
+
+.vdsPlayerManagePanel{
+  margin:1px 4px 14px;border:1px solid rgba(177,138,234,.08);
+  border-radius:13px;background:#080b12;overflow:hidden;
+}
+.vdsPlayerManagePanel>summary{
+  list-style:none;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  min-height:45px;padding:0 12px;cursor:pointer;color:#777489;
+}
+.vdsPlayerManagePanel>summary::-webkit-details-marker{display:none}
+.vdsPlayerManagePanel>summary span{
+  font-size:6px;font-weight:1000;letter-spacing:.16em;color:#6d6287;
+}
+.vdsPlayerManagePanel>summary b{font-size:9px;color:#9b97a9}
+.vdsPlayerManagePanel>summary i{font-style:normal;font-size:15px;color:#7d62a4;transition:transform .18s ease}
+.vdsPlayerManagePanel[open]>summary i{transform:rotate(45deg)}
+.vdsPlayerManageBody{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;
+  padding:10px;border-top:1px solid rgba(255,255,255,.04)
+}
+.vdsPlayerManageBody .playerSetManager{
+  margin:0!important;background:#0a0e17!important;border-color:rgba(177,138,234,.08)!important;
+}
+.vdsPlayerManageBody .vdsPlayerAdminActions{
+  display:flex!important;align-items:flex-end!important;gap:6px!important;
+}
+body.cloudReadOnly .vdsPlayerManagePanel{display:none!important}
+
+/* Make the gallery feel curated rather than like a dashboard. */
+#players .vdsPlayerRosterSection{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#players .vdsPlayerRosterSectionHead{
+  padding:12px 3px 15px!important;
+  border-bottom:0!important;
+}
+#players .playersGrid{
+  gap:24px!important;
+  grid-template-columns:repeat(auto-fill,minmax(235px,1fr))!important;
+}
+#players .vdsPlayerCardWithPoolAction{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#players .vdsPoolActionBtn{
+  margin-top:7px!important;
+  border-color:rgba(178,140,235,.09)!important;
+  background:#0a0d15!important;
+}
+
+/* ---------- Ultimate Team becomes the centre of the product ---------- */
+#ultimate .vdsUTHeaderStage6B{
+  min-height:0!important;
+  padding:15px 4px 12px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#ultimate .vdsUTHeaderStage6B .homeKicker{
+  color:#8c6db5!important;
+}
+#ultimate .vdsUTHeaderStage6B h2{
+  font-size:24px!important;
+  margin:2px 0 3px!important;
+}
+#ultimate .vdsUTHeaderStage6B p{
+  color:#696678!important;
+  font-size:8px!important;
+}
+#ultimate .vdsUTWalletCloud{
+  background:#0a0d15!important;
+  border-color:rgba(194,156,255,.10)!important;
+  box-shadow:none!important;
+}
+#ultimate .vdsUTHubNavigation{
+  background:rgba(7,9,14,.86)!important;
+  border-color:rgba(179,139,238,.08)!important;
+  box-shadow:none!important;
+}
+#ultimate .vdsUTHubTab{
+  color:#716e7e!important;
+}
+#ultimate .vdsUTHubTab.active{
+  background:rgba(143,83,238,.11)!important;
+  color:#d5c3f6!important;
+}
+#ultimate .vdsUTHubTab.active:after{
+  background:#9b61ff!important;
+}
+
+/* New UT landing */
+.aceUTHomeStage{
+  position:relative;display:grid;grid-template-columns:minmax(330px,.82fr) minmax(480px,1.18fr);
+  gap:14px;min-height:470px;padding:30px;border-radius:25px;overflow:hidden;
+  border:1px solid rgba(186,142,255,.13);
+  background:
+    radial-gradient(circle at 80% 15%,rgba(133,72,230,.17),transparent 31%),
+    radial-gradient(circle at 28% 110%,rgba(96,52,176,.09),transparent 37%),
+    linear-gradient(145deg,#0d101c,#070910 68%);
+  box-shadow:0 28px 75px rgba(0,0,0,.28);
+}
+.aceUTHomeStage:after{
+  content:"A";position:absolute;right:-30px;bottom:-100px;
+  font-size:460px;font-weight:1000;line-height:1;color:rgba(174,123,255,.025);
+  pointer-events:none;
+}
+.aceUTHomeCopy{position:relative;z-index:3;align-self:center}
+.aceUTHomeBrand{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.aceUTHomeBrand img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 8px 20px rgba(133,75,225,.28))}
+.aceUTHomeBrand span,.aceUTHomeBrand b{display:block}
+.aceUTHomeBrand span{font-size:7px;font-weight:1000;letter-spacing:.18em;color:#b39bd8}
+.aceUTHomeBrand b{font-size:13px;margin-top:2px;letter-spacing:.06em}
+.aceUTHomeManager{font-size:7px;font-weight:1000;letter-spacing:.17em;color:#7a6a91}
+.aceUTHomeCopy h1{
+  margin:7px 0 0;font-size:clamp(45px,5.4vw,73px);line-height:.89;
+  letter-spacing:-.065em;max-width:540px;
+}
+.aceUTHomeCopy>p{max-width:450px;margin:14px 0 0;color:#8a8798;font-size:11px;line-height:1.55}
+
+.aceUTHomeMainActions{display:grid;grid-template-columns:1.3fr 1fr;gap:7px;margin-top:24px;max-width:500px}
+.aceUTHomeMainActions button{
+  position:relative;min-height:68px;border-radius:13px;text-align:left;padding:12px 12px 11px 45px;
+  cursor:pointer;color:#fff;
+}
+.aceUTHomeMainActions button>span{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:18px;
+}
+.aceUTHomeMainActions button b{display:block;font-size:9px;letter-spacing:.08em}
+.aceUTHomeMainActions button small{display:block;margin-top:4px;font-size:5.5px;letter-spacing:.09em;color:#aaa2b8}
+.aceUTHomePrimary{
+  grid-row:span 2;border:1px solid rgba(207,168,255,.32);
+  background:radial-gradient(circle at 15% 25%,rgba(211,163,255,.16),transparent 25%),linear-gradient(135deg,#713ec3,#371f67);
+  box-shadow:0 16px 35px rgba(78,35,144,.25);
+}
+.aceUTHomePrimary small{color:#e1d0f4!important}
+.aceUTHomeSecondary,.aceUTHomeGhost{
+  min-height:56px!important;border:1px solid rgba(190,150,246,.10);background:#0b0e17;
+}
+.aceUTHomeGhost{background:transparent!important}
+.aceUTHomeMainActions button:hover{border-color:rgba(205,169,255,.34)}
+
+.aceUTHomeStats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;max-width:500px;margin-top:22px;
+  border-top:1px solid rgba(255,255,255,.05);padding-top:13px;
+}
+.aceUTHomeStats>div{border-left:1px solid rgba(255,255,255,.045);padding:0 11px}
+.aceUTHomeStats>div:first-child{border-left:0;padding-left:0}
+.aceUTHomeStats span{display:block;color:#676474;font-size:5.5px;font-weight:1000;letter-spacing:.12em}
+.aceUTHomeStats b{display:block;margin-top:4px;font-size:15px}
+
+.aceUTHomeVisual{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;gap:9px;min-width:0}
+.aceUTHomeVisualGlow{
+  position:absolute;left:14%;right:0;top:3%;height:55%;
+  background:radial-gradient(circle,rgba(130,75,220,.15),transparent 68%);pointer-events:none;
+}
+.aceUTHomeSquadLabel{
+  position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:0 4px;
+}
+.aceUTHomeSquadLabel span{font-size:6px;font-weight:1000;letter-spacing:.17em;color:#756a88}
+.aceUTHomeSquadLabel b{font-size:7px;color:#ad9cc3}
+.aceUTSquadPreview{
+  min-height:310px!important;border-radius:19px!important;
+  border-color:rgba(183,145,240,.09)!important;
+  background:linear-gradient(180deg,#0c101a,#080a11)!important;
+}
+.aceUTSquadPreview .vdsUTHubPreviewCourt{
+  background:linear-gradient(180deg,#53305e,#292444)!important;
+  box-shadow:inset 0 0 0 1px rgba(224,205,255,.34)!important;
+  opacity:.72!important;
+}
+.aceUTSquadPreview .vdsUTHubPreviewPlayer{
+  border-color:rgba(207,176,255,.17)!important;
+  background:#121523!important;
+  box-shadow:0 10px 20px rgba(0,0,0,.34)!important;
+}
+.aceUTFeaturedPack{
+  position:relative;z-index:3;width:100%;min-height:86px;
+  display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;
+  padding:9px 14px 9px 8px;border-radius:16px;border:1px solid rgba(226,192,93,.15);
+  background:radial-gradient(circle at 4% 20%,rgba(218,174,54,.13),transparent 25%),#0b0e16;
+  color:#fff;text-align:left;cursor:pointer;
+}
+.aceUTFeaturedPackArt{
+  width:62px;height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  clip-path:polygon(10% 0,90% 0,100% 11%,100% 89%,90% 100%,10% 100%,0 89%,0 11%);
+  background:linear-gradient(145deg,#7d5c13,#2b220c 64%,#0b1117);border:1px solid rgba(255,226,122,.24);
+}
+.aceUTFeaturedPackArt span{font-size:4px;letter-spacing:.12em;color:#d7c47f}
+.aceUTFeaturedPackArt b{font-size:16px;margin-top:3px;color:#f0d76d}.aceUTFeaturedPackArt i{font-size:6px;font-style:normal;color:#8d845f}
+.aceUTFeaturedPack small,.aceUTFeaturedPack strong,.aceUTFeaturedPack em{display:block}
+.aceUTFeaturedPack small{font-size:5.5px;letter-spacing:.15em;color:#817952;font-weight:1000}
+.aceUTFeaturedPack strong{font-size:15px;margin-top:4px}
+.aceUTFeaturedPack em{font-style:normal;font-size:6.5px;color:#777382;margin-top:4px}
+.aceUTFeaturedArrow{font-size:20px;color:#bba15d}
+
+.aceUTHomeRail{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;
+}
+.aceUTHomeRail button{
+  position:relative;min-height:96px;padding:14px 38px 13px 14px;border-radius:14px;
+  border:1px solid rgba(177,138,234,.08);background:#090c14;color:#fff;text-align:left;cursor:pointer;
+}
+.aceUTHomeRail button:hover{border-color:rgba(184,144,246,.19);background:#0d101a}
+.aceUTHomeRail span,.aceUTHomeRail b,.aceUTHomeRail small{display:block}
+.aceUTHomeRail span{font-size:5.5px;font-weight:1000;letter-spacing:.14em;color:#716c7d}
+.aceUTHomeRail b{font-size:12px;margin-top:5px}
+.aceUTHomeRail small{font-size:6.5px;color:#686675;margin-top:4px}
+.aceUTHomeRail i{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;color:#765a9e}
+
+/* The old dashboard-home cards are no longer needed if stale markup appears during a render. */
+.vdsUTHubHomeGrid{display:none!important}
+
+/* Other UT instances inherit a quieter shell. */
+#ultimate .vdsUTInstanceIntro{
+  margin:16px 2px 11px!important;padding:0!important;background:transparent!important;border:0!important;
+}
+#ultimate .vdsUTInstanceIntro small{color:#80649f!important}
+#ultimate .vdsUTInstanceIntro p{color:#676475!important}
+#ultimate .vdsPackPanel,
+#ultimate .vdsSquadPanel,
+#ultimate .vdsCollectionPanel,
+#ultimate .vdsUTEconomyHero{
+  background:#090c14!important;
+  border-color:rgba(177,138,234,.08)!important;
+  box-shadow:none!important;
+}
+
+/* ---------- Phone refinement for the new aesthetic ---------- */
+@media(max-width:760px){
+  #players .vdsPlayerManagePanel{
+    margin:1px 0 9px!important;
+  }
+  .vdsPlayerManagePanel>summary{
+    min-height:40px!important;
+  }
+  .vdsPlayerManageBody{
+    grid-template-columns:1fr!important;
+  }
+  .vdsPlayerManageBody .vdsPlayerAdminActions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;
+  }
+  #players .playersGrid{
+    grid-template-columns:1fr!important;
+    gap:16px!important;
+  }
+
+  #ultimate .vdsUTHeaderStage6B{
+    padding:10px 2px 8px!important;
+  }
+  #ultimate .vdsUTHeaderStage6B h2{font-size:20px!important}
+  #ultimate .vdsUTHeaderStage6B p{display:none!important}
+
+  .aceUTHomeStage{
+    grid-template-columns:1fr!important;min-height:0!important;
+    gap:18px!important;padding:15px!important;border-radius:18px!important;
+  }
+  .aceUTHomeStage:after{font-size:270px!important;right:-30px!important;bottom:-55px!important}
+  .aceUTHomeBrand{margin-bottom:16px!important}
+  .aceUTHomeBrand img{width:36px!important;height:36px!important}
+  .aceUTHomeCopy h1{font-size:42px!important}
+  .aceUTHomeCopy>p{font-size:9.5px!important;margin-top:9px!important}
+  .aceUTHomeMainActions{
+    grid-template-columns:1fr 1fr!important;margin-top:15px!important;max-width:none!important;
+  }
+  .aceUTHomePrimary{
+    grid-column:1/-1!important;grid-row:auto!important;min-height:72px!important;
+  }
+  .aceUTHomeSecondary,.aceUTHomeGhost{min-height:55px!important}
+  .aceUTHomeStats{max-width:none!important;margin-top:14px!important}
+  .aceUTHomeStats>div{padding:0 7px!important}
+  .aceUTHomeStats b{font-size:13px!important}
+
+  .aceUTSquadPreview{min-height:255px!important}
+  .aceUTFeaturedPack{grid-template-columns:60px 1fr auto!important;min-height:77px!important}
+  .aceUTFeaturedPackArt{width:54px!important;height:59px!important}
+  .aceUTFeaturedPack strong{font-size:13px!important}
+  .aceUTFeaturedPack em{font-size:5.7px!important}
+  .aceUTHomeRail{
+    display:flex!important;overflow-x:auto!important;gap:7px!important;scrollbar-width:none!important;
+    padding-bottom:3px!important;
+  }
+  .aceUTHomeRail::-webkit-scrollbar{display:none}
+  .aceUTHomeRail button{
+    flex:0 0 185px!important;min-height:83px!important;
+  }
+}
+</style>
+
+<!-- THE ACE PROJECT B9.17 — aesthetic foundation / Ultimate Team centre / cleaner Players. -->
+
+
+<style id="ACE_B918_PACK_STORE_REVEAL">
+/* ============================================================
+   THE ACE PROJECT B9.18 — PACK STORE + PACK OPENING
+   ============================================================ */
+
+/* ---------- Store ---------- */
+#ultimate .vdsUTInstance[data-ut-instance="packs"]>.vdsUTInstanceIntro{display:none!important}
+.acePackStore{
+  position:relative;overflow:hidden;min-height:650px!important;
+  border:1px solid rgba(182,140,242,.11)!important;border-radius:24px!important;
+  background:radial-gradient(circle at 75% 22%,var(--pack-glow),transparent 28%),linear-gradient(145deg,#0b0e17,#06080e 72%)!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.32)!important;
+}
+.acePackStore:before{content:"♠";position:absolute;right:-58px;top:70px;font-size:430px;line-height:1;color:rgba(169,116,255,.018);pointer-events:none}
+.acePackStoreHero{position:relative;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:22px;align-items:center;padding:23px 26px;border-bottom:1px solid rgba(255,255,255,.045)}
+.acePackStoreBrand{display:flex;align-items:center;gap:9px}.acePackStoreBrand img{width:43px;height:43px;object-fit:contain}.acePackStoreBrand span,.acePackStoreBrand b{display:block}.acePackStoreBrand span{font-size:5.5px;font-weight:1000;letter-spacing:.17em;color:#8f75b5}.acePackStoreBrand b{font-size:11px;margin-top:2px;letter-spacing:.07em}
+.acePackStoreHeroCopy small{display:block;color:#9e70e7;font-size:6px;font-weight:1000;letter-spacing:.17em}.acePackStoreHeroCopy h2{margin:4px 0 0;font-size:25px;letter-spacing:-.045em}.acePackStoreHeroCopy p{margin:5px 0 0;max-width:540px;color:#747182;font-size:7px;line-height:1.5}
+.acePackWallet{text-align:right;padding:9px 11px;border-radius:10px;background:#090b12;border:1px solid rgba(221,190,90,.10)}.acePackWallet span{display:block;font-size:5px;font-weight:1000;letter-spacing:.13em;color:#776d4a}.acePackWallet b{display:block;margin-top:3px;font-size:19px;color:#e8cc70}
+.acePackStoreBody{position:relative;z-index:2;display:grid;grid-template-columns:245px minmax(0,1fr);min-height:575px}
+.acePackSelector{padding:15px;border-right:1px solid rgba(255,255,255,.045);background:rgba(3,5,9,.22)}
+.acePackChoice{width:100%;min-height:90px;margin-top:7px;padding:9px;display:grid;grid-template-columns:53px minmax(0,1fr) 18px;gap:9px;align-items:center;border-radius:14px;border:1px solid transparent;background:transparent;color:#fff;text-align:left;cursor:pointer;transition:.16s ease}.acePackChoice:hover{background:rgba(255,255,255,.025)}.acePackChoice.active{border-color:rgba(184,142,244,.15);background:rgba(142,84,231,.07)}
+.acePackChoiceMini{width:49px;height:66px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;clip-path:polygon(10% 0,90% 0,100% 11%,100% 89%,90% 100%,10% 100%,0 89%,0 11%);background:#161a24;overflow:hidden}.acePackChoiceMini img{width:35px;height:35px;object-fit:contain;opacity:.88}.acePackChoiceMini b{font-size:5px;margin-top:2px;letter-spacing:.11em}.acePackChoice.gold .acePackChoiceMini{background:linear-gradient(145deg,#705410,#241c08)}.acePackChoice.silver .acePackChoiceMini{background:linear-gradient(145deg,#64717a,#202832)}.acePackChoice.bronze .acePackChoiceMini{background:linear-gradient(145deg,#70432a,#271912)}
+.acePackChoiceCopy small,.acePackChoiceCopy strong,.acePackChoiceCopy span{display:block}.acePackChoiceCopy small{font-size:5px;font-weight:1000;letter-spacing:.12em;color:#766b84}.acePackChoiceCopy strong{font-size:11px;margin-top:4px}.acePackChoiceCopy span{font-size:5.8px;margin-top:5px;color:#666574}.acePackChoice>i{font-style:normal;color:#68567f}
+.acePackChoice.active>i{color:#b485ff}
+
+.acePackFeature{display:grid;grid-template-columns:minmax(300px,.86fr) minmax(350px,1.14fr);gap:22px;align-items:center;padding:28px 34px}
+.acePackArtZone{position:relative;min-height:440px;display:grid;place-items:center;perspective:900px}.acePackStageGlow{position:absolute;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle,var(--pack-glow),transparent 66%);filter:blur(8px)}.acePackStageRing{position:absolute;bottom:50px;width:250px;height:54px;border-radius:50%;border:1px solid rgba(190,151,255,.12);box-shadow:0 0 35px var(--pack-glow),inset 0 0 30px rgba(0,0,0,.4)}
+.acePackHero{position:relative;width:225px;height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;clip-path:polygon(9% 0,91% 0,100% 9%,100% 91%,91% 100%,9% 100%,0 91%,0 9%);border:1px solid rgba(255,255,255,.16);box-shadow:0 34px 58px rgba(0,0,0,.45);transform:rotateY(-7deg) rotateX(2deg) rotateZ(-2deg);animation:acePackFloat 3.6s ease-in-out infinite;overflow:hidden}.acePackHero.gold{background:radial-gradient(circle at 65% 18%,rgba(255,235,146,.26),transparent 24%),linear-gradient(145deg,#82651c,#2d2209 63%,#0c1115)}.acePackHero.silver{background:radial-gradient(circle at 65% 18%,rgba(238,249,255,.22),transparent 24%),linear-gradient(145deg,#8796a0,#26313b 66%,#0a1117)}.acePackHero.bronze{background:radial-gradient(circle at 65% 18%,rgba(255,186,131,.17),transparent 24%),linear-gradient(145deg,#845035,#302019 66%,#0b1015)}.acePackFoil{position:absolute;inset:-20%;background:linear-gradient(112deg,transparent 37%,rgba(255,255,255,.0) 43%,rgba(255,255,255,.3) 50%,rgba(255,255,255,0) 57%,transparent 63%);transform:translateX(-55%);animation:acePackFoil 3.5s ease-in-out infinite}.acePackTopline{position:absolute;left:18px;right:18px;top:18px;display:flex;justify-content:space-between;font-size:5px;font-weight:1000;letter-spacing:.15em;color:rgba(255,255,255,.62)}.acePackHero>img{width:105px;height:105px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.3))}.acePackHeroWord{text-align:center;margin-top:5px}.acePackHeroWord small,.acePackHeroWord b,.acePackHeroWord span{display:block}.acePackHeroWord small{font-size:5px;letter-spacing:.18em;color:#b9acbe}.acePackHeroWord b{font-size:38px;line-height:.94;margin-top:4px;letter-spacing:-.055em}.acePackHero.gold .acePackHeroWord b{color:#f1d776}.acePackHeroWord span{font-size:6px;margin-top:4px;letter-spacing:.18em;color:#aaa3ae}.acePackSeal{position:absolute;bottom:18px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.15);background:rgba(4,7,12,.38);font-size:12px}.acePackFeaturedTag{position:absolute;bottom:24px;padding:7px 10px;border-radius:999px;border:1px solid rgba(226,195,87,.17);background:#100e08;color:#cfb75f;font-size:5.5px;font-weight:1000;letter-spacing:.13em}
+@keyframes acePackFloat{0%,100%{transform:translateY(0) rotateY(-7deg) rotateX(2deg) rotateZ(-2deg)}50%{transform:translateY(-9px) rotateY(-4deg) rotateX(1deg) rotateZ(-1deg)}}@keyframes acePackFoil{0%,35%{transform:translateX(-60%);opacity:0}52%{opacity:.7}72%,100%{transform:translateX(60%);opacity:0}}
+.acePackInfo{max-width:570px}.acePackInfoKicker{font-size:6px;font-weight:1000;letter-spacing:.16em;color:#8a70ad}.acePackInfo h3{margin:5px 0 0;font-size:clamp(39px,4vw,57px);line-height:.93;letter-spacing:-.06em}.acePackInfo>p{margin:11px 0 0;max-width:500px;color:#7e7b89;font-size:9px;line-height:1.55}.acePackPromise{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:16px}.acePackPromise>span{padding:10px;border-radius:10px;background:#090c13;border:1px solid rgba(255,255,255,.045)}.acePackPromise b,.acePackPromise small{display:block}.acePackPromise b{font-size:12px}.acePackPromise small{margin-top:3px;font-size:5px;letter-spacing:.11em;color:#646270}
+.acePackOdds{margin-top:12px;padding:11px;border-radius:12px;background:#080b12;border:1px solid rgba(255,255,255,.045)}.acePackOddsHead{display:flex;justify-content:space-between}.acePackOddsHead span,.acePackOddsHead small{font-size:5.5px;font-weight:1000;letter-spacing:.13em;color:#74707f}.acePackOddsGrid{display:grid;gap:6px;margin-top:8px}.acePackOdds .vdsUTPackOddsRow{grid-template-columns:64px 1fr 38px!important;font-size:6.5px!important}.acePackOdds .vdsUTPackOddsTrack{height:3px!important;background:rgba(255,255,255,.05)!important}.acePackOdds .vdsUTPackOddsTrack i{background:linear-gradient(90deg,#7740cc,#b67cff)!important}.acePackOdds .vdsUTPackOddsRow.ace i{background:linear-gradient(90deg,#5c2a88,#dcadff)!important}
+.acePackCheckout{display:grid;grid-template-columns:auto minmax(220px,1fr);gap:13px;align-items:center;margin-top:15px}.acePackCheckout>div small,.acePackCheckout>div b{display:block}.acePackCheckout>div small{font-size:5.5px;font-weight:1000;letter-spacing:.14em;color:#6a6673}.acePackCheckout>div b{margin-top:3px;font-size:26px;color:#e2c66d}.acePackOpen{min-height:58px;border-radius:12px;border:1px solid rgba(189,146,250,.22);display:grid;grid-template-columns:32px 1fr;align-items:center;padding:9px 12px;background:linear-gradient(135deg,#6936b5,#341d61);color:#fff;text-align:left;cursor:pointer;box-shadow:0 15px 30px rgba(71,35,130,.22)}.acePackOpen.gold{background:linear-gradient(135deg,#8c6b17,#c69c2c);border-color:rgba(255,226,121,.24);color:#171105;box-shadow:0 15px 30px rgba(118,85,13,.22)}.acePackOpen>span{grid-row:1/3;font-size:20px}.acePackOpen b{font-size:8px;letter-spacing:.08em}.acePackOpen small{font-size:5px;letter-spacing:.08em;opacity:.7}.acePackOddsNote{margin-top:9px;color:#585662;font-size:5.5px;line-height:1.4}
+
+/* ---------- Pack reveal ---------- */
+.utRevealOverlay{background:#030409!important}
+.utFullRevealScene{background:radial-gradient(circle at 50% 42%,rgba(126,72,214,.13),transparent 28%),linear-gradient(180deg,#060812,#020307)!important}
+.aceRevealBrand{gap:8px!important}.aceRevealBrand>img{width:39px;height:39px;object-fit:contain}.aceRevealBrand>span{display:block!important}.aceRevealBrand>span b{display:block!important;font-size:8px!important;letter-spacing:.13em!important;color:#fff!important}.aceRevealBrand>span small{display:block;margin-top:2px;font-size:5px;letter-spacing:.14em;color:#705f8a}
+.utRevealHeading small{color:#9d72e7!important}.utRevealHeading strong{font-size:24px!important}.utRevealClubCount b{color:#d6c2f6!important}
+.utRevealAtmosphere{background:radial-gradient(circle at 50% 62%,rgba(112,66,190,.11),transparent 30%)!important}.utRevealStageRing{border-color:rgba(168,113,255,.2)!important;box-shadow:0 0 45px rgba(131,73,223,.16),inset 0 0 35px rgba(0,0,0,.5)!important}.utPackBurst{color:#b98cff!important;text-shadow:0 0 24px rgba(155,91,255,.35)!important}
+.aceRevealPackDoor{position:absolute;z-index:16;left:50%;top:50%;width:230px;height:330px;transform:translate(-50%,-50%) scale(1);display:flex;flex-direction:column;align-items:center;justify-content:center;clip-path:polygon(9% 0,91% 0,100% 9%,100% 91%,91% 100%,9% 100%,0 91%,0 9%);box-shadow:0 28px 65px rgba(0,0,0,.48);opacity:0;pointer-events:none;overflow:hidden}.aceRevealPackDoor.gold{background:radial-gradient(circle at 65% 18%,rgba(255,232,144,.27),transparent 24%),linear-gradient(145deg,#806219,#291f08 64%,#0c1115)}.aceRevealPackDoor.silver{background:linear-gradient(145deg,#8c9aa4,#29353f 67%,#0b1117)}.aceRevealPackDoor.bronze{background:linear-gradient(145deg,#855038,#312019 67%,#0b1015)}.aceRevealPackDoor img{width:115px;height:115px;object-fit:contain}.aceRevealPackDoor small{font-size:5px;letter-spacing:.19em;color:#b3a9b9}.aceRevealPackDoor b{font-size:40px;line-height:.9;margin-top:5px}.aceRevealPackDoor.gold b{color:#efd475}.aceRevealPackDoor span{font-size:7px;margin-top:5px;letter-spacing:.16em;color:#aaa3ae}.aceRevealPackDoor>i{position:absolute;bottom:20px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(2,6,10,.42);border:1px solid rgba(255,255,255,.14);font-style:normal}.aceRevealPackFoil{position:absolute;inset:-20%;background:linear-gradient(112deg,transparent 38%,rgba(255,255,255,.34) 50%,transparent 62%);animation:aceRevealFoil 1.5s ease-in-out infinite}@keyframes aceRevealFoil{from{transform:translateX(-60%)}to{transform:translateX(60%)}}
+.utRevealOverlay.packSealed .aceRevealPackDoor{opacity:1;animation:acePackArrive .34s cubic-bezier(.2,.75,.2,1) both}.utRevealOverlay.packSealed #utRevealCard{opacity:0;transform:translateY(20px) scale(.86)}.utRevealOverlay.packOpen .aceRevealPackDoor{animation:acePackCrack .48s cubic-bezier(.2,.7,.25,1) forwards}.utRevealOverlay.packOpen #utRevealCard{opacity:1;transform:none;transition:opacity .26s ease .14s,transform .34s cubic-bezier(.2,.72,.2,1) .1s}@keyframes acePackArrive{from{opacity:0;transform:translate(-50%,-46%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}@keyframes acePackCrack{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}42%{filter:brightness(1.7);transform:translate(-50%,-50%) scale(1.04)}100%{opacity:0;filter:brightness(2.2);transform:translate(-50%,-50%) scale(1.32)}}
+#utRevealCard{opacity:1;transition:.2s ease}.aceUTRevealCard{width:310px!important;min-height:455px!important;margin:auto!important}.aceUTRevealCard .revealPart{transition:opacity .22s ease,transform .24s ease!important}.aceUTRevealCard .revealIdentity{opacity:1!important}.aceUTRevealCard .revealIdentity .fifaTierTag{opacity:0;transform:translateY(-5px)}.aceUTRevealCard .revealIdentity .fifaOverall,.aceUTRevealCard .revealIdentity .fifaPos{opacity:0}.aceUTRevealCard .revealArtwork{opacity:0!important;transform:translate3d(var(--art-x,0),calc(var(--art-y,0) + 20px),0) scale(calc(var(--art-scale,1) * .96))!important}.aceUTRevealCard .revealName{opacity:0!important;transform:translateY(6px)!important}.aceUTRevealCard .revealStats,.aceUTRevealCard .revealPlaystyles{opacity:0!important;transform:translateY(6px)!important}.utRevealOverlay.rarityOn .aceUTRevealCard .fifaTierTag{opacity:1!important;transform:none!important;transition:.22s ease}.utRevealOverlay.ratingOn .aceUTRevealCard .fifaOverall,.utRevealOverlay.ratingOn .aceUTRevealCard .fifaPos{opacity:1!important;transition:.22s ease}.utRevealOverlay.playerOn .aceUTRevealCard .revealArtwork{opacity:1!important;transform:translate3d(var(--art-x,0),var(--art-y,0),0) scale(var(--art-scale,1))!important}.utRevealOverlay.nameOn .aceUTRevealCard .revealName{opacity:1!important;transform:none!important}.utRevealOverlay.clubOn .aceUTRevealCard .revealStats,.utRevealOverlay.clubOn .aceUTRevealCard .revealPlaystyles{opacity:1!important;transform:none!important}.utRevealSteps span.active{color:#b78af9!important}.utRevealSteps span.active b{border-color:rgba(181,124,255,.72)!important;box-shadow:0 0 16px rgba(147,84,238,.16)!important}.utRevealContinue{background:linear-gradient(135deg,#7e49d8,#a86aff)!important;color:#fff!important;border:1px solid rgba(206,165,255,.22)!important;box-shadow:0 12px 25px rgba(92,49,164,.2)!important}
+.utRevealOverlay:has(.aceUTRevealCard.gold) .utRevealStageRing,.utRevealOverlay:has(.aceUTRevealCard.rare_gold) .utRevealStageRing{border-color:rgba(239,199,73,.25)!important;box-shadow:0 0 48px rgba(217,167,38,.18),inset 0 0 35px rgba(0,0,0,.5)!important}.utRevealOverlay:has(.aceUTRevealCard.ace) .utRevealStageRing{border-color:rgba(189,125,255,.38)!important;box-shadow:0 0 60px rgba(139,63,229,.28),inset 0 0 40px rgba(0,0,0,.55)!important}
+
+@media(max-width:760px){
+  .acePackStore{border-radius:18px!important;min-height:0!important}.acePackStoreHero{grid-template-columns:auto 1fr!important;padding:13px!important;gap:10px!important}.acePackStoreBrand img{width:34px;height:34px}.acePackStoreHeroCopy{grid-column:1/-1}.acePackStoreHeroCopy h2{font-size:23px}.acePackStoreHeroCopy p{display:none}.acePackWallet{position:absolute;right:12px;top:12px}.acePackWallet b{font-size:15px}.acePackStoreBody{display:block!important;min-height:0!important}.acePackSelector{display:flex;gap:6px;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid rgba(255,255,255,.045);scrollbar-width:none}.acePackSelector::-webkit-scrollbar{display:none}.acePackChoice{flex:0 0 160px;min-height:69px;margin:0;grid-template-columns:40px 1fr;padding:6px}.acePackChoiceMini{width:38px;height:51px}.acePackChoiceMini img{width:26px;height:26px}.acePackChoice>i{display:none}.acePackChoiceCopy small{display:none}.acePackChoiceCopy strong{font-size:9px}.acePackChoiceCopy span{font-size:5.2px}.acePackFeature{display:block;padding:13px}.acePackArtZone{min-height:300px}.acePackHero{width:166px;height:242px;animation:none}.acePackHero>img{width:78px;height:78px}.acePackHeroWord b{font-size:29px}.acePackStageGlow{width:220px;height:220px;filter:none}.acePackStageRing{bottom:26px;width:190px}.acePackFeaturedTag{bottom:7px}.acePackInfo{text-align:left}.acePackInfoKicker{margin-top:8px}.acePackInfo h3{font-size:35px}.acePackInfo>p{font-size:8.5px}.acePackPromise{margin-top:11px}.acePackPromise>span{padding:8px}.acePackOdds{margin-top:9px}.acePackCheckout{grid-template-columns:1fr!important;gap:8px}.acePackCheckout>div{display:flex;justify-content:space-between;align-items:center}.acePackCheckout>div b{font-size:21px}.acePackOpen{min-height:53px}.acePackOddsNote{font-size:5px}.aceRevealPackDoor{width:185px;height:270px}.aceRevealPackDoor img{width:90px;height:90px}.aceRevealPackDoor b{font-size:32px}.aceUTRevealCard{width:min(272px,72vw)!important;min-height:400px!important}.utRevealTopbar{top:7px!important}.aceRevealBrand>img{width:31px;height:31px}.utRevealClubCount small{display:none}.utRevealClubCount b{font-size:17px!important}.utRevealAtmosphere{inset:46px 0 112px!important}.utRevealSteps{bottom:76px!important}.utRevealFooter{bottom:max(11px,env(safe-area-inset-bottom))!important}.utRevealStatus{font-size:7px!important}}
+@media(prefers-reduced-motion:reduce){.acePackHero,.acePackFoil,.aceRevealPackFoil{animation:none!important}}
+</style>
+
+<!-- THE ACE PROJECT B9.18 — premium Pack Store + canonical pack reveal. -->
+
+
+<style id="ACE_B919_SQUAD_CLUB">
+/* ============================================================
+   THE ACE PROJECT B9.19 — CLUB SQUAD + MY CLUB
+   ============================================================ */
+
+/* ---------- Club Squad ---------- */
+#ultimate .vdsUTInstance[data-ut-instance="squad"]>.vdsUTInstanceIntro{display:none!important}
+#ultimate .vdsSquadPanel{
+  position:relative!important;margin:0!important;padding:0 0 18px!important;overflow:hidden!important;
+  border-radius:24px!important;border:1px solid rgba(177,138,234,.10)!important;
+  background:radial-gradient(circle at 50% 30%,rgba(116,68,198,.11),transparent 34%),linear-gradient(180deg,#0b0e17,#070910)!important;
+}
+#ultimate .vdsUTPanelHeadEditor{
+  min-height:77px!important;padding:18px 20px!important;border-bottom:1px solid rgba(255,255,255,.045)!important;
+  background:rgba(4,6,10,.22)!important;
+}
+#ultimate .vdsUTPanelHeadEditor>div:first-child span{font-size:6px!important;letter-spacing:.16em!important;color:#8166a3!important}
+#ultimate .vdsUTPanelHeadEditor>div:first-child b{font-size:24px!important;margin-top:3px!important;letter-spacing:-.035em!important}
+#ultimate .vdsUTHeadRight{gap:5px!important}
+#ultimate .vdsUTSmallPill{background:#0a0d14!important;border-color:rgba(184,145,240,.08)!important;color:#777282!important}
+#ultimate .vdsUTSmallPill.active{background:rgba(141,82,228,.10)!important;color:#baa0df!important;border-color:rgba(178,125,255,.18)!important}
+#ultimate #utSquadRating{padding:8px 10px!important;border-radius:9px!important;background:#090c13!important;border:1px solid rgba(223,192,97,.10)!important;color:#ddc76f!important;font-size:7px!important;font-weight:1000!important}
+#ultimate .vdsUTLineupHelp{margin:0!important;padding:9px 20px!important;background:#080b12!important;border-bottom:1px solid rgba(255,255,255,.035)!important;color:#686575!important;font-size:7px!important}
+
+#ultimate .vdsUTCourtEnhanced{
+  width:calc(100% - 40px)!important;height:650px!important;margin:18px 20px 0!important;border-radius:21px!important;overflow:hidden!important;
+  border:1px solid rgba(204,175,255,.12)!important;
+  box-shadow:inset 0 0 100px rgba(0,0,0,.35),0 22px 55px rgba(0,0,0,.28)!important;
+}
+#ultimate .vdsUTStadiumBoard{background:rgba(5,4,10,.74)!important;border-color:rgba(185,138,255,.17)!important}
+#ultimate .vdsUTStadiumBoard span{color:#a17adf!important}
+#ultimate .vdsUTNetPerspective{filter:drop-shadow(0 12px 20px rgba(0,0,0,.4))!important}
+#ultimate .vdsSquadSlot{transition:transform .16s ease!important}
+#ultimate .vdsSquadSlot:hover{transform:translate(-50%,-50%) scale(1.035)!important}
+#ultimate .vdsSquadPortrait{
+  width:88px!important;height:116px!important;border-radius:16px!important;
+  border:1px solid rgba(217,191,255,.18)!important;background:#111522!important;
+  box-shadow:0 18px 34px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.02) inset!important;
+}
+#ultimate .vdsSquadPortrait img{object-position:50% 15%!important}
+#ultimate .vdsSquadRatingBadge{background:#0a0d14!important;color:#f2edf9!important;border-color:rgba(194,154,246,.17)!important}
+#ultimate .vdsSquadPlayerName{margin-top:6px!important;font-size:9px!important;text-shadow:0 2px 4px rgba(0,0,0,.5)!important}
+#ultimate .vdsSquadSlotLabel{color:#9a8eaa!important}
+#ultimate .vdsSquadSlotHint{opacity:.45!important}
+#ultimate .vdsSquadEmpty{border-color:rgba(174,123,255,.23)!important;color:#9b6ee2!important;background:rgba(114,67,193,.07)!important}
+
+#ultimate .vdsUTBenchWrap{margin:15px 20px 0!important;padding:13px!important;border-radius:16px!important;background:#080b12!important;border:1px solid rgba(177,138,234,.07)!important}
+#ultimate .vdsUTBenchHead span{font-size:5.5px!important;color:#736681!important;letter-spacing:.15em!important}
+#ultimate .vdsUTBenchHead b{font-size:13px!important}
+#ultimate .vdsUTBenchCards{gap:8px!important;padding-top:9px!important}
+#ultimate .vdsUTBenchCard{min-height:162px!important;border-radius:13px!important;border-color:rgba(255,255,255,.07)!important;box-shadow:0 10px 22px rgba(0,0,0,.24)!important}
+#ultimate .vdsUTBenchCard.selected{outline:2px solid rgba(167,104,255,.55)!important;outline-offset:2px!important}
+#ultimate .vdsUTBenchCard.recently-packed{box-shadow:0 0 0 1px rgba(184,123,255,.30),0 0 28px rgba(137,73,226,.16),0 14px 28px rgba(0,0,0,.3)!important}
+#ultimate .vdsUTBenchCard.recently-packed .vdsUTBenchTag{background:linear-gradient(135deg,#8e55ed,#b176ff)!important;color:#fff!important;border-color:transparent!important}
+#ultimate .vdsSquadFooter.aceSquadFooter{margin:12px 20px 0!important;padding:12px 0 0!important;border-top:1px solid rgba(255,255,255,.045)!important;display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:12px!important}
+.aceSquadFooter>div>span,.aceSquadFooter>div>small{display:block}.aceSquadFooter>div>span{font-size:7px!important;color:#7f7b89!important}.aceSquadFooter>div>small{margin-top:4px;font-size:5px!important;color:#5d5965!important;letter-spacing:.10em!important}
+.aceSquadPlayBtn{min-width:185px;min-height:53px;display:grid;grid-template-columns:30px 1fr;padding:8px 12px;border-radius:12px;border:1px solid rgba(191,148,251,.22);background:linear-gradient(135deg,#7543ca,#9f61f5);color:#fff;text-align:left;cursor:pointer;box-shadow:0 12px 28px rgba(80,40,144,.2)}.aceSquadPlayBtn>span{grid-row:1/3;align-self:center;font-size:15px}.aceSquadPlayBtn b{font-size:8px;letter-spacing:.09em}.aceSquadPlayBtn small{font-size:5px;letter-spacing:.08em;color:#d8c5ee}
+
+/* ---------- My Club ---------- */
+#ultimate .vdsUTInstance[data-ut-instance="club"]>.vdsUTInstanceIntro{display:none!important}
+#ultimate .vdsCollectionPanel{margin:0!important;padding:0 0 24px!important;border-radius:24px!important;background:linear-gradient(180deg,#0b0e16,#07090f)!important;overflow:hidden!important}
+.aceClubTop{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:24px 24px 18px;border-bottom:1px solid rgba(255,255,255,.04)}
+.aceClubTitle>span{display:block;color:#8c6aae;font-size:6px;font-weight:1000;letter-spacing:.17em}.aceClubTitle h2{margin:5px 0 0!important;font-size:40px!important;letter-spacing:-.055em!important}.aceClubTitle p{margin:6px 0 0;color:#777382;font-size:7px}.aceClubTitle p b{color:#a6a0b0}.aceClubTopActions{display:flex;gap:6px}.aceClubTopActions button{min-height:38px;padding:0 12px;border-radius:9px;border:1px solid rgba(177,138,234,.09);background:#0a0d14;color:#8c8798;font-size:6.5px;font-weight:1000;letter-spacing:.09em;cursor:pointer}.aceClubTopActions button:first-child{color:#c6a8ed;border-color:rgba(172,115,255,.17);background:rgba(126,70,211,.07)}
+.aceClubControls{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr) 125px;gap:8px;align-items:center;padding:11px 24px;background:#080b11;border-bottom:1px solid rgba(255,255,255,.035)}.aceClubSearch{display:flex;align-items:center;gap:7px;min-height:39px;padding:0 10px;border-radius:9px;background:#0c0f17;border:1px solid rgba(177,138,234,.08)}.aceClubSearch>span{color:#796390}.aceClubSearch input{border:0!important;background:transparent!important;padding:0!important;font-size:8px!important;box-shadow:none!important}.aceClubFilters{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none}.aceClubFilters::-webkit-scrollbar{display:none}.aceClubFilters button{flex:0 0 auto;min-height:34px;padding:0 9px;border-radius:8px;border:0;background:transparent;color:#666270;font-size:5.7px;font-weight:1000;letter-spacing:.08em;cursor:pointer}.aceClubFilters button.active{background:rgba(145,84,235,.10);color:#bca3df}.aceClubControls select{min-height:39px!important;padding:0 9px!important;border-radius:9px!important;background:#0c0f17!important;border-color:rgba(177,138,234,.08)!important;color:#7f798a!important;font-size:6.5px!important}
+#ultimate .vdsCollectionPanel .utCollection{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(235px,1fr))!important;gap:22px!important;margin:0!important;padding:25px!important}
+.aceClubCard{position:relative;min-width:0;text-align:center}.aceClubCardFlags{position:absolute;z-index:15;top:7px;left:7px;right:7px;display:flex;gap:4px;justify-content:flex-end;pointer-events:none}.aceClubCardFlags span{padding:5px 7px;border-radius:999px;background:rgba(5,7,12,.88);border:1px solid rgba(255,255,255,.10);font-size:5px;font-weight:1000;letter-spacing:.10em;color:#a5a0ac}.aceClubCardFlags .aceClubNew{margin-right:auto;background:linear-gradient(135deg,#8a4ee7,#ae72ff);border-color:transparent;color:#fff;box-shadow:0 0 18px rgba(139,73,232,.18)}.aceClubCardFlags .aceClubInSquad{color:#c4a9e9;border-color:rgba(177,119,255,.21)}.aceClubCardView{display:block;width:100%;padding:0;border:0;background:transparent;cursor:pointer}.aceClubCardView>.fifaPlayerCard{width:100%!important;max-width:275px!important;margin:0 auto!important;transition:transform .17s ease,filter .17s ease!important}.aceClubCard:hover .aceClubCardView>.fifaPlayerCard{transform:translateY(-5px)!important;filter:brightness(1.035)!important}.aceClubCard.is-new .aceClubCardView>.fifaPlayerCard{filter:drop-shadow(0 0 16px rgba(150,83,242,.14))}.aceClubCardActions{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:min(275px,100%);margin:7px auto 0}.aceClubCardActions button{min-height:34px;border-radius:8px;border:1px solid rgba(178,140,235,.08);background:#090c13;color:#777281;font-size:5.8px;font-weight:1000;letter-spacing:.08em;cursor:pointer}.aceClubCardActions button:first-child{color:#b69bd8;background:rgba(126,72,210,.055);border-color:rgba(168,112,255,.12)}.aceClubEmpty{grid-column:1/-1!important;margin:20px!important}.aceClubFallback{width:240px;height:330px;margin:auto;display:grid;place-items:center;border-radius:18px;background:#111522}.aceClubFallback b{font-size:48px}.aceClubFallback span{font-size:10px}
+
+/* ---------- Reveal -> Squad / Club ---------- */
+.aceRevealFooter{grid-template-columns:1fr auto!important;gap:14px!important;align-items:center!important}.aceRevealActions{display:flex;align-items:center;gap:7px}.aceRevealActions.hidden{display:none!important}.aceRevealAddSquad{min-width:185px;min-height:51px;display:grid;grid-template-columns:30px 1fr;padding:7px 12px;border-radius:11px;border:1px solid rgba(192,148,251,.24);background:linear-gradient(135deg,#7b48d1,#a162f6);color:#fff;text-align:left;cursor:pointer;box-shadow:0 11px 25px rgba(80,40,145,.22)}.aceRevealAddSquad>span{grid-row:1/3;align-self:center;font-size:17px}.aceRevealAddSquad b{font-size:7.5px;letter-spacing:.08em}.aceRevealAddSquad small{font-size:4.8px;color:#ddcaef;letter-spacing:.07em}.aceRevealSendClub{min-height:51px;padding:0 13px;display:flex;align-items:center;gap:10px;border-radius:11px;border:1px solid rgba(177,138,234,.10);background:#0a0d15;color:#8e889b;font-size:6.5px;font-weight:1000;letter-spacing:.08em;cursor:pointer}.aceRevealSendClub span{color:#a47ad7;font-size:14px}
+
+@media(max-width:760px){
+  #ultimate .vdsSquadPanel,#ultimate .vdsCollectionPanel{border-radius:18px!important}
+  #ultimate .vdsUTPanelHeadEditor{padding:12px!important;min-height:0!important;align-items:flex-start!important}
+  #ultimate .vdsUTPanelHeadEditor>div:first-child b{font-size:19px!important}
+  #ultimate .vdsUTHeadRight{width:100%!important;display:flex!important;overflow-x:auto!important;padding-bottom:2px!important;scrollbar-width:none!important}
+  #ultimate .vdsUTHeadRight::-webkit-scrollbar{display:none}
+  #ultimate .vdsUTSmallPill,#ultimate #utSquadRating{flex:0 0 auto!important;min-height:34px!important}
+  #ultimate .vdsUTLineupHelp{padding:7px 12px!important;font-size:6.3px!important}
+  #ultimate .vdsUTCourtEnhanced{width:calc(100% - 16px)!important;height:515px!important;margin:8px!important;border-radius:16px!important}
+  #ultimate .vdsSquadPortrait{width:66px!important;height:88px!important}
+  #ultimate .vdsUTBenchWrap{margin:8px!important;padding:9px!important}
+  #ultimate .vdsUTBenchCards{display:flex!important;overflow-x:auto!important;gap:7px!important;scroll-snap-type:x proximity!important;scrollbar-width:none!important}.vdsUTBenchCards::-webkit-scrollbar{display:none}
+  #ultimate .vdsUTBenchCard{flex:0 0 112px!important;min-height:140px!important;scroll-snap-align:start!important}
+  #ultimate .vdsSquadFooter.aceSquadFooter{margin:8px!important;grid-template-columns:1fr!important;gap:8px!important}.aceSquadPlayBtn{width:100%!important;min-width:0!important}
+
+  .aceClubTop{padding:16px 12px 12px;align-items:flex-start;flex-direction:column}.aceClubTitle h2{font-size:31px!important}.aceClubTopActions{width:100%;display:grid;grid-template-columns:1fr 1fr}.aceClubTopActions button{width:100%}
+  .aceClubControls{grid-template-columns:1fr auto!important;padding:8px!important;gap:6px}.aceClubSearch{grid-column:1/-1}.aceClubFilters{grid-column:1/2}.aceClubControls select{width:100px!important}
+  #ultimate .vdsCollectionPanel .utCollection{grid-template-columns:1fr!important;gap:17px!important;padding:14px 8px!important}.aceClubCardView>.fifaPlayerCard{max-width:300px!important}.aceClubCardActions{max-width:300px!important}.aceClubCard:hover .aceClubCardView>.fifaPlayerCard{transform:none!important}
+  .aceRevealFooter{grid-template-columns:1fr!important;gap:6px!important}.aceRevealActions{width:100%;display:grid;grid-template-columns:1.25fr .75fr;gap:6px}.aceRevealAddSquad,.aceRevealSendClub{width:100%!important;min-width:0!important;min-height:46px!important}.aceRevealSendClub{justify-content:center;padding:0 8px!important;font-size:5.5px!important}.aceRevealStatus{text-align:center!important}
+}
+</style>
+
+<!-- THE ACE PROJECT B9.19 — Club Squad + My Club + pack-to-squad journey. -->
