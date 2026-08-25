@@ -10130,7 +10130,7 @@ body{
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
 
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 75-84 — standardised rich gold */
 #players .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -14088,7 +14088,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 75-84 — standardised rich gold */
 #minidraft .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -16682,7 +16682,7 @@ body{
   border-color:rgba(224,240,248,.76)!important;
   background:linear-gradient(180deg,rgba(91,114,128,.68),rgba(15,35,48,.86))!important;
 }
-/* GOLD 75-89 — standardised rich gold */
+/* GOLD 75-84 — standardised rich gold */
 #miniPickReveal .vdsLegacyFifaPlayerCard.gold{
   background:
     radial-gradient(circle at 70% 24%,rgba(255,221,103,.22),transparent 22%),
@@ -28302,7 +28302,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       </section>
 
       <section class="aceOnboardingSlide" data-ace-slide="3">
-        <div class="aceSlideCopy"><span class="aceSlideKicker">03 · ULTIMATE TEAM</span><h2>BUILD A CLUB<br><em>THAT STAYS YOURS.</em></h2><p>Play matches, earn coins, open packs and collect cards. Your Ultimate Team collection persists as you improve your club.</p><div class="aceRarityRun"><span>BRONZE</span><span>SILVER</span><span>GOLD</span><span>ELITE</span><span class="ace">ACE</span></div></div>
+        <div class="aceSlideCopy"><span class="aceSlideKicker">03 · ULTIMATE TEAM</span><h2>BUILD A CLUB<br><em>THAT STAYS YOURS.</em></h2><p>Play matches, earn coins, open packs and collect cards. Your Ultimate Team collection persists as you improve your club.</p><div class="aceRarityRun"><span>BRONZE</span><span>SILVER</span><span>GOLD</span><span class="rareGold">RARE GOLD</span><span>ELITE</span><span class="ace">ACE</span></div></div>
         <div class="aceIntroVisual"><div class="aceUTLoop"><div>🏐<b>PLAY</b></div><span>→</span><div>◉<b>EARN</b></div><span>→</span><div>🎁<b>PACKS</b></div><span>→</span><div>♠<b>BUILD</b></div></div><div class="acePackMock"><small>THE ACE PROJECT</small><strong>ULTIMATE TEAM</strong><span>OPEN PACK</span></div></div>
       </section>
 
@@ -29142,7 +29142,7 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
       <div class="vdsPlayersHeroStats">
         <div><b id="playerUTPoolCount">0</b><span>UT POOL</span></div>
         <div><b id="playerDatabaseCount">0</b><span>ALL PLAYERS</span></div>
-        <div><b id="playerGoldCount">0</b><span>GOLD</span></div>
+        <div><b id="playerGoldCount">0</b><span>GOLD CARDS</span></div>
         <div><b id="playerPlaystyleCount">0</b><span>PLAYSTYLES</span></div>
       </div>
     </div>
@@ -29179,7 +29179,8 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
         <button class="vdsFilter active" type="button" data-player-tier="ALL">ALL TIERS</button>
         <button class="vdsFilter aceFilter" type="button" data-player-tier="ace">ACE 96–99</button>
         <button class="vdsFilter eliteFilter" type="button" data-player-tier="elite">ELITE 90–95</button>
-        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD 75–89</button>
+        <button class="vdsFilter rareGoldFilter" type="button" data-player-tier="rare_gold">RARE GOLD 85–89</button>
+        <button class="vdsFilter goldFilter" type="button" data-player-tier="gold">GOLD 75–84</button>
         <button class="vdsFilter silverFilter" type="button" data-player-tier="silver">SILVER 60–74</button>
         <button class="vdsFilter bronzeFilter" type="button" data-player-tier="bronze">BRONZE 1–59</button>
       </div>
@@ -29195,7 +29196,8 @@ body.aceOnboardingOpen{overflow:hidden!important}.aceOnboarding{position:fixed;i
     <div class="vdsTierRangeLegend" aria-label="VDS rarity ranges">
       <span class="bronze">BRONZE <b>1–59</b></span>
       <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–89</b></span>
+      <span class="gold">GOLD <b>75–84</b></span>
+      <span class="rare_gold">RARE GOLD <b>85–89</b></span>
       <span class="elite">ELITE <b>90–95</b></span>
       <span class="ace">ACE <b>96–99</b></span>
     </div>
@@ -30085,11 +30087,13 @@ function effectivePositionRating(p,role){
 }
 
 function cardTier(p){
-  // Standard VDS rarity ladder:
-  // 1–59 BRONZE · 60–74 SILVER · 75–89 GOLD · 90–95 ELITE · 96–99 ACE.
+  // THE ACE PROJECT rarity ladder:
+  // 1–59 BRONZE · 60–74 SILVER · 75–84 GOLD · 85–89 RARE GOLD ·
+  // 90–95 ELITE · 96–99 ACE.
   const r=mainPositionRating(p);
   if(r>=96)return "ace";
   if(r>=90)return "elite";
+  if(r>=85)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -30101,16 +30105,17 @@ function cardTierLabel(p){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
+    rare_gold:"RARE GOLD",
     elite:"ELITE",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
 }
 
 // Total playstyle allowance by card tier.
-// Bronze: 1, Silver / Rare Silver: 2, Gold / Elite / Ace: 3.
+// Bronze: 1, Silver: 2, Gold / Rare Gold / Elite / Ace: 3.
 function playstyleCapacity(p){
   const tier=cardTier(p);
-  if(tier==="gold"||tier==="elite"||tier==="ace")return 3;
+  if(tier==="gold"||tier==="rare_gold"||tier==="elite"||tier==="ace")return 3;
   if(tier==="silver"||tier==="rare_silver")return 2;
   return 1;
 }
@@ -30862,7 +30867,7 @@ function renderPlayers(filter=""){
  if(poolCountEl)poolCountEl.textContent=allPoolCount;
  if(poolSectionCount)poolSectionCount.textContent=allPoolCount;
  if(allSectionCount)allSectionCount.textContent=shown.length;
- if(goldEl)goldEl.textContent=players.filter(p=>cardTier(p)==="gold").length;
+ if(goldEl)goldEl.textContent=players.filter(p=>["gold","rare_gold"].includes(cardTier(p))).length;
  if(psEl)psEl.textContent=players.reduce((n,p)=>n+selectedPlaystyleCount(p),0);
 
  const emptyPool=document.getElementById("utPoolEmptyState");
@@ -38169,57 +38174,20 @@ async function vdsSignOut(){
 }
 
 function vdsAuthPlayerCardMarkup(p,slotClass){
-  const c=categoryRatings(p);
   const tier=cardTier(p);
-  const art=getPlayerCardArt(p.name);
   const mainPos=(p.position||"").toUpperCase();
   const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
 
+  // The login reel uses the exact same canonical card body as Player Database.
   return `
     <div class="fifaPlayerCard vdsAuthDbCard ${slotClass} ${tier}${posClass}">
-      <div class="fifaCardTop">
-        <div>
-          <div class="fifaOverall">${mainPositionRating(p)}
-            <span class="fifaMainPosLabel">${p.position&&p.position!=="-"?esc(p.position):"POS"}</span>
-          </div>
-          <div class="fifaPos">ALL ${overall(p)}</div>
-        </div>
-        <div class="fifaTierTag">${cardTierLabel(p)}</div>
-      </div>
-
-      ${p.photo?`
-        <img class="fifaPhoto" src="${esc(p.photo)}" alt="${esc(p.name)}"
-          loading="${slotClass==="isCenter"?"eager":"lazy"}"
-          decoding="async"
-          fetchpriority="${slotClass==="isCenter"?"high":"low"}"
-          referrerpolicy="no-referrer"
-          style="--art-scale:${art.scale};--art-x:${art.x}px;--art-y:${art.y}px">
-      `:`<div class="fifaPhoto fifaPhotoFallback">👤</div>`}
-
-      <div class="fifaName">${esc(p.name)}</div>
-      <div class="fifaDivider"></div>
-
-      <div class="fifaMainStats">
-        <div class="fifaStat">ATT<b>${c.attacking}</b></div>
-        <div class="fifaStat">DEF<b>${c.defense}</b></div>
-        <div class="fifaStat">PHY<b>${c.physical}</b></div>
-      </div>
-
-      <div class="fifaSpecialists">
-        <div class="fifaSpec">SRV<b>${p.service}</b></div>
-        <div class="fifaSpec">BLK<b>${p.blocking}</b></div>
-        <div class="fifaSpec">SET<b>${p.setting}</b></div>
-        <div class="fifaSpec">MND<b>${p.mindset}</b></div>
-      </div>
-
-      ${vdsCardPlaystylePills(p)}
-
-      <div class="fifaServeType">${({
-        standing_float:"FLOAT",
-        jump_float:"JUMP FLOAT",
-        jump_topspin:"TOPSPIN",
-        auto:"AUTO SERVE"
-      })[p.serveType||"auto"]||"AUTO SERVE"}</div>
+      ${vdsMasterPlayerCardHTML(p,{
+        role:p.position&&p.position!=="-"?p.position:"POS",
+        rating:mainPositionRating(p),
+        tier,
+        tierLabel:cardTierLabel(p),
+        footer:"VIEW PLAYER"
+      })}
     </div>`;
 }
 
@@ -39575,6 +39543,7 @@ function miniDraftRoleTier(p,role){
   const r=miniDraftRoleRating(p,role);
   if(r>=96)return "ace";
   if(r>=90)return "elite";
+  if(r>=85)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -39587,6 +39556,7 @@ function miniDraftRoleTierLabel(p,role){
     silver:"SILVER",
     rare_silver:"SILVER",
     gold:"GOLD",
+    rare_gold:"RARE GOLD",
     elite:"ELITE",
     ace:"ACE"
   })[t]||String(t).toUpperCase();
@@ -41599,22 +41569,23 @@ const UT_SAVE_KEY="volleyballUltimateTeamV1";
 const UT_PACKS={
   bronze:{
     cost:750,
-    odds:[["bronze",.82],["silver",.17],["gold",.01]]
+    odds:[["bronze",.82],["silver",.17],["gold",.009],["rare_gold",.001]]
   },
   silver:{
     cost:1500,
-    odds:[["bronze",.10],["silver",.69],["gold",.20],["elite",.005],["ace",.005]]
+    odds:[["bronze",.10],["silver",.69],["gold",.17],["rare_gold",.03],["elite",.005],["ace",.005]]
   },
   gold:{
     cost:2500,
-    odds:[["silver",.15],["gold",.70],["elite",.145],["ace",.005]]
+    odds:[["silver",.15],["gold",.50],["rare_gold",.20],["elite",.145],["ace",.005]]
   }
 };
 
 const UT_RARITY={
   bronze:{label:"BRONZE",min:1,max:59},
   silver:{label:"SILVER",min:60,max:74},
-  gold:{label:"GOLD",min:75,max:89},
+  gold:{label:"GOLD",min:75,max:84},
+  rare_gold:{label:"RARE GOLD",min:85,max:89},
   elite:{label:"ELITE",min:90,max:95},
   ace:{label:"ACE",min:96,max:99}
 };
@@ -41698,11 +41669,12 @@ function resetUltimateTeam(){
 
 
 function utPlayerTier(player){
-  // Ultimate Team uses the same five-tier VDS ladder everywhere.
+  // Ultimate Team uses the same ACE PROJECT rarity ladder everywhere.
   const key=utMainPositionKey(player);
   const r=Math.round(positionRatings(player)[key] ?? overall(player));
   if(r>=96)return "ace";
   if(r>=90)return "elite";
+  if(r>=85)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -41746,7 +41718,7 @@ function utPickPlayer(rarity){
 
   // Stay inside the Ultimate Team Pool. If the rolled tier is empty,
   // select from the nearest populated tier within the pool only.
-  const order=["bronze","silver","gold","elite","ace"];
+  const order=["bronze","silver","gold","rare_gold","elite","ace"];
   const wanted=order.indexOf(rarity);
   const populated=order
     .map((tier,i)=>({tier,i,pool:eligible.filter(p=>utPlayerTier(p)===tier)}))
@@ -41881,7 +41853,7 @@ async function showUltimateReveal(card,packId){
     card.rarity==="rare_silver"?"◈":
     card.rarity==="silver"?"◇":"●";
 
-  const rarity=UT_RARITY[card.rarity]||{label:({rare_silver:"SILVER",rare_gold:"GOLD",ace:"ACE",gold:"GOLD",silver:"SILVER",bronze:"BRONZE"})[card.rarity]||String(card.rarity).toUpperCase()};
+  const rarity=UT_RARITY[card.rarity]||{label:({rare_silver:"SILVER",rare_gold:"RARE GOLD",ace:"ACE",gold:"GOLD",silver:"SILVER",bronze:"BRONZE"})[card.rarity]||String(card.rarity).toUpperCase()};
   target.innerHTML=`
     <div class="utPremiumCard utAnimatedCard ${card.rarity}">
       <div class="utPremiumTexture"></div>
@@ -42387,6 +42359,7 @@ function profileTier(p){
   const r=mainPositionRating(p);
   if(r>=96)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
   if(r>=90)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
+  if(r>=85)return {key:"rare_gold",label:"RARE GOLD",cardClass:"profileTierGold"};
   if(r>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
   if(r>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
   return {key:"bronze",label:"BRONZE",cardClass:"profileTierBronze"};
@@ -42902,9 +42875,7 @@ function renderHeroCardCarousel(){
   dots.innerHTML="";
 
   heroCarouselPlayers.forEach((p,i)=>{
-    const c=categoryRatings(p);
     const tier=cardTier(p);
-    const art=getPlayerCardArt(p.name);
 
     const card=document.createElement("div");
 
@@ -42914,50 +42885,13 @@ function renderHeroCardCarousel(){
     card.className=`fifaPlayerCard heroCarouselPlayerCard ${tier}${posClass}`;
     card.dataset.index=i;
 
-    card.innerHTML=`
-      <div class="fifaCardTop">
-        <div>
-          <div class="fifaOverall">${mainPositionRating(p)}
-            <span class="fifaMainPosLabel">${p.position&&p.position!=="-"?esc(p.position):"POS"}</span>
-          </div>
-          <div class="fifaPos">ALL ${overall(p)}</div>
-        </div>
-        <div class="fifaTierTag">${cardTierLabel(p)}</div>
-      </div>
-
-      ${p.photo?`
-        <img class="fifaPhoto" src="${p.photo}" alt="${esc(p.name)}"
-          loading="${i===heroCarouselIndex?"eager":"lazy"}" decoding="async"
-          fetchpriority="${i===heroCarouselIndex?"high":"low"}"
-          style="--art-scale:${art.scale};--art-x:${art.x}px;--art-y:${art.y}px">
-      `:`<div class="fifaPhoto fifaPhotoFallback">👤</div>`}
-
-      <div class="fifaName">${esc(p.name)}</div>
-      <div class="fifaDivider"></div>
-
-      <div class="fifaMainStats">
-        <div class="fifaStat">ATT<b>${c.attacking}</b></div>
-        <div class="fifaStat">DEF<b>${c.defense}</b></div>
-        <div class="fifaStat">PHY<b>${c.physical}</b></div>
-      </div>
-
-      <div class="fifaSpecialists">
-        <div class="fifaSpec">SRV<b>${p.service}</b></div>
-        <div class="fifaSpec">BLK<b>${p.blocking}</b></div>
-        <div class="fifaSpec">SET<b>${p.setting}</b></div>
-        <div class="fifaSpec">MND<b>${p.mindset}</b></div>
-      </div>
-
-      ${vdsCardPlaystylePills(p)}
-
-      <div class="fifaServeType">${({
-        standing_float:"FLOAT",
-        jump_float:"JUMP FLOAT",
-        jump_topspin:"TOPSPIN",
-        auto:"AUTO SERVE"
-      })[p.serveType||"auto"]||"AUTO SERVE"}</div>
-
-      <div class="fifaEditHint">VIEW PLAYER</div>`;
+    card.innerHTML=vdsMasterPlayerCardHTML(p,{
+      role:p.position&&p.position!=="-"?p.position:"POS",
+      rating:mainPositionRating(p),
+      tier,
+      tierLabel:cardTierLabel(p),
+      footer:"VIEW PLAYER"
+    });
 
     card.onclick=()=>{
       const pos=Number(card.dataset.index);
@@ -44499,7 +44433,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - Player Database, homepage carousel, Compare, Player Reveal,
    Ultimate Team/pack reveal and Mini Draft reveal all use purple ACE.
  - Ultimate Team threshold aligned from 92+ to 90+.
- - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–89, Elite 90–95, Ace 96–99.
+ - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–84, Elite 90–95, Ace 96–99.
 */
 
 /*
@@ -46537,20 +46471,20 @@ let vdsPackStoreSelection="gold";
 const VDS_PACK_STORE_UI={
   bronze:{
     name:"Bronze Pack",tier:"BRONZE",cost:750,players:3,tag:"STARTER VALUE",
-    body:"Affordable club depth. Bronze cards are rated 1–59, with a route into Silver 60–74 and Gold 75–89.",
-    odds:[['Bronze',82],['Silver',17],['Gold',1]],
+    body:"Affordable club depth. Bronze cards are rated 1–59, with routes into Silver 60–74, Gold 75–84 and the occasional Rare Gold 85–89.",
+    odds:[['Bronze',82],['Silver',17],['Gold',0.9],['Rare Gold',0.1]],
     glow:'rgba(184,105,62,.18)'
   },
   silver:{
     name:"Silver Pack",tier:"SILVER",cost:1500,players:4,tag:"BALANCED BUILD",
-    body:"A balanced upgrade pack built around Silver 60–74, with Gold 75–89 upgrades and rare Elite 90–95 or Ace 96–99 pulls.",
-    odds:[['Bronze',10],['Silver',69],['Gold',20],['Elite',0.5],['Ace',0.5]],
+    body:"A balanced upgrade pack built around Silver 60–74, with Gold 75–84, Rare Gold 85–89 and rare Elite or Ace pulls.",
+    odds:[['Bronze',10],['Silver',69],['Gold',17],['Rare Gold',3],['Elite',0.5],['Ace',0.5]],
     glow:'rgba(178,204,225,.14)'
   },
   gold:{
-    name:"Gold Pack",tier:"GOLD",cost:2500,players:5,tag:"ELITE HUNT",
-    body:"The premium VDS pack. Hunt Gold 75–89 starters, purple Elite 90–95 cards, and the ultra-rare black Ace 96–99 pull.",
-    odds:[['Silver',15],['Gold',70],['Elite',14.5],['Ace',0.5]],
+    name:"Gold Pack",tier:"GOLD",cost:2500,players:5,tag:"RARE GOLD HUNT",
+    body:"The premium ACE PROJECT pack. Hunt Gold 75–84 starters, premium Rare Gold 85–89 cards, purple Elite 90–95 cards and the ultra-rare black Ace 96–99.",
+    odds:[['Silver',15],['Gold',50],['Rare Gold',20],['Elite',14.5],['Ace',0.5]],
     glow:'rgba(225,181,54,.20)'
   }
 };
@@ -46583,7 +46517,8 @@ function vdsRenderPackStoreShowcase(){
     <div class="vdsUTRarityStrip">
       <span class="bronze">BRONZE <b>1–59</b></span>
       <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–89</b></span>
+      <span class="gold">GOLD <b>75–84</b></span>
+      <span class="rare_gold">RARE GOLD <b>85–89</b></span>
       <span class="elite">ELITE <b>90–95</b></span>
       <span class="ace">ACE <b>96–99</b></span>
     </div>
@@ -46621,7 +46556,7 @@ function vdsRenderPackStoreShowcase(){
             <div class="vdsUTPackPrice"><span>OPEN FOR</span><b>${pack.cost.toLocaleString()} ◉</b></div>
             <button class="vdsUTPackOpenHero ${vdsPackStoreSelection==='gold'?'gold':''}" id="vdsUTPackHeroOpen" type="button">OPEN ${pack.tier} PACK</button>
           </div>
-          <div class="vdsUTPackFootnote">VDS rarity ladder: Bronze 1–59 · Silver 60–74 · Gold 75–89 · Elite 90–95 · Ace 96–99. Probabilities shown above apply per player slot.</div>
+          <div class="vdsUTPackFootnote">VDS rarity ladder: Bronze 1–59 · Silver 60–74 · Gold 75–84 · Elite 90–95 · Ace 96–99. Probabilities shown above apply per player slot.</div>
         </div>
       </main>
     </div>`;
@@ -47213,7 +47148,7 @@ VDS B9.0 STAGE 6E10 — ACE + ELITE TIER SPLIT
 <!--
 VDS B9.6 STAGE 6E16 — GOLD STARTS AT 75 / STANDARDISED TIER CUTS
 - Gold now starts at 75 everywhere in VDS.
-- Standard tier cuts: Bronze <60, Silver 60–68, Rare Silver 69–74, Gold 75–89, Elite 90–95, Ace 96–99.
+- Standard tier cuts: Bronze <60, Silver 60–68, Rare Silver 69–74, Gold 75–84, Elite 90–95, Ace 96–99.
 - Applied to player cards, mini draft tiering, Ultimate Team rarity, and profile tier displays.
 -->
 <!--
@@ -48358,7 +48293,7 @@ VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
 - Public rarity ladder is now fully standardised:
   Bronze 1–59
   Silver 60–74
-  Gold 75–89
+  Gold 75–84
   Elite 90–95
   Ace 96–99
 - Removed Rare Silver / Rare Gold from active rarity assignment logic.
@@ -48846,5 +48781,95 @@ VDS B9.7 STAGE 6E17 — STANDARD RARITY LADDER
 }
 </style>
 
+
+<style id="ACE_B915_RARE_GOLD_FINAL">
+/* B9.15 — Rare Gold is rating-based: 85–89. It is premium GOLD, not Elite purple. */
+.fifaPlayerCard.rare_gold,
+.vdsLegacyFifaPlayerCard.rare_gold,
+#players .fifaPlayerCard.rare_gold,
+#heroCardStage .heroCarouselPlayerCard.rare_gold,
+.vdsAuthDbCard.rare_gold{
+  --card-base:#d3a52c!important;
+  --card-base-2:#3d2b08!important;
+  --card-border:#ffe990!important;
+  --card-accent:#fff5bd!important;
+  --card-glow:rgba(255,211,75,.34)!important;
+  color:#fff8dc!important;
+  background:
+    radial-gradient(circle at 68% 18%,rgba(255,247,185,.38),transparent 23%),
+    radial-gradient(circle at 28% 46%,rgba(236,170,49,.27),transparent 34%),
+    linear-gradient(118deg,transparent 0 22%,rgba(255,245,189,.15) 23% 27%,transparent 28% 51%,rgba(255,189,55,.12) 52% 55%,transparent 56%),
+    repeating-linear-gradient(143deg,transparent 0 29px,rgba(255,224,108,.075) 30px 32px,transparent 33px 61px),
+    linear-gradient(157deg,#7a5510 0%,#d2a32c 31%,#8c6717 54%,#20303a 79%,#071824 100%)!important;
+  border-color:#ffe37e!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,249,209,.18),
+    inset 0 -70px 90px rgba(0,0,0,.31),
+    0 0 14px rgba(255,219,87,.34),
+    0 18px 42px rgba(0,0,0,.42)!important;
+}
+.fifaPlayerCard.rare_gold .fifaTierTag,
+.vdsLegacyFifaPlayerCard.rare_gold .fifaTierTag,
+#players .fifaPlayerCard.rare_gold .fifaTierTag,
+#heroCardStage .heroCarouselPlayerCard.rare_gold .fifaTierTag,
+.vdsAuthDbCard.rare_gold .fifaTierTag{
+  color:#fff1ad!important;
+  border-color:rgba(255,226,116,.90)!important;
+  background:linear-gradient(180deg,rgba(116,78,11,.90),rgba(37,27,8,.94))!important;
+  box-shadow:0 0 12px rgba(255,213,72,.18),inset 0 0 8px rgba(255,255,255,.06)!important;
+}
+.fifaPlayerCard.rare_gold .fifaOverall,
+.vdsLegacyFifaPlayerCard.rare_gold .fifaOverall,
+#players .fifaPlayerCard.rare_gold .fifaOverall,
+#heroCardStage .heroCarouselPlayerCard.rare_gold .fifaOverall,
+.vdsAuthDbCard.rare_gold .fifaOverall{
+  color:#ffe787!important;
+  text-shadow:0 2px 0 rgba(101,64,5,.72),0 4px 8px rgba(0,0,0,.48),0 0 12px rgba(255,218,84,.20)!important;
+}
+.fifaPlayerCard.rare_gold::before,
+.vdsLegacyFifaPlayerCard.rare_gold::before,
+#players .fifaPlayerCard.rare_gold::before,
+#heroCardStage .heroCarouselPlayerCard.rare_gold::before,
+.vdsAuthDbCard.rare_gold::before{
+  background:linear-gradient(112deg,transparent 36%,rgba(255,255,255,0) 42%,rgba(255,245,185,.18) 47%,rgba(255,255,238,.68) 50%,rgba(255,196,63,.22) 54%,rgba(255,255,255,0) 58%,transparent 63%)!important;
+}
+
+/* UT compact card families stay recognisably Rare Gold too. */
+.utPremiumCard.rare_gold,
+.utPremiumCollectionCard.rare_gold,
+.utCollectionCard.rare_gold,
+.vdsUTBenchCard.rare_gold,
+.vdsSquadMiniCard.rare_gold{
+  background:
+    radial-gradient(circle at 65% 16%,rgba(255,241,168,.28),transparent 24%),
+    linear-gradient(150deg,#d6ad35,#8e6715 57%,#3f300b)!important;
+  border-color:rgba(255,226,119,.62)!important;
+}
+.utPremiumCard.rare_gold .utPremiumRarity,
+.utPremiumCard.rare_gold .utPremiumRating,
+.utCollectionCard.rare_gold .utRarity{
+  color:#fff0a5!important;
+}
+
+/* Rarity navigation */
+#players .vdsTierRangeLegend .rare_gold,
+#ultimate .vdsUTRarityStrip .rare_gold{
+  color:#ffe17a!important;
+  border-color:rgba(255,213,76,.38)!important;
+  background:linear-gradient(135deg,rgba(99,69,12,.72),rgba(30,27,15,.92))!important;
+}
+.aceRarityRun .rareGold{
+  color:#ffe496!important;
+  border-color:rgba(255,216,87,.38)!important;
+  background:linear-gradient(135deg,#4b350d,#17140b)!important;
+}
+.vdsFilter.rareGoldFilter.active{
+  color:#fff3b5!important;
+  background:linear-gradient(135deg,#7c5812,#c79a2d)!important;
+  box-shadow:0 0 14px rgba(244,196,68,.18)!important;
+}
+</style>
+
+<!-- B9.15: Rare Gold 85–89 + canonical Player Database cards on login/home reels. -->
 </body>
 </html>
