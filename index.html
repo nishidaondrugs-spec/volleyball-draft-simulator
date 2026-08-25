@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volleyball Draft Simulator — B8.4 Club Chemistry Arena</title>
+<title>Volleyball Draft Simulator — B9.9 Card Showcase Polish</title>
 <style>
   :root{
     --bg:#08111f; --panel:#101c31; --panel2:#152641; --text:#eef6ff;
@@ -19438,16 +19438,12 @@ body.showcaseOpen{overflow:hidden}
 .showcaseSubtitle{margin-top:10px;color:#9bb5d8;max-width:580px;font-size:14px;line-height:1.45}
 .showcasePill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(5,17,33,.9);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:900;letter-spacing:.08em;color:#dfe9f7;text-transform:uppercase}
 .showcaseMain{position:relative;z-index:2;display:grid;grid-template-columns:minmax(320px,430px) minmax(340px,1fr);gap:26px;align-items:stretch}
-.showcaseCardScene{position:relative;min-height:640px;border-radius:28px;padding:32px 24px 26px;border:1px solid rgba(120,180,255,.14);background:linear-gradient(180deg,rgba(7,18,34,.55),rgba(4,10,19,.72));overflow:hidden}
-.showcaseCourtPerspective{position:absolute;left:6%;right:6%;bottom:24px;height:46%;clip-path:polygon(8% 0%,92% 0%,100% 100%,0% 100%);background:linear-gradient(180deg,#c97a45 0%, #be6f3d 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18), inset 0 24px 40px rgba(255,255,255,.05), 0 12px 36px rgba(0,0,0,.45)}
-.showcaseCourtPerspective:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg, transparent 0 49.6%, rgba(255,255,255,.13) 49.6% 50.4%, transparent 50.4% 100%)}
-.showcaseCourtPerspective:after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;background:rgba(255,255,255,.92);box-shadow:0 0 18px rgba(255,255,255,.4)}
-.showcaseFarNet{position:absolute;left:23%;right:23%;top:31%;height:62px;border-top:4px solid rgba(255,255,255,.92);background:linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.05));mask-image:linear-gradient(#000 0 0), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 16px), repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 12px);mask-composite:intersect;opacity:.92}
-.showcasePost{position:absolute;top:27%;width:6px;height:128px;background:linear-gradient(180deg,#f1f7ff,#cad5e4);border-radius:99px;box-shadow:0 0 12px rgba(255,255,255,.2)}
-.showcasePost.left{left:22%}
-.showcasePost.right{right:22%}
+.showcaseCardScene{position:relative;min-height:640px;border-radius:28px;padding:32px 24px 26px;border:1px solid rgba(120,180,255,.14);background:radial-gradient(circle at 50% 14%,rgba(102,174,255,.16),transparent 28%),linear-gradient(180deg,rgba(7,18,34,.72),rgba(4,10,19,.90));overflow:hidden}
+.showcaseCourtPerspective,.showcaseFarNet,.showcasePost{display:none!important}
+.showcaseCardScene:before{content:"";position:absolute;left:-8%;right:-8%;bottom:0;height:43%;background:radial-gradient(ellipse at 50% 100%,rgba(24,61,104,.50),transparent 58%),repeating-linear-gradient(90deg,rgba(118,161,211,.045) 0 2px,transparent 2px 11px);opacity:.72;mask-image:linear-gradient(to top,#000,transparent 92%)}
+.showcaseCardScene:after{content:"";position:absolute;left:9%;right:9%;top:7%;height:22%;background:radial-gradient(circle at 10% 0,rgba(255,255,255,.72),transparent 8%),radial-gradient(circle at 36% 0,rgba(255,255,255,.56),transparent 8%),radial-gradient(circle at 64% 0,rgba(255,255,255,.56),transparent 8%),radial-gradient(circle at 90% 0,rgba(255,255,255,.72),transparent 8%);filter:blur(15px);opacity:.40}
 .showcaseCardWrap{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);filter:drop-shadow(0 22px 44px rgba(0,0,0,.48));}
-.showcaseCardWrap .fifaPlayerCard{width:min(78vw,360px);max-width:360px;transform:scale(1.02)}
+.showcaseCardWrap .fifaPlayerCard{width:310px!important;min-width:310px!important;max-width:310px!important;min-height:420px!important;transform:none!important}
 .showcaseAmbientRing{position:absolute;inset:auto 50% 16%;transform:translateX(-50%);width:64%;height:30px;border-radius:50%;background:radial-gradient(circle, rgba(102,175,255,.26) 0%, rgba(102,175,255,.08) 45%, transparent 70%);filter:blur(12px)}
 .showcaseInfo{display:grid;grid-template-rows:auto auto 1fr;gap:16px}
 .showcasePanel{border-radius:24px;border:1px solid rgba(120,180,255,.12);background:linear-gradient(180deg,rgba(6,18,34,.92),rgba(4,11,20,.9));padding:18px 18px 16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
@@ -19478,7 +19474,7 @@ body.showcaseOpen{overflow:hidden}
   .showcaseIdentityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .showcaseSplit,.showcaseSideCard,.showcaseStatGrid{grid-template-columns:1fr}
   .showcaseCardScene{min-height:500px;padding:22px 14px 20px}
-  .showcaseCardWrap .fifaPlayerCard{width:min(86vw,320px)}
+  .showcaseCardWrap .fifaPlayerCard{width:min(82vw,310px)!important;min-width:min(82vw,310px)!important;max-width:min(82vw,310px)!important}
   .showcaseFarNet{left:16%;right:16%;top:34%}
   .showcasePost.left{left:15%}
   .showcasePost.right{right:15%}
@@ -40474,21 +40470,23 @@ function openShowcaseMode(name){
         <div>
           <div class="showcaseEyebrow">View Only Mode</div>
           <h2 class="showcaseTitle">${esc(p.name)}</h2>
-          <div class="showcaseSubtitle">A clean stadium showcase for aesthetics, screenshots and front-card viewing. Use this when you just want the card to breathe without editing controls.</div>
+          <div class="showcaseSubtitle">A clean view-only showcase for aesthetics, screenshots and front-card viewing — using the same card design as the Player Database.</div>
         </div>
         <div class="showcasePill">${esc(tierLabel)} · ${esc((p.position&&p.position!=="-")?p.position:"PLAYER")} · ${mainPositionRating(p)}</div>
       </div>
 
       <div class="showcaseMain">
         <div class="showcaseCardScene">
-          <div class="showcasePost left"></div>
-          <div class="showcasePost right"></div>
-          <div class="showcaseFarNet"></div>
-          <div class="showcaseCourtPerspective"></div>
           <div class="showcaseAmbientRing"></div>
           <div class="showcaseCardWrap">
-            <div class="fifaPlayerCard ${tier}">
-              ${vdsMasterPlayerCardHTML(p,{role:p.position&&p.position!=="-"?p.position:"POS",rating:mainPositionRating(p),tier,tierLabel,footer:"VIEW ONLY MODE"})}
+            <div class="fifaPlayerCard ${tier}${["OH","OP","M","S","L"].includes((p.position||"").toUpperCase())?` pos-${(p.position||"").toUpperCase()}`:""}">
+              ${vdsMasterPlayerCardHTML(p,{
+                role:p.position&&p.position!=="-"?p.position:"POS",
+                rating:mainPositionRating(p),
+                tier,
+                tierLabel,
+                footer:cloudAdmin?"OPEN PLAYER · EDIT ENABLED":"OPEN PLAYER"
+              })}
             </div>
           </div>
         </div>
