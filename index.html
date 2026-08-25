@@ -50478,3 +50478,276 @@ label{color:#817b8b!important;font-weight:750!important}
 </style>
 
 <!-- THE ACE PROJECT B9.20 — PROFESSIONAL POLISH PASS -->
+
+
+<style id="ACE_B921_GEOMETRY_PERFORMANCE_FIX">
+/* ---------- 100% zoom / horizontal geometry ---------- */
+html{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+}
+body{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:hidden!important;
+  margin:0!important;
+}
+.app{
+  width:min(100%,1440px)!important;
+  max-width:1440px!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  padding-left:clamp(8px,1.35vw,20px)!important;
+  padding-right:clamp(8px,1.35vw,20px)!important;
+  box-sizing:border-box!important;
+}
+.page,
+.page.active,
+.vdsPlayersShell,
+.vdsUTShell,
+.vdsSquadPanel,
+.vdsCollectionPanel,
+.acePackStore,
+.aceUTHomeStage,
+.gameHero,
+.vdsGlobalHeader{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.page>*,
+.gameHero>*,
+.aceUTHomeStage>*,
+.acePackStoreBody>*,
+.acePackFeature>*,
+.vdsUTInstance>*,
+.vdsCollectionPanel>*,
+.vdsSquadPanel>*{
+  min-width:0!important;
+}
+img,canvas,svg,video{
+  max-width:100%;
+}
+table{
+  max-width:100%!important;
+}
+
+/* Header was one of the easiest places for a few pixels of drift at 100%. */
+.vdsGlobalHeader{
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.vdsMainNav{
+  min-width:0!important;
+  max-width:100%!important;
+}
+.vdsAccountChip{
+  min-width:0!important;
+  max-width:100%!important;
+}
+
+/* Clamp wide desktop grids so their minimum columns cannot push the page sideways. */
+.gameHero{
+  grid-template-columns:minmax(0,1.04fr) minmax(330px,.96fr)!important;
+}
+.aceUTHomeStage{
+  grid-template-columns:minmax(0,.86fr) minmax(390px,1.14fr)!important;
+}
+.acePackStoreBody{
+  grid-template-columns:minmax(210px,245px) minmax(0,1fr)!important;
+}
+.acePackFeature{
+  grid-template-columns:minmax(260px,.82fr) minmax(320px,1.18fr)!important;
+}
+.aceClubControls{
+  grid-template-columns:minmax(170px,280px) minmax(0,1fr) minmax(105px,125px)!important;
+}
+
+/* ---------- performance recovery ---------- */
+/* B9.20 brought back expensive blur on several full-screen layers.
+   Remove it everywhere: the visual difference is tiny, FPS difference isn't. */
+.vdsGlobalHeader,
+.playerEditorOverlay,
+.profileModal,
+.draftPoolOverlay,
+.revealOverlay,
+.vdsCardShowcaseOverlay,
+.vdsStarterOverlay,
+.vdsUTEntryOverlay,
+.utRevealOverlay,
+.navDropMenu,
+.acePackWallet,
+.vdsAccountChip{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* Avoid page-entry transform/opacity animation on every navigation. */
+.page.active{
+  animation:none!important;
+}
+
+/* Reduce large-area shadow rasterisation. */
+.vdsGlobalHeader{
+  box-shadow:0 7px 18px rgba(0,0,0,.16)!important;
+}
+.gameHero,
+.aceUTHomeStage,
+.acePackStore,
+.playerEditorModal,
+.profileModal .profileModalInner,
+.draftPoolModal,
+.vdsCardShowcaseSheet,
+.vdsStarterCard,
+.vdsUTEntryCard{
+  box-shadow:0 14px 34px rgba(0,0,0,.23)!important;
+}
+
+/* Static UI should not keep repainting. */
+.gameHero::before,
+.gameHero::after,
+.aceUTHomeStage::after,
+.acePackStore::before{
+  animation:none!important;
+}
+.gameHero .gameSweep,
+.gameHero .homeSweep,
+.homeParticles,
+.heroParticles,
+.aceUTHomeVisualGlow{
+  animation:none!important;
+}
+
+/* Card hover/filter effects are expensive when many cards are visible. */
+#players .fifaPlayerCard,
+.aceClubCardView>.fifaPlayerCard,
+.vdsUTBenchCard,
+.vdsSquadPortrait{
+  will-change:auto!important;
+}
+#players .fifaPlayerCard:hover,
+.aceClubCard:hover .aceClubCardView>.fifaPlayerCard{
+  filter:none!important;
+}
+#players .fifaPlayerCard::before,
+.aceClubCardView>.fifaPlayerCard::before{
+  animation:none!important;
+}
+
+/* Scroll regions get their own containment so a long club/database does not
+   force the whole page to repaint. */
+#players .playersGrid,
+#ultimate .utCollection,
+#ultimate .vdsUTBenchCards{
+  contain:layout paint!important;
+}
+
+/* Keep reveals cinematic, but remove continuous ambient filters. */
+.utRevealAtmosphere,
+.vdsRevealAtmosphere,
+.revealAtmosphere{
+  filter:none!important;
+}
+.utRevealStageRing,
+.acePackStageGlow{
+  filter:none!important;
+}
+
+/* ---------- laptop / 100% zoom breakpoint ---------- */
+@media(max-width:1180px) and (min-width:761px){
+  .app{
+    width:100%!important;
+    max-width:1180px!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  .gameHero{
+    grid-template-columns:minmax(0,1fr) minmax(300px,.82fr)!important;
+    gap:18px!important;
+  }
+  .aceUTHomeStage{
+    grid-template-columns:minmax(0,.92fr) minmax(350px,1.08fr)!important;
+    padding:22px!important;
+  }
+  .acePackFeature{
+    grid-template-columns:minmax(240px,.78fr) minmax(300px,1.22fr)!important;
+    padding:22px!important;
+  }
+}
+
+/* ---------- phone remains intentionally one-column ---------- */
+@media(max-width:760px){
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+  }
+  .app{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:7px!important;
+  }
+  .gameHero,
+  .aceUTHomeStage,
+  .acePackFeature,
+  .acePackStoreBody,
+  .aceClubControls{
+    grid-template-columns:1fr!important;
+  }
+  .vdsGlobalHeader{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .vdsMainNav{
+    width:100%!important;
+    overflow-x:auto!important;
+    overscroll-behavior-x:contain!important;
+    scrollbar-width:none!important;
+  }
+  .vdsMainNav::-webkit-scrollbar{display:none!important}
+
+  /* Phone performance: no cosmetic hover/transition work. */
+  .btn,
+  .gamePlayBtn,
+  .gameSecondaryBtn,
+  .miniBtn,
+  .vdsQuietAction,
+  .aceClubTopActions button,
+  .aceClubCardActions button,
+  .acePackOpen,
+  .aceSquadPlayBtn,
+  .aceRevealAddSquad,
+  .aceRevealSendClub,
+  .vdsMainNav .tab,
+  .vdsMainNav .navDropBtn{
+    transition:none!important;
+  }
+  button:active{
+    transform:none!important;
+  }
+
+  /* Long card lists: don't render off-screen content until needed. */
+  #players .vdsPlayerCardWithPoolAction,
+  #ultimate .aceClubCard{
+    content-visibility:auto!important;
+    contain-intrinsic-size:0 455px!important;
+  }
+}
+
+/* Low-power preference gets the same calm version automatically. */
+@media(prefers-reduced-motion:reduce){
+  *{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+</style>
+
+<!-- THE ACE PROJECT B9.21 — 100% ZOOM + PERFORMANCE RECOVERY -->
