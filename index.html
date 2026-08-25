@@ -28068,24 +28068,112 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
 }
 </style>
 
+
+<style id="ace-project-brand-refresh">
+:root{
+  --bg:#070812;
+  --panel:#0f1020;
+  --panel2:#161834;
+  --text:#f5f7ff;
+  --muted:#a8afc8;
+  --blue:#8f5cff;
+  --purple:#a855f7;
+  --purple-soft:#c084fc;
+  --border:#33295c;
+  --shadow:0 18px 45px rgba(0,0,0,.34);
+}
+body{
+  background:
+    radial-gradient(circle at 18% 0%,rgba(127,74,255,.16),transparent 32%),
+    radial-gradient(circle at 82% 18%,rgba(170,88,247,.18),transparent 28%),
+    linear-gradient(180deg,#06070f,#0a0d18 46%,#070812 100%);
+}
+.vdsGlobalHeader{
+  border:1px solid rgba(165,113,255,.22)!important;
+  background:linear-gradient(180deg,rgba(11,13,25,.92),rgba(8,10,20,.88))!important;
+  box-shadow:0 14px 36px rgba(0,0,0,.26);
+}
+.vdsBrand{gap:12px!important}
+.vdsBrandLogo{width:48px!important;height:48px!important;filter:drop-shadow(0 10px 24px rgba(126,76,255,.38))!important}
+.vdsBrand b{font-size:15px!important;letter-spacing:.07em!important}
+.vdsBrand small{color:#9f8bda!important;font-size:7px!important;letter-spacing:.2em!important}
+.tab.active,.primary,.gamePlayBtn,.navDropBtn.active,.btn.primary{
+  background:linear-gradient(135deg,#7c4dff,#a855f7)!important;
+  color:#fff!important;
+  box-shadow:0 12px 26px rgba(125,77,255,.24);
+}
+.tab,.navDropBtn,.secondary,.miniBtn{border-color:rgba(165,113,255,.18)!important}
+.badge,.pill,.rotationBadge,.draftChip,.tierBadge{border-color:rgba(165,113,255,.2)!important}
+.homeKicker,.gameEyebrow,.vdsUTEconomyKicker,.vdsUTBuildBadge,.vdsSectionKicker{color:#baa4ff!important}
+
+.vdsSignInBrandLogo{
+  width:60px;height:60px;object-fit:contain;display:block;
+  filter:drop-shadow(0 14px 34px rgba(134,84,255,.35));
+}
+.vdsSignInBrand{gap:14px!important;margin-bottom:34px!important}
+.vdsSignInBrandText b{font-size:12px!important;letter-spacing:.18em!important}
+.vdsSignInBrandText small{font-size:8px!important;letter-spacing:.16em!important;color:#8f7bc7!important}
+.vdsSignInEyebrow{color:#c2a8ff!important}
+.vdsSignInHeadline{max-width:680px!important}
+.vdsSignInHeadline span{color:#b487ff!important}
+.vdsSignInAuthBox{border-color:rgba(165,113,255,.18)!important;background:linear-gradient(180deg,rgba(13,16,30,.84),rgba(7,10,20,.78))!important}
+.vdsSignInWord{color:rgba(179,133,255,.18)!important;text-shadow:0 0 30px rgba(135,87,255,.12)!important}
+.vdsAuthFeature,.vdsSignInTrust span,.vdsAuthDbSource,.vdsAuthLiveTag{border-color:rgba(165,113,255,.16)!important}
+
+.gameHero{
+  background:
+    radial-gradient(circle at 18% 10%,rgba(162,92,255,.16),transparent 28%),
+    radial-gradient(circle at 82% 15%,rgba(89,122,255,.16),transparent 24%),
+    linear-gradient(145deg,#111325 0%,#0b1020 55%,#090d18 100%)!important;
+  border:1px solid rgba(165,113,255,.18)!important;
+  box-shadow:0 28px 70px rgba(0,0,0,.34);
+}
+.gameAceIdentity{
+  display:inline-flex;align-items:center;gap:16px;
+  padding:14px 18px;margin:10px 0 8px;
+  border-radius:18px;border:1px solid rgba(165,113,255,.18);
+  background:linear-gradient(135deg,rgba(17,21,39,.9),rgba(10,12,23,.78));
+  box-shadow:0 16px 32px rgba(0,0,0,.22);
+}
+.gameAceLogo{width:74px;height:74px;object-fit:contain;display:block;filter:drop-shadow(0 12px 28px rgba(136,87,255,.28))}
+.gameAceText{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.gameAceMini{font-size:11px;letter-spacing:.22em;font-weight:900;color:#a88fff}
+.gameAceText strong{font-size:34px;line-height:.94;letter-spacing:.02em}
+.gameHero h1{font-size:70px!important;max-width:760px!important}
+.gameHero h1 span{color:#b487ff!important}
+.gameHeroCopy>p{max-width:560px!important;font-size:16px!important}
+.heroWordmark{color:rgba(190,154,255,.12)!important;letter-spacing:.18em!important;font-size:92px!important;text-transform:uppercase!important}
+.gameQuickLinks button,.gameSecondaryBtn{border-color:rgba(165,113,255,.16)!important}
+.gameQuickLinks button:hover,.gameSecondaryBtn:hover,.gamePlayBtn:hover{box-shadow:0 12px 28px rgba(125,77,255,.20)!important}
+.vdsUTHeader,.vdsUTEconomyHero,.vdsUTWallet,.card,.playerCard,.auctionCenter,.auctionTeam,.auctionCard{border-color:rgba(165,113,255,.16)!important}
+.vdsUTWallet b,.overall,.auctionFinal{color:#d9c2ff!important}
+.vdsMainNav .tab.active{background:linear-gradient(135deg,#7c4dff,#a855f7)!important}
+@media(max-width:900px){
+  .gameAceIdentity{width:100%;justify-content:flex-start}
+  .gameAceLogo{width:58px;height:58px}
+  .gameAceText strong{font-size:24px}
+  .gameHero h1{font-size:48px!important}
+  .heroWordmark{font-size:54px!important}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
   <div class="vdsSignInShell">
     <section class="vdsSignInCopy">
       <div class="vdsSignInBrand">
-        <div class="vdsSignInBrandMark">V</div>
+        <img class="vdsSignInBrandLogo" src="ace-project-logo.png" alt="THE ACE PROJECT logo">
         <div class="vdsSignInBrandText">
-          <b>VOLLEYBALL DRAFT SIMULATOR</b>
-          <small>BUILD · DRAFT · COMPETE</small>
+          <b>THE ACE PROJECT</b>
+          <small>VOLLEYBALL ULTIMATE TEAM</small>
         </div>
       </div>
 
-      <div class="vdsSignInEyebrow">WELCOME TO VDS</div>
-      <h1 class="vdsSignInHeadline">BUILD THE TEAM.<br><span>PLAY THE POINT.</span></h1>
+      <div class="vdsSignInEyebrow">WELCOME TO THE ACE PROJECT</div>
+      <h1 class="vdsSignInHeadline">THE ACE PROJECT.<br><span>PLAY THE POINT.</span></h1>
       <p class="vdsSignInIntro">
-        Draft your stars, set the rotation and battle through every rally.
-        Your VDS account keeps your manager identity ready across multiplayer rooms and devices.
+        Build your club, collect player cards and battle through every rally. Your ACE account keeps your manager identity ready across multiplayer rooms, Ultimate Team and every card you unlock.
       </p>
 
       <div class="vdsSignInAuthBox">
@@ -28117,21 +28205,21 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
       <div class="vdsSignInPortrait"><img id="vdsAuthBackdropPlayer" alt=""></div>
       <div class="vdsSignInNet"></div>
       <div class="vdsSignInCourt"></div>
-      <div class="vdsSignInWord">VDS</div>
+      <div class="vdsSignInWord">ACE</div>
 
       <div class="vdsAuthCardStage">
         <div id="vdsAuthDbCards" class="vdsAuthDbCards">
-          <div class="vdsAuthDbLoading">LOADING VDS PLAYER CARDS…</div>
+          <div class="vdsAuthDbLoading">LOADING ACE PROJECT PLAYER CARDS…</div>
         </div>
-        <div class="vdsAuthDbSource"><i></i> LIVE PLAYER DATABASE</div>
+        <div class="vdsAuthDbSource"><i></i> LIVE ACE PROJECT PLAYER DATABASE</div>
       </div>
 
-      <div class="vdsAuthLiveTag"><i></i> RALLY-BY-RALLY ENGINE ONLINE</div>
+      <div class="vdsAuthLiveTag"><i></i> ACE ENGINE ONLINE</div>
 
       <div class="vdsAuthFeatureStrip">
-        <div class="vdsAuthFeature"><b>DRAFT</b><small>Build your roster</small></div>
-        <div class="vdsAuthFeature"><b>LINEUP</b><small>Shape the rotation</small></div>
-        <div class="vdsAuthFeature"><b>COMPETE</b><small>Watch every point</small></div>
+        <div class="vdsAuthFeature"><b>POOL</b><small>Build your roster</small></div>
+        <div class="vdsAuthFeature"><b>CARDS</b><small>Chase your favourites</small></div>
+        <div class="vdsAuthFeature"><b>COMPETE</b><small>Own every rally</small></div>
       </div>
     </section>
   </div>
@@ -28192,9 +28280,16 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
   <div class="gameHome">
     <div class="gameHero">
       <div class="gameHeroCopy">
-        <div class="gameEyebrow">THE ACE PROJECT</div>
-        <h1>BUILD THE TEAM.<br><span>PLAY THE POINT.</span></h1>
-        <p>Draft your six, shape the rotation and watch every rally play out.</p>
+        <div class="gameEyebrow">WELCOME TO THE ACE PROJECT</div>
+        <div class="gameAceIdentity">
+          <img class="gameAceLogo" src="ace-project-logo.png" alt="THE ACE PROJECT logo">
+          <div class="gameAceText">
+            <span class="gameAceMini">VOLLEYBALL ULTIMATE TEAM</span>
+            <strong>THE ACE PROJECT</strong>
+          </div>
+        </div>
+        <h1>THE ACE PROJECT.<br><span>VOLLEYBALL ULTIMATE TEAM.</span></h1>
+        <p>Build your club, open packs, shape your six and watch every rally play out inside a branded volleyball Ultimate Team world.</p>
 
         <div class="gamePrimaryActions">
           <button class="gamePlayBtn" id="homePlayModes" type="button">
@@ -28223,7 +28318,7 @@ body:has(.vdsStarterOverlay.show){overflow:hidden!important}
           <div class="homeCourtGlow"></div>
         </div>
         <div class="heroCourtLines"></div>
-        <div class="heroWordmark">VDS</div>
+        <div class="heroWordmark">ACE PROJECT</div>
         <div class="heroCardCarousel" id="heroCardCarousel">
           <button class="heroCardNav prev" id="heroCardPrev" type="button" aria-label="Previous player">‹</button>
           <div class="heroCardStage" id="heroCardStage"></div>
@@ -38286,7 +38381,7 @@ function vdsRenderSignInSupabaseCards(){
   if(!mount)return;
 
   if(!cloudLoaded){
-    mount.innerHTML='<div class="vdsAuthDbLoading">LOADING VDS PLAYER CARDS…</div>';
+    mount.innerHTML='<div class="vdsAuthDbLoading">LOADING ACE PROJECT PLAYER CARDS…</div>';
     return;
   }
 
