@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B11.0 Live Match UX">
+  <meta name="ace-build" content="B11.1 Condition + Narration UX">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -4510,6 +4510,199 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
   .aceCourtColumn #courtStage{height:310px!important;}
   .aceCourtColumn #courtStage.view3d{height:300px!important;}
   .aceNarrationPanel #commentaryBox{max-height:205px!important;}
+}
+</style>
+
+
+<style id="ace-live-ux-v11-1-style">
+/* =========================================================
+   THE ACE PROJECT — B11.1 CONDITION + NARRATION UX
+   Desktop condition ticker + mobile condition sheet + cleaner feed
+   ========================================================= */
+
+/* Desktop condition should read like a broadcast ticker, not a management panel. */
+.aceConditionRibbon{
+  margin:-4px 22px 8px;
+  min-height:28px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  padding:5px 10px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:9px;
+  background:rgba(3,12,21,.58);
+}
+.aceConditionRibbonLabel{
+  color:#637b91;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.17em;
+  white-space:nowrap;
+}
+.aceConditionSide{
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(58px,auto) minmax(70px,1fr) auto;
+  align-items:center;
+  gap:7px;
+}
+.aceConditionSide.right{grid-template-columns:auto minmax(70px,1fr) minmax(58px,auto);}
+.aceConditionName{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#8ca3b9;
+  font-size:7px;
+  font-weight:900;
+}
+.aceConditionSide.right .aceConditionName{text-align:right;}
+.aceConditionTrack{
+  height:4px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#112235;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.aceConditionTrack>i{
+  display:block;
+  height:100%;
+  width:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#4aa8ff,#73d8a8);
+  transition:width .25s ease;
+}
+.aceConditionSide.right .aceConditionTrack>i{margin-left:auto;background:linear-gradient(90deg,#73d8a8,#ef6072);}
+.aceConditionValue{font-size:8px;color:#d7e5f2;font-weight:1000;letter-spacing:.04em;}
+.aceConditionRibbon[data-alert="true"] .aceConditionRibbonLabel{color:#e6b95d;}
+
+/* The old full fatigue panel lives in the mobile sheet now. */
+.aceManagementDetails .fatigueManagerPanel{display:none!important;}
+
+/* Cleaner commentary hierarchy: newest rally is the story, older rallies are the archive. */
+.aceNarrationPanel #commentaryBox{
+  padding:8px 10px 10px!important;
+}
+.aceNarrationPanel .commentaryLine{
+  padding:0!important;
+  border-bottom:0!important;
+  color:#8ea4b9!important;
+  font-size:9px!important;
+  line-height:1.62!important;
+}
+.aceNarrationPanel .commentaryLine:first-child{
+  margin:0 0 7px!important;
+  padding:10px 11px 11px!important;
+  border:1px solid rgba(74,168,255,.13)!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(74,168,255,.07),rgba(74,168,255,.025))!important;
+  color:#dceeff!important;
+  line-height:1.72!important;
+}
+.aceNarrationPanel .commentaryLine:first-child::before{
+  content:"LATEST RALLY"!important;
+  margin-bottom:6px!important;
+}
+.aceNarrationPanel .commentaryLine:first-child .setGrade,
+.aceNarrationPanel .commentaryLine:first-child .blockCall{
+  margin:2px 2px;
+  vertical-align:1px;
+}
+.aceCommentaryEntry{
+  overflow:hidden;
+  margin-top:4px;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:8px;
+  background:rgba(255,255,255,.018);
+}
+.aceCommentaryEntry>summary{
+  list-style:none;
+  min-height:34px;
+  display:grid;
+  grid-template-columns:7px minmax(0,1fr) auto;
+  align-items:center;
+  gap:7px;
+  padding:7px 8px;
+  cursor:pointer;
+  color:#8197ac;
+  font-size:8px;
+  line-height:1.35;
+}
+.aceCommentaryEntry>summary::-webkit-details-marker{display:none;}
+.aceCommentaryPreview{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.aceCommentaryDot{width:5px;height:5px;border-radius:50%;background:#46627b;}
+.aceCommentaryChevron{color:#526b82;font-size:9px;transition:transform .18s ease;}
+.aceCommentaryEntry[open] .aceCommentaryChevron{transform:rotate(180deg);}
+.aceCommentaryFull{
+  padding:8px 10px 10px;
+  border-top:1px solid rgba(255,255,255,.04);
+  color:#8ea4b9;
+  font-size:8.5px;
+  line-height:1.65;
+}
+.aceCommentaryFull .setGrade,.aceCommentaryFull .blockCall{margin:2px 2px;}
+
+/* Mobile-only condition control + bottom sheet. */
+.aceConditionMobileBtn{display:none!important;}
+.aceConditionModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:1700;
+  align-items:flex-end;
+  justify-content:center;
+  padding:12px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.aceConditionModal.show{display:flex;}
+.aceConditionSheet{
+  width:min(560px,100%);
+  max-height:78vh;
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px 18px 14px 14px;
+  background:#071421;
+  box-shadow:0 -20px 50px rgba(0,0,0,.44);
+}
+.aceConditionSheetHead{
+  position:sticky;
+  top:0;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 14px 11px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(7,20,33,.97);
+}
+.aceConditionSheetHead span{display:block;color:#637d95;font-size:6px;font-weight:1000;letter-spacing:.17em;}
+.aceConditionSheetHead b{display:block;margin-top:3px;font-size:14px;}
+.aceConditionClose{
+  width:38px;height:38px;border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  background:#0b1b2b;color:#a8bdd0;font-size:19px;cursor:pointer;
+}
+.aceConditionModalBody{padding:7px 6px 13px;}
+.aceConditionModal .fatigueManagerPanel{display:grid!important;margin:0!important;grid-template-columns:1fr!important;gap:7px!important;}
+.aceConditionModal .fatigueTeam{padding:11px 12px!important;}
+.aceConditionModal .fatigueTitle{font-size:8px!important;margin-bottom:9px!important;}
+.aceConditionModal .fatigueChips{gap:7px!important;}
+.aceConditionModal .fatigueChip{min-height:31px;padding:6px 9px!important;font-size:9px!important;}
+
+@media (max-width:760px){
+  .aceConditionRibbon{display:none!important;}
+  .aceConditionMobileBtn{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;}
+  .aceConditionMobileBtn::before{content:"◔";font-size:12px;}
+  .aceNarrationPanel #commentaryBox{max-height:250px!important;}
+  .aceNarrationPanel .commentaryLine:first-child{font-size:10.5px!important;padding:10px!important;}
+  .aceCommentaryEntry>summary{min-height:39px;font-size:9px;padding:8px 9px;}
+  .aceCommentaryFull{font-size:9.5px;}
 }
 </style>
 
@@ -24237,6 +24430,181 @@ Object.assign(window,{
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildLiveUx,{once:true});
   else buildLiveUx();
+})();
+</script>
+
+
+<script id="ace-live-ux-v11-1-script">
+(function(){
+  'use strict';
+  if(window.ACE_LIVE_UX_V11_1)return;
+  window.ACE_LIVE_UX_V11_1=true;
+
+  const escLocal=(s)=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+
+  function currentStarterCondition(team){
+    const starters=(Array.isArray(team)?team:[]).slice(0,6).filter(Boolean);
+    if(!starters.length)return {avg:100,low:100,lowName:'—'};
+    const rows=starters.map(p=>({name:p.name||'Player',value:Math.round(typeof playerCondition==='function'?playerCondition(p):100)}));
+    const avg=Math.round(rows.reduce((a,r)=>a+r.value,0)/rows.length);
+    const lowest=rows.reduce((a,b)=>b.value<a.value?b:a,rows[0]);
+    return {avg,low:lowest.value,lowName:lowest.name};
+  }
+
+  function ensureConditionUi(){
+    const card=document.getElementById('liveMatchCard');
+    if(!card || !card.classList.contains('aceLiveUx'))return;
+    const arena=card.querySelector('.liveArena');
+    const command=card.querySelector('.aceLiveCommandBar');
+    const liveControls=command?.querySelector('.liveControls');
+    const fatigue=card.querySelector('.fatigueManagerPanel') || document.querySelector('.aceConditionModal .fatigueManagerPanel');
+    if(!arena || !command || !fatigue)return;
+
+    let ribbon=document.getElementById('aceConditionRibbon');
+    if(!ribbon){
+      ribbon=document.createElement('div');
+      ribbon.id='aceConditionRibbon';
+      ribbon.className='aceConditionRibbon';
+      ribbon.innerHTML=`
+        <div class="aceConditionSide">
+          <span class="aceConditionName" id="aceConditionName1">TEAM 1</span>
+          <span class="aceConditionTrack"><i id="aceConditionFill1"></i></span>
+          <b class="aceConditionValue" id="aceConditionValue1">100%</b>
+        </div>
+        <span class="aceConditionRibbonLabel">CONDITION</span>
+        <div class="aceConditionSide right">
+          <b class="aceConditionValue" id="aceConditionValue2">100%</b>
+          <span class="aceConditionTrack"><i id="aceConditionFill2"></i></span>
+          <span class="aceConditionName" id="aceConditionName2">TEAM 2</span>
+        </div>`;
+      arena.after(ribbon);
+    }
+
+    let modal=document.getElementById('aceConditionModal');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='aceConditionModal';
+      modal.className='aceConditionModal';
+      modal.setAttribute('aria-hidden','true');
+      modal.innerHTML=`<section class="aceConditionSheet" role="dialog" aria-modal="true" aria-labelledby="aceConditionDialogTitle">
+        <div class="aceConditionSheetHead"><div><span>PLAYER STATUS</span><b id="aceConditionDialogTitle">Condition & Fatigue</b></div><button type="button" class="aceConditionClose" aria-label="Close condition panel">×</button></div>
+        <div class="aceConditionModalBody"></div>
+      </section>`;
+      document.body.appendChild(modal);
+      modal.querySelector('.aceConditionModalBody').appendChild(fatigue);
+
+      const close=()=>{
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden','true');
+        document.body.style.overflow='';
+      };
+      modal.querySelector('.aceConditionClose').addEventListener('click',close);
+      modal.addEventListener('click',e=>{if(e.target===modal)close();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))close();});
+    }
+
+    if(liveControls && !document.getElementById('aceConditionMobileBtn')){
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.id='aceConditionMobileBtn';
+      btn.className='btn secondary aceConditionMobileBtn';
+      btn.textContent='Condition';
+      btn.addEventListener('click',()=>{
+        const m=document.getElementById('aceConditionModal');
+        if(!m)return;
+        m.classList.add('show');
+        m.setAttribute('aria-hidden','false');
+        document.body.style.overflow='hidden';
+        m.querySelector('.aceConditionClose')?.focus();
+      });
+      const auto=document.getElementById('autoPlayBtn');
+      if(auto?.parentElement===liveControls)auto.after(btn); else liveControls.appendChild(btn);
+    }
+
+    const management=card.querySelector('.aceManagementDetails>summary span');
+    if(management)management.textContent='timeouts · subs';
+  }
+
+  function updateConditionUi(){
+    if(!window.liveState)return;
+    ensureConditionUi();
+    const a=currentStarterCondition(liveState.a);
+    const b=currentStarterCondition(liveState.b);
+    const n1=document.getElementById('aceConditionName1'),n2=document.getElementById('aceConditionName2');
+    const v1=document.getElementById('aceConditionValue1'),v2=document.getElementById('aceConditionValue2');
+    const f1=document.getElementById('aceConditionFill1'),f2=document.getElementById('aceConditionFill2');
+    if(n1)n1.textContent=liveState.name1||'Team 1'; if(n2)n2.textContent=liveState.name2||'Team 2';
+    if(v1)v1.textContent=a.avg+'%'; if(v2)v2.textContent=b.avg+'%';
+    if(f1)f1.style.width=Math.max(4,a.avg)+'%'; if(f2)f2.style.width=Math.max(4,b.avg)+'%';
+    const side1=n1?.closest('.aceConditionSide'),side2=n2?.closest('.aceConditionSide');
+    if(side1)side1.title=`Average ${a.avg}% · Lowest starter: ${a.lowName} ${a.low}%`;
+    if(side2)side2.title=`Average ${b.avg}% · Lowest starter: ${b.lowName} ${b.low}%`;
+    const ribbon=document.getElementById('aceConditionRibbon');
+    if(ribbon)ribbon.dataset.alert=String(Math.min(a.low,b.low)<55);
+    const mobile=document.getElementById('aceConditionMobileBtn');
+    if(mobile)mobile.textContent=`Condition ${Math.min(a.avg,b.avg)}%`;
+  }
+
+  function commentaryPreview(line){
+    const temp=document.createElement('div');
+    temp.innerHTML=line.dataset.aceOriginalHtml||line.innerHTML;
+    let txt=(temp.textContent||'').replace(/\s+/g,' ').trim();
+    txt=txt.replace(/^LATEST RALLY\s*/i,'');
+    return txt.length>96?txt.slice(0,93).trimEnd()+'…':txt;
+  }
+
+  function formatNarration(){
+    const box=document.getElementById('commentaryBox');
+    if(!box)return;
+    const lines=[...box.children].filter(el=>el.classList.contains('commentaryLine'));
+    lines.forEach((line,index)=>{
+      if(index===0){
+        line.classList.add('aceNarrationLatest');
+        return;
+      }
+      line.classList.remove('aceNarrationLatest');
+      if(line.dataset.aceCompact==='1')return;
+      const original=line.innerHTML;
+      line.dataset.aceOriginalHtml=original;
+      const preview=commentaryPreview(line);
+      line.innerHTML=`<details class="aceCommentaryEntry"><summary><span class="aceCommentaryDot"></span><span class="aceCommentaryPreview">${escLocal(preview)}</span><span class="aceCommentaryChevron">⌄</span></summary><div class="aceCommentaryFull">${original}</div></details>`;
+      line.dataset.aceCompact='1';
+    });
+  }
+
+  function install(){
+    ensureConditionUi();
+    updateConditionUi();
+    formatNarration();
+
+    // B10/B11 updateLiveUI is the canonical refresh point; add the ticker refresh without changing match logic.
+    try{
+      if(typeof updateLiveUI==='function' && !updateLiveUI.__aceConditionWrapped){
+        const original=updateLiveUI;
+        const wrapped=function(){
+          const r=original.apply(this,arguments);
+          try{updateConditionUi();}catch(e){}
+          return r;
+        };
+        wrapped.__aceConditionWrapped=true;
+        updateLiveUI=wrapped;
+      }
+    }catch(e){}
+
+    const box=document.getElementById('commentaryBox');
+    if(box){
+      let scheduled=false;
+      const observer=new MutationObserver(()=>{
+        if(scheduled)return;
+        scheduled=true;
+        requestAnimationFrame(()=>{scheduled=false;formatNarration();});
+      });
+      observer.observe(box,{childList:true});
+    }
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0),{once:true});
+  else setTimeout(install,0);
 })();
 </script>
 
