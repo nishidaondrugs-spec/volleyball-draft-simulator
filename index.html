@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B10.4 Mindset + Defence + Position Balance">
+  <meta name="ace-build" content="B11.0 Live Match UX">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -4272,6 +4272,244 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
   .aceUTMatchFoundHead h2{font-size:34px}
   .aceUTLeagueRewardGrid{grid-template-columns:1fr 1fr}
   .aceUTLeagueResultActions{grid-template-columns:1fr 1fr}
+}
+</style>
+
+
+<style id="ace-live-ux-v11">
+/* =========================================================
+   THE ACE PROJECT — B11.0 LIVE MATCH UX
+   Broadcast-first desktop + vertical mobile match layout
+   ========================================================= */
+#liveMatchCard.aceLiveUx{padding-bottom:18px!important;}
+#liveMatchCard.aceLiveUx>h2{padding-bottom:10px!important;}
+
+/* Scoreboard remains the immediate match header. */
+#liveMatchCard.aceLiveUx .liveArena{margin-bottom:8px!important;}
+#liveMatchCard.aceLiveUx .liveCenter{min-width:0;}
+#liveMatchCard.aceLiveUx .matchAlert:empty{display:none;}
+
+/* Match commands are separated from match information. */
+.aceLiveCommandBar{
+  margin:0 22px 12px;
+  padding:8px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:12px;
+  background:rgba(3,12,21,.88);
+}
+.aceLiveCommandBar .liveControls{margin:0!important;justify-content:flex-start!important;}
+.aceLiveCommandBar .playbackControls{margin:0!important;justify-content:flex-end!important;}
+.aceLiveCommandBar .liveControls .btn{min-height:38px!important;padding:7px 12px!important;font-size:8px!important;}
+.acePlaybackDetails{margin-left:auto;}
+.acePlaybackDetails>summary{display:none;cursor:pointer;color:#8fa6bb;font-size:8px;font-weight:1000;letter-spacing:.11em;}
+
+/* Main broadcast: court + a real commentary rail. */
+.aceLiveBody{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,350px);
+  gap:12px;
+  align-items:start;
+  margin:0 22px 16px;
+}
+.aceCourtColumn{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
+  background:rgba(3,12,21,.42);
+}
+.aceCourtColumn .liveViewSwitch{margin-top:10px!important;}
+.aceCourtColumn .court3dWrap{padding-bottom:24px!important;}
+.aceCourtColumn .phaseTrack{margin-bottom:12px!important;}
+
+.aceSideColumn{
+  min-width:0;
+  display:grid;
+  gap:10px;
+  position:sticky;
+  top:78px;
+}
+.aceNarrationPanel{
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(7,22,36,.96),rgba(3,12,21,.92));
+  box-shadow:0 16px 32px rgba(0,0,0,.16);
+}
+.aceNarrationHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 12px;
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+.aceNarrationHead>div:first-child span{
+  display:block;
+  color:#6d8499;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+.aceNarrationHead>div:first-child b{display:block;margin-top:3px;font-size:13px;}
+.aceLiveBadge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 7px;border-radius:999px;
+  border:1px solid rgba(72,213,151,.18);
+  background:rgba(72,213,151,.07);
+  color:#72dba9;font-size:6px;font-weight:1000;letter-spacing:.1em;
+}
+.aceLiveBadge::before{content:"";width:5px;height:5px;border-radius:50%;background:#48d597;box-shadow:0 0 8px rgba(72,213,151,.65);}
+.aceNarrationPanel #commentaryBox{
+  margin:0!important;
+  min-height:250px!important;
+  max-height:390px!important;
+  overflow:auto!important;
+  padding:7px 11px 11px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  scrollbar-width:thin;
+}
+.aceNarrationPanel .commentaryLine{
+  position:relative;
+  padding:9px 8px 9px 11px!important;
+  border-bottom:1px solid rgba(255,255,255,.04)!important;
+  color:#8ea4b9!important;
+  font-size:9px!important;
+  line-height:1.55!important;
+}
+.aceNarrationPanel .commentaryLine:first-child{
+  margin:3px 0 2px;
+  border:1px solid rgba(74,168,255,.12)!important;
+  border-radius:9px;
+  background:rgba(74,168,255,.055);
+  color:#dceeff!important;
+}
+.aceNarrationPanel .commentaryLine:first-child::before{
+  content:"LATEST";
+  display:block;
+  margin-bottom:4px;
+  color:#65b7ff;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+.aceNarrationEmpty{padding:26px 14px;color:#60778e;font-size:8px;text-align:center;}
+
+/* Secondary match tools no longer compete with the live rally. */
+.aceManagementDetails,.aceTechnicalDetails{
+  overflow:hidden;
+  margin:0!important;
+  border:1px solid rgba(255,255,255,.06)!important;
+  border-radius:12px!important;
+  background:rgba(3,12,21,.62)!important;
+}
+.aceManagementDetails>summary,.aceTechnicalDetails>summary{
+  list-style:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  min-height:42px;padding:9px 11px;
+  color:#8097ac;font-size:7px;font-weight:1000;letter-spacing:.13em;
+}
+.aceManagementDetails>summary::-webkit-details-marker,.aceTechnicalDetails>summary::-webkit-details-marker{display:none;}
+.aceManagementDetails>summary::after,.aceTechnicalDetails>summary::after{content:"＋";font-size:13px;color:#5f768d;}
+.aceManagementDetails[open]>summary::after,.aceTechnicalDetails[open]>summary::after{content:"−";}
+.aceManagementBody{padding:0 8px 8px;}
+.aceManagementDetails .timeoutPanel,
+.aceManagementDetails .fatigueManagerPanel,
+.aceManagementDetails .substitutionPanel{
+  margin:7px 0 0!important;
+}
+.aceManagementDetails .timeoutPanel{display:grid!important;grid-template-columns:1fr 1fr!important;}
+.aceManagementDetails .rotationBadge{grid-column:1/-1;justify-content:center!important;}
+.aceManagementDetails .fatigueManagerPanel,
+.aceManagementDetails .substitutionPanel{grid-template-columns:1fr!important;}
+.aceManagementDetails .substitutionControls{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;}
+.aceManagementDetails .subActionBtn{grid-column:1/-1;width:100%;}
+.aceTechnicalDetails .vdsRallyTech{border-top:1px solid rgba(255,255,255,.04);}
+
+/* Results should not look as important while a match is live. */
+#sim:has(#liveMatchCard:not(.hidden)) #resultsCard:not(.postMatchResults){opacity:.72;}
+
+@media (max-width:980px){
+  .aceLiveBody{grid-template-columns:minmax(0,1fr) 300px;}
+  .aceNarrationPanel #commentaryBox{max-height:330px!important;}
+}
+
+/* Phone/tablet: the screen itself becomes truly vertical. */
+@media (max-width:760px){
+  #liveMatchCard.aceLiveUx{border-radius:14px!important;}
+  #liveMatchCard.aceLiveUx>h2{padding:12px 10px 6px!important;}
+  #liveMatchCard.aceLiveUx .liveArena{
+    margin:0 8px 7px!important;
+    grid-template-columns:1fr 1fr!important;
+    border-radius:13px!important;
+  }
+  #liveMatchCard.aceLiveUx .liveCenter{grid-column:1/-1!important;grid-row:2!important;padding:9px!important;}
+  #liveMatchCard.aceLiveUx .liveSide{padding:10px!important;}
+  #liveMatchCard.aceLiveUx .livePoints{font-size:39px!important;}
+  #liveMatchCard.aceLiveUx .liveTeamName{max-width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px!important;}
+  #liveMatchCard.aceLiveUx .serveLamp{font-size:6px!important;}
+  #liveMatchCard.aceLiveUx .matchAlert{font-size:16px!important;min-height:18px!important;}
+
+  .aceLiveCommandBar{
+    position:sticky;
+    bottom:6px;
+    z-index:80;
+    margin:6px 8px 9px;
+    padding:7px;
+    display:block;
+    border-color:rgba(103,169,225,.18);
+    background:rgba(3,11,19,.96);
+    box-shadow:0 -8px 26px rgba(0,0,0,.30);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  }
+  .aceLiveCommandBar .liveControls{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;width:100%;}
+  .aceLiveCommandBar .liveControls .btn{min-height:44px!important;width:100%;font-size:8px!important;}
+  .aceLiveCommandBar #nextRallyBtn,
+  .aceLiveCommandBar #nextPhaseBtn,
+  .aceLiveCommandBar #nextSetBtn{grid-column:1/-1;}
+  .acePlaybackDetails{margin:6px 0 0;}
+  .acePlaybackDetails>summary{display:flex;align-items:center;justify-content:center;min-height:30px;}
+  .acePlaybackDetails:not([open]) .playbackControls{display:none!important;}
+  .acePlaybackDetails[open] .playbackControls{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;margin-top:5px!important;}
+  .acePlaybackDetails .playbackControl{min-width:0!important;}
+  .acePlaybackDetails .playbackControl select{min-height:40px!important;font-size:16px!important;}
+
+  .aceLiveBody{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+    margin:0 8px 10px;
+  }
+  .aceSideColumn{display:contents;}
+  .aceNarrationPanel{grid-row:1;border-radius:13px;}
+  .aceCourtColumn{grid-row:2;border-radius:13px;}
+  .aceManagementDetails{grid-row:3;}
+  .aceTechnicalDetails{grid-row:4;}
+  .aceNarrationPanel #commentaryBox{min-height:145px!important;max-height:220px!important;padding:5px 8px 8px!important;}
+  .aceNarrationPanel .commentaryLine{font-size:10px!important;padding:9px 7px 9px 10px!important;}
+  .aceNarrationHead{padding:9px 10px;}
+  .aceNarrationHead>div:first-child b{font-size:12px;}
+  .aceCourtColumn .court3dWrap{padding:7px 1px 18px!important;}
+  .aceCourtColumn #courtStage{width:98%!important;height:330px!important;margin-top:4px!important;}
+  .aceCourtColumn #courtStage.view3d{height:315px!important;}
+  .aceCourtColumn .phaseTrack{padding:0 7px!important;gap:3px!important;margin-bottom:8px!important;}
+  .aceCourtColumn .phaseStep{padding:6px 3px!important;font-size:6px!important;}
+  .aceCourtColumn .liveViewSwitch{margin-top:7px!important;}
+  .aceManagementDetails>summary,.aceTechnicalDetails>summary{min-height:46px;font-size:7px;}
+}
+
+@media (max-width:420px){
+  #liveMatchCard.aceLiveUx .livePoints{font-size:36px!important;}
+  .aceCourtColumn #courtStage{height:310px!important;}
+  .aceCourtColumn #courtStage.view3d{height:300px!important;}
+  .aceNarrationPanel #commentaryBox{max-height:205px!important;}
 }
 </style>
 
@@ -23887,6 +24125,121 @@ Object.assign(window,{
 })();
 
 </script>
+
+<script id="ace-live-ux-v11-script">
+(function(){
+  'use strict';
+  if(window.ACE_LIVE_UX_V11)return;
+  window.ACE_LIVE_UX_V11=true;
+
+  function buildLiveUx(){
+    const card=document.getElementById('liveMatchCard');
+    if(!card || card.classList.contains('aceLiveUx'))return;
+    card.classList.add('aceLiveUx');
+
+    const arena=card.querySelector('.liveArena');
+    const controls=card.querySelector('.liveControls');
+    const playback=card.querySelector('.playbackControls');
+    const viewSwitch=card.querySelector('.liveViewSwitch');
+    const courtWrap=card.querySelector('.court3dWrap');
+    const phaseTrack=card.querySelector('.phaseTrack');
+    const timeout=card.querySelector('.timeoutPanel');
+    const fatigue=card.querySelector('.fatigueManagerPanel');
+    const subs=card.querySelector('.substitutionPanel');
+    const oldDetails=card.querySelector('.vdsRallyDetails');
+    const commentary=document.getElementById('commentaryBox');
+    if(!arena || !viewSwitch || !courtWrap || !phaseTrack || !commentary)return;
+
+    const command=document.createElement('div');
+    command.className='aceLiveCommandBar';
+    arena.after(command);
+    if(controls)command.appendChild(controls);
+
+    if(playback){
+      const playDetails=document.createElement('details');
+      playDetails.className='acePlaybackDetails';
+      playDetails.innerHTML='<summary>PLAYBACK SETTINGS</summary>';
+      if(window.matchMedia && window.matchMedia('(min-width: 761px)').matches)playDetails.open=true;
+      playDetails.appendChild(playback);
+      command.appendChild(playDetails);
+    }
+
+    const body=document.createElement('div');
+    body.className='aceLiveBody';
+    command.after(body);
+
+    const courtCol=document.createElement('div');
+    courtCol.className='aceCourtColumn';
+    courtCol.append(viewSwitch,courtWrap,phaseTrack);
+    body.appendChild(courtCol);
+
+    const side=document.createElement('aside');
+    side.className='aceSideColumn';
+    body.appendChild(side);
+
+    const narration=document.createElement('section');
+    narration.className='aceNarrationPanel';
+    narration.innerHTML='<div class="aceNarrationHead"><div><span>MATCH FEED</span><b>Live Commentary</b></div><div class="aceLiveBadge">LIVE</div></div>';
+    commentary.setAttribute('role','log');
+    commentary.setAttribute('aria-live','polite');
+    commentary.setAttribute('aria-relevant','additions text');
+    narration.appendChild(commentary);
+    side.appendChild(narration);
+
+    const management=document.createElement('details');
+    management.className='aceManagementDetails';
+    management.innerHTML='<summary>MATCH MANAGEMENT <span>timeouts · condition · subs</span></summary><div class="aceManagementBody"></div>';
+    const managementBody=management.querySelector('.aceManagementBody');
+    [timeout,fatigue,subs].filter(Boolean).forEach(el=>managementBody.appendChild(el));
+    side.appendChild(management);
+
+    if(oldDetails){
+      oldDetails.classList.add('aceTechnicalDetails');
+      const summary=oldDetails.querySelector('summary');
+      if(summary)summary.textContent='TECHNICAL RALLY DETAILS';
+      side.appendChild(oldDetails);
+    }
+
+    // Remove the old hidden commentary label if it is still present.
+    [...card.children].forEach(el=>{
+      if(el.classList?.contains('small') && /RALLY COMMENTARY/i.test(el.textContent||''))el.remove();
+    });
+
+    // Newest commentary is already first; keep it in view and make the empty state useful.
+    const refreshNarration=()=>{
+      if(!commentary.children.length){
+        commentary.innerHTML='<div class="aceNarrationEmpty">Start the next rally and live commentary will appear here.</div>';
+      } else {
+        const empty=commentary.querySelector('.aceNarrationEmpty');
+        if(empty && commentary.children.length>1)empty.remove();
+      }
+      commentary.scrollTop=0;
+    };
+    const observer=new MutationObserver(()=>{
+      if(commentary.querySelector('.aceNarrationEmpty') && commentary.children.length>1)commentary.querySelector('.aceNarrationEmpty')?.remove();
+      commentary.scrollTop=0;
+    });
+    observer.observe(commentary,{childList:true,subtree:false});
+    refreshNarration();
+
+    // Keep playback compact on phones but expanded on desktop on first load.
+    const mq=window.matchMedia?.('(max-width: 760px)');
+    if(mq){
+      const sync=(e)=>{
+        const details=card.querySelector('.acePlaybackDetails');
+        if(!details)return;
+        if(e.matches)details.open=false;
+        else details.open=true;
+      };
+      try{mq.addEventListener('change',sync);}catch(e){try{mq.addListener(sync);}catch(_){}}
+    }
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildLiveUx,{once:true});
+  else buildLiveUx();
+})();
+</script>
+
 </body>
 </html>
 
