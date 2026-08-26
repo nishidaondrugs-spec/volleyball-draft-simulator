@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B10.0 Stage 5A.1 Ultimate Team Playstyle Fix">
+  <meta name="ace-build" content="B10.1 Setting Split">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -5522,7 +5522,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 
 const STAT_GROUPS = {
   attack: [
-    ["creativity","Creativity",20],
+    ["creativity","Attack Creativity",20],
     ["accuracy","Hitting Accuracy",40],
     ["hittingPower","Hitting Power",40]
   ],
@@ -5540,7 +5540,7 @@ const STAT_GROUPS = {
 };
 
 const STAT_LABELS = {
-  creativity:"Creativity",
+  creativity:"Attack Creativity",
   accuracy:"Hitting Accuracy",
   hittingPower:"Hitting Power",
   serveReceive:"Serve Receive",
@@ -5576,7 +5576,7 @@ const safeStore = {
   }
 };
 
-const defaults = [{"name": "Eman", "position": "-", "attackingRating": 64, "defenseRating": 69, "physicalRating": 82, "creativity": 60, "accuracy": 65, "hittingPower": 65, "serveReceive": 70, "positioning": 65, "covering": 70, "workRate": 87, "vertical": 81, "speed": 79, "reactionTime": 82, "service": 89, "blocking": 61, "setting": 62, "mindset": 85, "finalRating": 73, "photo": ""}, {"name": "Tyrone", "position": "-", "attackingRating": 67, "defenseRating": 67, "physicalRating": 70, "creativity": 60, "accuracy": 73, "hittingPower": 65, "serveReceive": 75, "positioning": 55, "covering": 62, "workRate": 84, "vertical": 63, "speed": 60, "reactionTime": 80, "service": 54, "blocking": 74, "setting": 55, "mindset": 100, "finalRating": 69, "photo": ""}, {"name": "Ethan", "position": "-", "attackingRating": 55, "defenseRating": 52, "physicalRating": 73, "creativity": 50, "accuracy": 38, "hittingPower": 80, "serveReceive": 49, "positioning": 56, "covering": 50, "workRate": 79, "vertical": 71, "speed": 72, "reactionTime": 72, "service": 50, "blocking": 61, "setting": 44, "mindset": 85, "finalRating": 60, "photo": ""}, {"name": "Kevin", "position": "-", "attackingRating": 64, "defenseRating": 57, "physicalRating": 71, "creativity": 60, "accuracy": 53, "hittingPower": 78, "serveReceive": 53, "positioning": 62, "covering": 60, "workRate": 72, "vertical": 76, "speed": 66, "reactionTime": 65, "service": 67, "blocking": 66, "setting": 50, "mindset": 55, "finalRating": 61, "photo": ""}, {"name": "Alex", "position": "-", "attackingRating": 41, "defenseRating": 72, "physicalRating": 79, "creativity": 30, "accuracy": 15, "hittingPower": 72, "serveReceive": 65, "positioning": 80, "covering": 78, "workRate": 81, "vertical": 79, "speed": 76, "reactionTime": 81, "service": 50, "blocking": 50, "setting": 35, "mindset": 90, "finalRating": 60, "photo": ""}, {"name": "Anna", "position": "-", "attackingRating": 58, "defenseRating": 54, "physicalRating": 26, "creativity": 60, "accuracy": 85, "hittingPower": 30, "serveReceive": 60, "positioning": 75, "covering": 22, "workRate": 42, "vertical": 25, "speed": 20, "reactionTime": 40, "service": 50, "blocking": 0, "setting": 48, "mindset": 50, "finalRating": 41, "photo": ""}, {"name": "Jahmar", "position": "-", "attackingRating": 62, "defenseRating": 47, "physicalRating": 79, "creativity": 50, "accuracy": 39, "hittingPower": 97, "serveReceive": 38, "positioning": 62, "covering": 50, "workRate": 70, "vertical": 92, "speed": 82, "reactionTime": 61, "service": 60, "blocking": 67, "setting": 48, "mindset": 90, "finalRating": 65, "photo": ""}, {"name": "Peckin", "position": "-", "attackingRating": 59, "defenseRating": 78, "physicalRating": 77, "creativity": 40, "accuracy": 87, "hittingPower": 40, "serveReceive": 85, "positioning": 77, "covering": 65, "workRate": 84, "vertical": 77, "speed": 73, "reactionTime": 74, "service": 69, "blocking": 50, "setting": 38, "mindset": 95, "finalRating": 67, "photo": ""}, {"name": "Lenon", "position": "-", "attackingRating": 82, "defenseRating": 61, "physicalRating": 79, "creativity": 70, "accuracy": 80, "hittingPower": 90, "serveReceive": 53, "positioning": 70, "covering": 69, "workRate": 72, "vertical": 92, "speed": 65, "reactionTime": 75, "service": 80, "blocking": 77, "setting": 55, "mindset": 100, "finalRating": 76, "photo": ""}, {"name": "Aedan", "position": "-", "attackingRating": 79, "defenseRating": 81, "physicalRating": 77, "creativity": 75, "accuracy": 75, "hittingPower": 85, "serveReceive": 79, "positioning": 77, "covering": 87, "workRate": 90, "vertical": 70, "speed": 85, "reactionTime": 69, "service": 85, "blocking": 48, "setting": 70, "mindset": 85, "finalRating": 75, "photo": ""}, {"name": "Troi", "position": "-", "attackingRating": 87, "defenseRating": 92, "physicalRating": 89, "creativity": 85, "accuracy": 89, "hittingPower": 87, "serveReceive": 90, "positioning": 92, "covering": 96, "workRate": 94, "vertical": 87, "speed": 90, "reactionTime": 88, "service": 80, "blocking": 65, "setting": 65, "mindset": 95, "finalRating": 82, "photo": ""}, {"name": "Ben", "position": "-", "attackingRating": 92, "defenseRating": 94, "physicalRating": 95, "creativity": 95, "accuracy": 92, "hittingPower": 91, "serveReceive": 89, "positioning": 98, "covering": 99, "workRate": 89, "vertical": 99, "speed": 99, "reactionTime": 89, "service": 82, "blocking": 48, "setting": 65, "mindset": 100, "finalRating": 82, "photo": ""}];
+const defaults = [{"name":"Eman","position":"-","attackingRating":64,"defenseRating":69,"physicalRating":82,"creativity":60,"accuracy":65,"hittingPower":65,"serveReceive":70,"positioning":65,"covering":70,"workRate":87,"vertical":81,"speed":79,"reactionTime":82,"service":89,"blocking":61,"setting":62,"mindset":85,"finalRating":73,"photo":"","setTechnique":63,"setCreativity":60,"tendencies":{"setTechnique":63,"setCreativity":60}},{"name":"Tyrone","position":"-","attackingRating":67,"defenseRating":67,"physicalRating":70,"creativity":60,"accuracy":73,"hittingPower":65,"serveReceive":75,"positioning":55,"covering":62,"workRate":84,"vertical":63,"speed":60,"reactionTime":80,"service":54,"blocking":74,"setting":55,"mindset":100,"finalRating":69,"photo":"","setTechnique":57,"setCreativity":51,"tendencies":{"setTechnique":57,"setCreativity":51}},{"name":"Ethan","position":"-","attackingRating":55,"defenseRating":52,"physicalRating":73,"creativity":50,"accuracy":38,"hittingPower":80,"serveReceive":49,"positioning":56,"covering":50,"workRate":79,"vertical":71,"speed":72,"reactionTime":72,"service":50,"blocking":61,"setting":44,"mindset":85,"finalRating":60,"photo":"","setTechnique":44,"setCreativity":45,"tendencies":{"setTechnique":44,"setCreativity":45}},{"name":"Kevin","position":"-","attackingRating":64,"defenseRating":57,"physicalRating":71,"creativity":60,"accuracy":53,"hittingPower":78,"serveReceive":53,"positioning":62,"covering":60,"workRate":72,"vertical":76,"speed":66,"reactionTime":65,"service":67,"blocking":66,"setting":50,"mindset":55,"finalRating":61,"photo":"","setTechnique":49,"setCreativity":51,"tendencies":{"setTechnique":49,"setCreativity":51}},{"name":"Alex","position":"-","attackingRating":41,"defenseRating":72,"physicalRating":79,"creativity":30,"accuracy":15,"hittingPower":72,"serveReceive":65,"positioning":80,"covering":78,"workRate":81,"vertical":79,"speed":76,"reactionTime":81,"service":50,"blocking":50,"setting":35,"mindset":90,"finalRating":60,"photo":"","setTechnique":35,"setCreativity":36,"tendencies":{"setTechnique":35,"setCreativity":36}},{"name":"Anna","position":"-","attackingRating":58,"defenseRating":54,"physicalRating":26,"creativity":60,"accuracy":85,"hittingPower":30,"serveReceive":60,"positioning":75,"covering":22,"workRate":42,"vertical":25,"speed":20,"reactionTime":40,"service":50,"blocking":0,"setting":48,"mindset":50,"finalRating":41,"photo":"","setTechnique":50,"setCreativity":46,"tendencies":{"setTechnique":50,"setCreativity":46}},{"name":"Jahmar","position":"-","attackingRating":62,"defenseRating":47,"physicalRating":79,"creativity":50,"accuracy":39,"hittingPower":97,"serveReceive":38,"positioning":62,"covering":50,"workRate":70,"vertical":92,"speed":82,"reactionTime":61,"service":60,"blocking":67,"setting":48,"mindset":90,"finalRating":65,"photo":"","setTechnique":48,"setCreativity":49,"tendencies":{"setTechnique":48,"setCreativity":49}},{"name":"Peckin","position":"-","attackingRating":59,"defenseRating":78,"physicalRating":77,"creativity":40,"accuracy":87,"hittingPower":40,"serveReceive":85,"positioning":77,"covering":65,"workRate":84,"vertical":77,"speed":73,"reactionTime":74,"service":69,"blocking":50,"setting":38,"mindset":95,"finalRating":67,"photo":"","setTechnique":42,"setCreativity":32,"tendencies":{"setTechnique":42,"setCreativity":32}},{"name":"Lenon","position":"-","attackingRating":82,"defenseRating":61,"physicalRating":79,"creativity":70,"accuracy":80,"hittingPower":90,"serveReceive":53,"positioning":70,"covering":69,"workRate":72,"vertical":92,"speed":65,"reactionTime":75,"service":80,"blocking":77,"setting":55,"mindset":100,"finalRating":76,"photo":"","setTechnique":57,"setCreativity":53,"tendencies":{"setTechnique":57,"setCreativity":53}},{"name":"Aedan","position":"-","attackingRating":79,"defenseRating":81,"physicalRating":77,"creativity":75,"accuracy":75,"hittingPower":85,"serveReceive":79,"positioning":77,"covering":87,"workRate":90,"vertical":70,"speed":85,"reactionTime":69,"service":85,"blocking":48,"setting":70,"mindset":85,"finalRating":75,"photo":"","setTechnique":70,"setCreativity":70,"tendencies":{"setTechnique":70,"setCreativity":70}},{"name":"Troi","position":"-","attackingRating":87,"defenseRating":92,"physicalRating":89,"creativity":85,"accuracy":89,"hittingPower":87,"serveReceive":90,"positioning":92,"covering":96,"workRate":94,"vertical":87,"speed":90,"reactionTime":88,"service":80,"blocking":65,"setting":65,"mindset":95,"finalRating":82,"photo":"","setTechnique":65,"setCreativity":64,"tendencies":{"setTechnique":65,"setCreativity":64}},{"name":"Ben","position":"-","attackingRating":92,"defenseRating":94,"physicalRating":95,"creativity":95,"accuracy":92,"hittingPower":91,"serveReceive":89,"positioning":98,"covering":99,"workRate":89,"vertical":99,"speed":99,"reactionTime":89,"service":82,"blocking":48,"setting":65,"mindset":100,"finalRating":82,"photo":"","setTechnique":65,"setCreativity":66,"tendencies":{"setTechnique":65,"setCreativity":66}}];
 
 // Upgrade older saved player data from the previous prototype.
 function migratePlayer(p){
@@ -7211,8 +7211,9 @@ function renderPlayerEditor(){
     ${statGroup("⚔️ Attacking",STAT_GROUPS.attack,c.attacking)}
     ${statGroup("🛡️ Defence",STAT_GROUPS.defense,c.defense)}
     ${statGroup("💪 Physical",STAT_GROUPS.physical,c.physical)}
-    <div class="playerEditorSection"><h3>🎯 Specialist Ratings</h3><div class="statRows">
-      ${["service","blocking","setting","mindset"].map(k=>`<label>${STAT_LABELS[k]}</label><input class="statEdit" type="number" ${cloudAdmin?"":"readonly"} min="0" max="100" data-idx="${idx}" data-key="${k}" value="${p[k]}">`).join("")}
+    ${statGroup("🎯 Setting",STAT_GROUPS.setting,c.setting)}
+    <div class="playerEditorSection"><h3>⭐ Specialist Ratings</h3><div class="statRows">
+      ${["service","blocking","mindset"].map(k=>`<label>${STAT_LABELS[k]}</label><input class="statEdit" type="number" ${cloudAdmin?"":"readonly"} min="0" max="100" data-idx="${idx}" data-key="${k}" value="${p[k]}">`).join("")}
     </div></div>
    </div>
 
@@ -7522,8 +7523,8 @@ function rallyProb(a,b){
  const setterA = a.find(p=>p.assignedRole==="S");
  const setterB = b.find(p=>p.assignedRole==="S");
  if(setterA && setterB){
-   const setQA = setterA.setting*.55 + setterA.creativity*.15 + setterA.positioning*.10 + setterA.reactionTime*.10 + setterA.mindset*.10;
-   const setQB = setterB.setting*.55 + setterB.creativity*.15 + setterB.positioning*.10 + setterB.reactionTime*.10 + setterB.mindset*.10;
+   const setQA = setterA.setTechnique*.48 + setterA.setCreativity*.32 + setterA.positioning*.08 + setterA.reactionTime*.07 + setterA.mindset*.05;
+   const setQB = setterB.setTechnique*.48 + setterB.setCreativity*.32 + setterB.positioning*.08 + setterB.reactionTime*.07 + setterB.mindset*.05;
    edge += (setQA-setQB)*0.0015;
  }
 
@@ -9064,7 +9065,7 @@ function maybeRallyError(attackingTeam, defendingTeam){
 
   // Setting errors: setting, creativity, reaction, mindset.
   const setter=x.setter;
-  const setControl=setter.setting*.60+setter.creativity*.15+setter.reactionTime*.18+setter.mindset*.07;
+  const setControl=setter.setTechnique*.72+setter.reactionTime*.15+setter.mindset*.08+setter.positioning*.05;
   events.push({
     type:"Setting",
     player:setter,
@@ -9074,7 +9075,7 @@ function maybeRallyError(attackingTeam, defendingTeam){
 
   // Attack errors: accuracy is the main factor, with mindset and set quality.
   const attacker=x.attacker;
-  const setQuality=setter.setting*.60+setter.creativity*.15+setter.positioning*.10+setter.reactionTime*.10+setter.mindset*.05;
+  const setQuality=setter.setTechnique*.48+setter.setCreativity*.32+setter.positioning*.08+setter.reactionTime*.07+setter.mindset*.05;
   const attackControl=attacker.accuracy*.50+attacker.mindset*.15+setQuality*.15+
                       (100-x.blocker.blocking)*.10+attacker.reactionTime*.10;
   events.push({
@@ -9699,9 +9700,9 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
   }
 
   const defBlockers=legalBlockers(defendingTeam,defRotation);
-  const setterIQ=Number(setter.setting||0)*.62+
-                 Number(setter.creativity||0)*.25+
-                 Number(setter.mindset||0)*.13;
+  const setterIQ=Number(setter.setTechnique||0)*.35+
+                 Number(setter.setCreativity||0)*.45+
+                 Number(setter.mindset||0)*.20;
 
   const scored=options.map(p=>{
     const z=zones[p.name];
@@ -9819,11 +9820,11 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
 }
 function calculateSetQuality(setter, passQuality){
   const raw =
-    setter.setting*.58 +
-    setter.creativity*.14 +
-    setter.positioning*.10 +
-    setter.reactionTime*.08 +
-    setter.mindset*.10;
+    setter.setTechnique*.48 +
+    setter.setCreativity*.32 +
+    setter.positioning*.08 +
+    setter.reactionTime*.07 +
+    setter.mindset*.05;
 
   // Reception establishes how difficult the second contact is, but setter
   // ability remains important. Good/perfect passes should almost never become
@@ -10702,7 +10703,9 @@ function legalBlockers(team,rotation){
 }
 
 function designatedSetter(team){
-  return team.find(p=>p.assignedRole==="S") || team.slice().sort((a,b)=>b.setting-a.setting)[0];
+  return team.find(p=>p.assignedRole==="S") || team.slice().sort((a,b)=>
+    (b.setTechnique*.60+b.setCreativity*.40)-(a.setTechnique*.60+a.setCreativity*.40)
+  )[0];
 }
 
 function transitionSetter(team,firstContactPlayer,rotation,passQuality,sourceType="dig"){
@@ -10720,7 +10723,7 @@ function transitionSetter(team,firstContactPlayer,rotation,passQuality,sourceTyp
   const ranked=candidates.map(p=>{
     const z=Number(zones[p.name]?.zone)||6;
     const dist=zoneDistance(firstZone,z);
-    let score=100-dist*30+Number(p.setting||0)*.12+Number(p.reactionTime||0)*.08+Number(p.positioning||0)*.06;
+    let score=100-dist*30+Number(p.setTechnique||0)*.09+Number(p.setCreativity||0)*.03+Number(p.reactionTime||0)*.08+Number(p.positioning||0)*.06;
     if(p.assignedRole==="L")score+=6;
     if(defenseStyleId(p)==="chaser")score+=5;
     return {p,score};
@@ -18907,7 +18910,7 @@ function renderPlayerComparison(){
   const da=compareDisplayRating(a,roleChoice), db=compareDisplayRating(b,roleChoice);
 
   const rawRows=[
-    ["Creativity",a.creativity,b.creativity],
+    ["Attack Creativity",a.creativity,b.creativity],
     ["Hitting Accuracy",a.accuracy,b.accuracy],
     ["Hitting Power",a.hittingPower,b.hittingPower],
     ["Serve Receive",a.serveReceive,b.serveReceive],
@@ -18919,7 +18922,7 @@ function renderPlayerComparison(){
     ["Reaction Time",a.reactionTime,b.reactionTime],
     ["Service",a.service,b.service],
     ["Blocking",a.blocking,b.blocking],
-    ["Setting",a.setting,b.setting],
+    ["Setting",a.setting,b.setting],["Set Technique",a.setTechnique,b.setTechnique],["Set Creativity",a.setCreativity,b.setCreativity],
     ["Mindset",a.mindset,b.mindset]
   ];
 
@@ -19084,12 +19087,16 @@ function openVdsCardShowcase(name){
 
           <div class="vdsCardShowcaseTwo">
             <div class="vdsCardShowcasePanel">
-              <h3>Specialists</h3>
+              <h3>Setting · ${p.setting}</h3>
+              <div class="vdsCardShowcaseRows">
+                <div class="vdsCardShowcaseRow"><span>Set Technique</span><b>${p.setTechnique}</b></div>
+                <div class="vdsCardShowcaseRow"><span>Set Creativity</span><b>${p.setCreativity}</b></div>
+              </div>
+              <h3 style="margin-top:14px">Specialists</h3>
               <div class="vdsCardShowcaseRows">
                 <div class="vdsCardShowcaseRow"><span>Service</span><b>${p.service}</b></div>
                 <div class="vdsCardShowcaseRow"><span>Blocking</span><b>${p.blocking}</b></div>
-                <div class="vdsCardShowcaseRow"><span>Setting</span><b>${p.setting}</b></div>
-                <div class="vdsCardShowcaseRow"><span>Serve Receive</span><b>${p.serveReceive}</b></div>
+                <div class="vdsCardShowcaseRow"><span>Mindset</span><b>${p.mindset}</b></div>
               </div>
             </div>
             <div class="vdsCardShowcasePanel">
@@ -19133,7 +19140,7 @@ function openProfile(name){
   }
 
   const attackBody=
-    profileSubStat("Creativity",p.creativity)+
+    profileSubStat("Attack Creativity",p.creativity)+
     profileSubStat("Accuracy",p.accuracy)+
     profileSubStat("Hitting Power",p.hittingPower)+
     profileShotDetails(p);
@@ -19148,6 +19155,10 @@ function openProfile(name){
     profileSubStat("Vertical",p.vertical)+
     profileSubStat("Speed",p.speed)+
     profileSubStat("Reaction Time",p.reactionTime);
+
+  const settingBody=
+    profileSubStat("Set Technique",p.setTechnique)+
+    profileSubStat("Set Creativity",p.setCreativity);
 
   const affiliations=(p.affiliations||[]).length
     ? `<div class="affiliationList">${p.affiliations.map(a=>`<span class="affiliationBadge">${a}</span>`).join("")}</div>`
@@ -19178,12 +19189,13 @@ function openProfile(name){
       ${profileSection("⚔️","Attacking",cats.attacking,attackBody,true)}
       ${profileSection("🛡️","Defence",cats.defense,defenseBody,false)}
       ${profileSection("⚡","Physical",cats.physical,physicalBody,false)}
+      ${profileSection("🎯","Setting",cats.setting,settingBody,false)}
     </div>
 
     <div class="profileStandaloneGrid">
       <div class="profileStandalone"><span>SERVICE</span><b>${p.service}</b></div>
       <div class="profileStandalone"><span>BLOCKING</span><b>${p.blocking}</b></div>
-      <div class="profileStandalone"><span>SETTING</span><b>${p.setting}</b></div>
+      <div class="profileStandalone"><span>SET</span><b>${p.setting}</b></div>
       <div class="profileStandalone"><span>MINDSET</span><b>${p.mindset}</b></div>
     </div>
 
@@ -23175,6 +23187,526 @@ Object.assign(window,{
 }
 </style>
 
+
+<script>
+/* =========================================================
+   THE ACE PROJECT — B10.1 SETTING SPLIT
+   Marker: ACE_SETTING_SPLIT_B10_1
+
+   New canonical Setting category:
+     SET = 60% Set Technique (STQ) + 40% Set Creativity (SCR)
+
+   Compatibility:
+   - Keeps legacy player.setting as the derived SET category value.
+   - Stores STQ/SCR directly on the player and in player.tendencies.
+   - Preserves old Setting strength during migration.
+   ========================================================= */
+(function(){
+  "use strict";
+  if (window.ACE_SETTING_SPLIT_B10_1) return;
+  window.ACE_SETTING_SPLIT_B10_1 = true;
+
+  const clampStat = (v) => Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
+  const hasNum = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+
+  function tendencyValue(p, keys){
+    const t = p && p.tendencies && typeof p.tendencies === "object" ? p.tendencies : {};
+    for (const k of keys){
+      if (hasNum(t[k])) return Number(t[k]);
+    }
+    return null;
+  }
+
+  function directValue(p, keys){
+    if (!p) return null;
+    for (const k of keys){
+      if (hasNum(p[k])) return Number(p[k]);
+    }
+    return null;
+  }
+
+  function derivedSetting(stq, scr){
+    return clampStat(Number(stq) * 0.60 + Number(scr) * 0.40);
+  }
+
+  function inferSettingSplit(p){
+    const oldSetting = clampStat(hasNum(p?.setting) ? p.setting : 70);
+
+    // Existing spinner/game values take priority.
+    let stq = directValue(p, ["setTechnique","settingTechnique","stq"]);
+    let scr = directValue(p, ["setCreativity","settingCreativity","scr"]);
+
+    if (stq === null) stq = tendencyValue(p, ["setTechnique","settingTechnique","stq"]);
+    if (scr === null) scr = tendencyValue(p, ["setCreativity","settingCreativity","scr"]);
+
+    // If one half already exists, solve the missing half so the old SET score is preserved.
+    if (stq !== null && scr === null){
+      scr = (oldSetting - 0.60 * stq) / 0.40;
+    } else if (scr !== null && stq === null){
+      stq = (oldSetting - 0.40 * scr) / 0.60;
+    }
+
+    // Legacy players: infer a modest style difference from skills that already exist.
+    // Attack Creativity is used ONLY as a migration signal here. It is not a setting stat.
+    if (stq === null && scr === null){
+      const accuracy = clampStat(p?.accuracy ?? 70);
+      const reaction = clampStat(p?.reactionTime ?? 70);
+      const positioning = clampStat(p?.positioning ?? 70);
+      const mindset = clampStat(p?.mindset ?? 70);
+      const attackCreativity = clampStat(p?.creativity ?? 70);
+
+      const technicalProfile =
+        accuracy * 0.45 +
+        reaction * 0.25 +
+        positioning * 0.15 +
+        mindset * 0.15;
+
+      const creativeProfile =
+        attackCreativity * 0.55 +
+        positioning * 0.20 +
+        reaction * 0.15 +
+        mindset * 0.10;
+
+      // d is deliberately bounded: migration creates identity without rewriting history.
+      const d = Math.max(-10, Math.min(10, Math.round((creativeProfile - technicalProfile) * 0.55)));
+
+      // These two equations preserve 0.60*STQ + 0.40*SCR ≈ old Setting.
+      stq = oldSetting - 0.40 * d;
+      scr = oldSetting + 0.60 * d;
+    }
+
+    stq = clampStat(stq);
+    scr = clampStat(scr);
+
+    // Edge correction after 0–100 clamping: keep the old SET value as close as possible.
+    // Search a tiny neighbourhood only; this stays deterministic and preserves the style split.
+    let best = {stq, scr, err: Math.abs(derivedSetting(stq,scr) - oldSetting), styleErr: 0};
+    for (let a = Math.max(0,stq-4); a <= Math.min(100,stq+4); a++){
+      for (let b = Math.max(0,scr-4); b <= Math.min(100,scr+4); b++){
+        const err = Math.abs(derivedSetting(a,b) - oldSetting);
+        const styleErr = Math.abs((a-b) - (stq-scr));
+        if (err < best.err || (err === best.err && styleErr < best.styleErr)){
+          best = {stq:a, scr:b, err, styleErr};
+        }
+      }
+    }
+    return {technique:best.stq, creativity:best.scr, overall:derivedSetting(best.stq,best.scr)};
+  }
+
+  function upgradePlayerSetting(p){
+    if (!p || typeof p !== "object") return p;
+    const s = inferSettingSplit(p);
+    p.setTechnique = s.technique;
+    p.setCreativity = s.creativity;
+    p.setting = s.overall; // legacy compatibility / compact SET category
+    p.tendencies = (p.tendencies && typeof p.tendencies === "object") ? p.tendencies : {};
+    p.tendencies.setTechnique = s.technique;
+    p.tendencies.setCreativity = s.creativity;
+    return p;
+  }
+
+  function syncPlayerSetting(p){
+    if (!p || typeof p !== "object") return p;
+    const stq = clampStat(
+      hasNum(p.setTechnique) ? p.setTechnique :
+      tendencyValue(p, ["setTechnique","settingTechnique","stq"]) ?? p.setting ?? 70
+    );
+    const scr = clampStat(
+      hasNum(p.setCreativity) ? p.setCreativity :
+      tendencyValue(p, ["setCreativity","settingCreativity","scr"]) ?? p.setting ?? 70
+    );
+    p.setTechnique = stq;
+    p.setCreativity = scr;
+    p.setting = derivedSetting(stq,scr);
+    p.tendencies = (p.tendencies && typeof p.tendencies === "object") ? p.tendencies : {};
+    p.tendencies.setTechnique = stq;
+    p.tendencies.setCreativity = scr;
+    return p;
+  }
+
+  window.aceSettingRatings = function(p){
+    upgradePlayerSetting(p);
+    return {
+      technique: clampStat(p.setTechnique),
+      creativity: clampStat(p.setCreativity),
+      overall: derivedSetting(p.setTechnique,p.setCreativity)
+    };
+  };
+  window.aceUpgradePlayerSetting = upgradePlayerSetting;
+  window.aceSyncPlayerSetting = syncPlayerSetting;
+
+  // ----- Canonical stat metadata -----
+  try{
+    if (typeof STAT_LABELS === "object" && STAT_LABELS){
+      STAT_LABELS.creativity = "Attack Creativity";
+      STAT_LABELS.setTechnique = "Set Technique";
+      STAT_LABELS.setCreativity = "Set Creativity";
+      STAT_LABELS.setting = "Setting";
+    }
+  }catch(e){}
+
+  try{
+    if (Array.isArray(STAT_KEYS)){
+      if (!STAT_KEYS.includes("setTechnique")) STAT_KEYS.push("setTechnique");
+      if (!STAT_KEYS.includes("setCreativity")) STAT_KEYS.push("setCreativity");
+    }
+  }catch(e){}
+
+  try{
+    if (typeof STAT_GROUPS === "object" && STAT_GROUPS){
+      STAT_GROUPS.setting = [
+        ["setTechnique","Set Technique",60],
+        ["setCreativity","Set Creativity",40]
+      ];
+    }
+  }catch(e){}
+
+  // Upgrade current live/master players without changing their existing finalRating.
+  try{
+    if (Array.isArray(defaults)) defaults.forEach(upgradePlayerSetting);
+  }catch(e){}
+  try{
+    if (Array.isArray(players)){
+      players.forEach(upgradePlayerSetting);
+      try{ localStorage.setItem("vballPlayers", JSON.stringify(players)); }catch(e){}
+    }
+  }catch(e){}
+
+  // ----- Migration / cloud compatibility -----
+  try{
+    if (typeof migratePlayer === "function"){
+      const originalMigratePlayer = migratePlayer;
+      migratePlayer = function(p){
+        return upgradePlayerSetting(originalMigratePlayer(p));
+      };
+    }
+  }catch(e){}
+
+  try{
+    if (typeof cloudPlayerFromRow === "function"){
+      const originalCloudPlayerFromRow = cloudPlayerFromRow;
+      cloudPlayerFromRow = function(row){
+        return upgradePlayerSetting(originalCloudPlayerFromRow(row));
+      };
+    }
+  }catch(e){}
+
+  try{
+    if (typeof cloudRowFromPlayer === "function"){
+      const originalCloudRowFromPlayer = cloudRowFromPlayer;
+      cloudRowFromPlayer = function(p){
+        syncPlayerSetting(p);
+        const row = originalCloudRowFromPlayer(p);
+        if (row && typeof row === "object"){
+          row.setting = p.setting;
+          if ("tendencies" in row || p.tendencies) row.tendencies = p.tendencies;
+        }
+        return row;
+      };
+    }
+  }catch(e){}
+
+  try{
+    if (typeof savePlayers === "function"){
+      const originalSavePlayers = savePlayers;
+      savePlayers = function(){
+        try{
+          if (Array.isArray(players)) players.forEach(syncPlayerSetting);
+        }catch(e){}
+        return originalSavePlayers.apply(this, arguments);
+      };
+    }
+  }catch(e){}
+
+  // ----- Category ratings -----
+  // ATT / DEF / PHY remain unchanged. SET is now a real category.
+  try{
+    computedCategoryRatings = function(p){
+      upgradePlayerSetting(p);
+      return {
+        attacking: Math.round(
+          Number(p.creativity) * 0.20 +
+          Number(p.accuracy) * 0.40 +
+          Number(p.hittingPower) * 0.40
+        ),
+        defense: Math.round(
+          Number(p.serveReceive) * 0.50 +
+          Number(p.positioning) * 0.25 +
+          Number(p.covering) * 0.25
+        ),
+        physical: Math.round(
+          Number(p.workRate) * 0.20 +
+          Number(p.vertical) * 0.40 +
+          Number(p.speed) * 0.20 +
+          Number(p.reactionTime) * 0.20
+        ),
+        setting: derivedSetting(p.setTechnique,p.setCreativity)
+      };
+    };
+
+    categoryRatings = function(p){
+      const c = computedCategoryRatings(p);
+      return {
+        attacking: p.attackingRating ?? c.attacking,
+        defense: p.defenseRating ?? c.defense,
+        physical: p.physicalRating ?? c.physical,
+        setting: c.setting
+      };
+    };
+  }catch(e){}
+
+  // The top-level model remains seven categories, so old overall strength is preserved:
+  // ATT + DEF + PHY + SRV + BLK + SET + MND.
+  try{
+    overall = function(p){
+      upgradePlayerSetting(p);
+      if (p.finalRating !== undefined && p.finalRating !== null) return Number(p.finalRating);
+      const c = categoryRatings(p);
+      return Math.round(
+        (c.attacking + c.defense + c.physical +
+         Number(p.service) + Number(p.blocking) +
+         Number(c.setting) + Number(p.mindset)) / 7
+      );
+    };
+  }catch(e){}
+
+  // ----- Position engine -----
+  // Every old Setting weight is split exactly 60/40 into STQ/SCR.
+  // This prevents a blanket buff/nerf simply because the stat architecture changed.
+  try{
+    positionRatings = function(p){
+      upgradePlayerSetting(p);
+      const clampLocal=(v)=>Math.max(0,Math.min(100,Number(v)||0));
+      const a={
+        creativity:clampLocal(p.creativity), accuracy:clampLocal(p.accuracy), hittingPower:clampLocal(p.hittingPower),
+        serveReceive:clampLocal(p.serveReceive), positioning:clampLocal(p.positioning), covering:clampLocal(p.covering),
+        workRate:clampLocal(p.workRate), vertical:clampLocal(p.vertical), speed:clampLocal(p.speed),
+        reactionTime:clampLocal(p.reactionTime), service:clampLocal(p.service), blocking:clampLocal(p.blocking),
+        setTechnique:clampLocal(p.setTechnique), setCreativity:clampLocal(p.setCreativity), mindset:clampLocal(p.mindset)
+      };
+
+      const W={
+        OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:18,positioning:8,covering:6,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setTechnique:1.2,setCreativity:.8,mindset:6},
+        OP:{accuracy:18,hittingPower:18,creativity:4,serveReceive:4,positioning:4,covering:6,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:10,setTechnique:1.2,setCreativity:.8,mindset:7},
+        M:{accuracy:11,hittingPower:11,creativity:3,serveReceive:1,positioning:5,covering:4,workRate:4,vertical:13,speed:5,reactionTime:8,service:5,blocking:22,setTechnique:.6,setCreativity:.4,mindset:7},
+        S:{accuracy:4,hittingPower:7,creativity:6,serveReceive:6,positioning:7,covering:5,workRate:5,vertical:6,speed:5,reactionTime:9,service:6,blocking:7,setTechnique:12,setCreativity:8,mindset:7},
+        L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:30,positioning:15,covering:15,workRate:6,vertical:2,speed:6,reactionTime:10,service:2,blocking:0,setTechnique:3,setCreativity:2,mindset:7}
+      };
+      const calc=(weights)=>{
+        let score=0;
+        for(const [key,pct] of Object.entries(weights)) score += a[key]*pct/100;
+        return Math.round(Math.max(0,Math.min(100,score)));
+      };
+      return {OH:calc(W.OH),OP:calc(W.OP),M:calc(W.M),S:calc(W.S),L:calc(W.L)};
+    };
+  }catch(e){}
+
+  // ----- Ultimate Team data -----
+  function enrichUltimateCards(){
+    try{
+      if (!Array.isArray(ultimateTeamState?.cards) || !Array.isArray(players)) return;
+      ultimateTeamState.cards.forEach(card=>{
+        const player = players.find(p=>p.name===card.playerName);
+        if (!player) return;
+        upgradePlayerSetting(player);
+        const master = typeof overall==="function" ? overall(player) : Number(card.sourceOverall||card.rating||70);
+        card.sourceStats = card.sourceStats || {};
+        card.stats = card.stats || {};
+        card.sourceStats.setting = player.setting;
+        card.sourceStats.setTechnique = player.setTechnique;
+        card.sourceStats.setCreativity = player.setCreativity;
+
+        if (typeof utScaledStat === "function"){
+          const rating = Number(card.rating||master);
+          card.stats.setting = utScaledStat(player.setting,rating,master);
+          card.stats.setTechnique = utScaledStat(player.setTechnique,rating,master);
+          card.stats.setCreativity = utScaledStat(player.setCreativity,rating,master);
+        }else{
+          card.stats.setting = player.setting;
+          card.stats.setTechnique = player.setTechnique;
+          card.stats.setCreativity = player.setCreativity;
+        }
+      });
+    }catch(e){}
+  }
+
+  try{
+    if (typeof refreshUltimateCardsFromMaster === "function"){
+      const originalRefreshUltimateCardsFromMaster = refreshUltimateCardsFromMaster;
+      refreshUltimateCardsFromMaster = function(){
+        const result = originalRefreshUltimateCardsFromMaster.apply(this, arguments);
+        enrichUltimateCards();
+        try{ if (typeof saveUltimateTeam==="function") saveUltimateTeam(); }catch(e){}
+        return result;
+      };
+    }
+  }catch(e){}
+  enrichUltimateCards();
+
+  // ----- Player Editor: make SETTING its own subsection -----
+  function patchPlayerEditor(){
+    const body = document.getElementById("playerEditorContent");
+    if (!body || body.querySelector(".aceSettingCategoryGroup")) return;
+
+    let idx = null;
+    try{ idx = Number(playerEditorIndex); }catch(e){}
+    let p = null;
+    try{ p = Array.isArray(players) ? players[idx] : null; }catch(e){}
+    if (!p) return;
+    upgradePlayerSetting(p);
+
+    // Remove the legacy editable Setting row from Specialist Ratings.
+    body.querySelectorAll('input[data-key="setting"], input.statEdit[data-key="setting"]').forEach(input=>{
+      const prev = input.previousElementSibling;
+      if (prev && /setting/i.test(prev.textContent||"")) prev.remove();
+      const parent = input.parentElement;
+      input.remove();
+      if (parent){
+        // Common row-wrapper layouts.
+        [...parent.children].forEach(el=>{
+          if (/^\s*setting\s*$/i.test(el.textContent||"")) el.remove();
+        });
+      }
+    });
+
+    // Rename old Attack Creativity labels.
+    body.querySelectorAll("label,.statLabel,.playerEditorStatLabel").forEach(el=>{
+      if ((el.textContent||"").trim()==="Creativity") el.textContent="Attack Creativity";
+    });
+
+    const group = document.createElement("div");
+    group.className = "statGroup aceSettingCategoryGroup";
+    group.innerHTML = `
+      <div class="statGroupTitle">🎯 Setting <span style="opacity:.62;font-size:.8em">SET ${p.setting}</span></div>
+      <div class="statRows aceSettingRows">
+        <label>Set Technique</label>
+        <input class="statEdit aceSettingEdit" type="number" min="0" max="100" data-key="setTechnique" value="${p.setTechnique}">
+        <label>Set Creativity</label>
+        <input class="statEdit aceSettingEdit" type="number" min="0" max="100" data-key="setCreativity" value="${p.setCreativity}">
+      </div>`;
+
+    const groups = [...body.querySelectorAll(".statGroup")];
+    const specialist = groups.find(g=>/specialist/i.test(g.querySelector(".statGroupTitle")?.textContent||""));
+    if (specialist) specialist.before(group);
+    else body.appendChild(group);
+
+    // Respect viewer mode where possible.
+    let editable = true;
+    try{ if (typeof cloudAdmin !== "undefined") editable = !!cloudAdmin; }catch(e){}
+    if (!editable) group.querySelectorAll("input").forEach(i=>i.disabled=true);
+
+    group.querySelectorAll(".aceSettingEdit").forEach(input=>{
+      input.addEventListener("change",()=>{
+        p[input.dataset.key] = clampStat(input.value);
+        syncPlayerSetting(p);
+        try{ delete p.finalRating; }catch(e){}
+        try{ if (typeof savePlayers==="function") savePlayers(); }catch(e){}
+        try{
+          if (typeof renderPlayers==="function"){
+            const q=document.getElementById("playerSearch")?.value||"";
+            renderPlayers(q);
+          }
+        }catch(e){}
+        try{ if (typeof renderRosters==="function") renderRosters(); }catch(e){}
+        try{ if (typeof renderPlayerEditor==="function") renderPlayerEditor(); }catch(e){}
+      });
+    });
+  }
+
+  try{
+    if (typeof renderPlayerEditor === "function"){
+      const originalRenderPlayerEditor = renderPlayerEditor;
+      renderPlayerEditor = function(){
+        const r = originalRenderPlayerEditor.apply(this, arguments);
+        setTimeout(patchPlayerEditor,0);
+        return r;
+      };
+    }
+  }catch(e){}
+
+  // ----- Player profile/detail post-processing -----
+  function patchVisibleLabels(root=document){
+    root.querySelectorAll("label,.statLabel,.playerEditorStatLabel,.compareStatName,.profileStatLabel").forEach(el=>{
+      if ((el.textContent||"").trim()==="Creativity") el.textContent="Attack Creativity";
+    });
+  }
+
+  function appendProfileSetting(name){
+    const modal = document.querySelector(".profileOverlay.show,.profileModal.show,#profileModal.show,.playerProfileOverlay.show");
+    const root = modal || document;
+    patchVisibleLabels(root);
+
+    let p=null;
+    try{ p=Array.isArray(players)?players.find(x=>x.name===name):null; }catch(e){}
+    if(!p || root.querySelector(".aceProfileSettingCategory")) return;
+    upgradePlayerSetting(p);
+
+    const target =
+      root.querySelector(".profileStats,.profileBody,.profileContent,.playerProfileBody") ||
+      root.querySelector(".modalBody") ||
+      (modal ? modal : null);
+    if(!target) return;
+
+    const box=document.createElement("div");
+    box.className="aceProfileSettingCategory";
+    box.style.cssText="margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.035)";
+    box.innerHTML=`
+      <div style="font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Setting · ${p.setting}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><span style="opacity:.7">Set Technique</span><b style="display:block;font-size:18px">${p.setTechnique}</b></div>
+        <div><span style="opacity:.7">Set Creativity</span><b style="display:block;font-size:18px">${p.setCreativity}</b></div>
+      </div>`;
+    target.appendChild(box);
+  }
+
+  try{
+    if (typeof openProfile === "function"){
+      const originalOpenProfile = openProfile;
+      openProfile = function(name){
+        const r = originalOpenProfile.apply(this, arguments);
+        setTimeout(()=>appendProfileSetting(name),0);
+        return r;
+      };
+    }
+  }catch(e){}
+
+  // Re-label anything already on screen.
+  try{ patchVisibleLabels(document); }catch(e){}
+
+  // Expose a small debug/migration report for admins/devtools.
+  window.aceSettingMigrationReport = function(){
+    try{
+      return (players||[]).map(p=>{
+        const before = Number(p.setting||0);
+        upgradePlayerSetting(p);
+        return {
+          player:p.name,
+          setting:before,
+          setTechnique:p.setTechnique,
+          setCreativity:p.setCreativity,
+          recombined:derivedSetting(p.setTechnique,p.setCreativity)
+        };
+      });
+    }catch(e){ return []; }
+  };
+
+  // Refresh visible game surfaces after the migration layer is installed.
+  setTimeout(()=>{
+    try{ patchVisibleLabels(document); }catch(e){}
+    try{
+      if (typeof renderPlayers==="function"){
+        const q=document.getElementById("playerSearch")?.value||"";
+        renderPlayers(q);
+      }
+    }catch(e){}
+    try{ if (typeof renderRosters==="function") renderRosters(); }catch(e){}
+    try{ if (typeof refreshUltimateCardsFromMaster==="function") refreshUltimateCardsFromMaster(); }catch(e){}
+  },0);
+
+  console.info("[THE ACE PROJECT] B10.1 Setting Split active — SET = 60% STQ + 40% SCR");
+})();
+
+</script>
 </body>
 </html>
 
