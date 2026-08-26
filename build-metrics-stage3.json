@@ -1,0 +1,25 @@
+{
+  "build": "THE ACE PROJECT B10.0 Stage 3",
+  "focus": "Ultimate Team lazy mounting",
+  "changes": {
+    "startup_section": "Home remains active; no forced background Squad render",
+    "squad": "panel detached while inactive; player/bench/chemistry DOM cleared before parking",
+    "packs": "legacy pack panel removed; premium pack store generated only while Packs is active and destroyed on exit",
+    "club": "panel detached while inactive; collection gallery cleared",
+    "home": "generated Home DOM cleared when inactive",
+    "profile": "generated Profile DOM cleared when inactive",
+    "missions": "kept mounted because compact topbar reads live objective IDs",
+    "chemistry": "no startup chemistry calculation; resize calculations only while Squad is active",
+    "topbar": "mutation updates coalesced to one animation frame; mission dropdown only rebuilt while open",
+    "duplicate_renders": "removed eager Home/Profile and Pack Store renders"
+  },
+  "preserved": [
+    "pack reveal",
+    "squad lineup logic",
+    "chemistry logic",
+    "My Club",
+    "daily missions",
+    "manager profile",
+    "Supabase/account systems"
+  ]
+}

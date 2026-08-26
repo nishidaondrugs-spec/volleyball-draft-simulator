@@ -1,0 +1,106 @@
+{
+  "source": "B9.23",
+  "stage": "B10.0 Stage 1A Clean Foundation",
+  "before": {
+    "index_bytes": 2881346,
+    "real_style_blocks": 72,
+    "real_script_blocks": 13,
+    "mutation_observers": 4,
+    "body_subtree_observers": 1
+  },
+  "after": {
+    "index_bytes": 1082149,
+    "css_bytes": 1154914,
+    "real_style_blocks_in_html": 0,
+    "real_inline_script_blocks": 0,
+    "local_js_files": 12,
+    "mutation_observers": 3,
+    "body_subtree_observers": 0,
+    "css_parse_errors": 0
+  },
+  "changes": [
+    "72 real style blocks consolidated into css/app.css in original cascade order",
+    "application JavaScript externalised into ordered local files",
+    "Supabase src script separated from previously ignored inline Escape handler",
+    "body-wide image/class MutationObserver replaced by page-only class observer",
+    "legacy Gold-glint DOM observer removed",
+    "B8.3 line chemistry runtime removed because B8.5 supersedes it",
+    "B8.4 reduced to affiliation helpers used by B8.5",
+    "B8.5 squad chemistry now wraps squad/switch exactly once with one resize scheduler",
+    "B9.23 100% geometry safeguards retained"
+  ],
+  "js_manifest": [
+    {
+      "order": 1,
+      "file": "js/escape-handler.js",
+      "id": null,
+      "bytes": 183
+    },
+    {
+      "order": 2,
+      "file": "js/core.js",
+      "id": null,
+      "bytes": 603101
+    },
+    {
+      "order": 3,
+      "file": "js/b358-high-fps-js.js",
+      "id": "b358-high-fps-js",
+      "bytes": 2944
+    },
+    {
+      "order": 4,
+      "file": "js/vds-b40-stage3-mobile-js.js",
+      "id": "VDS_B40_STAGE3_MOBILE_JS",
+      "bytes": 357
+    },
+    {
+      "order": 5,
+      "file": "js/vds-b40-stage4c-auto-resume.js",
+      "id": "VDS_B40_STAGE4C_AUTO_RESUME",
+      "bytes": 212
+    },
+    {
+      "order": 6,
+      "file": "js/vds-b40-stage4d-foreground-authority.js",
+      "id": "VDS_B40_STAGE4D_FOREGROUND_AUTHORITY",
+      "bytes": 340
+    },
+    {
+      "order": 7,
+      "file": "js/vds-b60-stage6a-account-init.js",
+      "id": "VDS_B60_STAGE6A_ACCOUNT_INIT",
+      "bytes": 85
+    },
+    {
+      "order": 8,
+      "file": "js/vds-b80-ut-hub-js.js",
+      "id": "VDS_B80_UT_HUB_JS",
+      "bytes": 12539
+    },
+    {
+      "order": 9,
+      "file": "js/vds-b81-pack-store-js.js",
+      "id": "VDS_B81_PACK_STORE_JS",
+      "bytes": 6725
+    },
+    {
+      "order": 10,
+      "file": "js/vds-b84-club-chem-arena-js.js",
+      "id": "VDS_B84_CLUB_CHEM_ARENA_JS",
+      "bytes": 603
+    },
+    {
+      "order": 11,
+      "file": "js/vds-b85-volleyball-chemistry-js.js",
+      "id": "VDS_B85_VOLLEYBALL_CHEMISTRY_JS",
+      "bytes": 3538
+    },
+    {
+      "order": 12,
+      "file": "js/vds-b88-ut-topbar-missions-js.js",
+      "id": "VDS_B88_UT_TOPBAR_MISSIONS_JS",
+      "bytes": 8090
+    }
+  ]
+}

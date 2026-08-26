@@ -1,0 +1,7 @@
+{
+  "build": "THE ACE PROJECT B10.0 Stage 1B.2",
+  "fix": "Critical account gate boot",
+  "root_cause": "vds-b60-stage6a-account-init.js existed after extraction but was not referenced by index.html",
+  "change": "Merged robust account-gate boot hook into core.js and removed orphan file",
+  "local_file_note": "Google OAuth cannot complete from file://; use localhost or deployed HTTPS"
+}
