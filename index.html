@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B11.1 Condition + Narration UX">
+  <meta name="ace-build" content="B12.0 Cloud Ultimate Team">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -4703,6 +4703,113 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
   .aceNarrationPanel .commentaryLine:first-child{font-size:10.5px!important;padding:10px!important;}
   .aceCommentaryEntry>summary{min-height:39px;font-size:9px;padding:8px 9px;}
   .aceCommentaryFull{font-size:9.5px;}
+}
+</style>
+
+
+<style id="ace-live-ux-v11-2-style">
+/* =========================================================
+   THE ACE PROJECT — B11.2 MATCH FLOW UX
+   Universal tappable condition ribbon + mobile court-first flow
+   ========================================================= */
+
+/* The condition ribbon is now a real control everywhere. */
+.aceConditionRibbon{
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  transition:border-color .16s ease, background .16s ease, transform .16s ease;
+}
+.aceConditionRibbon:hover{
+  border-color:rgba(103,169,225,.18);
+  background:rgba(5,17,29,.78);
+}
+.aceConditionRibbon:focus-visible{
+  outline:2px solid rgba(74,168,255,.72);
+  outline-offset:2px;
+}
+.aceConditionRibbon::after{
+  content:"VIEW PLAYERS";
+  grid-column:1/-1;
+  justify-self:center;
+  margin-top:-2px;
+  color:#48647d;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.14em;
+  line-height:1;
+}
+.aceConditionRibbon[data-alert="true"]::after{color:#9d7640;}
+
+/* The old dedicated phone condition button is no longer needed. */
+.aceConditionMobileBtn{display:none!important;}
+
+/* Desktop gets the same full condition drill-down, presented as a compact modal. */
+@media (min-width:761px){
+  .aceConditionModal{align-items:center!important;padding:22px!important;}
+  .aceConditionSheet{
+    width:min(720px,92vw)!important;
+    max-height:78vh!important;
+    border-radius:18px!important;
+    box-shadow:0 24px 70px rgba(0,0,0,.50)!important;
+  }
+  .aceConditionModal .fatigueManagerPanel{
+    grid-template-columns:1fr 1fr!important;
+    gap:9px!important;
+  }
+}
+
+/* Mobile match order:
+   SCORE -> COURT -> CONTROLS -> CONDITION -> COMMENTARY -> MANAGEMENT
+*/
+@media (max-width:760px){
+  .aceConditionRibbon{
+    display:grid!important;
+    margin:0 8px 9px!important;
+    min-height:31px!important;
+    padding:6px 8px 5px!important;
+    gap:6px!important;
+    border-radius:10px!important;
+  }
+  .aceConditionRibbon::after{
+    content:"TAP FOR PLAYER CONDITION";
+    font-size:5px;
+    margin-top:0;
+  }
+  .aceConditionRibbonLabel{font-size:5.5px!important;}
+  .aceConditionSide{
+    grid-template-columns:minmax(46px,auto) minmax(54px,1fr) auto!important;
+    gap:5px!important;
+  }
+  .aceConditionSide.right{
+    grid-template-columns:auto minmax(54px,1fr) minmax(46px,auto)!important;
+  }
+  .aceConditionName{font-size:6.5px!important;}
+  .aceConditionValue{font-size:7px!important;}
+  .aceConditionTrack{height:4px!important;}
+
+  /* Body order is explicitly court first, narration second. */
+  .aceCourtColumn{grid-row:1!important;}
+  .aceNarrationPanel{grid-row:2!important;}
+  .aceManagementDetails{grid-row:3!important;}
+  .aceTechnicalDetails{grid-row:4!important;}
+
+  /* Commentary is now something you read after watching the rally. */
+  .aceNarrationPanel #commentaryBox{
+    min-height:120px!important;
+    max-height:250px!important;
+  }
+
+  /* When moved beneath the court, controls stay thumb-friendly without obscuring commentary. */
+  .aceLiveCommandBar{
+    bottom:6px!important;
+    margin:0 8px 7px!important;
+  }
+}
+
+/* Slightly cleaner compact ribbon on narrower laptops too. */
+@media (min-width:761px) and (max-width:1100px){
+  .aceConditionRibbon{margin-left:16px!important;margin-right:16px!important;}
 }
 </style>
 
@@ -14844,6 +14951,9 @@ async function vdsApplySignedInSession(session,{resumeRoom=true}={}){
 
   await vdsEnsureProfile(session.user);
   vdsUpdateAccountUI();
+  try{
+    if(typeof vdsSyncUltimateTeamCloud==="function")await vdsSyncUltimateTeamCloud({allowLegacyImport:true});
+  }catch(error){console.warn("Ultimate Team account sync on sign-in failed",error);}
   setTimeout(()=>vdsRefreshAccountProgression({loadPanels:true}),60);
   vdsHideAccountGate();
   vdsSetAuthStatus("Signed in.","ok");
@@ -15388,6 +15498,7 @@ async function vdsInitAccountGate(){
   if(!vdsAccountAuthSubscription){
     const {data:sub}=client.auth.onAuthStateChange((event,nextSession)=>{
       if(event==="SIGNED_OUT"){
+        try{if(typeof vdsClearUltimateTeamForSignOut==="function")vdsClearUltimateTeamForSignOut();}catch(e){}
         vdsAccountSession=null;
         vdsAccountProfile=null;
         vdsShowAccountGate("Signed out. Sign in with Google to play THE ACE PROJECT.");
@@ -18391,82 +18502,253 @@ const UT_RARITY={
 };
 
 let ultimateTeamState={coins:0,cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
+let vdsUTCloudReady=false;
+let vdsUTCloudSyncBusy=false;
+let vdsUTSquadSaveTimer=null;
+const UT_CACHE_PREFIX="volleyballUltimateTeamV2";
+
+function vdsUTCacheKey(){
+  const uid=vdsAccountSession?.user?.id;
+  return uid?`${UT_CACHE_PREFIX}:${uid}`:`${UT_CACHE_PREFIX}:signedout`;
+}
+
+function vdsReadLegacyUTState(){
+  try{
+    const raw=safeStore.get(UT_SAVE_KEY)||window.localStorage?.getItem?.(UT_SAVE_KEY)||null;
+    const parsed=JSON.parse(raw||"null");
+    return parsed&&Array.isArray(parsed.cards)?parsed:null;
+  }catch(e){return null;}
+}
+
+function vdsLegacyUTCandidates(localState){
+  if(!localState||!Array.isArray(localState.cards))return [];
+  const seen=new Set();
+  const out=[];
+  for(const card of localState.cards){
+    const uid=String(card?.id??"");
+    if(!uid||uid.startsWith("starter_")||card?.starter)continue;
+    let playerId=Number(card?.playerId||0)||null;
+    if(!playerId && Array.isArray(players)){
+      const p=players.find(x=>String(x?.name||"")===String(card?.playerName||""));
+      playerId=Number(p?.cloudId||0)||null;
+    }
+    if(!playerId||seen.has(uid))continue;
+    seen.add(uid);
+    out.push({uid,player_id:playerId});
+  }
+  return out;
+}
+
+function vdsCloudUTCardObject(row,{rarity=null,rating=null}={}){
+  if(!row)return null;
+  const player=vdsCloudUTPlayerById(row.player_id);
+  if(!player)return null;
+  const master=overall(player);
+  const tier=rarity||utPlayerTier(player);
+  const mainRating=Number.isFinite(Number(rating))?Math.round(Number(rating)):utRatingForRarity(tier,player);
+  return {
+    id:`ut_${row.id}`,
+    cloudCardId:String(row.id),
+    playerId:Number(row.player_id),
+    playerName:player.name,
+    photo:player.photo||"",
+    position:player.position||"-",
+    rarity:tier,
+    rating:mainRating,
+    positionRating:mainRating,
+    overallRating:master,
+    pulledAt:row.acquired_at||new Date().toISOString(),
+    source:row.source||"pack",
+    packId:row.pack_id||null,
+    legacyUid:row.legacy_uid||null,
+    sourceOverall:master,
+    sourceStats:{
+      attack:categoryRatings(player).attacking,
+      defense:categoryRatings(player).defense,
+      physical:categoryRatings(player).physical,
+      service:Number(player.service||0),
+      blocking:Number(player.blocking||0),
+      setting:Number(player.setting||0)
+    },
+    stats:{
+      attack:utScaledStat(categoryRatings(player).attacking,mainRating,master),
+      defense:utScaledStat(categoryRatings(player).defense,mainRating,master),
+      physical:utScaledStat(categoryRatings(player).physical,mainRating,master),
+      service:utScaledStat(player.service,mainRating,master),
+      blocking:utScaledStat(player.blocking,mainRating,master),
+      setting:utScaledStat(player.setting,mainRating,master)
+    }
+  };
+}
+
+function vdsApplyCloudUTRows(rows){
+  return (Array.isArray(rows)?rows:[]).map(row=>vdsCloudUTCardObject(row)).filter(Boolean);
+}
+
+function vdsMapLegacyLineup(localState,cloudRows){
+  const oldSlots=Array.isArray(localState?.lineupSlots)?localState.lineupSlots.slice(0,6):Array(6).fill(null);
+  while(oldSlots.length<6)oldSlots.push(null);
+  const map=new Map();
+  (Array.isArray(cloudRows)?cloudRows:[]).forEach(row=>{
+    if(row?.legacy_uid)map.set(String(row.legacy_uid),`ut_${row.id}`);
+  });
+  return oldSlots.map(uid=>{
+    if(!uid)return null;
+    const s=String(uid);
+    if(s.startsWith("starter_"))return s;
+    return map.get(s)||null;
+  });
+}
+
+function vdsCacheUltimateTeam(){
+  try{
+    safeStore.set(vdsUTCacheKey(),JSON.stringify({
+      cards:ultimateTeamState.cards||[],
+      lineupSlots:Array.isArray(ultimateTeamState.lineupSlots)?ultimateTeamState.lineupSlots.slice(0,6):Array(6).fill(null),
+      lineupMode:ultimateTeamState.lineupMode||"serving",
+      cachedAt:new Date().toISOString()
+    }));
+  }catch(e){console.warn("UT cache save failed",e);}
+}
+
+async function vdsSaveUTSquadCloudNow(){
+  if(!vdsUTCloudReady||!vdsHasPermanentAccount())return false;
+  const client=ensureMultiplayerClient();
+  if(!client)return false;
+  const slots=(Array.isArray(ultimateTeamState.lineupSlots)?ultimateTeamState.lineupSlots:Array(6).fill(null)).slice(0,6);
+  while(slots.length<6)slots.push(null);
+  try{
+    const {data,error}=await client.rpc("vds_save_ut_squad",{
+      p_lineup_slots:slots,
+      p_lineup_mode:ultimateTeamState.lineupMode||"custom"
+    });
+    if(error)throw error;
+    return !!data;
+  }catch(error){
+    console.warn("Ultimate Team squad cloud save failed",error);
+    return false;
+  }
+}
+
+function vdsQueueUTSquadCloudSave(){
+  if(!vdsUTCloudReady||!vdsHasPermanentAccount())return;
+  clearTimeout(vdsUTSquadSaveTimer);
+  vdsUTSquadSaveTimer=setTimeout(()=>vdsSaveUTSquadCloudNow(),260);
+}
+
+async function vdsSyncUltimateTeamCloud({allowLegacyImport=true}={}){
+  if(vdsUTCloudSyncBusy||!vdsHasPermanentAccount())return false;
+  const client=ensureMultiplayerClient();
+  if(!client)return false;
+  vdsUTCloudSyncBusy=true;
+  vdsUTCloudReady=false;
+  try{
+    const legacyState=vdsReadLegacyUTState();
+    const legacyCards=vdsLegacyUTCandidates(legacyState);
+    let {data:state,error}=await client.rpc("vds_get_ut_cloud_state");
+    if(error)throw error;
+
+    let importedLegacy=false;
+    if(allowLegacyImport && state?.legacy_imported!==true && legacyCards.length){
+      const ok=window.confirm(
+        `We found ${legacyCards.length} Ultimate Team card${legacyCards.length===1?"":"s"} saved by the older browser-only version on this device.\n\nImport verified cards into this signed-in ACE account? The server will only accept cards backed by your historical pack-purchase ledger.`
+      );
+      if(ok){
+        const imported=await client.rpc("vds_import_legacy_ut_cards",{p_cards:legacyCards});
+        if(imported.error)throw imported.error;
+        state=imported.data||state;
+        importedLegacy=true;
+      }
+    }
+
+    const rows=Array.isArray(state?.cards)?state.cards:[];
+    let slots=Array.isArray(state?.squad?.lineup_slots)?state.squad.lineup_slots.slice(0,6):Array(6).fill(null);
+    while(slots.length<6)slots.push(null);
+    const cloudSquadHasCards=slots.some(Boolean);
+
+    if(importedLegacy && !cloudSquadHasCards && legacyState){
+      const mapped=vdsMapLegacyLineup(legacyState,rows);
+      if(mapped.some(Boolean))slots=mapped;
+    }
+
+    ultimateTeamState={
+      coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
+      cards:vdsApplyCloudUTRows(rows),
+      lineupSlots:slots,
+      lineupMode:(state?.squad?.lineup_mode||legacyState?.lineupMode||"serving")==="custom"?"custom":"serving"
+    };
+
+    if(vdsAccountProfile?.starter_club_claimed){
+      try{
+        if(!vdsStarterClubState?.completed)await vdsFetchStarterClubState();
+        if(vdsStarterClubState?.completed)vdsHydrateStarterClubCards(vdsStarterClubState);
+      }catch(error){console.warn("Starter club cloud hydration failed",error);}
+    }
+
+    vdsSanitizeUltimateTeamStateByPool({persist:false});
+    vdsUTCloudReady=true;
+    vdsCacheUltimateTeam();
+    renderUltimateTeam();
+
+    if(importedLegacy){
+      try{safeStore.remove(UT_SAVE_KEY);}catch(e){}
+      try{window.localStorage.removeItem(UT_SAVE_KEY);}catch(e){}
+    }
+    if(!cloudSquadHasCards && ultimateTeamState.lineupSlots.some(Boolean))await vdsSaveUTSquadCloudNow();
+    return true;
+  }catch(error){
+    console.error("Ultimate Team cloud sync failed",error);
+    vdsUTCloudReady=false;
+    return false;
+  }finally{
+    vdsUTCloudSyncBusy=false;
+  }
+}
 
 function loadUltimateTeam(){
-  try{
-    const saved=JSON.parse(safeStore.get(UT_SAVE_KEY)||"null");
-    if(saved && Array.isArray(saved.cards)){
-      ultimateTeamState={
-        // Coins are account-owned on Supabase from Stage 6B onward.
-        coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-        cards:saved.cards,
-        lineupSlots:Array.isArray(saved.lineupSlots)?saved.lineupSlots.slice(0,6):Array(6).fill(null),
-        lineupMode:(saved.lineupMode||"serving")==="custom"?"custom":"serving"
-      };
-      while(ultimateTeamState.lineupSlots.length<6)ultimateTeamState.lineupSlots.push(null);
-    }else{
-      ultimateTeamState={
-        coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-        cards:[],
-        lineupSlots:Array(6).fill(null),
-        lineupMode:"serving"
-      };
-    }
-  }catch(e){
+  let cached=null;
+  try{cached=JSON.parse(safeStore.get(vdsUTCacheKey())||"null");}catch(e){}
+  if(cached&&Array.isArray(cached.cards)){
+    ultimateTeamState={
+      coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
+      cards:cached.cards,
+      lineupSlots:Array.isArray(cached.lineupSlots)?cached.lineupSlots.slice(0,6):Array(6).fill(null),
+      lineupMode:cached.lineupMode==="custom"?"custom":"serving"
+    };
+    while(ultimateTeamState.lineupSlots.length<6)ultimateTeamState.lineupSlots.push(null);
+  }else{
     ultimateTeamState={coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
   }
-  if(vdsStarterClubState?.completed)vdsHydrateStarterClubCards(vdsStarterClubState);
-  vdsSanitizeUltimateTeamStateByPool({persist:true});
   renderUltimateTeam();
+  if(vdsHasPermanentAccount())setTimeout(()=>vdsSyncUltimateTeamCloud({allowLegacyImport:true}),20);
 }
 
 function saveUltimateTeam(){
-  // Collection remains local in this first economy pass, but currency does not.
-  // Never persist a browser-authored coin balance as authority.
-  safeStore.set(UT_SAVE_KEY,JSON.stringify({
-    cards:ultimateTeamState.cards||[],
-    lineupSlots:Array.isArray(ultimateTeamState.lineupSlots)?ultimateTeamState.lineupSlots.slice(0,6):Array(6).fill(null),
-    lineupMode:ultimateTeamState.lineupMode||"serving"
-  }));
+  // B12: Supabase owns the inventory. Browser storage is account-scoped cache only.
+  vdsCacheUltimateTeam();
+  vdsQueueUTSquadCloudSave();
 }
 
-function resetUltimateTeam(){
-  // Stage 6B: reset is collection-only. Server coins can only change through
-  // gameplay rewards or an authorised pack purchase.
-  ultimateTeamState={
-    coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),
-    cards:[],
-    lineupSlots:Array(6).fill(null),
-    lineupMode:"serving"
-  };
-
-  safeStore.remove(UT_SAVE_KEY);
-  try{window.localStorage.removeItem(UT_SAVE_KEY);}catch(e){}
-  saveUltimateTeam();
-
-  const overlay=document.getElementById("utRevealOverlay");
-  if(overlay)overlay.classList.remove("show");
-
-  const revealCard=document.getElementById("utRevealCard");
-  if(revealCard)revealCard.innerHTML="";
-
-  const count=document.getElementById("utCollectionCount");
-  if(count)count.textContent="0";
-
-  const collection=document.getElementById("utCollection");
-  if(collection){
-    collection.innerHTML='<div class="vdsUTEmpty">Open your first pack to start your collection.</div>';
-  }
-
+async function resetUltimateTeam(){
+  // B12: never delete account-owned cards from a local reset button.
+  try{safeStore.remove(vdsUTCacheKey());}catch(e){}
+  ultimateTeamState={coins:Math.max(0,Number(vdsAccountProfile?.coins||0)),cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
   renderUltimateTeam();
-
+  const ok=await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
   const status=document.getElementById("utResetStatus");
   if(status){
-    status.textContent="✓ Local collection reset · account coins kept";
+    status.textContent=ok?"✓ Cloud club reloaded":"Cloud reload failed — try again";
     setTimeout(()=>{if(status)status.textContent="";},2500);
   }
 }
 
+function vdsClearUltimateTeamForSignOut(){
+  clearTimeout(vdsUTSquadSaveTimer);
+  vdsUTCloudReady=false;
+  vdsUTCloudSyncBusy=false;
+  ultimateTeamState={coins:0,cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
+  try{renderUltimateTeam();}catch(e){}
+}
 
 function utPlayerTier(player){
   // Ultimate Team uses the same ACE PROJECT rarity ladder everywhere.
@@ -18532,19 +18814,17 @@ function utPickPlayer(rarity){
 async function openUltimatePack(packId){
   const pack=UT_PACKS[packId];
   if(!pack)return;
-
   if(!vdsHasPermanentAccount()){
     alert("Sign in to your ACE account before opening Ultimate Team packs.");
     return;
   }
-
   if(!Array.isArray(players)||!players.length){
     alert("Player database has not loaded yet.");
     return;
   }
-  if(!vdsUltimatePoolPlayers().length){
-    alert("The Ultimate Team Pool is empty. An admin must add players to the pool before packs can be opened.");
-    return;
+  if(!vdsUTCloudReady){
+    const synced=await vdsSyncUltimateTeamCloud({allowLegacyImport:true});
+    if(!synced){alert("Your Ultimate Team account could not sync. No pack was opened.");return;}
   }
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
@@ -18554,23 +18834,16 @@ async function openUltimatePack(packId){
     return;
   }
 
-  // Choose the card candidate only after we know the player database is ready.
-  // The wallet debit itself is server-authoritative and uses fixed pack prices.
-  const rolledRarity=utRollRarity(packId);
-  const player=utPickPlayer(rolledRarity);
-  if(!player){
-    alert("No eligible player could be selected from the Ultimate Team Pool. Add at least one player to the pool first.");
-    return;
-  }
-
   const packEl=document.querySelector(`[data-ut-pack="${packId}"]`);
   const openBtn=packEl?.querySelector(".utOpenBtn");
   if(openBtn){openBtn.disabled=true;openBtn.textContent="OPENING…";}
+  let committed=false;
 
   try{
     const client=ensureMultiplayerClient();
-    const {data,error}=await client.rpc("vds_purchase_ut_pack_hostaware",{p_pack_id:packId});
+    const {data,error}=await client.rpc("vds_open_ut_pack",{p_pack_id:packId});
     if(error)throw error;
+    committed=true;
 
     const newBalance=Number(data?.coin_balance);
     if(Number.isFinite(newBalance) && !vdsAccountProfile?.is_host_account){
@@ -18581,53 +18854,30 @@ async function openUltimatePack(packId){
       vdsSyncUltimateWalletFromProfile();
     }
 
-    // A player's Ultimate Team rarity is fixed by their MAIN-POSITION rating.
-    const rarity=utPlayerTier(player);
-    const rating=utRatingForRarity(rarity,player);
-    const card={
-      id:`ut_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
-      playerId:Number(player.cloudId||0)||null,
-      playerName:player.name,
-      photo:player.photo||"",
-      position:player.position||"-",
-      rarity,
-      rating,
-      positionRating:rating,
-      overallRating:overall(player),
-      pulledAt:new Date().toISOString(),
-      sourceOverall:overall(player),
-      sourceStats:{
-        attack:categoryRatings(player).attacking,
-        defense:categoryRatings(player).defense,
-        physical:categoryRatings(player).physical,
-        service:Number(player.service||0),
-        blocking:Number(player.blocking||0),
-        setting:Number(player.setting||0)
-      },
-      stats:{
-        attack:utScaledStat(categoryRatings(player).attacking,rating,overall(player)),
-        defense:utScaledStat(categoryRatings(player).defense,rating,overall(player)),
-        physical:utScaledStat(categoryRatings(player).physical,rating,overall(player)),
-        service:utScaledStat(player.service,rating,overall(player)),
-        blocking:utScaledStat(player.blocking,rating,overall(player)),
-        setting:utScaledStat(player.setting,rating,overall(player))
-      }
-    };
+    const card=vdsCloudUTCardObject(data?.card,{rarity:data?.rarity,rating:data?.rating});
+    if(!card){
+      await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      throw new Error("SERVER_CARD_PLAYER_NOT_AVAILABLE");
+    }
 
+    ultimateTeamState.cards=ultimateTeamState.cards.filter(c=>String(utCardUid(c))!==String(utCardUid(card)));
     ultimateTeamState.cards.unshift(card);
     aceLastRevealedCardUid=utCardUid(card);
-    saveUltimateTeam();
+    vdsCacheUltimateTeam();
     renderUltimateTeam();
     await showUltimateReveal(card,packId);
     vdsLoadDailyProgress();
   }catch(error){
-    console.error("VDS pack purchase failed",error);
+    console.error("VDS cloud pack purchase failed",error);
     const msg=String(error?.message||"");
-    if(/NOT_ENOUGH_COINS/i.test(msg)){
+    if(committed){
+      await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      alert("Your pack was saved to your ACE account, but the reveal had a display problem. Your card is safe in your club.");
+    }else if(/NOT_ENOUGH_COINS/i.test(msg)){
       alert("Your account does not have enough ACE coins for this pack.");
       await vdsRefreshAccountProgression({loadPanels:false});
     }else{
-      alert("Pack purchase could not be completed. Your collection was not changed.");
+      alert("Pack purchase could not be completed. No coins or cards were changed.");
     }
   }finally{
     if(openBtn){openBtn.disabled=false;openBtn.textContent="OPEN PACK";}
@@ -23001,7 +23251,8 @@ let aceUTLeagueState={
   userChem:0,
   opponent:null,
   previousContext:null,
-  reward:null
+  reward:null,
+  cloudMatchId:null
 };
 
 const ACE_UT_MATCH_ROLE_ORDER=[
@@ -23400,10 +23651,26 @@ function aceUTPrepareEngineLineups(){
   return true;
 }
 
-function aceUTLaunchAiMatch(){
+async function aceUTLaunchAiMatch(){
   if(!aceUTLeagueState.opponent)return;
+  if(!vdsHasPermanentAccount()){
+    alert("Sign in to your ACE account before starting an ACE League reward match.");
+    return;
+  }
   if(!aceUTPrepareEngineLineups()){
     alert("ACE League could not prepare the two Starting Six lineups.");
+    return;
+  }
+
+  try{
+    const client=ensureMultiplayerClient();
+    const {data,error}=await client.rpc("vds_start_ai_league_match");
+    if(error)throw error;
+    aceUTLeagueState.cloudMatchId=data?.match_id||null;
+    if(!aceUTLeagueState.cloudMatchId)throw new Error("AI_MATCH_TOKEN_MISSING");
+  }catch(error){
+    console.error("ACE League secure match start failed",error);
+    alert("ACE League could not create a secure reward session. The match was not started.");
     return;
   }
 
@@ -23417,6 +23684,7 @@ function aceUTLaunchAiMatch(){
     const started=beginLiveMatch();
     if(started===false){
       aceUTLeagueState.active=false;
+      aceUTLeagueState.cloudMatchId=null;
       aceUTRestoreMatchContext();
       goPage("ultimate");
       setTimeout(()=>vdsSwitchUltimateInstance("squad"),60);
@@ -23427,7 +23695,7 @@ function aceUTLaunchAiMatch(){
     if(card && !card.querySelector(".aceUTLeagueMatchTag")){
       const tag=document.createElement("div");
       tag.className="aceUTLeagueMatchTag";
-      tag.textContent="ACE LEAGUE · AI MATCH · REWARDS ENABLED";
+      tag.textContent="ACE LEAGUE · AI MATCH · CLOUD REWARDS";
       card.insertBefore(tag,card.firstChild);
     }
   },70);
@@ -23464,40 +23732,45 @@ function aceUTLeagueRewardBreakdown(){
 
 async function aceUTPersistAiRewards(reward){
   if(!reward||!vdsAccountProfile)return {persisted:false};
-
-  const profile={...vdsAccountProfile};
-  const host=!!profile.is_host_account;
-  const nextXp=Math.max(0,Number(profile.xp||0))+reward.xp;
-  const nextLevel=Math.floor(nextXp/500)+1;
-
-  const update={
-    xp:nextXp,
-    manager_level:nextLevel,
-    matches_played:Math.max(0,Number(profile.matches_played||0))+1,
-    wins:Math.max(0,Number(profile.wins||0))+(reward.won?1:0),
-    losses:Math.max(0,Number(profile.losses||0))+(reward.won?0:1)
-  };
-
-  if(!host){
-    update.coins=Math.max(0,Number(profile.coins||0))+reward.coins;
-    update.total_coins_earned=Math.max(0,Number(profile.total_coins_earned||0))+reward.coins;
-  }
-
-  vdsAccountProfile={...profile,...update};
-  if(typeof vdsUpdateAccountUI==="function")vdsUpdateAccountUI();
-  if(typeof vdsRenderDailyProgress==="function")vdsRenderDailyProgress();
-  if(typeof renderUltimateTeam==="function")renderUltimateTeam();
-
-  const userId=vdsAccountSession?.user?.id;
+  const matchId=aceUTLeagueState.cloudMatchId;
   const client=ensureMultiplayerClient?.();
-  if(!userId||!client)return {persisted:false};
+  if(!matchId||!client)return {persisted:false,error:new Error("AI_MATCH_TOKEN_MISSING")};
 
   try{
-    const {error}=await client.from("vds_profiles").update(update).eq("id",userId);
+    const {data,error}=await client.rpc("vds_complete_ai_league_match",{
+      p_match_id:matchId,
+      p_won:!!reward.won,
+      p_best_rating:Number(reward.bestRating||6.8),
+      p_chemistry:Number(aceUTLeagueState.userChem||0)
+    });
     if(error)throw error;
-    return {persisted:true};
+
+    const p=data?.profile||{};
+    vdsAccountProfile={
+      ...(vdsAccountProfile||{}),
+      coins:Number.isFinite(Number(p.coins))?Number(p.coins):vdsAccountProfile?.coins,
+      xp:Number.isFinite(Number(p.xp))?Number(p.xp):vdsAccountProfile?.xp,
+      manager_level:Number.isFinite(Number(p.manager_level))?Number(p.manager_level):vdsAccountProfile?.manager_level,
+      matches_played:Number.isFinite(Number(p.matches_played))?Number(p.matches_played):vdsAccountProfile?.matches_played,
+      wins:Number.isFinite(Number(p.wins))?Number(p.wins):vdsAccountProfile?.wins,
+      losses:Number.isFinite(Number(p.losses))?Number(p.losses):vdsAccountProfile?.losses,
+      total_coins_earned:Number.isFinite(Number(p.total_coins_earned))?Number(p.total_coins_earned):vdsAccountProfile?.total_coins_earned
+    };
+
+    if(Number.isFinite(Number(data?.coins)))reward.coins=Number(data.coins);
+    if(Number.isFinite(Number(data?.xp)))reward.xp=Number(data.xp);
+    if(Number.isFinite(Number(data?.performance_coins)))reward.performanceCoins=Number(data.performance_coins);
+    if(Number.isFinite(Number(data?.chemistry_coins)))reward.chemistryCoins=Number(data.chemistry_coins);
+
+    ultimateTeamState.coins=Math.max(0,Number(vdsAccountProfile?.coins||0));
+    if(typeof vdsUpdateAccountUI==="function")vdsUpdateAccountUI();
+    if(typeof vdsRenderDailyProgress==="function")vdsRenderDailyProgress();
+    if(typeof renderUltimateTeam==="function")renderUltimateTeam();
+    aceUTLeagueState.cloudMatchId=null;
+    return {persisted:true,data};
   }catch(error){
-    console.warn("ACE League reward sync failed",error);
+    console.warn("ACE League server reward claim failed",error);
+    await vdsRefreshAccountProgression({loadPanels:true});
     return {persisted:false,error};
   }
 }
@@ -24608,6 +24881,137 @@ Object.assign(window,{
 })();
 </script>
 
+
+<script id="ace-live-ux-v11-2-script">
+(function(){
+  'use strict';
+  if(window.ACE_LIVE_UX_V11_2)return;
+  window.ACE_LIVE_UX_V11_2=true;
+
+  function openConditionPanel(){
+    const modal=document.getElementById('aceConditionModal');
+    if(!modal)return;
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    requestAnimationFrame(()=>modal.querySelector('.aceConditionClose')?.focus());
+  }
+
+  function makeRibbonInteractive(){
+    const ribbon=document.getElementById('aceConditionRibbon');
+    if(!ribbon || ribbon.dataset.aceInteractive==='1')return;
+    ribbon.dataset.aceInteractive='1';
+    ribbon.setAttribute('role','button');
+    ribbon.setAttribute('tabindex','0');
+    ribbon.setAttribute('aria-label','Open player condition and fatigue');
+    ribbon.title='Open player condition and fatigue';
+    ribbon.addEventListener('click',openConditionPanel);
+    ribbon.addEventListener('keydown',e=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        openConditionPanel();
+      }
+    });
+  }
+
+  function arrangeLiveMatch(){
+    const card=document.getElementById('liveMatchCard');
+    if(!card || !card.classList.contains('aceLiveUx'))return;
+
+    const arena=card.querySelector('.liveArena');
+    const command=card.querySelector('.aceLiveCommandBar');
+    const ribbon=document.getElementById('aceConditionRibbon');
+    const body=card.querySelector('.aceLiveBody');
+    const court=card.querySelector('.aceCourtColumn');
+    const side=card.querySelector('.aceSideColumn');
+    const narration=card.querySelector('.aceNarrationPanel');
+    if(!arena || !command || !ribbon || !body || !court || !narration)return;
+
+    const mobile=window.matchMedia && window.matchMedia('(max-width:760px)').matches;
+
+    if(mobile){
+      /* Make the actual interaction order match the visual priority:
+         arena -> body(court) -> command -> ribbon -> narration.
+         SideColumn uses display:contents on mobile, so narration can still be
+         ordered inside the body after controls are inserted. */
+      if(command.parentElement!==body){
+        court.after(command);
+      }
+      if(ribbon.parentElement!==body){
+        command.after(ribbon);
+      } else if(ribbon.previousElementSibling!==command){
+        command.after(ribbon);
+      }
+
+      /* Narration lives in the side column; moving it after the ribbon directly
+         gives the phone a simple, linear reading order. */
+      if(narration.parentElement!==body){
+        ribbon.after(narration);
+      } else if(narration.previousElementSibling!==ribbon){
+        ribbon.after(narration);
+      }
+    }else{
+      /* Restore broadcast desktop:
+         scoreboard -> condition -> commands -> court + right commentary rail. */
+      if(ribbon.parentElement!==card || ribbon.previousElementSibling!==arena){
+        arena.after(ribbon);
+      }
+      if(command.parentElement!==card || command.previousElementSibling!==ribbon){
+        ribbon.after(command);
+      }
+      if(body.parentElement!==card || body.previousElementSibling!==command){
+        command.after(body);
+      }
+      if(side && narration.parentElement!==side){
+        side.prepend(narration);
+      }
+    }
+
+    makeRibbonInteractive();
+  }
+
+  function install(){
+    /* B11.1 creates the condition UI just after DOM startup. Give it one frame. */
+    requestAnimationFrame(()=>{
+      makeRibbonInteractive();
+      arrangeLiveMatch();
+    });
+
+    const mq=window.matchMedia?.('(max-width:760px)');
+    if(mq){
+      const sync=()=>requestAnimationFrame(arrangeLiveMatch);
+      try{mq.addEventListener('change',sync);}catch(e){try{mq.addListener(sync);}catch(_){}}
+    }
+
+    /* The live UI can be rebuilt after setup/new matches. Keep the flow resilient. */
+    const card=document.getElementById('liveMatchCard');
+    if(card){
+      let queued=false;
+      const observer=new MutationObserver(()=>{
+        if(queued)return;
+        queued=true;
+        requestAnimationFrame(()=>{
+          queued=false;
+          makeRibbonInteractive();
+          arrangeLiveMatch();
+        });
+      });
+      observer.observe(card,{childList:true,subtree:true});
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(install,20),{once:true});
+  }else{
+    setTimeout(install,20);
+  }
+})();
+</script>
+
+
+<script id="ACE_B12_CLOUD_UT_MARKER">
+console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, squad, packs and AI rewards are account-backed.");
+</script>
 </body>
 </html>
 
