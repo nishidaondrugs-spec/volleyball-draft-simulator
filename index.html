@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B10.0 Stage 5A Ultimate Team ACE League AI">
+  <meta name="ace-build" content="B10.0 Stage 5A.1 Ultimate Team Playstyle Fix">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -23005,6 +23005,175 @@ Object.assign(window,{
   aceUTLeagueManageSquad
 });
 </script>
+
+
+<style id="ACE_B10_STAGE5A1_UT_PLAYSTYLE_FIX">
+/*
+  Stage 1B intentionally scoped the canonical Playstyle capsule CSS to the
+  Player Database / Mini Draft. Ultimate Team still renders the same canonical
+  .vdsCardPlaystyles markup, but had no matching capsule styling — so Pack
+  Reveal / My Club showed plain emoji + text.
+
+  These rules restore the same premium boxed treatment throughout UT.
+*/
+#ultimate .fifaPlayerCard .vdsCardPlaystyles,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyles,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyles,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyles{
+  position:relative!important;
+  z-index:46!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:4px!important;
+  width:calc(100% - 18px)!important;
+  height:auto!important;
+  min-height:22px!important;
+  max-height:none!important;
+  margin:5px auto 3px!important;
+  padding:0!important;
+  overflow:visible!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+#ultimate .fifaPlayerCard .vdsCardPlaystyle,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyle,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyle,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyle{
+  position:relative!important;
+  z-index:47!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:22px!important;
+  height:22px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border-radius:6px!important;
+  border:1px solid rgba(230,197,86,.58)!important;
+  background:linear-gradient(180deg,rgba(22,25,28,.96),rgba(5,10,13,.96))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 2px 5px rgba(0,0,0,.30)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+#ultimate .fifaPlayerCard .vdsCardPlaystyle.defense,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyle.defense,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyle.defense,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyle.defense{
+  border-color:rgba(104,197,244,.58)!important;
+  background:linear-gradient(180deg,rgba(10,29,41,.96),rgba(4,13,20,.96))!important;
+}
+
+#ultimate .fifaPlayerCard .vdsCardPlaystyleEmoji,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyleEmoji,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyleEmoji,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyleEmoji{
+  flex:0 0 auto!important;
+  display:grid!important;
+  place-items:center!important;
+  width:14px!important;
+  height:14px!important;
+  font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:9px!important;
+  line-height:1!important;
+  font-weight:400!important;
+}
+
+#ultimate .fifaPlayerCard .vdsCardPlaystyleLabel,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyleLabel,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyleLabel,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyleLabel{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#f2e8be!important;
+  font-size:5.2px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+}
+
+#ultimate .fifaPlayerCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel{
+  color:#daf3ff!important;
+}
+
+/* A one-Playstyle card remains a deliberate centred pill instead of a huge bar. */
+#ultimate .fifaPlayerCard .vdsCardPlaystyle:only-child,
+.utRevealOverlay .aceUTRevealCard .vdsCardPlaystyle:only-child,
+.vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyle:only-child,
+.vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyle:only-child{
+  grid-column:1 / -1!important;
+  width:55%!important;
+  justify-self:center!important;
+}
+
+/* The pack reveal hides the Playstyle section until the CLUB/final reveal step.
+   Preserve that reveal choreography while making the boxes themselves visible. */
+.utRevealOverlay:not(.clubOn) .aceUTRevealCard .revealPlaystyles{
+  opacity:0!important;
+}
+.utRevealOverlay.clubOn .aceUTRevealCard .revealPlaystyles{
+  opacity:1!important;
+}
+
+/* Avoid the labels dropping to a second line on the smaller phone reveal card. */
+@media(max-width:760px){
+  #ultimate .fifaPlayerCard .vdsCardPlaystyles,
+  .utRevealOverlay .aceUTRevealCard .vdsCardPlaystyles,
+  .vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyles,
+  .vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyles{
+    width:calc(100% - 12px)!important;
+    gap:3px!important;
+    min-height:20px!important;
+    margin:4px auto 2px!important;
+  }
+
+  #ultimate .fifaPlayerCard .vdsCardPlaystyle,
+  .utRevealOverlay .aceUTRevealCard .vdsCardPlaystyle,
+  .vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyle,
+  .vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyle{
+    min-height:20px!important;
+    height:20px!important;
+    padding:3px 5px!important;
+    border-radius:5px!important;
+    gap:3px!important;
+  }
+
+  #ultimate .fifaPlayerCard .vdsCardPlaystyleEmoji,
+  .utRevealOverlay .aceUTRevealCard .vdsCardPlaystyleEmoji,
+  .vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyleEmoji,
+  .vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyleEmoji{
+    width:12px!important;
+    height:12px!important;
+    font-size:8px!important;
+  }
+
+  #ultimate .fifaPlayerCard .vdsCardPlaystyleLabel,
+  .utRevealOverlay .aceUTRevealCard .vdsCardPlaystyleLabel,
+  .vdsStarterOverlay .fifaPlayerCard .vdsCardPlaystyleLabel,
+  .vdsUTEntryOverlay .fifaPlayerCard .vdsCardPlaystyleLabel{
+    font-size:4.7px!important;
+  }
+}
+</style>
 
 </body>
 </html>
