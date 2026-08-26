@@ -4813,6 +4813,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
+  <meta name="ace-build" content="B12.1 Pack Return Flow">
+  <meta name="ace-build" content="B12.2 Cloud Rating Fix">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -18545,7 +18547,8 @@ function vdsCloudUTCardObject(row,{rarity=null,rating=null}={}){
   if(!player)return null;
   const master=overall(player);
   const tier=rarity||utPlayerTier(player);
-  const mainRating=Number.isFinite(Number(rating))?Math.round(Number(rating)):utRatingForRarity(tier,player);
+  const hasExplicitRating=rating!==null && rating!==undefined && rating!=="" && Number.isFinite(Number(rating));
+  const mainRating=hasExplicitRating?Math.round(Number(rating)):utRatingForRarity(tier,player);
   return {
     id:`ut_${row.id}`,
     cloudCardId:String(row.id),
@@ -20529,8 +20532,12 @@ document.getElementById("aceRevealAddSquad")?.addEventListener("click",()=>{
   aceCloseUltimateReveal("squad");
 });
 document.getElementById("aceRevealSendClub")?.addEventListener("click",()=>{
+  // B12.1: the pack card is already persisted to the authenticated user's
+  // cloud collection when the server completes the pack transaction.
+  // "Send to My Club" therefore closes the reveal back to the Pack Store
+  // instead of pulling the user away into My Club.
   renderUltimateTeam();
-  aceCloseUltimateReveal("club");
+  aceCloseUltimateReveal("packs");
 });
 
 
