@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B10.1 Setting Split">
+  <meta name="ace-build" content="B10.4 Mindset + Defence + Position Balance">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -6122,11 +6122,11 @@ function positionRatings(p){
   };
 
   const W={
-    OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:18,positioning:8,covering:6,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setting:2,mindset:6},
-    OP:{accuracy:18,hittingPower:18,creativity:4,serveReceive:4,positioning:4,covering:6,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:10,setting:2,mindset:7},
-    M:{accuracy:11,hittingPower:11,creativity:3,serveReceive:1,positioning:5,covering:4,workRate:4,vertical:13,speed:5,reactionTime:8,service:5,blocking:22,setting:1,mindset:7},
-    S:{accuracy:4,hittingPower:7,creativity:6,serveReceive:6,positioning:7,covering:5,workRate:5,vertical:6,speed:5,reactionTime:9,service:6,blocking:7,setting:20,mindset:7},
-    L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:30,positioning:15,covering:15,workRate:6,vertical:2,speed:6,reactionTime:10,service:2,blocking:0,setting:5,mindset:7}
+    OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:20,positioning:9,covering:5,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setting:2,mindset:4},
+    OP:{accuracy:19,hittingPower:19,creativity:4,serveReceive:4,positioning:4,covering:4,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:12,setting:2,mindset:5},
+    M:{accuracy:11,hittingPower:11,creativity:2,serveReceive:1,positioning:6,covering:3,workRate:4,vertical:14,speed:5,reactionTime:7,service:5,blocking:25,setting:1,mindset:5},
+    S:{accuracy:3,hittingPower:5,creativity:4,serveReceive:5,positioning:10,covering:3,workRate:4,vertical:5,speed:4,reactionTime:10,service:6,blocking:7,setting:30,mindset:4},
+    L:{accuracy:0,hittingPower:0,creativity:1,serveReceive:36,positioning:18,covering:12,workRate:5,vertical:1,speed:8,reactionTime:10,service:1,blocking:0,setting:4,mindset:4}
   };
 
   const calc=(weights)=>{
@@ -8996,19 +8996,19 @@ function rallyPlayers(attackingTeam,defendingTeam){
 
   const setter=designatedSetter(attackingTeam);
   const passPool=receptionCandidates(attackingTeam,atkRot);
-  const passer=weightedPick(passPool.length?passPool:attackingTeam,p=>p.serveReceive*.45+p.positioning*.25+p.reactionTime*.2+p.covering*.1) || attackingTeam[0];
+  const passer=weightedPick(passPool.length?passPool:attackingTeam,p=>matchStat(p,"serveReceive")*.50+p.positioning*.25+matchStat(p,"reactionTime")*.15+p.covering*.10) || attackingTeam[0];
 
   let attackers=legalAttackers(attackingTeam,atkRot);
   if(!attackers.length) attackers=attackingTeam.filter(p=>p.name!==setter.name && p.assignedRole!=="L");
   const attacker=weightedPick(attackers,p=>{
     const z=sixOneZones(attackingTeam,atkRot)[p.name];
     const backPenalty=z?.back?.78:1;
-    return (p.accuracy*.32+p.hittingPower*.30+p.creativity*.18+p.vertical*.12+p.mindset*.08)*backPenalty;
+    return (matchStat(p,"accuracy")*.32+matchStat(p,"hittingPower")*.30+p.creativity*.18+matchStat(p,"vertical")*.12+p.mindset*.08)*backPenalty;
   }) || attackers[0] || attackingTeam[0];
 
   const formation=buildBlockFormation(defendingTeam,defRot,attacker);
   const legalFrontBlockers=legalBlockers(defendingTeam,defRot);
-  const blocker=formation.blockers[0] || weightedPick(legalFrontBlockers,p=>p.blocking) || null;
+  const blocker=formation.blockers[0] || weightedPick(legalFrontBlockers,p=>matchStat(p,"blocking")) || null;
 
   const defender=weightedPick(defendingTeam,p=>{
     const z=effectiveSixOneZones(defendingTeam,defRot)[p.name],backBoost=z?.back?1.18:.82;
@@ -9016,7 +9016,7 @@ function rallyPlayers(attackingTeam,defendingTeam){
     if(defenseStyleId(p)==="chaser")styleRange+=8;
     if(defenseStyleId(p)==="court_reader")styleRange+=4;
     if(defenseStyleId(p)==="deep_court_guardian"&&z?.back)styleRange+=6;
-    return ((p.serveReceive*.16+p.covering*.28+p.reactionTime*.26+p.speed*.20+p.workRate*.10)+styleRange)*backBoost;
+    return ((matchStat(p,"serveReceive")*.22+p.positioning*.24+matchStat(p,"reactionTime")*.22+matchStat(p,"speed")*.20+p.covering*.07+p.workRate*.05)+styleRange)*backBoost;
   });
 
   return {passer,setter,attacker,blocker,defender,atkRot,defRot,
@@ -9027,6 +9027,12 @@ function rallyPlayers(attackingTeam,defendingTeam){
 function pressureFactor(s){
   if(!s) return 1;
   const max=Math.max(s.p1,s.p2), diff=Math.abs(s.p1-s.p2);
+  const target=Number(s.target||25);
+  if(target<=15){
+    if(max>=13 && diff<=2) return 1.35;
+    if(max>=11 && diff<=3) return 1.15;
+    return 1;
+  }
   if(max>=23 && diff<=2) return 1.35;
   if(max>=20 && diff<=3) return 1.15;
   return 1;
@@ -9055,7 +9061,7 @@ function maybeRallyError(attackingTeam, defendingTeam){
 
   // Reception errors: serve receive, positioning, reaction and mindset.
   const receiver=x.passer;
-  const receiveControl=receiver.serveReceive*.52+receiver.positioning*.23+receiver.reactionTime*.20+receiver.mindset*.05;
+  const receiveControl=matchStat(receiver,"serveReceive")*.60+receiver.positioning*.23+matchStat(receiver,"reactionTime")*.12+receiver.mindset*.05;
   events.push({
     type:"Reception",
     player:receiver,
@@ -9065,7 +9071,7 @@ function maybeRallyError(attackingTeam, defendingTeam){
 
   // Setting errors: setting, creativity, reaction, mindset.
   const setter=x.setter;
-  const setControl=setter.setTechnique*.72+setter.reactionTime*.15+setter.mindset*.08+setter.positioning*.05;
+  const setControl=matchStat(setter,"setTechnique")*.72+matchStat(setter,"reactionTime")*.15+setter.mindset*.08+setter.positioning*.05;
   events.push({
     type:"Setting",
     player:setter,
@@ -9075,9 +9081,9 @@ function maybeRallyError(attackingTeam, defendingTeam){
 
   // Attack errors: accuracy is the main factor, with mindset and set quality.
   const attacker=x.attacker;
-  const setQuality=setter.setTechnique*.48+setter.setCreativity*.32+setter.positioning*.08+setter.reactionTime*.07+setter.mindset*.05;
-  const attackControl=attacker.accuracy*.50+attacker.mindset*.15+setQuality*.15+
-                      (100-x.blocker.blocking)*.10+attacker.reactionTime*.10;
+  const setQuality=matchStat(setter,"setTechnique")*.48+setter.setCreativity*.32+setter.positioning*.08+matchStat(setter,"reactionTime")*.07+setter.mindset*.05;
+  const attackControl=matchStat(attacker,"accuracy")*.50+attacker.mindset*.15+setQuality*.15+
+                      (100-matchStat(x.blocker,"blocking"))*.10+matchStat(attacker,"reactionTime")*.10;
   events.push({
     type:"Attack",
     player:attacker,
@@ -9091,8 +9097,8 @@ function maybeRallyError(attackingTeam, defendingTeam){
   const netCandidates=attackingTeam.filter(p=>["OH","OP","M","S"].includes(p.assignedRole));
   const netPlayer=netCandidates.length?netCandidates[Math.floor(Math.random()*netCandidates.length)]:attacker;
   const exposure=netPlayer.assignedRole==="M"?1.35:(netPlayer.assignedRole==="OH"||netPlayer.assignedRole==="OP"?1.05:.75);
-  const netControl=netPlayer.positioning*.35+netPlayer.reactionTime*.25+netPlayer.mindset*.20+
-                   netPlayer.workRate*.10+netPlayer.vertical*.10;
+  const netControl=netPlayer.positioning*.35+matchStat(netPlayer,"reactionTime")*.25+netPlayer.mindset*.20+
+                   netPlayer.workRate*.10+matchStat(netPlayer,"vertical")*.10;
   events.push({
     type:"Net",
     player:netPlayer,
@@ -9126,6 +9132,7 @@ function recordErrorDetail(playerName,type){
   if(!liveState.errorDetails) liveState.errorDetails={};
   if(!liveState.errorDetails[playerName]) liveState.errorDetails[playerName]={Attack:0,Serve:0,Reception:0,Setting:0,Net:0,"Ball Handling":0};
   liveState.errorDetails[playerName][type]=(liveState.errorDetails[playerName][type]||0)+1;
+  registerMindsetError(playerName,type);
 }
 
 
@@ -9182,11 +9189,36 @@ function defensiveDigModifiers(defender,attacker,shotInfo){
  const style=defenseStyleId(defender),shot=shotInfo?.shot?.id||"",atkStyle=attackStyleId(attacker);
  const soft=["tip","roll"].includes(shot),deep=["deep_corner","deep_push"].includes(shot);
  let dig=0,control=0;
- if(style==="oobleck_body"){if(!soft&&Number(attacker?.hittingPower||0)>=75){dig+=13;control+=5;}if(soft)dig-=10;}
+ if(style==="oobleck_body"){if(!soft&&matchStat(attacker,"hittingPower")>=75){dig+=13;control+=5;}if(soft)dig-=10;}
  if(style==="court_reader"){dig+=8;control+=4;if(atkStyle==="shot_maker"||Number(attacker?.creativity||0)>=85){dig-=7;control-=3;}}
  if(style==="chaser"){if(soft||deep||shot==="cut"){dig+=12;control-=3;}else dig+=5;}
  if(style==="deep_court_guardian"){if(deep||atkStyle==="high_arc_hitter"){dig+=15;control+=5;}if(shot==="tip")dig-=12;}
  return {dig,control};
+}
+
+function floorDefenseSkill(p,shotInfo=null){
+  if(!p)return 0;
+  const shot=shotInfo?.shot?.id||shotInfo?.shotId||"";
+  const rescue=["tip","roll","cut"].includes(shot);
+  if(rescue){
+    // Short / awkward rescue balls are where Covering earns its identity.
+    return Number(p.covering||0)*.25 + Number(p.positioning||0)*.22 +
+           matchStat(p,"reactionTime")*.22 + matchStat(p,"speed")*.18 +
+           matchStat(p,"serveReceive")*.08 + Number(p.workRate||0)*.05 +
+           mindsetSituationalAdjustment(p,3,2);
+  }
+  // Normal hard-driven floor defence is primarily reading, movement and platform skill.
+  return matchStat(p,"serveReceive")*.23 + Number(p.positioning||0)*.24 +
+         matchStat(p,"reactionTime")*.24 + matchStat(p,"speed")*.20 +
+         Number(p.covering||0)*.05 + Number(p.workRate||0)*.04 +
+         mindsetSituationalAdjustment(p,3,2);
+}
+
+function floorDefenseSelectionSkill(p){
+  if(!p)return 0;
+  return matchStat(p,"serveReceive")*.22 + Number(p.positioning||0)*.28 +
+         matchStat(p,"reactionTime")*.24 + matchStat(p,"speed")*.20 +
+         Number(p.covering||0)*.06;
 }
 
 
@@ -9517,8 +9549,64 @@ function attackStyleModifiers(p,ctx={}){
 }
 function isPressureAttack(){
   if(!liveState)return false;
-  const p1=liveState.p1||0,p2=liveState.p2||0;
-  return (p1>=20 || p2>=20) && Math.abs(p1-p2)<=3;
+  const p1=Number(liveState.p1||0),p2=Number(liveState.p2||0);
+  const target=Number(liveState.target||25);
+  const threshold=target<=15?11:20;
+  return (p1>=threshold || p2>=threshold) && Math.abs(p1-p2)<=3;
+}
+
+/* B10.4 — Mindset is situational, not a hidden technical stat.
+   Normal rallies are driven by volleyball skills. Mindset matters when the score
+   tightens and in the rallies after a player makes a clear error. */
+function mindsetState(playerOrName){
+  if(!liveState)return {hangover:0,justErrored:false};
+  liveState.mentalState=liveState.mentalState||{};
+  const name=typeof playerOrName==="string"?playerOrName:playerOrName?.name;
+  if(!name)return {hangover:0,justErrored:false};
+  if(!liveState.mentalState[name])liveState.mentalState[name]={hangover:0,justErrored:false,lastError:""};
+  return liveState.mentalState[name];
+}
+function registerMindsetError(playerOrName,type="Error"){
+  if(!liveState)return;
+  const name=typeof playerOrName==="string"?playerOrName:playerOrName?.name;
+  const p=[...(liveState.a||[]),...(liveState.b||[])].find(x=>x.name===name);
+  if(!p)return;
+  const m=clamp(Number(p.mindset||50),0,100);
+  const state=mindsetState(name);
+  state.hangover=m>=90?0:m>=75?1:m>=60?2:3;
+  state.justErrored=true;
+  state.lastError=type;
+}
+function advanceMindsetState(team){
+  (team||[]).forEach(p=>{
+    const state=mindsetState(p);
+    if(state.justErrored){state.justErrored=false;return;}
+    if(state.hangover>0)state.hangover--;
+  });
+}
+function mindsetSituationalAdjustment(p,pressureScale=5,hangoverScale=4){
+  if(!p)return 0;
+  const m=clamp(Number(p.mindset||50),0,100);
+  let adj=0;
+  if(isPressureAttack())adj+=((m-50)/50)*pressureScale;
+  const state=mindsetState(p);
+  if(state.hangover>0){
+    const vulnerability=clamp((75-m)/75,0,1);
+    adj-=vulnerability*hangoverScale*Math.min(1.5,state.hangover);
+  }
+  return adj;
+}
+function mindsetErrorMultiplier(p){
+  if(!p)return 1;
+  const m=clamp(Number(p.mindset||50),0,100);
+  let mult=1;
+  if(isPressureAttack())mult*=1-((m-50)/50)*.10;
+  const state=mindsetState(p);
+  if(state.hangover>0){
+    const vulnerability=clamp((75-m)/75,0,1);
+    mult*=1+vulnerability*.06*Math.min(3,state.hangover);
+  }
+  return clamp(mult,.86,1.18);
 }
 
 function chooseAttackShot(p, blocker, context={}){
@@ -9530,7 +9618,7 @@ function chooseAttackShot(p, blocker, context={}){
   // remove it from the available shot pool for this swing.
   const allShots=availableShots(p);
   const shots=hasBlock ? allShots : allShots.filter(s=>s.id!=="block_out");
-  const blockStrength=context.blockStrength || (blocker ? Number(blocker.blocking||0) : 0);
+  const blockStrength=context.blockStrength || (blocker ? matchStat(blocker,"blocking") : 0);
 
   let shot=weightedStyleShotChoice(p,shots,{
     ...context,
@@ -9566,8 +9654,8 @@ function chooseAttackShot(p, blocker, context={}){
 
   // Base shot execution uses that shot's own weighting.
   const execution=
-    Number(p.accuracy||0)*Number(shot.accuracyWeight||.4)*styleMods.accuracyMult +
-    Number(p.hittingPower||0)*Number(shot.powerWeight||.3)*styleMods.powerMult +
+    matchStat(p,"accuracy")*Number(shot.accuracyWeight||.4)*styleMods.accuracyMult +
+    matchStat(p,"hittingPower")*Number(shot.powerWeight||.3)*styleMods.powerMult +
     Number(p.creativity||0)*Number(shot.creativityWeight||.3);
 
   return {
@@ -9623,11 +9711,10 @@ function chooseServeType(server){
   if(preferred!=="auto" && VDS_SERVE_TYPES[preferred])return VDS_SERVE_TYPES[preferred];
 
   const service=Number(server?.service||0);
-  const physical=Number(categoryRatings(server)?.physical||0);
-  const mindset=Number(server?.mindset||0);
+  const physical=matchPhysicalRating(server);
   const weights=[
-    {v:VDS_SERVE_TYPES.standing_float,w:Math.max(8,52-service*.38+mindset*.08)},
-    {v:VDS_SERVE_TYPES.jump_float,w:Math.max(16,28+service*.18+mindset*.08)},
+    {v:VDS_SERVE_TYPES.standing_float,w:Math.max(8,52-service*.38)},
+    {v:VDS_SERVE_TYPES.jump_float,w:Math.max(16,28+service*.18)},
     {v:VDS_SERVE_TYPES.jump_topspin,w:Math.max(3,(service-55)*.70+(physical-55)*.38)}
   ];
   const total=weights.reduce((s,x)=>s+x.w,0);
@@ -9638,16 +9725,17 @@ function chooseServeType(server){
 
 function serveErrorProbability(server,serveType){
   const t=serveType||VDS_SERVE_TYPES.jump_float;
-  const control=Number(server.service||0)*.86+Number(server.mindset||0)*.14;
-  return clamp(t.errorBase+(72-control)*.00075,.012,.105);
+  const control=Number(server.service||0)+mindsetSituationalAdjustment(server,5,4);
+  return clamp((t.errorBase+(72-control)*.00075)*mindsetErrorMultiplier(server),.012,.115);
 }
 
 function calculatePassQuality(server, passer, serveType=null){
   const t=serveType||VDS_SERVE_TYPES.jump_float;
-  const serverPhysical=categoryRatings(server).physical;
-  const servePressure=server.service*.72+server.mindset*.12+serverPhysical*.06+Number(t.pressure||0);
+  const serverPhysical=matchPhysicalRating(server);
+  const servePressure=server.service*.78+serverPhysical*.12+Number(t.pressure||0);
 
-  let receiveSkill=passer.serveReceive*.58+passer.positioning*.20+passer.reactionTime*.17+passer.mindset*.05;
+  let receiveSkill=matchStat(passer,"serveReceive")*.64+passer.positioning*.22+matchStat(passer,"reactionTime")*.14+
+                   mindsetSituationalAdjustment(passer,4,3);
   let reliableBonus=0;
   if(defenseStyleId(passer)==="reliable_receiver"){receiveSkill+=8;reliableBonus=6;}
   const edge=receiveSkill-servePressure;
@@ -9700,22 +9788,23 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
   }
 
   const defBlockers=legalBlockers(defendingTeam,defRotation);
-  const setterIQ=Number(setter.setTechnique||0)*.35+
-                 Number(setter.setCreativity||0)*.45+
-                 Number(setter.mindset||0)*.20;
+  const setterIQ=matchStat(setter,"setTechnique")*.38+
+                 Number(setter.setCreativity||0)*.52+
+                 Number(setter.positioning||0)*.10+
+                 mindsetSituationalAdjustment(setter,6,3);
 
   const scored=options.map(p=>{
     const z=zones[p.name];
     const attackBase=
-      Number(p.accuracy||0)*.27+
-      Number(p.hittingPower||0)*.25+
-      Number(p.creativity||0)*.16+
-      Number(p.vertical||0)*.12+
-      Number(p.mindset||0)*.10+
+      matchStat(p,"accuracy")*.29+
+      matchStat(p,"hittingPower")*.27+
+      Number(p.creativity||0)*.20+
+      matchStat(p,"vertical")*.14+
+      mindsetSituationalAdjustment(p,4,2)+
       8;
 
     const likelyBlock=defBlockers.length
-      ? defBlockers.reduce((s,b)=>s+(Number(b.blocking||0)*.55+Number(b.vertical||0)*.25+Number(b.reactionTime||0)*.20),0)/defBlockers.length
+      ? defBlockers.reduce((s,b)=>s+(matchStat(b,"blocking")*.60+matchStat(b,"vertical")*.25+matchStat(b,"reactionTime")*.15),0)/defBlockers.length
       : 20;
 
     let score=attackBase-likelyBlock*.20;
@@ -9820,11 +9909,11 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
 }
 function calculateSetQuality(setter, passQuality){
   const raw =
-    setter.setTechnique*.48 +
+    matchStat(setter,"setTechnique")*.52 +
     setter.setCreativity*.32 +
     setter.positioning*.08 +
-    setter.reactionTime*.07 +
-    setter.mindset*.05;
+    matchStat(setter,"reactionTime")*.08 +
+    mindsetSituationalAdjustment(setter,5,4);
 
   // Reception establishes how difficult the second contact is, but setter
   // ability remains important. Good/perfect passes should almost never become
@@ -9899,13 +9988,13 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   }
 
   blockers=[...blockers].sort((a,b)=>{
-    const ra=b.positioning*.45+b.reactionTime*.35+b.blocking*.20;
-    const rb=a.positioning*.45+a.reactionTime*.35+a.blocking*.20;
+    const ra=b.positioning*.45+matchStat(b,"reactionTime")*.25+matchStat(b,"blocking")*.30;
+    const rb=a.positioning*.45+matchStat(a,"reactionTime")*.25+matchStat(a,"blocking")*.30;
     return ra-rb;
   });
 
   const lead=blockers[0];
-  const read=lead.positioning*.50+lead.reactionTime*.35+lead.blocking*.15;
+  const read=lead.positioning*.50+matchStat(lead,"reactionTime")*.25+matchStat(lead,"blocking")*.25;
 
   const passGrade=Number(context.passGrade??2);
   const setterIQ=Number(context.setterIQ??65);
@@ -9935,7 +10024,7 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   if(isBackRow) closePenalty-=4;
 
   const helpers=blockers.slice(1).filter(p=>{
-    const close=p.speed*.40+p.workRate*.25+p.reactionTime*.20+p.positioning*.15;
+    const close=matchStat(p,"speed")*.40+p.workRate*.25+matchStat(p,"reactionTime")*.15+p.positioning*.20;
     const threshold=74 + closePenalty;
     return close + Math.random()*16 > threshold;
   });
@@ -9980,11 +10069,11 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
     "TRIPLE BLOCK";
 
   const close=chosen.reduce(
-    (s,p)=>s+p.speed*.40+p.workRate*.25+p.reactionTime*.20+p.positioning*.15,0
+    (s,p)=>s+matchStat(p,"speed")*.40+p.workRate*.25+matchStat(p,"reactionTime")*.15+p.positioning*.20,0
   )/chosen.length;
 
   let quality=chosen.reduce(
-    (s,p)=>s+p.blocking*.45+p.vertical*.30+p.positioning*.15+p.reactionTime*.10,0
+    (s,p)=>s+matchStat(p,"blocking")*.50+matchStat(p,"vertical")*.25+p.positioning*.15+matchStat(p,"reactionTime")*.10,0
   )/chosen.length;
 
   // An organised defence has a small quality bonus against a telegraphed OOS ball.
@@ -9997,8 +10086,8 @@ function chooseBlockCoverer(attackingTeam, attacker){
   const candidates=attackingTeam.filter(p=>p && p.name!==attacker?.name);
 
   return weightedPick(candidates,p=>
-    Number(p.covering||0)*.48 +
-    Number(p.reactionTime||0)*.27 +
+    Number(p.covering||0)*.60 +
+    matchStat(p,"reactionTime")*.15 +
     Number(p.positioning||0)*.20 +
     Number(p.workRate||0)*.05
   );
@@ -10009,14 +10098,15 @@ function calculateBlockCover(attackingTeam, attacker, blocker, shotInfo){
   if(!coverer)return {covered:false,chance:0,coverer:null};
 
   const coverSkill=
-    Number(coverer.covering||0)*.50 +
-    Number(coverer.reactionTime||0)*.25 +
-    Number(coverer.positioning||0)*.20 +
-    Number(coverer.workRate||0)*.05;
+    Number(coverer.covering||0)*.62 +
+    matchStat(coverer,"reactionTime")*.15 +
+    Number(coverer.positioning||0)*.18 +
+    Number(coverer.workRate||0)*.05 +
+    mindsetSituationalAdjustment(coverer,3,2);
 
   // Harder swings rebound off a clean stuff block faster and are harder to recycle.
   // Low-power / high-arc / controlled attacks are easier for teammates to cover.
-  let effectivePower=Number(attacker.hittingPower||0);
+  let effectivePower=matchStat(attacker,"hittingPower");
 
   if(attackStyleId(attacker)==="high_arc_hitter"){
     effectivePower*=0.62;
@@ -10028,8 +10118,8 @@ function calculateBlockCover(attackingTeam, attacker, blocker, shotInfo){
 
   // Stronger blocker can also create a more severe downward rebound.
   const blockForce=
-    Number(blocker?.blocking||0)*.45 +
-    Number(blocker?.vertical||0)*.25;
+    matchStat(blocker,"blocking")*.50 +
+    matchStat(blocker,"vertical")*.20;
 
   const reboundDifficulty=
     effectivePower*.62 +
@@ -10137,7 +10227,7 @@ function defenderForShot(defendingTeam,defRot,attacker,shotInfo){
       if(target.depth==="deep"||target.depth==="very_deep")reach+=34;
       if(target.depth==="short")reach-=28;
     }
-    const skill=p.covering*.28+p.reactionTime*.27+p.speed*.27+p.serveReceive*.18;
+    const skill=floorDefenseSelectionSkill(p);
     return Math.max(1,(skill+reach)*.5);
   });
 }
@@ -10171,7 +10261,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   // The defending side is treated as the serving side for this phase of the rally.
   const server=servingPlayer(defendingTeam,defRot);
   const passPool=receptionCandidates(attackingTeam,atkRot);
-  const passer=weightedPick(passPool.length?passPool:attackingTeam,p=>p.serveReceive*.50+p.positioning*.22+p.reactionTime*.18+p.mindset*.10);
+  const passer=weightedPick(passPool.length?passPool:attackingTeam,p=>matchStat(p,"serveReceive")*.60+p.positioning*.25+matchStat(p,"reactionTime")*.15);
   const passQuality=calculatePassQuality(server,passer,serveType);
 
   // Grade 0 is a direct reception failure.
@@ -10205,17 +10295,17 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     outOfSystem
   });
   const legalFrontBlockers=legalBlockers(defendingTeam,defRot);
-  const blocker=formation.blockers[0] || weightedPick(legalFrontBlockers,p=>p.blocking) || null;
+  const blocker=formation.blockers[0] || weightedPick(legalFrontBlockers,p=>matchStat(p,"blocking")) || null;
 
   let defender=weightedPick(defendingTeam,p=>{
     const z=effectiveSixOneZones(defendingTeam,defRot)[p.name];
     const backBoost=z?.back?1.18:.82;
-    return (p.serveReceive*.16+p.covering*.28+p.reactionTime*.26+p.speed*.20+p.workRate*.10)*backBoost;
+    return (matchStat(p,"serveReceive")*.22+p.positioning*.24+matchStat(p,"reactionTime")*.22+matchStat(p,"speed")*.20+p.covering*.07+p.workRate*.05)*backBoost;
   });
 
   const shotInfo=chooseAttackShot(attacker,blocker,{
     blockers:formation?.blockers||[],
-    blockStrength:formation?.effective||blocker?.blocking||0,
+    blockStrength:formation?.effective||(blocker?matchStat(blocker,"blocking"):0),
     backRow:!!attackerZone?.back,
     pressure:isPressureAttack()
   });
@@ -10236,14 +10326,14 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     : " from the front row";
 
   const blockSkill=formation.quality || (blocker
-    ? blocker.blocking*.45+blocker.vertical*.25+blocker.reactionTime*.15+blocker.positioning*.15
+    ? matchStat(blocker,"blocking")*.50+matchStat(blocker,"vertical")*.25+matchStat(blocker,"reactionTime")*.10+blocker.positioning*.15
     : 0);
   const formationBonus=formation.type==="DOUBLE BLOCK"?7:formation.type==="TRIPLE BLOCK"?10:0;
   const blockChance=blocker
     ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/185,0.015,.34)
     : 0;
 
-  const digSkill=(defender.serveReceive*.15+defender.covering*.275+defender.reactionTime*.275+defender.speed*.20+defender.workRate*.10);
+  const digSkill=(floorDefenseSkill(defender,shotInfo));
   const defenseMods=defensiveDigModifiers(defender,attacker,shotInfo);
   const zonePenalty=shotDigDifficulty(attacker,shotInfo,defender,defRot,defendingTeam);
   const digChance=clamp((digSkill+styleMods.digBonus+defenseMods.dig-zonePenalty)/138,0.045,.68);
@@ -10258,7 +10348,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   }
 
   let attackQuality=clamp(
-    ((shotInfo.execution + attacker.mindset*.05 + attacker.vertical*.08) / 108) *
+    ((shotInfo.execution + matchStat(attacker,"vertical")*.08 + mindsetSituationalAdjustment(attacker,5,3)) / 108) *
     setQuality *
     Number(styleMods.qualityMult||1),
     .08,.99
@@ -10278,12 +10368,12 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   // Power/Fast Arm add risk; Precision/Soft Touch/High-Arc/Clutch can reduce it.
   let attackErrorChance=
     .105 -
-    Number(attacker.accuracy||0)*.00075 +
+    matchStat(attacker,"accuracy")*.00075 +
     (setGrade.grade===1 ? .035 : 0) +
     (outOfSystem ? .025 : 0) +
     Number(styleMods.error||0)/100;
 
-  attackErrorChance=clamp(attackErrorChance,.008,.17);
+  attackErrorChance=clamp(attackErrorChance*mindsetErrorMultiplier(attacker),.008,.18);
 
   let outcome="kill";
   let blockCover=null;
@@ -10344,13 +10434,13 @@ function transitionPassQuality(player,sourceType="dig"){
   if(!player)return {grade:0,score:0,label:"Uncontrolled Ball",modifier:.35,transition:true};
   let skill;
   if(sourceType==="block_cover"){
-    skill=Number(player.covering||0)*.38+Number(player.reactionTime||0)*.25+
-          Number(player.positioning||0)*.20+Number(player.workRate||0)*.12+
-          Number(player.mindset||0)*.05;
+    skill=Number(player.covering||0)*.55+matchStat(player,"reactionTime")*.15+
+          Number(player.positioning||0)*.22+Number(player.workRate||0)*.08+
+          mindsetSituationalAdjustment(player,3,2);
   }else{
-    skill=Number(player.serveReceive||0)*.15+Number(player.covering||0)*.30+
-          Number(player.reactionTime||0)*.27+Number(player.positioning||0)*.15+
-          Number(player.workRate||0)*.08+Number(player.mindset||0)*.05;
+    skill=matchStat(player,"serveReceive")*.18+Number(player.covering||0)*.28+
+          matchStat(player,"reactionTime")*.20+Number(player.positioning||0)*.24+
+          Number(player.workRate||0)*.10+mindsetSituationalAdjustment(player,3,2);
   }
   if(defenseStyleId(player)==="cover_specialist" && sourceType==="block_cover")skill+=8;
   if(defenseStyleId(player)==="court_reader")skill+=4;
@@ -10412,7 +10502,7 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   const formation=buildBlockFormation(defendingTeam,defRot,attacker,{
     passGrade:passQuality.grade,setterIQ:choice.setterIQ,backRow:!!attackerZone?.back,outOfSystem
   });
-  const blocker=formation.blockers[0] || weightedPick(defendingTeam.filter(p=>p.assignedRole!=="L"),p=>p.blocking);
+  const blocker=formation.blockers[0] || weightedPick(defendingTeam.filter(p=>p.assignedRole!=="L"),p=>matchStat(p,"blocking"));
   let defender=weightedPick(defendingTeam,p=>{
     const z=effectiveSixOneZones(defendingTeam,defRot)[p.name];
     const backBoost=z?.back?1.18:.82;
@@ -10420,11 +10510,11 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
     if(defenseStyleId(p)==="chaser")styleRange+=8;
     if(defenseStyleId(p)==="court_reader")styleRange+=4;
     if(defenseStyleId(p)==="deep_court_guardian"&&z?.back)styleRange+=6;
-    return ((p.serveReceive*.16+p.covering*.28+p.reactionTime*.26+p.speed*.20+p.workRate*.100)+styleRange)*backBoost;
+    return ((matchStat(p,"serveReceive")*.22+p.positioning*.24+matchStat(p,"reactionTime")*.22+matchStat(p,"speed")*.20+p.covering*.07+p.workRate*.05)+styleRange)*backBoost;
   });
 
   const shotInfo=chooseAttackShot(attacker,blocker,{
-    blockers:formation?.blockers||[],blockStrength:formation?.effective||blocker?.blocking||0,
+    blockers:formation?.blockers||[],blockStrength:formation?.effective||(blocker?matchStat(blocker,"blocking"):0),
     backRow:!!attackerZone?.back,pressure:isPressureAttack()
   });
   // Shot destination now drives defensive responsibility.
@@ -10444,21 +10534,21 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   let setQuality=setGrade.modifier;
   if(setGrade.grade===1 && styleMods.poorSetRelief)setQuality+=styleMods.poorSetRelief/100;
   let attackQuality=clamp(
-    ((shotInfo.execution+attacker.mindset*.10+attacker.vertical*.08)/108)*setQuality*Number(styleMods.qualityMult||1),
+    ((shotInfo.execution+matchStat(attacker,"vertical")*.08+mindsetSituationalAdjustment(attacker,5,3))/108)*setQuality*Number(styleMods.qualityMult||1),
     .08,.99
   );
   attackQuality=clamp(attackQuality+styleMods.kill/100+styleMods.backRow/100+styleMods.pressure/100,.06,.99);
 
-  let attackErrorChance=.105-Number(attacker.accuracy||0)*.00075+(setGrade.grade===1?.035:0)+(outOfSystem?.025:0)+Number(styleMods.error||0)/100;
-  attackErrorChance=clamp(attackErrorChance,.008,.17);
+  let attackErrorChance=.105-matchStat(attacker,"accuracy")*.00075+(setGrade.grade===1?.035:0)+(outOfSystem?.025:0)+Number(styleMods.error||0)/100;
+  attackErrorChance=clamp(attackErrorChance*mindsetErrorMultiplier(attacker),.008,.18);
   const blockSkill=formation.quality || (blocker
-    ? blocker.blocking*.45+blocker.vertical*.25+blocker.reactionTime*.15+blocker.positioning*.15
+    ? matchStat(blocker,"blocking")*.50+matchStat(blocker,"vertical")*.25+matchStat(blocker,"reactionTime")*.10+blocker.positioning*.15
     : 0);
   const formationBonus=formation.type==="DOUBLE BLOCK"?7:formation.type==="TRIPLE BLOCK"?10:0;
   const blockChance=blocker
     ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/185,.015,.34)
     : 0;
-  const digSkill=defender.serveReceive*.15+defender.covering*.275+defender.reactionTime*.275+defender.speed*.20+defender.workRate*.10;
+  const digSkill=floorDefenseSkill(defender,shotInfo);
   const defenseMods=defensiveDigModifiers(defender,attacker,shotInfo);
   const zonePenalty=shotDigDifficulty(attacker,shotInfo,defender,defRot,defendingTeam);
   const digChance=clamp((digSkill+styleMods.digBonus+defenseMods.dig-zonePenalty)/138,.045,.68);
@@ -10553,7 +10643,7 @@ function addActualEventStats(evt,attackingWon){
     if(evt.passQuality.grade===3) ps.perfectPasses++;
     if(evt.passQuality.grade===2) ps.goodPasses++;
     if(evt.passQuality.grade===1) ps.poorPasses++;
-    if(evt.passQuality.grade===0){ ps.receptionErrors++; ps.errors++; if(evt.server) ensure(evt.server.name).aces++; }
+    if(evt.passQuality.grade===0){ ps.receptionErrors++; ps.errors++; registerMindsetError(evt.passer,"Reception"); if(evt.server) ensure(evt.server.name).aces++; }
   }
   if(evt.outcome==="reception_error" || evt.outcome==="transition_error") return;
   if(evt.attacker){
@@ -10704,7 +10794,7 @@ function legalBlockers(team,rotation){
 
 function designatedSetter(team){
   return team.find(p=>p.assignedRole==="S") || team.slice().sort((a,b)=>
-    (b.setTechnique*.60+b.setCreativity*.40)-(a.setTechnique*.60+a.setCreativity*.40)
+    (matchStat(b,"setTechnique")*.60+b.setCreativity*.40)-(matchStat(a,"setTechnique")*.60+a.setCreativity*.40)
   )[0];
 }
 
@@ -10723,7 +10813,7 @@ function transitionSetter(team,firstContactPlayer,rotation,passQuality,sourceTyp
   const ranked=candidates.map(p=>{
     const z=Number(zones[p.name]?.zone)||6;
     const dist=zoneDistance(firstZone,z);
-    let score=100-dist*30+Number(p.setTechnique||0)*.09+Number(p.setCreativity||0)*.03+Number(p.reactionTime||0)*.08+Number(p.positioning||0)*.06;
+    let score=100-dist*30+matchStat(p,"setTechnique")*.09+Number(p.setCreativity||0)*.03+matchStat(p,"reactionTime")*.08+Number(p.positioning||0)*.06;
     if(p.assignedRole==="L")score+=6;
     if(defenseStyleId(p)==="chaser")score+=5;
     return {p,score};
@@ -11084,7 +11174,32 @@ async function animateRemoteRally(payload){
 }
 
 
-/* ===== BUILD B1: MATCH FATIGUE / STAMINA =====
+/* ===== BUILD B10.4: MINDSET + DEFENCE + POSITION BALANCE =====
+   MINDSET
+   - Removed as a routine hidden boost from core technical execution.
+   - Now primarily affects pressure-point composure and recovery after errors.
+   - High-Mindset players suffer little/no post-error hangover; low-Mindset players
+     can carry a short execution penalty into following rallies.
+   - Pressure detection now respects 15-point deciding sets as well as 25-point sets.
+
+   COVERING
+   - Normal floor defence now leans more on Serve Receive, Positioning, Reaction and Speed.
+   - Covering is specialised toward tips/short rescue balls, block cover and broken-play control.
+
+   POSITION RATINGS
+   - Re-audited OH / OP / M / S / L weights around the live match-engine roles.
+   - Mindset weight reduced because it is now situational rather than a constant skill multiplier.
+   - Setting remains 30% of Setter rating (18% STQ / 12% SCR).
+   - Overall/final card ratings are intentionally preserved in this pass. */
+
+/* ===== BUILD B10.3: FATIGUE + SPECIALIST BALANCE =====
+   - Set-break recovery reduced from 10 to 7.
+   - Reaction remains important but is less universal across receive/dig/block systems.
+   - Serve Receive and Blocking are more dominant in their specialist actions.
+   - Setter position rating now allocates 30% to Setting (18% STQ / 12% SCR).
+   Match-set quality itself is unchanged to avoid double-buffing setters. */
+
+/* ===== BUILD B10.2: MATCH FATIGUE / STAMINA + EFFECTIVE STATS =====
    Condition starts at 100. Stamina controls how slowly condition is lost.
    Timeouts and set breaks recover condition. */
 function playerStaminaRating(p){
@@ -11093,8 +11208,8 @@ function playerStaminaRating(p){
   if(Number.isFinite(Number(p?.stamina)))return clamp(Number(p.stamina),40,99);
   return clamp(
     Number(p?.workRate||70)*.78+
-    Number(p?.mindset||70)*.12+
-    Number(p?.positioning||70)*.10,
+    Number(p?.mindset||70)*.08+
+    Number(p?.positioning||70)*.14,
     45,98
   );
 }
@@ -11117,6 +11232,65 @@ function fatigueRecord(p){
 
 function playerCondition(p){
   return fatigueRecord(p)?.condition??100;
+}
+
+/* B10.2 — MATCH EFFECTIVE STATS
+   Card/database ratings remain unchanged. During a match, only physical/technical
+   execution attributes are reduced by fatigue. Mental/creative attributes such as
+   Mindset, Positioning, Covering and Set Creativity are intentionally not scaled.
+
+   Retention anchors (Condition -> effective stat):
+     100% = 100%
+      75% = 97%
+      50% = 91–93% depending on the stat
+      25% = 82–86% depending on the stat
+
+   Work Rate matters indirectly by driving Stamina, which slows condition loss and
+   improves recovery. This avoids double-counting Work Rate as a direct performance buff. */
+const FATIGUE_STAT_RETENTION={
+  accuracy:     {c75:.97,c50:.93,c25:.85,c20:.83},
+  hittingPower: {c75:.97,c50:.91,c25:.82,c20:.80},
+  vertical:     {c75:.97,c50:.91,c25:.82,c20:.80},
+  speed:        {c75:.97,c50:.92,c25:.84,c20:.82},
+  reactionTime: {c75:.97,c50:.93,c25:.85,c20:.83},
+  blocking:     {c75:.97,c50:.92,c25:.83,c20:.81},
+  serveReceive: {c75:.97,c50:.93,c25:.86,c20:.84},
+  setTechnique: {c75:.97,c50:.93,c25:.86,c20:.84}
+};
+
+function fatigueStatFactor(p,key){
+  const curve=FATIGUE_STAT_RETENTION[key];
+  if(!curve)return 1;
+  const c=clamp(Number(playerCondition(p)||100),20,100);
+  const anchors=[
+    [100,1],
+    [75,curve.c75],
+    [50,curve.c50],
+    [25,curve.c25],
+    [20,curve.c20]
+  ];
+  for(let i=0;i<anchors.length-1;i++){
+    const [hiC,hiF]=anchors[i], [loC,loF]=anchors[i+1];
+    if(c<=hiC && c>=loC){
+      const t=(c-loC)/(hiC-loC);
+      return loF+(hiF-loF)*t;
+    }
+  }
+  return curve.c20;
+}
+
+function matchStat(p,key){
+  if(!p)return 0;
+  const raw=Number(p?.[key]||0);
+  return raw*fatigueStatFactor(p,key);
+}
+
+function matchPhysicalRating(p){
+  if(!p)return 0;
+  return matchStat(p,"vertical")*.40 +
+         Number(p.workRate||0)*.20 +
+         matchStat(p,"speed")*.20 +
+         matchStat(p,"reactionTime")*.20;
 }
 
 function conditionLabel(v){
@@ -11187,14 +11361,18 @@ function recoverTeamCondition(team,baseAmount,reason="rest"){
 }
 
 function fatiguePerformanceFactor(p,action="general"){
-  const c=playerCondition(p);
-  if(c>=75)return 1;
-  const deficit=75-c;
-  const sensitivity={
-    attack:.0038,block:.0035,vertical:.0040,speed:.0032,
-    reaction:.0027,receive:.0018,set:.0010,general:.0022
-  }[action]||.0022;
-  return clamp(1-deficit*sensitivity,.82,1);
+  // Compatibility helper for older code paths. New B10.2 rally maths uses
+  // matchStat() directly so each affected attribute follows its own curve.
+  const key={
+    attack:"hittingPower",block:"blocking",vertical:"vertical",speed:"speed",
+    reaction:"reactionTime",receive:"serveReceive",set:"setTechnique"
+  }[action];
+  if(key)return fatigueStatFactor(p,key);
+  const c=clamp(Number(playerCondition(p)||100),20,100);
+  if(c>=75)return 1-(100-c)*.0012;
+  if(c>=50)return .97-(75-c)*.0018;
+  if(c>=25)return .925-(50-c)*.0030;
+  return .85-(25-c)*.0040;
 }
 
 function fatigueSummaryHtml(team){
@@ -11427,6 +11605,8 @@ async function playLiveRally(){
     applyServeFatigue(serveAttempt?.player,serveType);
     applyRallyFatigue(servingTeam,rallyEvt);
     applyRallyFatigue(receivingTeam,rallyEvt);
+    advanceMindsetState(servingTeam);
+    advanceMindsetState(receivingTeam);
 
     const pointEl=document.getElementById(team1Wins?"livePts1":"livePts2");
     if(pointEl && !skipSetInProgress){
@@ -11481,8 +11661,8 @@ function nextLiveSet(){
   s.p1=0;s.p2=0;s.recent1=0;s.recent2=0;s.setFinished=false;
   s.target=(s.setNo===s.best)?15:25;
   s.server=Math.random()<.5?1:2;
-  recoverTeamCondition(s.a,10,"set break");
-  recoverTeamCondition(s.b,10,"set break");
+  recoverTeamCondition(s.a,7,"set break");
+  recoverTeamCondition(s.b,7,"set break");
   addCommentary(`Set ${s.setNo} begins. Both teams recovered condition during the set break.`);
   renderLiveCourtPlayers();
   document.getElementById("nextSetBtn").classList.add("hidden");
@@ -23486,11 +23666,11 @@ Object.assign(window,{
       };
 
       const W={
-        OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:18,positioning:8,covering:6,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setTechnique:1.2,setCreativity:.8,mindset:6},
-        OP:{accuracy:18,hittingPower:18,creativity:4,serveReceive:4,positioning:4,covering:6,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:10,setTechnique:1.2,setCreativity:.8,mindset:7},
-        M:{accuracy:11,hittingPower:11,creativity:3,serveReceive:1,positioning:5,covering:4,workRate:4,vertical:13,speed:5,reactionTime:8,service:5,blocking:22,setTechnique:.6,setCreativity:.4,mindset:7},
-        S:{accuracy:4,hittingPower:7,creativity:6,serveReceive:6,positioning:7,covering:5,workRate:5,vertical:6,speed:5,reactionTime:9,service:6,blocking:7,setTechnique:12,setCreativity:8,mindset:7},
-        L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:30,positioning:15,covering:15,workRate:6,vertical:2,speed:6,reactionTime:10,service:2,blocking:0,setTechnique:3,setCreativity:2,mindset:7}
+        OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:20,positioning:9,covering:5,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setTechnique:1.2,setCreativity:.8,mindset:4},
+        OP:{accuracy:19,hittingPower:19,creativity:4,serveReceive:4,positioning:4,covering:4,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:12,setTechnique:1.2,setCreativity:.8,mindset:5},
+        M:{accuracy:11,hittingPower:11,creativity:2,serveReceive:1,positioning:6,covering:3,workRate:4,vertical:14,speed:5,reactionTime:7,service:5,blocking:25,setTechnique:.6,setCreativity:.4,mindset:5},
+        S:{accuracy:3,hittingPower:5,creativity:4,serveReceive:5,positioning:10,covering:3,workRate:4,vertical:5,speed:4,reactionTime:10,service:6,blocking:7,setTechnique:18,setCreativity:12,mindset:4},
+        L:{accuracy:0,hittingPower:0,creativity:1,serveReceive:36,positioning:18,covering:12,workRate:5,vertical:1,speed:8,reactionTime:10,service:1,blocking:0,setTechnique:2.4,setCreativity:1.6,mindset:4}
       };
       const calc=(weights)=>{
         let score=0;
