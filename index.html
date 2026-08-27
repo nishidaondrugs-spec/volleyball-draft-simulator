@@ -40188,6 +40188,871 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 </script>
 <!-- /ACE B21.28 — ADMIN NEW CARD PIPELINE -->
 
+
+<!-- ACE B21.29 — PLAYER PROFILE + COMMUNITY SHOWCASE -->
+<style id="ace-b21-29-player-profile-community">
+/* =========================================================
+   B21.29 — PLAYER PROFILE + COMMUNITY SHOWCASE
+   ========================================================= */
+
+/* ---------- Community showcase ---------- */
+.ace29CommunitySection{
+  margin:14px 0;
+  border:1px solid rgba(176,130,234,.12);
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 6% 0%,rgba(130,72,211,.10),transparent 28%),
+    linear-gradient(180deg,#0b0e16,#080a11);
+  box-shadow:0 16px 38px rgba(0,0,0,.17);
+}
+.ace29CommunityHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  padding:15px 16px 12px;
+  border-bottom:1px solid rgba(255,255,255,.045);
+}
+.ace29CommunityHead small{
+  display:block;
+  color:#9d6de0;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.17em;
+}
+.ace29CommunityHead h3{
+  margin:4px 0 0;
+  font-size:20px;
+  letter-spacing:-.03em;
+}
+.ace29CommunityHead p{
+  margin:4px 0 0;
+  color:#777d89;
+  font-size:6.4px;
+}
+.ace29CommunityHead button{
+  min-height:32px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid rgba(172,130,229,.10);
+  background:#080b12;
+  color:#817889;
+  font-size:5.6px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+.ace29CommunityGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  padding:10px;
+}
+.ace29CommunityCard{
+  position:relative;
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  gap:8px;
+  min-height:87px;
+  padding:8px;
+  border-radius:11px;
+  border:1px solid rgba(176,132,231,.08);
+  background:#080b12;
+  cursor:pointer;
+  text-align:left;
+  color:inherit;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease;
+}
+.ace29CommunityCard:hover{
+  transform:translateY(-2px);
+  border-color:rgba(193,146,251,.20);
+  background:#0b0e16;
+}
+.ace29CommunityPhoto{
+  position:relative;
+  width:58px;
+  height:72px;
+  overflow:hidden;
+  border-radius:9px;
+  border:1px solid rgba(205,169,248,.15);
+  background:#111522;
+}
+.ace29CommunityPhoto img{
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+}
+.ace29CommunityPhoto .fallback{
+  width:100%;height:100%;display:grid;place-items:center;font-size:20px;
+}
+.ace29CommunityOvr{
+  position:absolute;
+  left:4px;top:4px;
+  padding:3px 4px;
+  border-radius:6px;
+  background:rgba(5,7,12,.88);
+  color:#fff;
+  font-size:8px;
+  font-weight:1000;
+}
+.ace29CommunityInfo{
+  min-width:0;
+  align-self:center;
+}
+.ace29CommunityInfo small{
+  display:block;
+  color:#9c6bdc;
+  font-size:4.8px;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+.ace29CommunityInfo b{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  font-size:10px;
+}
+.ace29CommunityMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;
+  margin-top:5px;
+}
+.ace29CommunityMeta span{
+  padding:3px 5px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.045);
+  background:#060910;
+  color:#77717e;
+  font-size:4.7px;
+  font-weight:1000;
+}
+.ace29CommunityMeta .ut{
+  color:#8cdca4;
+  border-color:rgba(77,203,119,.10);
+}
+.ace29CommunityEmpty{
+  grid-column:1/-1;
+  padding:16px;
+  border-radius:10px;
+  border:1px dashed rgba(170,126,227,.10);
+  color:#77727f;
+  font-size:6.4px;
+  text-align:center;
+}
+
+/* Home version is tighter and deliberately secondary to main CTA. */
+#home .ace29CommunitySection{
+  max-width:1320px;
+  margin:12px auto 0;
+}
+#home .ace29CommunityGrid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+/* ---------- Player Profile (upgrades existing VDS showcase) ---------- */
+#vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+  width:min(1120px,96vw)!important;
+  max-height:min(880px,92dvh)!important;
+  overflow:auto!important;
+  border-radius:22px!important;
+  border:1px solid rgba(177,132,235,.15)!important;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(126,70,207,.12),transparent 27%),
+    radial-gradient(circle at 88% 16%,rgba(69,117,183,.07),transparent 28%),
+    linear-gradient(180deg,#0b0e17,#070910)!important;
+}
+.ace29ProfileTop{
+  position:relative;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding-bottom:13px;
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+.ace29ProfileKicker{
+  color:#9d6cde;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+.ace29ProfileTop h2{
+  margin:4px 0 4px;
+  font-size:32px;
+  line-height:.95;
+  letter-spacing:-.04em;
+}
+.ace29ProfileTop p{
+  margin:0;
+  max-width:560px;
+  color:#7b818e;
+  font-size:7px;
+  line-height:1.45;
+}
+.ace29ProfileBadges{
+  display:flex;
+  justify-content:flex-end;
+  gap:5px;
+  flex-wrap:wrap;
+}
+.ace29ProfileBadge{
+  padding:6px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.06);
+  background:#080b12;
+  color:#85808d;
+  font-size:5.4px;
+  font-weight:1000;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.ace29ProfileBadge.community{
+  color:#d2b0fb;
+  border-color:rgba(174,120,241,.16);
+  background:rgba(91,46,150,.10);
+}
+.ace29ProfileBadge.live{
+  color:#8fe0a6;
+  border-color:rgba(77,204,119,.13);
+  background:rgba(26,91,48,.08);
+}
+.ace29ProfileBadge.owned{
+  color:#91cde9;
+  border-color:rgba(78,165,210,.12);
+}
+.ace29ProfileGrid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:330px minmax(0,1fr);
+  gap:16px;
+  margin-top:14px;
+}
+.ace29ProfileCardColumn{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.ace29ProfileCardStage{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:420px;
+  padding:16px;
+  border-radius:17px;
+  border:1px solid rgba(255,255,255,.055);
+  background:
+    radial-gradient(circle at 50% 43%,rgba(123,67,200,.13),transparent 38%),
+    #070a11;
+}
+.ace29ProfileCardStage .fifaPlayerCard{
+  width:252px!important;
+  min-width:252px!important;
+  transform:scale(1.04);
+  transform-origin:center;
+  box-shadow:0 26px 50px rgba(0,0,0,.38)!important;
+}
+.ace29ProfileActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.ace29ProfileActions button{
+  min-height:40px;
+  padding:0 9px;
+  border-radius:9px;
+  border:1px solid rgba(175,132,230,.10);
+  background:#080b12;
+  color:#85808d;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+.ace29ProfileActions button:hover{
+  color:#d5baf5;
+  border-color:rgba(190,145,247,.21);
+}
+.ace29ProfileActions .primary{
+  color:#fff;
+  border-color:rgba(192,146,248,.18);
+  background:linear-gradient(135deg,#7241c4,#9858e7);
+}
+.ace29ProfileActions .squad{
+  color:#0d1710;
+  border-color:transparent;
+  background:linear-gradient(135deg,#7edb9b,#58c584);
+}
+.ace29ProfileActions button:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+.ace29ProfileInfo{
+  display:grid;
+  gap:9px;
+}
+.ace29ProfilePanel{
+  padding:12px;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#080b12;
+}
+.ace29ProfilePanel h3{
+  margin:0;
+  color:#8c8494;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+.ace29ProfileMetrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+.ace29ProfileMetric{
+  padding:9px;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.045);
+  background:#060910;
+}
+.ace29ProfileMetric span{
+  display:block;
+  color:#686d78;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+.ace29ProfileMetric b{
+  display:block;
+  margin-top:3px;
+  color:#e6e3eb;
+  font-size:16px;
+}
+.ace29PositionGrid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+  margin-top:8px;
+}
+.ace29PositionGrid>div{
+  position:relative;
+  padding:9px 5px;
+  text-align:center;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.045);
+  background:#060910;
+}
+.ace29PositionGrid>div.natural{
+  border-color:rgba(170,112,242,.20);
+  background:rgba(76,39,126,.11);
+}
+.ace29PositionGrid span{
+  display:block;
+  color:#72707a;
+  font-size:5px;
+  font-weight:1000;
+}
+.ace29PositionGrid b{
+  display:block;
+  margin-top:2px;
+  font-size:18px;
+}
+.ace29PositionGrid small{
+  display:block;
+  min-height:8px;
+  margin-top:2px;
+  color:#9f71dc;
+  font-size:4.3px;
+  font-weight:1000;
+}
+.ace29ProfileTwo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.ace29Playstyles{
+  display:grid;
+  gap:6px;
+  margin-top:8px;
+}
+.ace29Playstyle{
+  display:grid;
+  grid-template-columns:26px minmax(0,1fr);
+  gap:8px;
+  align-items:start;
+  padding:8px;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.045);
+  background:#060910;
+}
+.ace29PlaystyleIcon{
+  width:26px;height:26px;display:grid;place-items:center;
+  border-radius:7px;background:#0b0f18;font-size:13px;
+}
+.ace29Playstyle b{
+  display:block;font-size:7px;color:#d5d1da;
+}
+.ace29Playstyle p{
+  margin:3px 0 0;color:#6e727d;font-size:5.3px;line-height:1.35;
+}
+.ace29StatGroups{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:8px;
+}
+.ace29StatGroup{
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.045);
+  overflow:hidden;
+  background:#060910;
+}
+.ace29StatGroupHead{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 8px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  color:#77717f;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.ace29StatRow{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:5px 8px;
+  border-top:1px solid rgba(255,255,255,.025);
+  color:#6f717a;
+  font-size:5.3px;
+}
+.ace29StatRow:first-child{border-top:0}
+.ace29StatRow b{color:#d3d0d8;font-size:6px}
+
+@media(max-width:900px){
+  .ace29CommunityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #home .ace29CommunityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ace29ProfileGrid{grid-template-columns:280px minmax(0,1fr)}
+  .ace29ProfileCardStage .fifaPlayerCard{width:225px!important;min-width:225px!important}
+}
+@media(max-width:700px){
+  .ace29CommunityGrid,#home .ace29CommunityGrid{grid-template-columns:1fr}
+  .ace29ProfileTop{flex-direction:column}
+  .ace29ProfileBadges{justify-content:flex-start}
+  .ace29ProfileGrid{grid-template-columns:1fr}
+  .ace29ProfileCardStage{min-height:345px}
+  .ace29ProfileCardStage .fifaPlayerCard{width:215px!important;min-width:215px!important;transform:none}
+  .ace29ProfileMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ace29PositionGrid{grid-template-columns:repeat(5,minmax(56px,1fr));overflow-x:auto}
+  .ace29ProfileTwo{grid-template-columns:1fr}
+  .ace29StatGroups{grid-template-columns:1fr}
+  .ace29ProfileActions button{min-height:44px}
+}
+</style>
+
+<script id="ace-b21-29-player-profile-community-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+
+  function isFollower(p){
+    return /^follower_spinner_/i.test(String(p?.tendencies?.source||""));
+  }
+  function isApprovedFollower(p){
+    return isFollower(p) && p?.tendencies?.adminReviewed===true;
+  }
+  function serveLabel(p){
+    return ({
+      auto:"Auto",
+      standing_float:"Standing Float",
+      jump_float:"Jump Float",
+      jump_topspin:"Jump Topspin"
+    })[p?.serveType||"auto"]||"Auto";
+  }
+  function ownedCards(p){
+    const pid=Number(p?.cloudId||0);
+    return (window.ultimateTeamState?.cards||[]).filter(c=>
+      (pid && Number(c.playerId||0)===pid) || String(c.playerName||"")===String(p?.name||"")
+    );
+  }
+  function ownedBestCard(p){
+    return ownedCards(p).slice().sort((a,b)=>Number(b.rating||0)-Number(a.rating||0))[0]||null;
+  }
+  function latestCommunity(){
+    return (window.players||[])
+      .filter(isApprovedFollower)
+      .slice()
+      .sort((a,b)=>{
+        const ta=Date.parse(a?.tendencies?.adminReviewedAt||"")||0;
+        const tb=Date.parse(b?.tendencies?.adminReviewedAt||"")||0;
+        return (tb-ta) || Number(b.cloudId||0)-Number(a.cloudId||0);
+      });
+  }
+
+  function communityCard(p){
+    const rating=mainPositionRating(p);
+    return `<button type="button" class="ace29CommunityCard" data-ace29-profile="${esc(p.name)}">
+      <div class="ace29CommunityPhoto">
+        ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="fallback">♠</div>`}
+        <span class="ace29CommunityOvr">${rating}</span>
+      </div>
+      <div class="ace29CommunityInfo">
+        <small>FOLLOWER EDITION</small>
+        <b>${esc(p.name)}</b>
+        <div class="ace29CommunityMeta">
+          <span>${esc(p.position||"POS")}</span>
+          <span>${serveLabel(p)}</span>
+          ${p.ultimateTeamPool===true?`<span class="ut">LIVE IN UT ✓</span>`:""}
+        </div>
+      </div>
+    </button>`;
+  }
+
+  function ensurePlayersCommunity(){
+    const roster=q("#vdsUTPoolRosterSection");
+    if(!roster)return null;
+    let section=q("#ace29PlayersCommunity");
+    if(section)return section;
+
+    section=document.createElement("section");
+    section.id="ace29PlayersCommunity";
+    section.className="ace29CommunitySection";
+    section.innerHTML=`
+      <div class="ace29CommunityHead">
+        <div><small>COMMUNITY SHOWCASE</small><h3>New to ACE.</h3><p>Recently approved cards created through the follower spinner.</p></div>
+        <button type="button" data-ace29-community-refresh>REFRESH</button>
+      </div>
+      <div class="ace29CommunityGrid" data-ace29-community-grid></div>`;
+    roster.insertAdjacentElement("beforebegin",section);
+    return section;
+  }
+
+  function ensureHomeCommunity(){
+    const hero=q("#home .gameHero");
+    if(!hero)return null;
+    let section=q("#ace29HomeCommunity");
+    if(section)return section;
+
+    section=document.createElement("section");
+    section.id="ace29HomeCommunity";
+    section.className="ace29CommunitySection";
+    section.innerHTML=`
+      <div class="ace29CommunityHead">
+        <div><small>THE ACE COMMUNITY</small><h3>New to ACE.</h3><p>The latest approved follower cards.</p></div>
+        <button type="button" data-ace29-open-players>VIEW PLAYERS</button>
+      </div>
+      <div class="ace29CommunityGrid" data-ace29-community-grid></div>`;
+    hero.insertAdjacentElement("afterend",section);
+    return section;
+  }
+
+  function renderCommunity(){
+    ensurePlayersCommunity();
+    ensureHomeCommunity();
+    const latest=latestCommunity().slice(0,4);
+    qa("[data-ace29-community-grid]").forEach(grid=>{
+      grid.innerHTML=latest.length
+        ? latest.map(communityCard).join("")
+        : `<div class="ace29CommunityEmpty">No approved follower cards yet. Once an admin approves a spinner submission, it will appear here.</div>`;
+    });
+  }
+
+  function playstyleView(style,type){
+    if(!style || style.id==="none")return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">—</div><div><b>NO ${type.toUpperCase()} PLAYSTYLE</b><p>No specialist behaviour assigned.</p></div></div>`;
+    const parts=typeof vdsPlaystyleParts==="function"?vdsPlaystyleParts(style):{icon:"◆",label:style.name||"Playstyle"};
+    return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">${parts.icon}</div><div><b>${esc(parts.label)}</b><p>${esc(style.desc||"")}</p></div></div>`;
+  }
+
+  function statGroup(title,rating,rows){
+    return `<div class="ace29StatGroup">
+      <div class="ace29StatGroupHead"><span>${title}</span><b>${rating}</b></div>
+      <div>${rows.map(([label,value])=>`<div class="ace29StatRow"><span>${label}</span><b>${typeof value==="string"?esc(value):Math.round(Number(value||0))}</b></div>`).join("")}</div>
+    </div>`;
+  }
+
+  function compareFromProfile(p){
+    if(typeof openPlayerCompare!=="function")return;
+    openPlayerCompare();
+    requestAnimationFrame(()=>{
+      const a=q("#comparePlayerA"),b=q("#comparePlayerB");
+      if(!a||!b)return;
+      a.value=p.name;
+      if(b.value===p.name){
+        const alt=[...b.options].find(o=>o.value!==p.name);
+        if(alt)b.value=alt.value;
+      }
+      if(typeof renderPlayerComparison==="function")renderPlayerComparison();
+    });
+  }
+
+  function addOwnedToSquad(p){
+    const card=ownedBestCard(p);
+    if(!card)return;
+    window.utSelectedBenchCardUid=utCardUid(card);
+    try{utSelectedBenchCardUid=window.utSelectedBenchCardUid}catch(_){}
+    closeVdsCardShowcase?.();
+    if(typeof vdsSwitchUltimateInstance==="function")vdsSwitchUltimateInstance("squad");
+    if(typeof goPage==="function")goPage("ultimate");
+    setTimeout(()=>{
+      try{renderUltimateSquadVisual()}catch(_){}
+      if(typeof aceNotify==="function")aceNotify({
+        title:`${p.name.toUpperCase()} SELECTED`,
+        body:"Choose a highlighted court position to place this card in your Starting Six.",
+        type:"info"
+      });
+    },100);
+  }
+
+  function ace29OpenPlayerProfile(name){
+    const p=(window.players||[]).find(x=>String(x.name)===String(name));
+    if(!p)return;
+
+    const overlay=q("#vdsCardShowcaseOverlay");
+    const content=q("#vdsCardShowcaseContent");
+    if(!overlay||!content)return;
+
+    const cats=categoryRatings(p);
+    const pr=positionRatings(p);
+    const tier=cardTier(p);
+    const tierLabel=cardTierLabel(p);
+    const atk=(p.attackPlaystyle||"none")!=="none"?attackingPlaystyle(p):null;
+    const def=(p.defensePlaystyle||"none")!=="none"?defensivePlaystyle(p):null;
+    const owned=ownedCards(p);
+    const follower=isFollower(p);
+    const natural=normalizeRoleKey?.(p.position)||String(p.position||"OH").toUpperCase();
+
+    const settingTechnique=Number.isFinite(Number(p.setTechnique))?Number(p.setTechnique):Number(p.setting||0);
+    const settingCreativity=Number.isFinite(Number(p.setCreativity))?Number(p.setCreativity):Number(p.setting||0);
+
+    content.innerHTML=`
+      <div class="vdsCardShowcaseInner ace29ProfileInner">
+        <div class="vdsCardShowcaseAtmosphere"></div>
+        <div class="ace29ProfileTop">
+          <div>
+            <div class="ace29ProfileKicker">THE ACE PROJECT · PLAYER PROFILE</div>
+            <h2>${esc(p.name)}</h2>
+            <p>${follower?"Community-created Follower Edition card. ":"Official ACE player card. "}Position ratings below show how the card performs across every volleyball role.</p>
+          </div>
+          <div class="ace29ProfileBadges">
+            <span class="ace29ProfileBadge">${esc(tierLabel)} · ${mainPositionRating(p)} ${esc(p.position||"POS")}</span>
+            ${follower?`<span class="ace29ProfileBadge community">FOLLOWER EDITION</span>`:""}
+            ${p.ultimateTeamPool===true?`<span class="ace29ProfileBadge live">LIVE IN ULTIMATE TEAM ✓</span>`:""}
+            ${owned.length?`<span class="ace29ProfileBadge owned">OWNED ×${owned.length}</span>`:""}
+          </div>
+        </div>
+
+        <div class="ace29ProfileGrid">
+          <div class="ace29ProfileCardColumn">
+            <div class="ace29ProfileCardStage">
+              <div class="fifaPlayerCard ${tier}">
+                ${vdsMasterPlayerCardHTML(p,{
+                  role:p.position&&p.position!=="-"?p.position:"POS",
+                  rating:mainPositionRating(p),
+                  tier,
+                  tierLabel,
+                  footer:follower?"FOLLOWER EDITION · VIEW PROFILE":"VIEW PLAYER PROFILE"
+                })}
+              </div>
+            </div>
+            <div class="ace29ProfileActions">
+              <button type="button" data-ace29-profile-compare="${esc(p.name)}">COMPARE</button>
+              ${owned.length
+                ? `<button type="button" class="squad" data-ace29-profile-squad="${esc(p.name)}">ADD TO SQUAD</button>`
+                : `<button type="button" disabled>NOT OWNED IN UT</button>`}
+              ${window.cloudAdmin?`<button type="button" class="primary" data-ace29-profile-edit="${(window.players||[]).indexOf(p)}">EDIT PLAYER</button>`:""}
+              <button type="button" data-ace29-profile-close>CLOSE</button>
+            </div>
+          </div>
+
+          <div class="ace29ProfileInfo">
+            <div class="ace29ProfilePanel">
+              <h3>PLAYER IDENTITY</h3>
+              <div class="ace29ProfileMetrics">
+                <div class="ace29ProfileMetric"><span>ALL RATING</span><b>${overall(p)}</b></div>
+                <div class="ace29ProfileMetric"><span>NATURAL POSITION</span><b>${esc(p.position||"—")}</b></div>
+                <div class="ace29ProfileMetric"><span>SERVE TYPE</span><b style="font-size:11px">${esc(serveLabel(p))}</b></div>
+                <div class="ace29ProfileMetric"><span>UT STATUS</span><b style="font-size:11px">${p.ultimateTeamPool===true?"LIVE ✓":"NOT IN POOL"}</b></div>
+              </div>
+            </div>
+
+            <div class="ace29ProfilePanel">
+              <h3>EFFECTIVE RATING BY POSITION</h3>
+              <div class="ace29PositionGrid">
+                ${["OH","OP","M","S","L"].map(role=>`<div class="${role===natural?"natural":""}"><span>${role}</span><b>${pr[role]}</b><small>${role===natural?"NATURAL":""}</small></div>`).join("")}
+              </div>
+            </div>
+
+            <div class="ace29ProfileTwo">
+              <div class="ace29ProfilePanel">
+                <h3>CORE RATINGS</h3>
+                <div class="ace29ProfileMetrics">
+                  <div class="ace29ProfileMetric"><span>ATTACK</span><b>${cats.attacking}</b></div>
+                  <div class="ace29ProfileMetric"><span>DEFENCE</span><b>${cats.defense}</b></div>
+                  <div class="ace29ProfileMetric"><span>PHYSICAL</span><b>${cats.physical}</b></div>
+                  <div class="ace29ProfileMetric"><span>SETTING</span><b>${Math.round(Number(p.setting||0))}</b></div>
+                </div>
+              </div>
+              <div class="ace29ProfilePanel">
+                <h3>PLAYSTYLES</h3>
+                <div class="ace29Playstyles">
+                  ${playstyleView(atk,"attacking")}
+                  ${playstyleView(def,"defensive")}
+                </div>
+              </div>
+            </div>
+
+            <div class="ace29ProfilePanel">
+              <h3>FULL ATTRIBUTES</h3>
+              <div class="ace29StatGroups">
+                ${statGroup("ATTACK",cats.attacking,[
+                  ["Attack Creativity",p.creativity],["Hitting Accuracy",p.accuracy],["Hitting Power",p.hittingPower]
+                ])}
+                ${statGroup("DEFENCE",cats.defense,[
+                  ["Serve Receive",p.serveReceive],["Positioning",p.positioning],["Covering",p.covering]
+                ])}
+                ${statGroup("PHYSICAL",cats.physical,[
+                  ["Work Rate",p.workRate],["Vertical",p.vertical],["Speed",p.speed],["Reaction Time",p.reactionTime]
+                ])}
+                ${statGroup("SPECIALIST",Math.round((Number(p.service||0)+Number(p.blocking||0)+Number(p.setting||0)+Number(p.mindset||0))/4),[
+                  ["Serve Type",serveLabel(p)],["Service",p.service],["Blocking",p.blocking],["Set Technique",settingTechnique],["Set Creativity",settingCreativity],["Mindset",p.mindset]
+                ])}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+    document.body.classList.add("vdsCardShowcaseOpen");
+  }
+
+  /* Replace the old showcase everywhere with the richer player profile. */
+  window.openVdsCardShowcase=ace29OpenPlayerProfile;
+  try{openVdsCardShowcase=ace29OpenPlayerProfile}catch(_){}
+  window.ace29OpenPlayerProfile=ace29OpenPlayerProfile;
+
+  /* Player Database cards now open the profile for everyone. Admin editing lives
+     inside the profile, rather than making the public card click open an editor. */
+  if(typeof window.vdsBuildDatabasePlayerCard==="function" && !window.vdsBuildDatabasePlayerCard.__ace29Wrapped){
+    const base=window.vdsBuildDatabasePlayerCard;
+    const wrapped=function(p,context){
+      const el=base.apply(this,arguments);
+      const face=el?.querySelector?.(".fifaPlayerCard");
+      if(face){
+        face.onclick=()=>ace29OpenPlayerProfile(p.name);
+        face.style.cursor="pointer";
+      }
+      return el;
+    };
+    wrapped.__ace29Wrapped=true;
+    window.vdsBuildDatabasePlayerCard=wrapped;
+    try{vdsBuildDatabasePlayerCard=wrapped}catch(_){}
+  }
+
+  /* Keep community showcase synced whenever roster/home data rerenders. */
+  if(typeof window.renderPlayers==="function" && !window.renderPlayers.__ace29Wrapped){
+    const base=window.renderPlayers;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(renderCommunity);
+      return result;
+    };
+    wrapped.__ace29Wrapped=true;
+    window.renderPlayers=wrapped;
+    try{renderPlayers=wrapped}catch(_){}
+  }
+
+  if(typeof window.renderHomeFaces==="function" && !window.renderHomeFaces.__ace29Wrapped){
+    const base=window.renderHomeFaces;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(renderCommunity);
+      return result;
+    };
+    wrapped.__ace29Wrapped=true;
+    window.renderHomeFaces=wrapped;
+    try{renderHomeFaces=wrapped}catch(_){}
+  }
+
+  if(typeof window.loadPlayersFromCloud==="function" && !window.loadPlayersFromCloud.__ace29Wrapped){
+    const base=window.loadPlayersFromCloud;
+    const wrapped=async function(){
+      const result=await base.apply(this,arguments);
+      requestAnimationFrame(renderCommunity);
+      return result;
+    };
+    wrapped.__ace29Wrapped=true;
+    window.loadPlayersFromCloud=wrapped;
+    try{loadPlayersFromCloud=wrapped}catch(_){}
+  }
+
+  document.addEventListener("click",function(e){
+    const profile=e.target.closest?.("[data-ace29-profile]");
+    if(profile){
+      e.preventDefault();
+      ace29OpenPlayerProfile(profile.dataset.ace29Profile);
+      return;
+    }
+
+    const close=e.target.closest?.("[data-ace29-profile-close]");
+    if(close){
+      if(typeof closeVdsCardShowcase==="function")closeVdsCardShowcase();
+      return;
+    }
+
+    const compare=e.target.closest?.("[data-ace29-profile-compare]");
+    if(compare){
+      const p=(window.players||[]).find(x=>x.name===compare.dataset.ace29ProfileCompare);
+      if(!p)return;
+      if(typeof closeVdsCardShowcase==="function")closeVdsCardShowcase();
+      compareFromProfile(p);
+      return;
+    }
+
+    const squad=e.target.closest?.("[data-ace29-profile-squad]");
+    if(squad){
+      const p=(window.players||[]).find(x=>x.name===squad.dataset.ace29ProfileSquad);
+      if(p)addOwnedToSquad(p);
+      return;
+    }
+
+    const edit=e.target.closest?.("[data-ace29-profile-edit]");
+    if(edit){
+      if(typeof closeVdsCardShowcase==="function")closeVdsCardShowcase();
+      if(typeof openPlayerEditor==="function")openPlayerEditor(Number(edit.dataset.ace29ProfileEdit));
+      return;
+    }
+
+    if(e.target.closest?.("[data-ace29-open-players]")){
+      if(typeof goPage==="function")goPage("players");
+      return;
+    }
+
+    if(e.target.closest?.("[data-ace29-community-refresh]")){
+      if(typeof loadPlayersFromCloud==="function")loadPlayersFromCloud();
+      else renderCommunity();
+    }
+  });
+
+  window.ace29RenderCommunity=renderCommunity;
+  window.ACE_PROJECT_BUILD="B21.29";
+  window.ACE_PLAYER_PROFILE_COMMUNITY=true;
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(renderCommunity),{once:true});
+  }else{
+    requestAnimationFrame(renderCommunity);
+  }
+})();
+</script>
+<!-- /ACE B21.29 — PLAYER PROFILE + COMMUNITY SHOWCASE -->
+
 </body>
 </html>
 
