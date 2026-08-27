@@ -6524,65 +6524,171 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<style id="ace-b20-3-three-pack-style">
-.aceTriplePackOverlay{
-  display:none;position:fixed;inset:0;z-index:1900;
-  padding:22px;align-items:center;justify-content:center;
-  background:rgba(2,4,9,.94);backdrop-filter:blur(11px);
+
+<style id="ace-b21-2-cinematic-pack-style">
+.aceCinematicPackOverlay{
+  display:none;position:fixed;inset:0;z-index:1950;
+  padding:18px;align-items:center;justify-content:center;overflow:auto;
+  background:
+    radial-gradient(circle at 50% 34%,rgba(119,75,190,.15),transparent 36%),
+    rgba(2,5,10,.97);
+  backdrop-filter:blur(13px);
 }
-.aceTriplePackOverlay.show{display:flex;}
-.aceTriplePackStage{width:min(1020px,96vw);text-align:center;}
-.aceTriplePackKicker{color:#9b72d4;font-size:6px;font-weight:1000;letter-spacing:.18em;}
-.aceTriplePackStage h2{margin:7px 0 0;font-size:clamp(35px,5vw,58px);letter-spacing:-.055em;}
-.aceTriplePackStage>p{margin:8px auto 0;max-width:610px;color:#777487;font-size:8px;line-height:1.55;}
-.aceTriplePackCards{
-  display:grid;grid-template-columns:repeat(3,minmax(180px,245px));
-  justify-content:center;gap:15px;margin:24px auto 0;
+.aceCinematicPackOverlay.show{display:flex}
+.aceCinematicPackOverlay.featured-build{
+  background:
+    radial-gradient(circle at 50% 36%,rgba(168,107,246,.24),transparent 42%),
+    rgba(2,4,9,.985);
 }
-.aceTriplePackCard{
-  position:relative;aspect-ratio:.68;overflow:hidden;border-radius:21px;
-  border:2px solid #738493;background:linear-gradient(150deg,#485966,#182734 65%,#09131d);
-  opacity:0;transform:translateY(35px) scale(.88) rotateY(18deg);
-  transition:opacity .32s ease,transform .5s cubic-bezier(.2,.82,.2,1),box-shadow .5s ease;
-  box-shadow:0 26px 55px rgba(0,0,0,.44);
+.aceCinematicPackStage{
+  position:relative;width:min(950px,96vw);min-height:min(700px,94vh);
+  display:flex;flex-direction:column;justify-content:center;text-align:center;
 }
-.aceTriplePackCard.revealed{opacity:1;transform:none;}
-.aceTriplePackCard.bronze{border-color:#b77b55;background:linear-gradient(150deg,#704127,#261912 65%,#0e1013);}
-.aceTriplePackCard.silver{border-color:#cbd7df;background:linear-gradient(150deg,#75838d,#26323c 65%,#0b1218);}
-.aceTriplePackCard.gold{border-color:#e7c955;background:linear-gradient(150deg,#725a16,#302509 63%,#0e1114);}
-.aceTriplePackCard.rare_gold{border-color:#f0d870;background:linear-gradient(150deg,#8e741e,#3e300a 58%,#111319);}
-.aceTriplePackCard.elite{border-color:#a066e9;background:linear-gradient(150deg,#542e86,#1c1630 60%,#090b12);}
-.aceTriplePackCard.ace{border-color:#d8b5ff;background:linear-gradient(145deg,#170f27,#05070d 66%,#020306);box-shadow:0 26px 60px rgba(0,0,0,.5),0 0 35px rgba(174,108,255,.18);}
-.aceTriplePackCard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.76;}
-.aceTriplePackShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,5,9,.02) 30%,rgba(2,5,9,.12) 52%,rgba(2,5,9,.97) 100%);}
-.aceTriplePackFeatured{
-  position:absolute;z-index:4;right:10px;top:10px;padding:5px 7px;border-radius:999px;
-  background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.12);
-  color:#a8a2ae;font-size:5px;font-weight:1000;letter-spacing:.11em;
+.aceCinematicPackHeader{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;justify-content:space-between;gap:12px;
+  color:#738798;font-size:6px;font-weight:1000;letter-spacing:.13em;
 }
-.aceTriplePackCard:first-child .aceTriplePackFeatured{color:#e4c75f;border-color:rgba(230,198,86,.22);}
-.aceTriplePackRating{position:absolute;z-index:4;left:13px;top:14px;color:#f4f7f9;font-size:38px;font-weight:1000;line-height:.84;}
-.aceTriplePackCard.gold .aceTriplePackRating,.aceTriplePackCard.rare_gold .aceTriplePackRating{color:#f5dc79;}
-.aceTriplePackRating small{display:block;margin-top:7px;font-size:7px;letter-spacing:.12em;}
-.aceTriplePackTier{position:absolute;z-index:4;left:13px;bottom:49px;color:#aaa4b3;font-size:5.5px;font-weight:1000;letter-spacing:.13em;}
-.aceTriplePackName{position:absolute;z-index:4;left:10px;right:10px;bottom:20px;color:#fff;font-size:15px;font-weight:1000;text-shadow:0 3px 10px #000;}
-.aceTriplePackStatus{min-height:19px;margin-top:13px;color:#898394;font-size:7px;font-weight:900;letter-spacing:.08em;}
-.aceTriplePackActions{display:flex;justify-content:center;gap:7px;margin-top:11px;}
-.aceTriplePackActions.hidden{display:none;}
-.aceTriplePackActions button{min-height:45px;padding:0 17px;border-radius:10px;font-size:7px;font-weight:1000;cursor:pointer;}
-.aceTriplePackAgain{border:1px solid rgba(174,119,246,.17);background:rgba(119,64,196,.09);color:#c4a7e8;}
-.aceTriplePackDone{border:0;background:linear-gradient(135deg,#7645c8,#a362f3);color:#fff;}
+.aceCinematicPackHeader span{color:#a181d2}
+.aceCinemaIntro h2,.aceCinemaSummary h2{
+  margin:8px 0 0;font-size:clamp(39px,5.6vw,66px);
+  line-height:.92;letter-spacing:-.06em;
+}
+.aceCinemaIntro>p,.aceCinemaSummary>p{
+  max-width:600px;margin:10px auto 0;color:#7d909f;font-size:8px;line-height:1.6;
+}
+.aceCinemaPackShell{position:relative;width:220px;height:290px;margin:0 auto 20px;display:grid;place-items:center}
+.aceCinemaPackAura{
+  position:absolute;inset:9%;border-radius:50%;
+  background:radial-gradient(circle,rgba(174,119,245,.28),rgba(77,43,124,.08) 50%,transparent 72%);
+  filter:blur(15px);animation:aceCinemaAura 2.3s ease-in-out infinite;
+}
+@keyframes aceCinemaAura{50%{transform:scale(1.1);filter:blur(19px) brightness(1.12)}}
+.aceCinemaPackDoor{
+  position:relative;width:166px;height:236px;border-radius:17px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid rgba(181,132,245,.32);
+  background:
+    linear-gradient(145deg,rgba(135,82,205,.16),transparent 42%),
+    linear-gradient(155deg,#1c1230,#08131e 65%,#04090f);
+  box-shadow:0 30px 75px rgba(0,0,0,.5),0 0 45px rgba(139,84,210,.14);
+  transform:rotate(-2deg);
+}
+.aceCinemaPackDoor small{color:#74899a;font-size:5px;font-weight:1000;letter-spacing:.16em}
+.aceCinemaPackDoor strong{margin-top:13px;color:#f3f6f8;font-size:22px}
+.aceCinemaPackDoor span{margin-top:11px;color:#a281d4;font-size:6px;font-weight:1000;letter-spacing:.1em}
+.aceCinemaPrimary,.aceCinemaNext{
+  min-height:47px;margin-top:18px;padding:0 23px;border:0;border-radius:10px;
+  background:linear-gradient(135deg,#7141bc,#a55df0);color:#fff;
+  font-size:7px;font-weight:1000;letter-spacing:.08em;cursor:pointer;
+}
+.aceCinemaReveal{
+  position:relative;min-height:620px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.aceCinemaAtmosphere{
+  position:absolute;inset:10% 20%;border-radius:50%;opacity:.48;filter:blur(45px);pointer-events:none;
+  background:radial-gradient(circle,rgba(160,170,178,.26),transparent 68%);
+}
+.aceCinemaAtmosphere.gold,.aceCinemaAtmosphere.rare_gold{background:radial-gradient(circle,rgba(234,199,82,.33),transparent 67%)}
+.aceCinemaAtmosphere.elite{background:radial-gradient(circle,rgba(153,91,230,.36),transparent 67%)}
+.aceCinemaAtmosphere.ace{background:radial-gradient(circle,rgba(218,183,255,.44),rgba(89,49,137,.18) 45%,transparent 70%)}
+.aceCinemaFlash{
+  position:absolute;width:260px;height:260px;border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.92),rgba(255,255,255,.12) 32%,transparent 68%);
+}
+.aceCinemaFlash.fire{animation:aceCinemaFlash .72s ease-out forwards}
+@keyframes aceCinemaFlash{0%{opacity:0;transform:scale(.22)}18%{opacity:1}100%{opacity:0;transform:scale(2.4)}}
+.aceCinemaCardScene{position:relative;width:min(305px,72vw);aspect-ratio:.68;perspective:1200px}
+.aceCinemaCardBack,.aceCinemaCardFront{position:absolute;inset:0;border-radius:24px;overflow:hidden;backface-visibility:hidden}
+.aceCinemaCardBack{
+  z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  border:1px solid rgba(177,127,239,.27);
+  background:
+    radial-gradient(circle at 50% 28%,rgba(152,97,222,.18),transparent 35%),
+    linear-gradient(150deg,#1b102f,#07121e 66%,#03070c);
+  box-shadow:0 34px 95px rgba(0,0,0,.6),0 0 48px rgba(116,75,180,.16);
+  transition:transform .46s ease,opacity .32s ease;
+}
+.aceCinemaCardBack.gone{transform:rotateY(96deg) scale(.82);opacity:0;pointer-events:none}
+.aceCinemaBackAce{color:#eef1f3;font-size:52px;font-weight:1000;letter-spacing:-.08em}
+.aceCinemaBackProject{margin-top:2px;color:#966bcf;font-size:8px;font-weight:1000;letter-spacing:.22em}
+.aceCinemaCardFront{
+  z-index:2;opacity:0;transform:rotateY(-92deg) scale(.84);
+  transition:transform .6s cubic-bezier(.17,.84,.18,1),opacity .28s ease;
+}
+.aceCinemaCardFront.revealed{opacity:1;transform:rotateY(0) scale(1)}
+.aceCinemaCardFront.exit{opacity:0;transform:translateX(-70px) scale(.91)}
+.aceCinemaPlayerCard,.aceCinemaSummaryCard{
+  position:relative;width:100%;height:100%;overflow:hidden;border-radius:24px;
+  border:2px solid #748692;background:linear-gradient(150deg,#52626e,#192734 63%,#08121b);
+  box-shadow:0 34px 95px rgba(0,0,0,.52);
+}
+.aceCinemaPlayerCard.bronze,.aceCinemaSummaryCard.bronze{border-color:#b77b56;background:linear-gradient(150deg,#724329,#281a12 64%,#0e1013)}
+.aceCinemaPlayerCard.silver,.aceCinemaSummaryCard.silver{border-color:#d1dbe1;background:linear-gradient(150deg,#7a8992,#27333d 64%,#0b1319)}
+.aceCinemaPlayerCard.gold,.aceCinemaSummaryCard.gold{border-color:#e9ca51;background:linear-gradient(150deg,#765d16,#30250a 64%,#0e1114)}
+.aceCinemaPlayerCard.rare_gold,.aceCinemaSummaryCard.rare_gold{border-color:#f0d56b;background:linear-gradient(150deg,#92761d,#3e300a 60%,#111319)}
+.aceCinemaPlayerCard.elite,.aceCinemaSummaryCard.elite{border-color:#a76ae9;background:linear-gradient(150deg,#583188,#1e1732 60%,#090b12)}
+.aceCinemaPlayerCard.ace,.aceCinemaSummaryCard.ace{
+  border-color:#d9b9ff;background:linear-gradient(145deg,#180f29,#05070d 66%,#020306);
+  box-shadow:0 34px 95px rgba(0,0,0,.57),0 0 46px rgba(169,103,244,.22)
+}
+.aceCinemaPlayerCard img,.aceCinemaSummaryCard img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.8
+}
+.aceCinemaCardShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,5,9,.01) 28%,rgba(2,5,9,.13) 51%,rgba(2,5,9,.97) 100%)}
+.aceCinemaRating{position:absolute;z-index:3;left:16px;top:17px;color:#f5f7f8;font-size:45px;font-weight:1000;line-height:.82}
+.gold .aceCinemaRating,.rare_gold .aceCinemaRating{color:#f5dc79}
+.aceCinemaRating small{display:block;margin-top:7px;font-size:8px;letter-spacing:.12em}
+.aceCinemaRarity{position:absolute;z-index:3;left:17px;bottom:58px;color:#aaa7b0;font-size:6px;font-weight:1000;letter-spacing:.13em}
+.aceCinemaFeaturedBadge{
+  position:absolute;z-index:3;right:14px;top:15px;padding:6px 8px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(3,7,12,.75);
+  color:#e2c96c;font-size:5px;font-weight:1000;letter-spacing:.11em
+}
+.aceCinemaName{
+  position:absolute;z-index:3;left:12px;right:12px;bottom:22px;
+  color:#fff;font-size:18px;font-weight:1000;text-shadow:0 4px 12px rgba(0,0,0,.95)
+}
+.aceCinemaRevealLabel{
+  min-height:17px;margin-top:17px;color:#7f93a2;font-size:7px;font-weight:1000;letter-spacing:.11em
+}
+.aceCinemaRevealLabel.featured{color:#d9bd66}
+.aceCinemaSummaryKicker{color:#9f7bd2;font-size:6px;font-weight:1000;letter-spacing:.17em}
+.aceCinemaSummaryCards{
+  display:grid;grid-template-columns:repeat(3,minmax(150px,230px));justify-content:center;gap:13px;margin:25px auto 0
+}
+.aceCinemaSummaryCard{aspect-ratio:.68;border-radius:17px}
+.aceCinemaSummaryCard .aceCinemaRating{font-size:31px;left:11px;top:12px}
+.aceCinemaSummaryCard .aceCinemaRarity{left:11px;bottom:43px;font-size:5px}
+.aceCinemaSummaryCard .aceCinemaName{bottom:14px;font-size:12px}
+.aceCinemaSummaryCard .aceCinemaFeaturedBadge{right:8px;top:9px;padding:4px 5px;font-size:4px}
+.aceCinemaSummaryActions{display:flex;justify-content:center;gap:8px;margin-top:18px}
+.aceCinemaSummaryActions button{
+  min-height:47px;padding:0 19px;border-radius:10px;
+  border:1px solid rgba(169,119,235,.16);background:rgba(113,69,174,.09);
+  color:#c3a5e6;font-size:7px;font-weight:1000;cursor:pointer
+}
+.aceCinemaSummaryActions .primary{border:0;background:linear-gradient(135deg,#7342bf,#a65ef1);color:#fff}
 @media(max-width:700px){
-  .aceTriplePackOverlay{padding:10px;}
-  .aceTriplePackCards{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:17px;}
-  .aceTriplePackCard{border-radius:13px;}
-  .aceTriplePackRating{left:7px;top:8px;font-size:25px;}
-  .aceTriplePackFeatured{right:5px;top:6px;padding:4px;font-size:4px;}
-  .aceTriplePackTier{left:7px;bottom:35px;font-size:4.5px;}
-  .aceTriplePackName{left:4px;right:4px;bottom:12px;font-size:9px;}
-  .aceTriplePackActions{display:grid;grid-template-columns:1fr 1fr;}
+  .aceCinematicPackOverlay{padding:9px}
+  .aceCinematicPackStage{min-height:94vh}
+  .aceCinematicPackHeader{top:3px}
+  .aceCinemaIntro h2,.aceCinemaSummary h2{font-size:38px}
+  .aceCinemaPackShell{width:180px;height:235px;margin-bottom:12px}
+  .aceCinemaPackDoor{width:137px;height:192px}
+  .aceCinemaReveal{min-height:550px}
+  .aceCinemaCardScene{width:min(260px,74vw)}
+  .aceCinemaRating{font-size:38px;left:13px;top:14px}
+  .aceCinemaSummaryCards{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .aceCinemaSummaryCard{border-radius:12px}
+  .aceCinemaSummaryCard .aceCinemaRating{font-size:23px;left:7px;top:8px}
+  .aceCinemaSummaryCard .aceCinemaRarity{left:7px;bottom:32px;font-size:4px}
+  .aceCinemaSummaryCard .aceCinemaName{left:4px;right:4px;bottom:9px;font-size:8px}
+  .aceCinemaSummaryActions{display:grid;grid-template-columns:1fr 1fr}
 }
 </style>
+
 
 <style id="ace-b20-4-postmatch-nav-style">
 /* B20.4: online UT post-match actions */
@@ -6750,7 +6856,197 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 @media(max-width:760px){.aceUTPlayHubTop h2{font-size:37px}.aceUTPlayIdentity{grid-template-columns:repeat(3,1fr)}.aceUTPlayModeGrid{grid-template-columns:1fr}.aceUTPlayMode{min-height:200px;padding:16px}.aceUTPlayModeIcon{margin-bottom:12px}.aceUTPlayMode p{min-height:0}.aceUTPlayMode strong{position:static;display:block;margin-top:18px}.aceUTRankedRuleGrid{grid-template-columns:1fr 1fr}.aceRankedQuitBtn{min-height:34px}}
 </style>
 
-<meta name="ace-build" content="B21.1 Conflict Cleanup">
+<style id="ace-b21-3-ace-special-style">
+/* Dedicated ACE 96–99 pack animation */
+.aceCinematicPackOverlay.ace-special{
+  background:#010204!important;
+  transition:background .35s ease;
+}
+.aceCinematicPackOverlay.ace-special .aceCinematicPackHeader{
+  opacity:.18;
+  transition:opacity .3s ease;
+}
+.aceCinematicPackOverlay.ace-special .aceCinemaAtmosphere{
+  opacity:.12;
+}
+.aceCinemaCardScene.ace-hidden{
+  opacity:0;
+  transform:scale(.82);
+  pointer-events:none;
+  transition:opacity .24s ease,transform .3s ease;
+}
+
+.aceCinemaAceSequence{
+  position:absolute;
+  z-index:12;
+  width:min(700px,92vw);
+  height:430px;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.aceCinemaAceSpade,
+.aceCinemaAceTitle,
+.aceCinemaAceRatingStage,
+.aceCinemaAceNameStage,
+.aceCinemaAceSub{
+  opacity:0;
+  transform:translateY(14px) scale(.92);
+}
+
+.aceCinemaAceSpade{
+  position:absolute;
+  color:#f3eaff;
+  font-size:150px;
+  line-height:1;
+  text-shadow:
+    0 0 18px rgba(255,255,255,.48),
+    0 0 55px rgba(174,105,255,.52),
+    0 0 120px rgba(111,51,210,.26);
+}
+.aceCinemaAceTitle{
+  position:absolute;
+  color:#fff;
+  font-size:86px;
+  font-weight:1000;
+  line-height:.88;
+  letter-spacing:-.08em;
+  text-shadow:0 0 35px rgba(184,121,255,.45);
+}
+.aceCinemaAceRatingStage{
+  position:absolute;
+  color:#fff;
+  font-size:138px;
+  font-weight:1000;
+  line-height:.8;
+  letter-spacing:-.08em;
+  text-shadow:
+    0 0 25px rgba(255,255,255,.28),
+    0 0 70px rgba(174,103,255,.44);
+}
+.aceCinemaAceNameStage{
+  position:absolute;
+  top:63%;
+  width:100%;
+  color:#f4f0f9;
+  font-size:clamp(24px,5vw,51px);
+  font-weight:1000;
+  letter-spacing:-.045em;
+  text-shadow:0 0 32px rgba(163,98,235,.38);
+}
+.aceCinemaAceSub{
+  position:absolute;
+  top:82%;
+  color:#a16ee1;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.3em;
+}
+
+.aceCinematicPackOverlay.ace-stage-spade .aceCinemaAceSpade{
+  animation:aceSpecialSpade .75s cubic-bezier(.16,.8,.2,1) forwards;
+}
+@keyframes aceSpecialSpade{
+  0%{opacity:0;transform:scale(.25) rotate(-12deg);filter:blur(14px)}
+  48%{opacity:1;transform:scale(1.13) rotate(2deg);filter:blur(0)}
+  100%{opacity:.12;transform:scale(1.5);filter:blur(3px)}
+}
+
+.aceCinematicPackOverlay.ace-stage-title .aceCinemaAceTitle{
+  animation:aceSpecialTitle .55s cubic-bezier(.16,.85,.18,1) forwards;
+}
+@keyframes aceSpecialTitle{
+  0%{opacity:0;transform:translateY(20px) scale(.7);letter-spacing:.1em}
+  100%{opacity:1;transform:none;letter-spacing:-.08em}
+}
+.aceCinematicPackOverlay.ace-stage-title .aceCinemaAceSpade{
+  opacity:.08!important;
+  transform:scale(1.8)!important;
+}
+
+.aceCinematicPackOverlay.ace-stage-rating .aceCinemaAceTitle{
+  opacity:.08;
+  transform:translateY(-65px) scale(.72);
+  transition:.35s ease;
+}
+.aceCinematicPackOverlay.ace-stage-rating .aceCinemaAceRatingStage{
+  animation:aceSpecialRating .52s cubic-bezier(.1,.9,.16,1) forwards;
+}
+@keyframes aceSpecialRating{
+  0%{opacity:0;transform:scale(1.6);filter:blur(14px)}
+  62%{opacity:1;transform:scale(.94);filter:blur(0)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+.aceCinematicPackOverlay.ace-stage-name .aceCinemaAceRatingStage{
+  transform:translateY(-68px) scale(.55);
+  opacity:.4;
+  transition:.38s ease;
+}
+.aceCinematicPackOverlay.ace-stage-name .aceCinemaAceNameStage{
+  animation:aceSpecialName .55s cubic-bezier(.16,.85,.2,1) forwards;
+}
+.aceCinematicPackOverlay.ace-stage-name .aceCinemaAceSub{
+  animation:aceSpecialSub .45s .16s ease forwards;
+}
+@keyframes aceSpecialName{
+  0%{opacity:0;transform:translateY(24px) scale(.88);filter:blur(8px)}
+  100%{opacity:1;transform:none;filter:blur(0)}
+}
+@keyframes aceSpecialSub{
+  to{opacity:1;transform:none}
+}
+
+.aceCinemaFlash.ace-fire{
+  background:
+    radial-gradient(circle,#fff 0 6%,#e9d8ff 15%,rgba(184,117,255,.82) 31%,rgba(114,49,213,.25) 52%,transparent 70%)!important;
+}
+.aceCinematicPackOverlay.ace-stage-card::before,
+.aceCinematicPackOverlay.ace-stage-card::after{
+  content:"♠";
+  position:fixed;
+  z-index:11;
+  top:50%;
+  color:rgba(228,203,255,.18);
+  font-size:240px;
+  transform:translateY(-50%);
+  pointer-events:none;
+  animation:aceSideSpade .75s ease-out forwards;
+}
+.aceCinematicPackOverlay.ace-stage-card::before{left:-20px}
+.aceCinematicPackOverlay.ace-stage-card::after{right:-20px;transform:translateY(-50%) scaleX(-1)}
+@keyframes aceSideSpade{
+  0%{opacity:0;filter:blur(15px)}
+  45%{opacity:.42;filter:blur(0)}
+  100%{opacity:0;filter:blur(4px)}
+}
+
+.aceCinematicPackOverlay.ace-special .aceCinemaRevealLabel{
+  color:#caa4f7;
+  text-shadow:0 0 16px rgba(153,88,229,.3);
+}
+.aceCinematicPackOverlay.ace-special .aceCinemaNext{
+  border:1px solid rgba(190,136,255,.2);
+  background:linear-gradient(135deg,#37214f,#7d43bd);
+}
+
+@media(max-width:700px){
+  .aceCinemaAceSequence{height:360px}
+  .aceCinemaAceSpade{font-size:112px}
+  .aceCinemaAceTitle{font-size:68px}
+  .aceCinemaAceRatingStage{font-size:105px}
+  .aceCinemaAceNameStage{top:64%;font-size:30px}
+  .aceCinemaAceSub{top:83%;font-size:5.5px}
+  .aceCinematicPackOverlay.ace-stage-card::before,
+  .aceCinematicPackOverlay.ace-stage-card::after{font-size:150px}
+}
+</style>
+
+<meta name="ace-build" content="B21.3 Ace Special Reveal">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -21578,91 +21874,304 @@ async function openUltimatePack(packId){
 }
 
 
+
 function ensureUltimateTripleReveal(){
   let overlay=document.getElementById("aceTriplePackOverlay");
   if(overlay)return overlay;
 
   overlay=document.createElement("div");
   overlay.id="aceTriplePackOverlay";
-  overlay.className="aceTriplePackOverlay";
+  overlay.className="aceTriplePackOverlay aceCinematicPackOverlay";
   overlay.innerHTML=`
-    <div class="aceTriplePackStage">
-      <div class="aceTriplePackKicker">THE ACE PROJECT · PACK OPENING</div>
-      <h2 id="aceTriplePackTitle">3 NEW PLAYERS</h2>
-      <p id="aceTriplePackSubtitle">All three cards are already saved to your club.</p>
-      <div class="aceTriplePackCards" id="aceTriplePackCards"></div>
-      <div class="aceTriplePackStatus" id="aceTriplePackStatus">REVEALING 1 / 3…</div>
-      <div class="aceTriplePackActions hidden" id="aceTriplePackActions">
-        <button class="aceTriplePackAgain" id="aceTriplePackAgain" type="button">OPEN ANOTHER</button>
-        <button class="aceTriplePackDone" id="aceTriplePackDone" type="button">SEND ALL TO MY CLUB →</button>
+    <div class="aceCinematicPackStage">
+      <div class="aceCinematicPackHeader">
+        <span>THE ACE PROJECT · PACK OPENING</span>
+        <b id="aceCinemaPackCounter">3 CARDS SAVED</b>
       </div>
+
+      <section class="aceCinemaIntro" id="aceCinemaIntro">
+        <div class="aceCinemaPackShell">
+          <div class="aceCinemaPackAura"></div>
+          <div class="aceCinemaPackDoor">
+            <small>THE ACE PROJECT</small>
+            <strong id="aceCinemaPackName">GOLD PACK</strong>
+            <span>3 PLAYER CARDS</span>
+          </div>
+        </div>
+        <h2>YOUR PACK IS READY.</h2>
+        <p>All three cards are already safe in your club. Reveal them one by one.</p>
+        <button id="aceCinemaStart" class="aceCinemaPrimary" type="button">START REVEAL</button>
+      </section>
+
+      <section class="aceCinemaReveal hidden" id="aceCinemaReveal">
+        <div class="aceCinemaAtmosphere" id="aceCinemaAtmosphere"></div>
+        <div class="aceCinemaFlash" id="aceCinemaFlash"></div>
+
+        <div class="aceCinemaAceSequence hidden" id="aceCinemaAceSequence">
+          <div class="aceCinemaAceSpade" id="aceCinemaAceSpade">♠</div>
+          <div class="aceCinemaAceTitle" id="aceCinemaAceTitle">ACE</div>
+          <div class="aceCinemaAceRatingStage" id="aceCinemaAceRatingStage"></div>
+          <div class="aceCinemaAceNameStage" id="aceCinemaAceNameStage"></div>
+          <div class="aceCinemaAceSub" id="aceCinemaAceSub">THE ACE PROJECT</div>
+        </div>
+
+        <div class="aceCinemaCardScene" id="aceCinemaCardScene">
+          <div class="aceCinemaCardBack" id="aceCinemaCardBack">
+            <div class="aceCinemaBackAce">ACE</div>
+            <div class="aceCinemaBackProject">PROJECT</div>
+          </div>
+          <div class="aceCinemaCardFront" id="aceCinemaCardFront"></div>
+        </div>
+
+        <div class="aceCinemaRevealLabel" id="aceCinemaRevealLabel">TAP TO REVEAL</div>
+        <button id="aceCinemaRevealBtn" class="aceCinemaPrimary" type="button">REVEAL CARD</button>
+        <button id="aceCinemaNextBtn" class="aceCinemaNext hidden" type="button">NEXT CARD →</button>
+      </section>
+
+      <section class="aceCinemaSummary hidden" id="aceCinemaSummary">
+        <span class="aceCinemaSummaryKicker">PACK COMPLETE</span>
+        <h2>THREE NEW PLAYERS.</h2>
+        <p>The cards were saved before the animation started.</p>
+        <div class="aceCinemaSummaryCards" id="aceCinemaSummaryCards"></div>
+        <div class="aceCinemaSummaryActions">
+          <button id="aceCinemaAgain" type="button">OPEN ANOTHER</button>
+          <button id="aceCinemaDone" class="primary" type="button">SEND ALL TO MY CLUB →</button>
+        </div>
+      </section>
     </div>`;
   document.body.appendChild(overlay);
   return overlay;
 }
 
-function aceTriplePackCardHTML(card,index){
-  const player=players.find(p=>p.name===card.playerName);
-  const rarity=UT_RARITY[card.rarity]?.label||String(card.rarity||"").toUpperCase();
-  return `<div class="aceTriplePackCard ${card.rarity}" data-triple-card="${index}">
-    <div class="aceTriplePackFeatured">${card.featured?"FEATURED":"SUPPORT"}</div>
-    ${player?.photo?`<img src="${esc(player.photo)}" alt="${esc(card.playerName)}">`:""}
-    <div class="aceTriplePackShade"></div>
-    <div class="aceTriplePackRating">${Math.round(card.rating)}<small>${esc(card.position||"-")}</small></div>
-    <div class="aceTriplePackTier">${rarity}</div>
-    <div class="aceTriplePackName">${esc(card.playerName)}</div>
+function aceCinemaCardMarkup(card,{summary=false}={}){
+  const p=players.find(x=>x.name===card.playerName);
+  const rarity=(UT_RARITY[card.rarity]?.label||card.rarity||"PLAYER").toUpperCase();
+  return `<div class="${summary?"aceCinemaSummaryCard":"aceCinemaPlayerCard"} ${card.rarity}">
+    ${p?.photo?`<img src="${esc(p.photo)}" alt="${esc(card.playerName)}">`:""}
+    <div class="aceCinemaCardShade"></div>
+    <div class="aceCinemaRating">${Math.round(card.rating)}<small>${esc(card.position||"-")}</small></div>
+    <div class="aceCinemaRarity">${rarity}</div>
+    ${card.featured?'<div class="aceCinemaFeaturedBadge">FEATURED</div>':""}
+    <div class="aceCinemaName">${esc(card.playerName)}</div>
   </div>`;
 }
 
 async function showUltimateTripleReveal(cards,packId){
   const overlay=ensureUltimateTripleReveal();
-  const holder=overlay.querySelector("#aceTriplePackCards");
-  const status=overlay.querySelector("#aceTriplePackStatus");
-  const actions=overlay.querySelector("#aceTriplePackActions");
-  const again=overlay.querySelector("#aceTriplePackAgain");
-  const done=overlay.querySelector("#aceTriplePackDone");
 
-  const ordered=[...cards].sort((a,b)=>Number(a.packSlot||0)-Number(b.packSlot||0));
-  const packName=String(packId||"pack").toUpperCase();
+  // Support cards first. Headline/featured card is always the final reveal.
+  const ordered=[...cards].sort((a,b)=>{
+    if(Boolean(a.featured)!==Boolean(b.featured)) return a.featured?1:-1;
+    return Number(a.packSlot||0)-Number(b.packSlot||0);
+  });
 
-  overlay.querySelector("#aceTriplePackTitle").textContent=`${packName} PACK · 3 PLAYERS`;
-  overlay.querySelector("#aceTriplePackSubtitle").textContent=
-    "The featured card uses the pack's headline odds. Support cards use lower-ceiling odds.";
+  const intro=overlay.querySelector("#aceCinemaIntro");
+  const reveal=overlay.querySelector("#aceCinemaReveal");
+  const summary=overlay.querySelector("#aceCinemaSummary");
+  const counter=overlay.querySelector("#aceCinemaPackCounter");
+  const packName=overlay.querySelector("#aceCinemaPackName");
+  const back=overlay.querySelector("#aceCinemaCardBack");
+  const front=overlay.querySelector("#aceCinemaCardFront");
+  const label=overlay.querySelector("#aceCinemaRevealLabel");
+  const flash=overlay.querySelector("#aceCinemaFlash");
+  const atmosphere=overlay.querySelector("#aceCinemaAtmosphere");
+  const revealBtn=overlay.querySelector("#aceCinemaRevealBtn");
+  const nextBtn=overlay.querySelector("#aceCinemaNextBtn");
+  const summaryCards=overlay.querySelector("#aceCinemaSummaryCards");
+  const cardScene=overlay.querySelector("#aceCinemaCardScene");
+  const aceSequence=overlay.querySelector("#aceCinemaAceSequence");
+  const aceSpade=overlay.querySelector("#aceCinemaAceSpade");
+  const aceTitle=overlay.querySelector("#aceCinemaAceTitle");
+  const aceRatingStage=overlay.querySelector("#aceCinemaAceRatingStage");
+  const aceNameStage=overlay.querySelector("#aceCinemaAceNameStage");
+  const aceSub=overlay.querySelector("#aceCinemaAceSub");
 
-  holder.innerHTML=ordered.map(aceTriplePackCardHTML).join("");
-  actions.classList.add("hidden");
+  let index=0;
+  let revealed=false;
+  let busy=false;
+
+  packName.textContent=`${String(packId||"PACK").toUpperCase()} PACK`;
+  intro.classList.remove("hidden");
+  reveal.classList.add("hidden");
+  summary.classList.add("hidden");
+  counter.textContent="3 CARDS SAVED";
   overlay.classList.add("show");
   document.body.style.overflow="hidden";
 
-  const els=[...holder.querySelectorAll("[data-triple-card]")];
-  for(let i=0;i<els.length;i++){
-    if(status)status.textContent=`REVEALING ${i+1} / 3…`;
-    await new Promise(r=>setTimeout(r,i===0?320:430));
-    els[i].classList.add("revealed");
-    const card=ordered[i];
-    if(status)status.textContent=`${i+1} / 3 · ${String(UT_RARITY[card.rarity]?.label||card.rarity).toUpperCase()} · ${card.playerName}`;
+  function setupCard(){
+    const card=ordered[index];
+    revealed=false;
+    busy=false;
+    counter.textContent=`CARD ${index+1} / 3${card.featured?" · FEATURED":""}`;
+    front.innerHTML=aceCinemaCardMarkup(card);
+    front.className=`aceCinemaCardFront ${card.rarity}`;
+    back.classList.remove("gone");
+    front.classList.remove("revealed","exit");
+    flash.className="aceCinemaFlash";
+    atmosphere.className=`aceCinemaAtmosphere ${card.rarity}`;
+    label.className=`aceCinemaRevealLabel ${card.featured?"featured":""}`;
+    label.textContent=card.featured?"FEATURED CARD · TAP TO REVEAL":"TAP TO REVEAL";
+
+    overlay.classList.remove(
+      "ace-special","ace-stage-spade","ace-stage-title",
+      "ace-stage-rating","ace-stage-name","ace-stage-card"
+    );
+    aceSequence.classList.add("hidden");
+    aceSpade.textContent="♠";
+    aceTitle.textContent="ACE";
+    aceRatingStage.textContent="";
+    aceNameStage.textContent="";
+    aceSub.textContent="THE ACE PROJECT";
+    cardScene.classList.remove("ace-hidden");
+
+    revealBtn.classList.remove("hidden");
+    nextBtn.classList.add("hidden");
+    nextBtn.textContent=index===2?"VIEW PACK →":"NEXT CARD →";
   }
 
-  await new Promise(r=>setTimeout(r,350));
-  if(status)status.textContent="PACK COMPLETE · ALL 3 CARDS SAVED";
-  actions.classList.remove("hidden");
+  async function revealCard(){
+    if(busy||revealed)return;
+    busy=true;
+    const card=ordered[index];
+
+    revealBtn.classList.add("hidden");
+
+    // --------------------------------------------------------
+    // ACE 96–99: dedicated legacy-style staged reveal.
+    // Blackout -> spade -> ACE -> rating -> player name -> card.
+    // --------------------------------------------------------
+    if(card.rarity==="ace"){
+      label.textContent="SOMETHING IS DIFFERENT…";
+      overlay.classList.add("ace-special");
+      navigator.vibrate?.([55,45,90]);
+
+      await new Promise(r=>setTimeout(r,520));
+
+      cardScene.classList.add("ace-hidden");
+      aceSequence.classList.remove("hidden");
+      overlay.classList.add("ace-stage-spade");
+      label.textContent="♠";
+      navigator.vibrate?.(75);
+      await new Promise(r=>setTimeout(r,680));
+
+      overlay.classList.add("ace-stage-title");
+      label.textContent="ACE";
+      await new Promise(r=>setTimeout(r,620));
+
+      aceRatingStage.textContent=String(Math.round(card.rating));
+      overlay.classList.add("ace-stage-rating");
+      label.textContent=`${Math.round(card.rating)} RATING`;
+      navigator.vibrate?.([45,35,90]);
+      await new Promise(r=>setTimeout(r,720));
+
+      aceNameStage.textContent=String(card.playerName||"ACE PLAYER").toUpperCase();
+      overlay.classList.add("ace-stage-name");
+      label.textContent="PLAYER REVEAL";
+      await new Promise(r=>setTimeout(r,760));
+
+      // Final white/purple hit, then transition into the actual card.
+      flash.classList.add("fire","ace-fire");
+      overlay.classList.add("ace-stage-card");
+      await new Promise(r=>setTimeout(r,240));
+
+      aceSequence.classList.add("hidden");
+      cardScene.classList.remove("ace-hidden");
+      back.classList.add("gone");
+      front.classList.add("revealed");
+
+      await new Promise(r=>setTimeout(r,700));
+      overlay.classList.remove(
+        "ace-stage-spade","ace-stage-title",
+        "ace-stage-rating","ace-stage-name","ace-stage-card"
+      );
+
+      label.textContent=`ACE · ${card.playerName}`;
+      nextBtn.classList.remove("hidden");
+      revealed=true;
+      busy=false;
+      return;
+    }
+
+    // Elite receives a slightly longer premium build.
+    if(card.rarity==="elite"){
+      label.textContent="ELITE CARD…";
+      overlay.classList.add("featured-build");
+      await new Promise(r=>setTimeout(r,420));
+    }else if(card.featured){
+      label.textContent="FEATURED CARD…";
+      overlay.classList.add("featured-build");
+      await new Promise(r=>setTimeout(r,520));
+    }else{
+      label.textContent="REVEALING…";
+      await new Promise(r=>setTimeout(r,220));
+    }
+
+    flash.classList.add("fire");
+    back.classList.add("gone");
+    front.classList.add("revealed");
+
+    await new Promise(r=>setTimeout(r,card.rarity==="elite"?560:card.featured?620:420));
+    overlay.classList.remove("featured-build");
+
+    const rarity=(UT_RARITY[card.rarity]?.label||card.rarity||"PLAYER").toUpperCase();
+    label.textContent=`${rarity} · ${card.playerName}`;
+    nextBtn.classList.remove("hidden");
+    revealed=true;
+    busy=false;
+  }
+
+  async function nextCard(){
+    if(!revealed||busy)return;
+
+    if(index===ordered.length-1){
+      reveal.classList.add("hidden");
+      summary.classList.remove("hidden");
+      counter.textContent="PACK COMPLETE";
+      summaryCards.innerHTML=ordered.map(c=>aceCinemaCardMarkup(c,{summary:true})).join("");
+      return;
+    }
+
+    busy=true;
+    front.classList.add("exit");
+    await new Promise(r=>setTimeout(r,180));
+    index++;
+    setupCard();
+  }
+
+  overlay.querySelector("#aceCinemaStart").onclick=()=>{
+    intro.classList.add("hidden");
+    reveal.classList.remove("hidden");
+    index=0;
+    setupCard();
+  };
+
+  revealBtn.onclick=revealCard;
+  back.onclick=revealCard;
+  nextBtn.onclick=nextCard;
 
   const close=()=>{
-    overlay.classList.remove("show");
+    overlay.classList.remove(
+      "show","featured-build","ace-special","ace-stage-spade",
+      "ace-stage-title","ace-stage-rating","ace-stage-name","ace-stage-card"
+    );
     document.body.style.overflow="";
     renderUltimateTeam();
     vdsSwitchUltimateInstance("packs");
   };
 
-  done.onclick=close;
-  again.onclick=()=>{
-    overlay.classList.remove("show");
+  overlay.querySelector("#aceCinemaDone").onclick=close;
+  overlay.querySelector("#aceCinemaAgain").onclick=()=>{
+    overlay.classList.remove(
+      "show","featured-build","ace-special","ace-stage-spade",
+      "ace-stage-title","ace-stage-rating","ace-stage-name","ace-stage-card"
+    );
     document.body.style.overflow="";
     setTimeout(()=>openUltimatePack(packId),180);
   };
 }
 
-/* B21.1: obsolete single-card reveal removed; all normal packs use showUltimateTripleReveal(). */
+/* B21.2: sequential cinematic reveal. Backend still commits 3 cards atomically. */
+
 function refreshUltimateCardsFromMaster(){
   if(!Array.isArray(ultimateTeamState.cards))return;
 
@@ -30436,7 +30945,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 <script id="ace-b20-5-diagnostics">
 window.aceRuntimeHealth=function(){
   return {
-    build:"B21.1",
+    build:"B21.3",
     page:document.querySelector(".page.active")?.id||null,
     multiplayer:typeof mpInMultiplayerRoom==="function"?mpInMultiplayerRoom():false,
     persistentRoom:typeof mpHasPersistentRoom==="function"?mpHasPersistentRoom():false,
