@@ -6384,7 +6384,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B20.0 Global Reset + Welcome Gold Pack Fix">
+<meta name="ace-build" content="B20.2 Matchmaking Recovery Fix">
 
 <style id="ace-b19-auto-matchmaking-style">
 .aceUTOnlineModeTag{
@@ -20145,13 +20145,14 @@ function vdsStarterCardObject(player,{rarity="bronze",captain=false,ratingOverri
   const naturalRating=Math.round(mainPositionRating(player));
   const rating=Number.isFinite(Number(ratingOverride))?Math.round(Number(ratingOverride)):naturalRating;
   const master=overall(player);
+  const canonicalRarity=utTierForCardRating(rating);
   return {
     id:`starter_${player.cloudId}`,
     playerId:Number(player.cloudId),
     playerName:player.name,
     photo:player.photo||"",
     position:player.position||"-",
-    rarity,
+    rarity:canonicalRarity,
     rating,
     positionRating:rating,
     overallRating:master,
@@ -20695,6 +20696,16 @@ const UT_RARITY={
   ace:{label:"ACE",min:96,max:99}
 };
 
+function utTierForCardRating(value){
+  const r=Math.round(Number(value)||0);
+  if(r>=96)return "ace";
+  if(r>=90)return "elite";
+  if(r>=85)return "rare_gold";
+  if(r>=75)return "gold";
+  if(r>=60)return "silver";
+  return "bronze";
+}
+
 let ultimateTeamState={coins:0,cards:[],lineupSlots:Array(6).fill(null),lineupMode:"serving"};
 let vdsUTCloudReady=false;
 let vdsUTCloudSyncBusy=false;
@@ -20738,9 +20749,10 @@ function vdsCloudUTCardObject(row,{rarity=null,rating=null}={}){
   const player=vdsCloudUTPlayerById(row.player_id);
   if(!player)return null;
   const master=overall(player);
-  const tier=rarity||utPlayerTier(player);
+  const requestedTier=rarity||utPlayerTier(player);
   const hasExplicitRating=rating!==null && rating!==undefined && rating!=="" && Number.isFinite(Number(rating));
-  const mainRating=hasExplicitRating?Math.round(Number(rating)):utRatingForRarity(tier,player);
+  const mainRating=hasExplicitRating?Math.round(Number(rating)):utRatingForRarity(requestedTier,player);
+  const tier=utTierForCardRating(mainRating);
   return {
     id:`ut_${row.id}`,
     cloudCardId:String(row.id),
@@ -21404,7 +21416,7 @@ function renderUltimateBench(){
       <div class="vdsUTBenchRate">${card.rating}<small>${esc(card.position||"-")}</small></div>
       ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsUTBenchFallback">👤</div>`}
       <div class="vdsUTBenchShade"></div>
-      <div class="vdsUTBenchBottom"><b>${esc(card.playerName)}</b><span>${(UT_RARITY[card.rarity]?.label||card.rarity||"").toUpperCase()} · OVR ${card.overallRating??card.sourceOverall??card.rating??"—"}</span></div>
+      <div class="vdsUTBenchBottom"><b>${esc(card.playerName)}</b><span>${(UT_RARITY[card.rarity]?.label||card.rarity||"").toUpperCase()} · OVR ${card.rating??card.positionRating??"—"}</span></div>
     </button>`;
   }).join("");
 
@@ -21458,7 +21470,7 @@ function renderUltimateSquadVisual(){
 
   const avgEl=document.getElementById("utSquadRating");
   if(avgEl){
-    const avg=filled.length?Math.round(filled.reduce((sum,card)=>sum+Number(card.overallRating??card.sourceOverall??card.rating??0),0)/filled.length):null;
+    const avg=filled.length?Math.round(filled.reduce((sum,card)=>sum+Number(card.rating??card.positionRating??0),0)/filled.length):null;
     avgEl.textContent=avg?`TEAM OVR ${avg}`:"TEAM OVR —";
   }
   const serveBtn=document.getElementById('utServeModeBtn');
@@ -21679,6 +21691,17 @@ function aceBindClubControls(){
 
 function renderUltimateTeam(){
   vdsSanitizeUltimateTeamStateByPool({persist:true});
+
+  // Canonical UT rule: the displayed card rating determines rarity.
+  // This repairs any stale cached "75 Silver" cards immediately.
+  if(Array.isArray(ultimateTeamState.cards)){
+    ultimateTeamState.cards.forEach(card=>{
+      const shown=Number(card?.rating??card?.positionRating);
+      if(Number.isFinite(shown)){
+        card.rarity=utTierForCardRating(shown);
+      }
+    });
+  }
 
   const coinEl=document.getElementById("utCoins");
   const countEl=document.getElementById("utCollectionCount");
@@ -29421,6 +29444,14 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
         return;
       }
 
+      if(data?.status==="idle" || data?.recovered_stale_match===true){
+        // Server detected a broken/abandoned hidden room. Re-enter the queue
+        // automatically rather than surfacing SEARCH INTERRUPTED.
+        await delay(180);
+        if(mm.active&&token===mm.token)return poll(token);
+        return;
+      }
+
       if(data?.status!=="searching"){
         throw new Error(`MATCHMAKING_${String(data?.status||"UNKNOWN").toUpperCase()}`);
       }
@@ -29674,6 +29705,46 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     },70);
   };
   window.aceUTLeagueReplay=aceUTLeagueReplay;
+
+  // Accidental navigation protection. Search is cancelled cleanly before
+  // opening another mode. Once an opponent is already paired, pre-match
+  // navigation requires an explicit leave so the other manager is released.
+  const aceUTBaseGoPage=goPage;
+  goPage=function(id){
+    const target=String(id||"");
+    const stayingInOnlineFlow=["lineup","sim"].includes(target);
+
+    if(mm.active && target!=="ultimate"){
+      (async()=>{
+        await cancel({close:true});
+        aceUTBaseGoPage(target);
+      })();
+      return;
+    }
+
+    // Opponent found but this browser is still attaching to the room. Do not
+    // let a stray Mini Draft/Home tap break the committed pairing mid-handshake.
+    if(mm.entering && !stayingInOnlineFlow){
+      alert("Opponent found — finishing the online match connection first.");
+      return;
+    }
+
+    if(window.aceUTOnlineMatchActive && mpInMultiplayerRoom?.() && !stayingInOnlineFlow){
+      const leave=confirm("Leave this online match and open another mode? Your opponent will be released back to matchmaking.");
+      if(!leave)return;
+      (async()=>{
+        await leaveMultiplayer();
+        aceUTBaseGoPage(target);
+      })();
+      return;
+    }
+
+    return aceUTBaseGoPage(target);
+  };
+  window.goPage=goPage;
+
+  window.aceUTIsMatchmakingActive=()=>!!mm.active;
+  window.aceUTIsMatchConnecting=()=>!!mm.entering;
 
   // Escape is treated as Cancel Search when queueing.
   document.addEventListener("keydown",event=>{
