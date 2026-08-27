@@ -31403,10 +31403,324 @@ window.aceRuntimeHealth=function(){
 </style>
 
 
-<script id="ace-b21-7-version-marker">
-window.ACE_PROJECT_BUILD="B21.7";
+
+<style id="ace-b21-8-pack-final-fidelity">
+/* =========================================================
+   B21.8 — PACK REVEAL FINAL FIDELITY
+   1) Cinematic pack cards get the same boxed Playstyle UI as
+      real Ultimate Team / My Club cards.
+   2) "THREE NEW PLAYERS" no longer renders mini/shrunken cards.
+      Desktop = three full-size cards.
+      Narrow screens = full-size horizontal scroll, never squeeze.
+   ========================================================= */
+
+/* ---------- PLAYSTYLE BOXES IN BOTH PACK VIEWS ---------- */
+.aceCinemaPlayerCard .vdsCardPlaystyles,
+.aceCinemaSummaryCard .vdsCardPlaystyles{
+  position:relative!important;
+  z-index:46!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:4px!important;
+  width:calc(100% - 18px)!important;
+  height:auto!important;
+  min-height:22px!important;
+  max-height:none!important;
+  margin:5px auto 3px!important;
+  padding:0!important;
+  overflow:visible!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+.aceCinemaPlayerCard .vdsCardPlaystyle,
+.aceCinemaSummaryCard .vdsCardPlaystyle{
+  position:relative!important;
+  z-index:47!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:22px!important;
+  height:22px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border-radius:6px!important;
+  border:1px solid rgba(230,197,86,.58)!important;
+  background:linear-gradient(180deg,rgba(22,25,28,.96),rgba(5,10,13,.96))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 2px 5px rgba(0,0,0,.30)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+.aceCinemaPlayerCard .vdsCardPlaystyle.defense,
+.aceCinemaSummaryCard .vdsCardPlaystyle.defense{
+  border-color:rgba(104,197,244,.58)!important;
+  background:linear-gradient(180deg,rgba(10,29,41,.96),rgba(4,13,20,.96))!important;
+}
+
+.aceCinemaPlayerCard .vdsCardPlaystyleEmoji,
+.aceCinemaSummaryCard .vdsCardPlaystyleEmoji{
+  flex:0 0 auto!important;
+  display:grid!important;
+  place-items:center!important;
+  width:14px!important;
+  height:14px!important;
+  font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:9px!important;
+  line-height:1!important;
+  font-weight:400!important;
+}
+
+.aceCinemaPlayerCard .vdsCardPlaystyleLabel,
+.aceCinemaSummaryCard .vdsCardPlaystyleLabel{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#f2e8be!important;
+  font-size:5.2px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+}
+
+.aceCinemaPlayerCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel,
+.aceCinemaSummaryCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel{
+  color:#daf3ff!important;
+}
+
+/* One assigned Playstyle stays a deliberate centred box. */
+.aceCinemaPlayerCard .vdsCardPlaystyle:only-child,
+.aceCinemaSummaryCard .vdsCardPlaystyle:only-child{
+  grid-column:1 / -1!important;
+  width:55%!important;
+  justify-self:center!important;
+}
+
+/* ---------- FINAL THREE: DO NOT SHRINK THE CARDS ---------- */
+.aceCinemaSummaryCards{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  flex-wrap:nowrap!important;
+  gap:18px!important;
+  width:min(100%,930px)!important;
+  max-width:930px!important;
+  margin:25px auto 0!important;
+  padding:0 12px 12px!important;
+  overflow:visible!important;
+}
+
+.aceCinemaSummaryCard{
+  position:relative!important;
+  flex:0 0 275px!important;
+  width:275px!important;
+  min-width:275px!important;
+  max-width:275px!important;
+  height:auto!important;
+  min-height:420px!important;
+  aspect-ratio:auto!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+
+/* Restore the exact standard card scale instead of old summary reductions. */
+.aceCinemaSummaryCard .fifaPlayerCard{
+  width:275px!important;
+  min-width:275px!important;
+  max-width:275px!important;
+  height:auto!important;
+  min-height:420px!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:18px 14px 16px!important;
+  border-radius:0!important;
+}
+
+/* Explicitly undo every old "summary mini card" type/photo/stat override. */
+.aceCinemaSummaryCard .fifaOverall{
+  font-size:43px!important;
+}
+.aceCinemaSummaryCard .fifaMainPosLabel{
+  margin-top:7px!important;
+  font-size:9px!important;
+}
+.aceCinemaSummaryCard .fifaPos{
+  margin-top:5px!important;
+  font-size:7px!important;
+}
+.aceCinemaSummaryCard .fifaTierTag{
+  padding:4px 7px!important;
+  font-size:7px!important;
+}
+.aceCinemaSummaryCard .fifaPhoto{
+  position:relative!important;
+  display:block!important;
+  width:122%!important;
+  height:270px!important;
+  max-width:none!important;
+  margin:-62px -11% -38px!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  border:0!important;
+  border-radius:0!important;
+}
+.aceCinemaSummaryCard .fifaName{
+  margin:0 5px 4px!important;
+  padding:4px 2px 0!important;
+  font-size:18px!important;
+  line-height:1.05!important;
+}
+.aceCinemaSummaryCard .fifaDivider{
+  margin:7px 0 5px!important;
+}
+.aceCinemaSummaryCard .fifaMainStats{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:6px!important;
+}
+.aceCinemaSummaryCard .fifaStat{
+  font-size:7px!important;
+}
+.aceCinemaSummaryCard .fifaStat b{
+  margin-top:1px!important;
+  font-size:18px!important;
+}
+.aceCinemaSummaryCard .fifaSpecialists{
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:4px!important;
+  margin-top:6px!important;
+}
+.aceCinemaSummaryCard .fifaSpec{
+  font-size:6px!important;
+}
+.aceCinemaSummaryCard .fifaSpec b{
+  margin-top:1px!important;
+  font-size:11px!important;
+}
+.aceCinemaSummaryCard .fifaServeType{
+  margin-top:5px!important;
+  padding:0!important;
+  font-size:6px!important;
+}
+.aceCinemaSummaryCard .fifaEditHint{
+  margin-top:7px!important;
+  padding-top:6px!important;
+  font-size:6px!important;
+  letter-spacing:.10em!important;
+}
+
+/* Ensure the lower section, especially Playstyles, is not hidden/cropped. */
+.aceCinemaSummaryCard .fifaLowerBlock,
+.aceCinemaPlayerCard .fifaLowerBlock{
+  position:relative!important;
+  z-index:20!important;
+  display:block!important;
+  overflow:visible!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+/* Keep the individual reveal at the real full card scale too. */
+.aceCinemaPlayerCard .fifaPlayerCard{
+  min-height:420px!important;
+}
+
+/* ---------- RESPONSIVE: SCROLL FULL-SIZE CARDS, NEVER SQUEEZE ---------- */
+@media(max-width:930px){
+  .aceCinemaSummaryCards{
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    scroll-snap-type:x mandatory!important;
+    scroll-padding-inline:calc(50% - 137.5px)!important;
+    padding:0 calc(50% - 137.5px) 18px!important;
+    gap:14px!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .aceCinemaSummaryCards::-webkit-scrollbar{
+    display:none!important;
+  }
+  .aceCinemaSummaryCard{
+    flex:0 0 275px!important;
+    width:275px!important;
+    min-width:275px!important;
+    max-width:275px!important;
+    scroll-snap-align:center!important;
+  }
+}
+
+/* On very narrow phones, keep the exact card design but use the same
+   canonical 260px reveal size — still NOT a 1/3-width mini card. */
+@media(max-width:420px){
+  .aceCinemaSummaryCards{
+    scroll-padding-inline:calc(50% - 130px)!important;
+    padding-left:calc(50% - 130px)!important;
+    padding-right:calc(50% - 130px)!important;
+  }
+  .aceCinemaSummaryCard,
+  .aceCinemaSummaryCard .fifaPlayerCard{
+    flex-basis:260px!important;
+    width:260px!important;
+    min-width:260px!important;
+    max-width:260px!important;
+  }
+}
+
+/* Mobile boxed Playstyles remain readable. */
+@media(max-width:760px){
+  .aceCinemaPlayerCard .vdsCardPlaystyles,
+  .aceCinemaSummaryCard .vdsCardPlaystyles{
+    width:calc(100% - 12px)!important;
+    gap:3px!important;
+    min-height:20px!important;
+    margin:4px auto 2px!important;
+  }
+  .aceCinemaPlayerCard .vdsCardPlaystyle,
+  .aceCinemaSummaryCard .vdsCardPlaystyle{
+    min-height:20px!important;
+    height:20px!important;
+    padding:3px 5px!important;
+    border-radius:5px!important;
+    gap:3px!important;
+  }
+  .aceCinemaPlayerCard .vdsCardPlaystyleEmoji,
+  .aceCinemaSummaryCard .vdsCardPlaystyleEmoji{
+    width:12px!important;
+    height:12px!important;
+    font-size:8px!important;
+  }
+  .aceCinemaPlayerCard .vdsCardPlaystyleLabel,
+  .aceCinemaSummaryCard .vdsCardPlaystyleLabel{
+    font-size:4.7px!important;
+  }
+}
+</style>
+
+
+<script id="ace-b21-8-version-marker">
+window.ACE_PROJECT_BUILD="B21.8";
 window.ACE_POSITION_OVR_MODEL="SPINNER_SYNC_2026_08_27";
 window.ACE_PACK_CARD_RENDERER="CANONICAL_MASTER_CARD";
+window.ACE_PACK_SUMMARY_SCALE="FULL_SIZE_NO_SQUEEZE";
+window.ACE_PACK_PLAYSTYLE_UI="BOXED";
 </script>
 
 </body>
