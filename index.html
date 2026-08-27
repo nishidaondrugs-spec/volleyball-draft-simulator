@@ -5668,6 +5668,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 </style>
 
 <meta name="ace-build" content="B14.2 Tactics Fix + Clean Manager UI">
+<meta name="ace-build" content="B14.3 Tactics Runtime Fix">
+<meta name="ace-build" content="B14.4 Ran Card Art Tuning">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -8082,13 +8084,28 @@ const PLAYER_CARD_ART_KEY="vdsPlayerCardArtV1";
 let playerCardArtState={};
 try{playerCardArtState=JSON.parse(safeStore.get(PLAYER_CARD_ART_KEY)||"{}")||{};}catch(e){playerCardArtState={};}
 
+// Built-in portrait presets for players whose source cutout needs a more
+// card-friendly full-bleed fit. Manual editor changes and saved values still
+// override these defaults.
+const BUILT_IN_CARD_ART_PRESETS={
+  "R. Takahashi":{scale:1.15,x:2,y:0},
+  "Ran Takahashi":{scale:1.15,x:2,y:0}
+};
+
 function getPlayerCardArt(name){
   const p=players.find(x=>x.name===name);
   const local=playerCardArtState[name]||{};
+  const preset=BUILT_IN_CARD_ART_PRESETS[name]||{};
   return {
-    scale:Number.isFinite(Number(p?.cardArtScale))?Number(p.cardArtScale):(Number.isFinite(Number(local.scale))?Number(local.scale):1),
-    x:Number.isFinite(Number(p?.cardArtX))?Number(p.cardArtX):(Number.isFinite(Number(local.x))?Number(local.x):0),
-    y:Number.isFinite(Number(p?.cardArtY))?Number(p.cardArtY):(Number.isFinite(Number(local.y))?Number(local.y):0)
+    scale:Number.isFinite(Number(p?.cardArtScale))?Number(p.cardArtScale):
+      (Number.isFinite(Number(local.scale))?Number(local.scale):
+      (Number.isFinite(Number(preset.scale))?Number(preset.scale):1)),
+    x:Number.isFinite(Number(p?.cardArtX))?Number(p.cardArtX):
+      (Number.isFinite(Number(local.x))?Number(local.x):
+      (Number.isFinite(Number(preset.x))?Number(preset.x):0)),
+    y:Number.isFinite(Number(p?.cardArtY))?Number(p.cardArtY):
+      (Number.isFinite(Number(local.y))?Number(local.y):
+      (Number.isFinite(Number(preset.y))?Number(preset.y):0))
   };
 }
 function savePlayerCardArt(){
@@ -27209,6 +27226,62 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 }
 </style>
 
+
+<script id="ace-b14-3-runtime-state-bridge">
+/* =========================================================
+   B14.3 — Runtime state bridge
+   The original game uses top-level `let` for liveState and
+   aceUTLeagueState. Top-level let bindings are NOT properties
+   of window, while later B13/B14 modules intentionally use
+   window.* so they can communicate across independent patches.
+   Bridge the canonical lexical state without duplicating it.
+   ========================================================= */
+(function(){
+  'use strict';
+  if(window.ACE_B14_3_STATE_BRIDGE)return;
+  window.ACE_B14_3_STATE_BRIDGE=true;
+
+  try{
+    const d=Object.getOwnPropertyDescriptor(window,'liveState');
+    if(!d || d.configurable){
+      Object.defineProperty(window,'liveState',{
+        configurable:true,
+        enumerable:false,
+        get:function(){ return liveState; },
+        set:function(value){ liveState=value; }
+      });
+    }
+  }catch(err){
+    console.warn('ACE liveState bridge',err);
+  }
+
+  try{
+    const d=Object.getOwnPropertyDescriptor(window,'aceUTLeagueState');
+    if(!d || d.configurable){
+      Object.defineProperty(window,'aceUTLeagueState',{
+        configurable:true,
+        enumerable:false,
+        get:function(){ return aceUTLeagueState; },
+        set:function(value){ aceUTLeagueState=value; }
+      });
+    }
+  }catch(err){
+    console.warn('ACE UT league state bridge',err);
+  }
+
+  // Re-prime UI modules that may have initialised before the bridge existed.
+  requestAnimationFrame(function(){
+    try{ window.aceUpdateManagerQuickBar?.(); }catch(e){}
+    try{
+      if(liveState){
+        window.renderManagerTacticsUI?.();
+        window.aceRefreshConditionUi?.();
+      }
+    }catch(e){}
+  });
+})();
+</script>
+
 <script id="ace-b14-2-tactics-button-fix">
 (function(){
   'use strict';
@@ -27216,15 +27289,21 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   window.ACE_B14_2_TACTICS_FIX=true;
 
   function openTactics(){
-    if(!window.liveState)return;
+    if(!window.liveState){
+      const status=document.getElementById('rallyStatus');
+      if(status)status.textContent='Start a match before opening tactics.';
+      return;
+    }
     try{
       // Always build the current Manager 2.0 state immediately before opening.
-      window.renderManagerTacticsUI?.();
-      window.aceOpenManagerPanel?.('tactics');
+      if(typeof window.renderManagerTacticsUI!=='function')throw new Error('Manager 2.0 renderer unavailable');
+      if(typeof window.aceOpenManagerPanel!=='function')throw new Error('Manager modal opener unavailable');
+      window.renderManagerTacticsUI();
+      window.aceOpenManagerPanel('tactics');
     }catch(err){
       console.error('ACE tactics open failed',err);
       const status=document.getElementById('rallyStatus');
-      if(status)status.textContent='Unable to open tactics — please try again.';
+      if(status)status.textContent='Unable to open tactics — '+(err?.message||'runtime error');
     }
   }
 
