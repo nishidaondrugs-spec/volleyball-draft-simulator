@@ -6384,7 +6384,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B20.2 Matchmaking Recovery Fix">
+<meta name="ace-build-prev" content="B20.2 Matchmaking Recovery Fix">
 
 <style id="ace-b19-auto-matchmaking-style">
 .aceUTOnlineModeTag{
@@ -6548,6 +6548,92 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
   .aceUTQueueActions{grid-template-columns:1fr;}
   .aceUTOnlineVersus{grid-template-columns:1fr;}
   .aceUTOnlineVersusVs{padding:0;}
+}
+</style>
+
+<meta name="ace-build-prev" content="B20.3 Three Card Packs">
+
+<style id="ace-b20-3-three-pack-style">
+.aceTriplePackOverlay{
+  display:none;position:fixed;inset:0;z-index:1900;
+  padding:22px;align-items:center;justify-content:center;
+  background:rgba(2,4,9,.94);backdrop-filter:blur(11px);
+}
+.aceTriplePackOverlay.show{display:flex;}
+.aceTriplePackStage{width:min(1020px,96vw);text-align:center;}
+.aceTriplePackKicker{color:#9b72d4;font-size:6px;font-weight:1000;letter-spacing:.18em;}
+.aceTriplePackStage h2{margin:7px 0 0;font-size:clamp(35px,5vw,58px);letter-spacing:-.055em;}
+.aceTriplePackStage>p{margin:8px auto 0;max-width:610px;color:#777487;font-size:8px;line-height:1.55;}
+.aceTriplePackCards{
+  display:grid;grid-template-columns:repeat(3,minmax(180px,245px));
+  justify-content:center;gap:15px;margin:24px auto 0;
+}
+.aceTriplePackCard{
+  position:relative;aspect-ratio:.68;overflow:hidden;border-radius:21px;
+  border:2px solid #738493;background:linear-gradient(150deg,#485966,#182734 65%,#09131d);
+  opacity:0;transform:translateY(35px) scale(.88) rotateY(18deg);
+  transition:opacity .32s ease,transform .5s cubic-bezier(.2,.82,.2,1),box-shadow .5s ease;
+  box-shadow:0 26px 55px rgba(0,0,0,.44);
+}
+.aceTriplePackCard.revealed{opacity:1;transform:none;}
+.aceTriplePackCard.bronze{border-color:#b77b55;background:linear-gradient(150deg,#704127,#261912 65%,#0e1013);}
+.aceTriplePackCard.silver{border-color:#cbd7df;background:linear-gradient(150deg,#75838d,#26323c 65%,#0b1218);}
+.aceTriplePackCard.gold{border-color:#e7c955;background:linear-gradient(150deg,#725a16,#302509 63%,#0e1114);}
+.aceTriplePackCard.rare_gold{border-color:#f0d870;background:linear-gradient(150deg,#8e741e,#3e300a 58%,#111319);}
+.aceTriplePackCard.elite{border-color:#a066e9;background:linear-gradient(150deg,#542e86,#1c1630 60%,#090b12);}
+.aceTriplePackCard.ace{border-color:#d8b5ff;background:linear-gradient(145deg,#170f27,#05070d 66%,#020306);box-shadow:0 26px 60px rgba(0,0,0,.5),0 0 35px rgba(174,108,255,.18);}
+.aceTriplePackCard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.76;}
+.aceTriplePackShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,5,9,.02) 30%,rgba(2,5,9,.12) 52%,rgba(2,5,9,.97) 100%);}
+.aceTriplePackFeatured{
+  position:absolute;z-index:4;right:10px;top:10px;padding:5px 7px;border-radius:999px;
+  background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.12);
+  color:#a8a2ae;font-size:5px;font-weight:1000;letter-spacing:.11em;
+}
+.aceTriplePackCard:first-child .aceTriplePackFeatured{color:#e4c75f;border-color:rgba(230,198,86,.22);}
+.aceTriplePackRating{position:absolute;z-index:4;left:13px;top:14px;color:#f4f7f9;font-size:38px;font-weight:1000;line-height:.84;}
+.aceTriplePackCard.gold .aceTriplePackRating,.aceTriplePackCard.rare_gold .aceTriplePackRating{color:#f5dc79;}
+.aceTriplePackRating small{display:block;margin-top:7px;font-size:7px;letter-spacing:.12em;}
+.aceTriplePackTier{position:absolute;z-index:4;left:13px;bottom:49px;color:#aaa4b3;font-size:5.5px;font-weight:1000;letter-spacing:.13em;}
+.aceTriplePackName{position:absolute;z-index:4;left:10px;right:10px;bottom:20px;color:#fff;font-size:15px;font-weight:1000;text-shadow:0 3px 10px #000;}
+.aceTriplePackStatus{min-height:19px;margin-top:13px;color:#898394;font-size:7px;font-weight:900;letter-spacing:.08em;}
+.aceTriplePackActions{display:flex;justify-content:center;gap:7px;margin-top:11px;}
+.aceTriplePackActions.hidden{display:none;}
+.aceTriplePackActions button{min-height:45px;padding:0 17px;border-radius:10px;font-size:7px;font-weight:1000;cursor:pointer;}
+.aceTriplePackAgain{border:1px solid rgba(174,119,246,.17);background:rgba(119,64,196,.09);color:#c4a7e8;}
+.aceTriplePackDone{border:0;background:linear-gradient(135deg,#7645c8,#a362f3);color:#fff;}
+@media(max-width:700px){
+  .aceTriplePackOverlay{padding:10px;}
+  .aceTriplePackCards{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:17px;}
+  .aceTriplePackCard{border-radius:13px;}
+  .aceTriplePackRating{left:7px;top:8px;font-size:25px;}
+  .aceTriplePackFeatured{right:5px;top:6px;padding:4px;font-size:4px;}
+  .aceTriplePackTier{left:7px;bottom:35px;font-size:4.5px;}
+  .aceTriplePackName{left:4px;right:4px;bottom:12px;font-size:9px;}
+  .aceTriplePackActions{display:grid;grid-template-columns:1fr 1fr;}
+}
+</style>
+
+<meta name="ace-build" content="B20.4 Postmatch + UT Nav Fix">
+
+<style id="ace-b20-4-postmatch-nav-style">
+/* B20.4: online UT post-match actions */
+.aceUTOnlinePostMatchButtons{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.aceUTLeaveLobbyBtn{
+  border-color:rgba(255,255,255,.075)!important;
+  background:rgba(255,255,255,.018)!important;
+}
+/* No duplicate dropdown navigation in Ultimate Team. */
+#ultimate .vdsUTHubMobileSelect,
+#ultimate #vdsUTCompactSectionSelect,
+#ultimate .vdsUTSlimSection{
+  display:none!important;
+}
+@media(max-width:760px){
+  .aceUTOnlinePostMatchButtons{grid-template-columns:1fr!important;}
+  #ultimate .vdsUTHubTabs{overflow-x:auto!important;scrollbar-width:none;}
+  #ultimate .vdsUTHubTabs::-webkit-scrollbar{display:none;}
 }
 </style>
 
@@ -7357,7 +7443,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
             <div class="utPackIcon">ACE</div>
             <div class="utPackName">Bronze Pack</div>
             <div class="vdsPackMeta"><span>3 PLAYERS</span><span>STARTER VALUE</span></div>
-            <div class="utPackOdds">80% Bronze · 18% Silver · 2% Gold</div>
+            <div class="utPackOdds">3 cards · Featured: 80% Bronze · 18% Silver · 2% Gold+</div>
             <div class="utPackCost">750 <span>COINS</span></div>
             <button class="btn secondary utOpenBtn">OPEN PACK</button>
           </div>
@@ -7365,8 +7451,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
             <div class="vdsPackTier">SILVER</div>
             <div class="utPackIcon">ACE</div>
             <div class="utPackName">Silver Pack</div>
-            <div class="vdsPackMeta"><span>4 PLAYERS</span><span>BALANCED BUILD</span></div>
-            <div class="utPackOdds">15% Bronze · 70% Silver · 14% Gold · 1% Ace</div>
+            <div class="vdsPackMeta"><span>3 PLAYERS</span><span>BALANCED BUILD</span></div>
+            <div class="utPackOdds">3 cards · Featured guaranteed Silver+ · 0.2% Ace</div>
             <div class="utPackCost">1,500 <span>COINS</span></div>
             <button class="btn secondary utOpenBtn">OPEN PACK</button>
           </div>
@@ -7374,8 +7460,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
             <div class="vdsPackTier">GOLD</div>
             <div class="utPackIcon">ACE</div>
             <div class="utPackName">Gold Pack</div>
-            <div class="vdsPackMeta"><span>5 PLAYERS</span><span>ELITE HUNT</span></div>
-            <div class="utPackOdds">20% Silver · 75% Gold · 5% Ace</div>
+            <div class="vdsPackMeta"><span>3 PLAYERS</span><span>ELITE HUNT</span></div>
+            <div class="utPackOdds">3 cards · Featured guaranteed Gold+ · 0.5% Ace</div>
             <div class="utPackCost">2,500 <span>COINS</span></div>
             <button class="btn secondary utOpenBtn">OPEN PACK</button>
           </div>
@@ -14643,6 +14729,56 @@ function renderPostMatchDecision(){
     return;
   }
 
+  if(window.aceUTOnlineMatchActive){
+    const bothRematch=t1==="rematch"&&t2==="rematch";
+    mount.innerHTML=`
+      <div class="postMatchDecision aceUTOnlinePostMatch">
+        <div class="postMatchDecisionTitle">ONLINE MATCH COMPLETE</div>
+
+        <div class="postMatchDecisionButtons aceUTOnlinePostMatchButtons">
+          <button class="postMatchChoiceBtn ${ownChoice==="rematch"?"selected":""}" data-choice="rematch"
+            type="button" onclick="submitPostMatchChoice('rematch')" ${postMatchSubmitInFlight||postMatchActionInFlight?"disabled":""}>
+            <span class="postMatchChoiceIcon">↻</span>
+            <span class="postMatchChoiceName">REMATCH · SAME OPPONENT</span>
+            <span class="postMatchChoiceDesc">Both managers must agree. Same Ultimate Team squads, fresh match state.</span>
+          </button>
+
+          <button class="postMatchChoiceBtn" type="button" onclick="aceUTOnlineFindNewOpponent()">
+            <span class="postMatchChoiceIcon">⌕</span>
+            <span class="postMatchChoiceName">FIND NEW OPPONENT</span>
+            <span class="postMatchChoiceDesc">Leave this lobby cleanly and immediately search for another online manager.</span>
+          </button>
+
+          <button class="postMatchChoiceBtn aceUTLeaveLobbyBtn" type="button" onclick="aceUTOnlineLeaveLobby()">
+            <span class="postMatchChoiceIcon">←</span>
+            <span class="postMatchChoiceName">LEAVE LOBBY</span>
+            <span class="postMatchChoiceDesc">Return to Ultimate Team. Your opponent is released from this room too.</span>
+          </button>
+        </div>
+
+        <div class="postMatchReadyRow">
+          <div class="postMatchReadyManager ${t1==="rematch"?"ready":"waiting"}">
+            PLAYER 1 · ${t1==="rematch"?"REMATCH READY":"WAITING"}
+          </div>
+          <div class="postMatchReadyVs">VS</div>
+          <div class="postMatchReadyManager ${t2==="rematch"?"ready":"waiting"}">
+            PLAYER 2 · ${t2==="rematch"?"REMATCH READY":"WAITING"}
+          </div>
+        </div>
+
+        <div class="postMatchDecisionStatus">
+          ${postMatchActionInFlight
+            ? "Starting rematch…"
+            : bothRematch
+              ? "<strong>BOTH MANAGERS READY · REMATCH</strong>"
+              : ownChoice==="rematch"
+                ? "Rematch requested · waiting for the other manager…"
+                : "Rematch together, find somebody new, or leave the online lobby."}
+        </div>
+      </div>`;
+    return;
+  }
+
   const same=t1&&t2&&t1===t2;
   const mismatch=t1&&t2&&t1!==t2;
 
@@ -14778,16 +14914,40 @@ async function submitPostMatchChoice(choice){
   renderPostMatchDecision();
 
   try{
-    const {data,error}=await mpClient.rpc("vds_submit_postmatch_choice",{
+    let response=await mpClient.rpc("vds_submit_postmatch_choice",{
       p_code:mpRoom,
       p_choice:choice
     });
-    if(error)throw error;
-    applyPostMatchServerState(postMatchServerRow(data));
+
+    // A short authority/realtime wobble after the final rally should not make
+    // the player immediately see "unable to sync". Retry the idempotent vote once.
+    if(response.error){
+      await new Promise(r=>setTimeout(r,220));
+      response=await mpClient.rpc("vds_submit_postmatch_choice",{
+        p_code:mpRoom,
+        p_choice:choice
+      });
+    }
+
+    if(response.error)throw response.error;
+    applyPostMatchServerState(postMatchServerRow(response.data));
     startPostMatchPolling();
   }catch(error){
     console.error("VDS post-match choice failed",error);
-    alert("Your choice could not be synced to the room. Please try again.");
+
+    if(window.aceUTOnlineMatchActive){
+      try{
+        const {data:status}=await mpClient.rpc("vds_get_ut_matchmaking_status");
+        if(!status || status.status!=="matched"){
+          alert("The opponent has left this lobby. You can search for a new opponent now.");
+          await window.aceUTOnlineLeaveLobby?.({silent:true});
+          return;
+        }
+      }catch(e){console.warn("UT post-match recovery check",e);}
+      alert("The rematch request could not sync yet. Your lobby is still connected — please try Rematch again, or choose Find New Opponent.");
+    }else{
+      alert("Your choice could not be synced to the room. Please try again.");
+    }
     await refreshPostMatchState();
   }finally{
     postMatchSubmitInFlight=false;
@@ -20673,17 +20833,19 @@ async function vdsEnterUltimateTeam(){
 
 const UT_SAVE_KEY="volleyballUltimateTeamV1";
 const UT_PACKS={
+  // These are FEATURED-SLOT odds. Every normal pack contains three cards:
+  // one featured slot plus two lower-ceiling support slots.
   bronze:{
     cost:750,
-    odds:[["bronze",.82],["silver",.17],["gold",.009],["rare_gold",.001]]
+    odds:[["bronze",.80],["silver",.18],["gold",.018],["rare_gold",.002]]
   },
   silver:{
     cost:1500,
-    odds:[["bronze",.10],["silver",.69],["gold",.17],["rare_gold",.03],["elite",.005],["ace",.005]]
+    odds:[["silver",.70],["gold",.22],["rare_gold",.065],["elite",.013],["ace",.002]]
   },
   gold:{
     cost:2500,
-    odds:[["silver",.15],["gold",.50],["rare_gold",.20],["elite",.145],["ace",.005]]
+    odds:[["gold",.65],["rare_gold",.245],["elite",.10],["ace",.005]]
   }
 };
 
@@ -21030,7 +21192,7 @@ async function openUltimatePack(packId){
     return;
   }
   if(!vdsUTCloudReady){
-    const synced=await vdsSyncUltimateTeamCloud({allowLegacyImport:true});
+    const synced=await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
     if(!synced){alert("Your Ultimate Team account could not sync. No pack was opened.");return;}
   }
 
@@ -21042,8 +21204,12 @@ async function openUltimatePack(packId){
   }
 
   const packEl=document.querySelector(`[data-ut-pack="${packId}"]`);
-  const openBtn=packEl?.querySelector(".utOpenBtn");
-  if(openBtn){openBtn.disabled=true;openBtn.textContent="OPENING…";}
+  const openButtons=[
+    packEl?.querySelector(".utOpenBtn"),
+    document.getElementById("vdsUTPackHeroOpen")
+  ].filter(Boolean);
+  openButtons.forEach(btn=>{btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent="OPENING 3 CARDS…";});
+
   let committed=false;
 
   try{
@@ -21051,6 +21217,9 @@ async function openUltimatePack(packId){
     const {data,error}=await client.rpc("vds_open_ut_pack",{p_pack_id:packId});
     if(error)throw error;
     committed=true;
+
+    const entries=Array.isArray(data?.cards)?data.cards:[];
+    if(entries.length!==3)throw new Error(`SERVER_PACK_CARD_COUNT_${entries.length}_OF_3`);
 
     const newBalance=Number(data?.coin_balance);
     if(Number.isFinite(newBalance) && !vdsAccountProfile?.is_host_account){
@@ -21061,25 +21230,45 @@ async function openUltimatePack(packId){
       vdsSyncUltimateWalletFromProfile();
     }
 
-    const card=vdsCloudUTCardObject(data?.card,{rarity:data?.rarity,rating:data?.rating});
-    if(!card){
-      await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
-      throw new Error("SERVER_CARD_PLAYER_NOT_AVAILABLE");
-    }
+    // All three cards were committed atomically on Supabase. Pull the club
+    // back from the cloud, then reveal those exact three UUIDs.
+    const synced=await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+    if(!synced)throw new Error("PACK_CLOUD_SYNC_FAILED");
 
-    ultimateTeamState.cards=ultimateTeamState.cards.filter(c=>String(utCardUid(c))!==String(utCardUid(card)));
-    ultimateTeamState.cards.unshift(card);
-    aceLastRevealedCardUid=utCardUid(card);
-    vdsCacheUltimateTeam();
+    const metaById=new Map(
+      entries.map(entry=>[String(entry?.card?.id||""),entry])
+    );
+
+    const cards=entries.map(entry=>{
+      const cloudId=String(entry?.card?.id||"");
+      const found=(ultimateTeamState.cards||[]).find(
+        card=>String(card?.cloudCardId||"")===cloudId
+      );
+      if(!found)return null;
+
+      const rating=Number(entry?.rating);
+      return {
+        ...found,
+        rarity:utTierForCardRating(Number.isFinite(rating)?rating:found.rating),
+        rating:Number.isFinite(rating)?Math.round(rating):found.rating,
+        positionRating:Number.isFinite(rating)?Math.round(rating):found.positionRating,
+        packSlot:Number(entry?.slot||0),
+        featured:entry?.featured===true
+      };
+    }).filter(Boolean);
+
+    if(cards.length!==3)throw new Error(`PACK_REVEAL_CARDS_${cards.length}_OF_3`);
+
+    aceLastRevealedCardUid=utCardUid(cards[0]);
     renderUltimateTeam();
-    await showUltimateReveal(card,packId);
+    await showUltimateTripleReveal(cards,packId);
     vdsLoadDailyProgress();
   }catch(error){
     console.error("VDS cloud pack purchase failed",error);
     const msg=String(error?.message||"");
     if(committed){
       await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
-      alert("Your pack was saved to your ACE account, but the reveal had a display problem. Your card is safe in your club.");
+      alert("Your three pack cards were saved to your ACE account, but the reveal had a display problem. All 3 cards are safe in My Club.");
     }else if(/NOT_ENOUGH_COINS/i.test(msg)){
       alert("Your account does not have enough ACE coins for this pack.");
       await vdsRefreshAccountProgression({loadPanels:false});
@@ -21087,8 +21276,98 @@ async function openUltimatePack(packId){
       alert("Pack purchase could not be completed. No coins or cards were changed.");
     }
   }finally{
-    if(openBtn){openBtn.disabled=false;openBtn.textContent="OPEN PACK";}
+    openButtons.forEach(btn=>{
+      btn.disabled=false;
+      btn.textContent=btn.dataset.oldText||"OPEN PACK";
+      delete btn.dataset.oldText;
+    });
+    if(vdsUltimateHubActive==="packs")vdsRenderPackStoreShowcase?.();
   }
+}
+
+
+function ensureUltimateTripleReveal(){
+  let overlay=document.getElementById("aceTriplePackOverlay");
+  if(overlay)return overlay;
+
+  overlay=document.createElement("div");
+  overlay.id="aceTriplePackOverlay";
+  overlay.className="aceTriplePackOverlay";
+  overlay.innerHTML=`
+    <div class="aceTriplePackStage">
+      <div class="aceTriplePackKicker">THE ACE PROJECT · PACK OPENING</div>
+      <h2 id="aceTriplePackTitle">3 NEW PLAYERS</h2>
+      <p id="aceTriplePackSubtitle">All three cards are already saved to your club.</p>
+      <div class="aceTriplePackCards" id="aceTriplePackCards"></div>
+      <div class="aceTriplePackStatus" id="aceTriplePackStatus">REVEALING 1 / 3…</div>
+      <div class="aceTriplePackActions hidden" id="aceTriplePackActions">
+        <button class="aceTriplePackAgain" id="aceTriplePackAgain" type="button">OPEN ANOTHER</button>
+        <button class="aceTriplePackDone" id="aceTriplePackDone" type="button">SEND ALL TO MY CLUB →</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function aceTriplePackCardHTML(card,index){
+  const player=players.find(p=>p.name===card.playerName);
+  const rarity=UT_RARITY[card.rarity]?.label||String(card.rarity||"").toUpperCase();
+  return `<div class="aceTriplePackCard ${card.rarity}" data-triple-card="${index}">
+    <div class="aceTriplePackFeatured">${card.featured?"FEATURED":"SUPPORT"}</div>
+    ${player?.photo?`<img src="${esc(player.photo)}" alt="${esc(card.playerName)}">`:""}
+    <div class="aceTriplePackShade"></div>
+    <div class="aceTriplePackRating">${Math.round(card.rating)}<small>${esc(card.position||"-")}</small></div>
+    <div class="aceTriplePackTier">${rarity}</div>
+    <div class="aceTriplePackName">${esc(card.playerName)}</div>
+  </div>`;
+}
+
+async function showUltimateTripleReveal(cards,packId){
+  const overlay=ensureUltimateTripleReveal();
+  const holder=overlay.querySelector("#aceTriplePackCards");
+  const status=overlay.querySelector("#aceTriplePackStatus");
+  const actions=overlay.querySelector("#aceTriplePackActions");
+  const again=overlay.querySelector("#aceTriplePackAgain");
+  const done=overlay.querySelector("#aceTriplePackDone");
+
+  const ordered=[...cards].sort((a,b)=>Number(a.packSlot||0)-Number(b.packSlot||0));
+  const packName=String(packId||"pack").toUpperCase();
+
+  overlay.querySelector("#aceTriplePackTitle").textContent=`${packName} PACK · 3 PLAYERS`;
+  overlay.querySelector("#aceTriplePackSubtitle").textContent=
+    "The featured card uses the pack's headline odds. Support cards use lower-ceiling odds.";
+
+  holder.innerHTML=ordered.map(aceTriplePackCardHTML).join("");
+  actions.classList.add("hidden");
+  overlay.classList.add("show");
+  document.body.style.overflow="hidden";
+
+  const els=[...holder.querySelectorAll("[data-triple-card]")];
+  for(let i=0;i<els.length;i++){
+    if(status)status.textContent=`REVEALING ${i+1} / 3…`;
+    await new Promise(r=>setTimeout(r,i===0?320:430));
+    els[i].classList.add("revealed");
+    const card=ordered[i];
+    if(status)status.textContent=`${i+1} / 3 · ${String(UT_RARITY[card.rarity]?.label||card.rarity).toUpperCase()} · ${card.playerName}`;
+  }
+
+  await new Promise(r=>setTimeout(r,350));
+  if(status)status.textContent="PACK COMPLETE · ALL 3 CARDS SAVED";
+  actions.classList.remove("hidden");
+
+  const close=()=>{
+    overlay.classList.remove("show");
+    document.body.style.overflow="";
+    renderUltimateTeam();
+    vdsSwitchUltimateInstance("packs");
+  };
+
+  done.onclick=close;
+  again.onclick=()=>{
+    overlay.classList.remove("show");
+    document.body.style.overflow="";
+    setTimeout(()=>openUltimatePack(packId),180);
+  };
 }
 
 async function showUltimateReveal(card,packId){
@@ -24514,12 +24793,13 @@ window.addEventListener("focus",()=>{
 let vdsUltimateHubActive="home";
 const VDS_UT_INSTANCES=[
   ["home","HOME"],
-  ["missions","MISSIONS"],
+  ["missions","MISSIONS"], // internal view, opened from the Missions button
   ["squad","CLUB SQUAD"],
   ["packs","PACK STORE"],
   ["club","MY CLUB"],
   ["profile","CLUB PROFILE"]
 ];
+const VDS_UT_NAV_INSTANCES=VDS_UT_INSTANCES.filter(([id])=>id!=="missions");
 
 function vdsUltimateInstanceIntro(kicker,title,body){
   return `<div class="vdsUTInstanceIntro"><div><small>${kicker}</small><h2>${title}</h2><p>${body}</p></div></div>`;
@@ -24541,11 +24821,8 @@ function vdsInitUltimateHub(){
   nav.className="vdsUTHubNavigation";
   nav.innerHTML=`
     <div class="vdsUTHubTabs">
-      ${VDS_UT_INSTANCES.map(([id,label])=>`<button class="vdsUTHubTab ${id==="home"?"active":""}" data-ut-nav="${id}" type="button">${label}</button>`).join("")}
+      ${VDS_UT_NAV_INSTANCES.map(([id,label])=>`<button class="vdsUTHubTab ${id==="home"?"active":""}" data-ut-nav="${id}" type="button">${label}</button>`).join("")}
     </div>
-    <select class="vdsUTHubMobileSelect" id="vdsUTHubMobileSelect" aria-label="Ultimate Team section">
-      ${VDS_UT_INSTANCES.map(([id,label])=>`<option value="${id}">${label}</option>`).join("")}
-    </select>
     <div class="vdsUTHubNavMeta"><i></i><span>CLUB ONLINE</span></div>`;
 
   const instances=document.createElement("div");
@@ -24571,9 +24848,6 @@ function vdsInitUltimateHub(){
   nav.querySelectorAll("[data-ut-nav]").forEach(btn=>{
     btn.addEventListener("click",()=>vdsSwitchUltimateInstance(btn.dataset.utNav));
   });
-  document.getElementById("vdsUTHubMobileSelect")?.addEventListener("change",event=>{
-    vdsSwitchUltimateInstance(event.target.value);
-  });
 
   vdsUltimateHubReady=true;
   // vdsSwitchUltimateInstance already renders the active view.
@@ -24587,8 +24861,6 @@ function vdsSwitchUltimateInstance(id,{scroll=true}={}){
   vdsUltimateHubActive=valid;
   document.querySelectorAll("#ultimate .vdsUTInstance").forEach(el=>el.classList.toggle("active",el.dataset.utInstance===valid));
   document.querySelectorAll("#ultimate [data-ut-nav]").forEach(el=>el.classList.toggle("active",el.dataset.utNav===valid));
-  const select=document.getElementById("vdsUTHubMobileSelect");
-  if(select)select.value=valid;
 
   if(valid!=="club"){
     const clubGrid=document.getElementById("utCollection");
@@ -24765,20 +25037,20 @@ else setTimeout(vdsStage6EInit,0);
 const VDS_PACK_STORE_UI={
   bronze:{
     name:"Bronze Pack",tier:"BRONZE",cost:750,players:3,tag:"STARTER VALUE",
-    body:"Affordable club depth. Bronze cards are rated 1–59, with routes into Silver 60–74, Gold 75–84 and the occasional Rare Gold 85–89.",
-    odds:[['Bronze',82],['Silver',17],['Gold',0.9],['Rare Gold',0.1]],
+    body:"Three players. The featured slot is mostly Bronze, with routes into Silver, Gold and a very small Rare Gold chance. Two support cards favour lower tiers.",
+    odds:[['Bronze',80],['Silver',18],['Gold',1.8],['Rare Gold',0.2]],
     glow:'rgba(184,105,62,.18)'
   },
   silver:{
-    name:"Silver Pack",tier:"SILVER",cost:1500,players:4,tag:"BALANCED BUILD",
-    body:"A balanced upgrade pack built around Silver 60–74, with Gold 75–84, Rare Gold 85–89 and rare Elite or Ace pulls.",
-    odds:[['Bronze',10],['Silver',69],['Gold',17],['Rare Gold',3],['Elite',0.5],['Ace',0.5]],
+    name:"Silver Pack",tier:"SILVER",cost:1500,players:3,tag:"BALANCED BUILD",
+    body:"Three players with a guaranteed Silver+ featured slot. The two support cards favour Bronze, Silver and standard Gold so premium pulls stay rare.",
+    odds:[['Silver',70],['Gold',22],['Rare Gold',6.5],['Elite',1.3],['Ace',0.2]],
     glow:'rgba(178,204,225,.14)'
   },
   gold:{
-    name:"Gold Pack",tier:"GOLD",cost:2500,players:5,tag:"RARE GOLD HUNT",
-    body:"The premium ACE PROJECT pack. Hunt Gold 75–84 starters, premium Rare Gold 85–89 cards, purple Elite 90–95 cards and the ultra-rare black Ace 96–99.",
-    odds:[['Silver',15],['Gold',50],['Rare Gold',20],['Elite',14.5],['Ace',0.5]],
+    name:"Gold Pack",tier:"GOLD",cost:2500,players:3,tag:"RARE GOLD HUNT",
+    body:"Three players with a guaranteed Gold+ featured slot. Ace is 0.5% on the featured slot only; the two support slots cannot pull an Ace.",
+    odds:[['Gold',65],['Rare Gold',24.5],['Elite',10],['Ace',0.5]],
     glow:'rgba(225,181,54,.20)'
   }
 };
@@ -24861,7 +25133,7 @@ function vdsRenderPackStoreShowcase(){
           </div>
 
           <div class="acePackOdds">
-            <div class="acePackOddsHead"><span>PACK ODDS</span><small>PER PLAYER SLOT</small></div>
+            <div class="acePackOddsHead"><span>FEATURED SLOT ODDS</span><small>SUPPORT SLOTS USE LOWER ODDS</small></div>
             <div class="acePackOddsGrid">${vdsPackStoreOddsHTML(pack)}</div>
           </div>
 
@@ -25050,8 +25322,6 @@ window.addEventListener('orientationchange',()=>aceB10QueueChemistry(140),{passi
 
   function vdsB88ActiveSection(){
     const activeBtn=document.querySelector('#ultimate .vdsUTHubTab.active');
-    const activeSelect=document.getElementById('vdsUTCompactSectionSelect');
-    if(activeSelect && activeSelect.value) return activeSelect.value;
     if(activeBtn?.dataset.utNav) return activeBtn.dataset.utNav;
     return (typeof vdsUltimateHubActive!=="undefined" && vdsUltimateHubActive) ? vdsUltimateHubActive : "squad";
   }
@@ -25088,9 +25358,7 @@ window.addEventListener('orientationchange',()=>aceB10QueueChemistry(140),{passi
   }
 
   function vdsB88SyncTopBar(){
-    const select=document.getElementById("vdsUTCompactSectionSelect");
     const id=vdsB88ActiveSection();
-    if(select && select.value!==id && [...select.options].some(o=>o.value===id)) select.value=id;
 
     const lv=document.getElementById("utManagerLevel")?.textContent?.trim() || "1";
     const elo=document.getElementById("utManagerElo")?.textContent?.trim() || "1000";
@@ -25138,12 +25406,6 @@ window.addEventListener('orientationchange',()=>aceB10QueueChemistry(140),{passi
         </div>
       </div>
 
-      <div class="vdsUTSlimSection">
-        <select id="vdsUTCompactSectionSelect" aria-label="Ultimate Team section">
-          ${SECTION_OPTIONS.map(([id,label])=>`<option value="${id}">${label}</option>`).join("")}
-        </select>
-      </div>
-
       <div class="vdsUTSlimSpacer"></div>
 
       <button type="button" class="vdsUTSlimMissionButton" id="vdsUTCompactMissionsBtn">
@@ -25172,10 +25434,6 @@ window.addEventListener('orientationchange',()=>aceB10QueueChemistry(140),{passi
     `;
     shell.insertBefore(top, instances);
 
-    document.getElementById("vdsUTCompactSectionSelect")?.addEventListener("change",(e)=>{
-      if(typeof vdsSwitchUltimateInstance==="function") vdsSwitchUltimateInstance(e.target.value);
-      setTimeout(vdsB88SyncTopBar, 40);
-    });
     document.getElementById("vdsUTCompactMissionsBtn")?.addEventListener("click",(e)=>{
       e.stopPropagation();
       document.getElementById("vdsUTCompactMissionPanel")?.classList.toggle("open");
@@ -29628,6 +29886,12 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       await refreshLineupFromServer();
       renderLineupConfirmationState();
 
+      // The connection handshake is complete. Leaving this true caused the
+      // post-match UI to think it was STILL finishing "Opponent Found".
+      mm.entering=false;
+      mm.active=false;
+      mm.last=state;
+
       // Put the player straight into the intended pre-match experience:
       // scout -> set private game plan -> READY.
       setTimeout(()=>{
@@ -29689,6 +29953,43 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   window.aceUTOpenMatchFlow=aceUTOpenMatchFlow;
   window.aceUTCloseMatchFlow=aceUTCloseMatchFlow;
 
+  async function leaveOnlineUTLobby({searchAgain=false,silent=false}={}){
+    stopPostMatchPolling?.();
+    mm.active=false;
+    mm.entering=false;
+    mm.cancelRequested=false;
+    mm.token++;
+
+    // Clear the online guard BEFORE navigating. leaveMultiplayer() also tells
+    // Supabase to release the room/matchmaking pair for both managers.
+    window.aceUTOnlineMatchActive=false;
+
+    try{
+      if(mpInMultiplayerRoom?.())await leaveMultiplayer();
+    }catch(e){
+      console.warn("Online UT lobby leave",e);
+    }
+
+    try{clearFinishedMatchPresentation?.();}catch(e){}
+    try{if(window.liveState)window.liveState=null;}catch(e){}
+    try{await vdsRefreshAccountProgression({loadPanels:false});}catch(e){}
+    try{await vdsSyncUltimateTeamCloud({allowLegacyImport:false});}catch(e){}
+
+    aceUTBaseGoPage("ultimate");
+    setTimeout(()=>{
+      try{vdsSwitchUltimateInstance("home",{scroll:false});}catch(e){}
+      if(searchAgain)setTimeout(()=>start(),180);
+    },90);
+
+    if(!silent && !searchAgain){
+      try{mpConnectionBanner("ONLINE LOBBY LEFT","offline",true);}catch(e){}
+    }
+    return true;
+  }
+
+  window.aceUTOnlineLeaveLobby=(opts={})=>leaveOnlineUTLobby(opts);
+  window.aceUTOnlineFindNewOpponent=()=>leaveOnlineUTLobby({searchAgain:true,silent:true});
+
   // AI post-match "PLAY AGAIN" must stay AI rather than jumping into the new
   // default online queue.
   aceUTLeagueReplay=function(){
@@ -29745,6 +30046,14 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 
   window.aceUTIsMatchmakingActive=()=>!!mm.active;
   window.aceUTIsMatchConnecting=()=>!!mm.entering;
+
+  // Result rendering is another hard proof that the match connection finished.
+  const aceUTBaseRenderPostMatchDecision=renderPostMatchDecision;
+  renderPostMatchDecision=function(){
+    if(window.liveState?.matchFinished)mm.entering=false;
+    return aceUTBaseRenderPostMatchDecision();
+  };
+  window.renderPostMatchDecision=renderPostMatchDecision;
 
   // Escape is treated as Cancel Search when queueing.
   document.addEventListener("keydown",event=>{
