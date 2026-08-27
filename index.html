@@ -8175,7 +8175,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
     </div>
   </div>
 </section>
-<div class="footerNote">Local prototype — player data is stored with localStorage on this device.</div>
+<div class="footerNote aceOnlineFooter"><span>♠</span> THE ACE PROJECT · ONLINE</div>
 </div>
 
 <div class="profileModal" id="multiplayerModal">
@@ -26055,9 +26055,26 @@ function vdsRenderUltimateHubHome(){
   const lineup=vdsHubOwnedLineupCards();
   const filled=lineup.filter(Boolean);
   const d=vdsDailyProgressCache||{};
-  const completed=[d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded].filter(Boolean).length;
+  const completed=[
+    d.first_win_rewarded,
+    d.play_one_rewarded,
+    d.win_one_rewarded,
+    d.play_three_rewarded
+  ].filter(Boolean).length;
   const firstWin=d.first_win_rewarded?"CLAIMED":"+200 AVAILABLE";
   const owned=Number(ultimateTeamState?.cards?.length||0);
+
+  const clubGroups=new Map();
+  (ultimateTeamState?.cards||[]).forEach(card=>{
+    const key=`${Number(card?.playerId||0)}:${String(card?.rarity||"")}`;
+    clubGroups.set(key,(clubGroups.get(key)||0)+1);
+  });
+  const duplicates=Array.from(clubGroups.values())
+    .reduce((sum,count)=>sum+Math.max(0,Number(count||0)-1),0);
+
+  const wins=Number(p.wins||0);
+  const losses=Number(p.losses||0);
+  const streak=Number(p.win_streak||0);
 
   mount.innerHTML=`
     <div class="aceUTHomeStage">
@@ -26082,7 +26099,12 @@ function vdsRenderUltimateHubHome(){
 
       <div class="aceUTHomeVisual">
         <div class="aceUTHomeVisualGlow"></div>
-        <div class="aceUTHomeSquadLabel"><span>STARTING SIX</span><b>${filled.length}/6 READY</b></div>
+        <div class="aceUTHomeSquadLabel">
+          <span>STARTING SIX</span>
+          <b class="aceUTReadyChip ${filled.length===6?"ready":filled.length?"building":"empty"}">
+            ${filled.length===6?"✓ 6/6 READY":`${filled.length}/6 STARTERS`}
+          </b>
+        </div>
         <div class="vdsUTHubSquadPreview aceUTSquadPreview">
           <div class="vdsUTHubPreviewCourt"></div>
           <div class="vdsUTHubPreviewPlayers">
@@ -26091,7 +26113,12 @@ function vdsRenderUltimateHubHome(){
               const role=aceUTRoleForDataIndex(dataIndex);
               const actual=aceUTCardRoleRating(card,role);
               const oop=aceUTCardIsOutOfPosition(card,role);
-              return `<div class="vdsUTHubPreviewPlayer ${oop?"oop":""}" title="${oop?`${card.rating} ${aceUTCardNaturalRole(card)} → ${actual} ${role}`:`${actual} ${role}`}">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${actual}</b>${oop?'<i>!</i>':""}</div>`;
+              return `<div class="vdsUTHubPreviewPlayer ${oop?"oop":""}" title="${oop?`${card.rating} ${aceUTCardNaturalRole(card)} → ${actual} ${role}`:`${actual} ${role}`}">
+                ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:""}
+                <b>${actual}<small>${role}</small></b>
+                ${oop?'<i>!</i>':""}
+                <span class="aceUTPreviewName">${esc(card.playerName)}</span>
+              </div>`;
             }).join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
           </div>
         </div>
@@ -26105,20 +26132,29 @@ function vdsRenderUltimateHubHome(){
             <strong>Rare Gold Hunt</strong>
             <em>2,500 ◉ · 85–89 Rare Gold available</em>
           </div>
-          <span class="aceUTFeaturedArrow">→</span>
+          <span class="aceUTFeaturedArrow"><small>VIEW PACK</small><b>→</b></span>
         </button>
       </div>
     </div>
 
     <div class="aceUTHomeRail">
       <button type="button" onclick="vdsSwitchUltimateInstance('missions')">
-        <span>DAILY MISSIONS</span><b>${completed}/3 COMPLETE</b><small>First win: ${firstWin}</small><i>→</i>
+        <span>DAILY MISSIONS</span>
+        <b>${completed}/4 COMPLETE</b>
+        <small>${completed===4?"ALL DAILY REWARDS COMPLETE":`FIRST WIN · ${firstWin}`}</small>
+        <i>→</i>
       </button>
       <button type="button" onclick="vdsSwitchUltimateInstance('club')">
-        <span>MY CLUB</span><b>${owned} CARDS OWNED</b><small>Browse your collection</small><i>→</i>
+        <span>MY CLUB</span>
+        <b>${owned} CARDS · ${duplicates} DUPLICATE${duplicates===1?"":"S"}</b>
+        <small>MANAGE, BUILD OR QUICK SELL</small>
+        <i>→</i>
       </button>
       <button type="button" onclick="vdsSwitchUltimateInstance('profile')">
-        <span>MANAGER</span><b>LV ${Number(p.manager_level||1)} · ${Number(p.elo||1000).toLocaleString()} ELO</b><small>Profile & recent form</small><i>→</i>
+        <span>MANAGER</span>
+        <b>LV ${Number(p.manager_level||1)} · ${Number(p.elo||1000).toLocaleString()} ELO</b>
+        <small>${wins}-${losses} RECORD · ${streak>0?`${streak} WIN STREAK`:"NO ACTIVE STREAK"}</small>
+        <i>→</i>
       </button>
     </div>`;
 }
@@ -33772,10 +33808,354 @@ body.aceSimModalOpen .aceLiveCommandBar{
 </style>
 
 
-<script id="ace-b21-14-version-marker">
-window.ACE_PROJECT_BUILD="B21.14";
+
+<style id="ace-b21-15-desktop-ut-polish">
+/* =========================================================
+   B21.15 — DESKTOP ULTIMATE TEAM POLISH
+   Bigger squad presence, less dead space, readable secondary
+   information and stronger interactive affordances.
+   ========================================================= */
+
+@media(min-width:981px){
+  /* Overall hero balance: more room for the squad, less dead air. */
+  #ultimate .aceUTHomeStage{
+    grid-template-columns:minmax(330px,.72fr) minmax(570px,1.28fr)!important;
+    gap:22px!important;
+    min-height:420px!important;
+    padding:24px 26px!important;
+  }
+  #ultimate .aceUTHomeCopy{
+    align-self:center!important;
+    padding-left:4px!important;
+  }
+  #ultimate .aceUTHomeSectionKicker{
+    font-size:8px!important;
+    margin-bottom:8px!important;
+  }
+  #ultimate .aceUTHomeCopy h1{
+    max-width:460px!important;
+    font-size:clamp(48px,4.7vw,65px)!important;
+    line-height:.91!important;
+  }
+  #ultimate .aceUTHomeCopy>p{
+    max-width:420px!important;
+    margin-top:12px!important;
+    font-size:12px!important;
+    line-height:1.55!important;
+  }
+  #ultimate .aceUTHomeMainActions{
+    max-width:470px!important;
+    margin-top:20px!important;
+    gap:8px!important;
+  }
+  #ultimate .aceUTHomeMainActions button{
+    min-height:66px!important;
+  }
+  #ultimate .aceUTHomeMainActions button b{
+    font-size:11px!important;
+  }
+  #ultimate .aceUTHomeMainActions button small{
+    font-size:8px!important;
+    letter-spacing:.055em!important;
+  }
+
+  /* One readable profile/wallet strip. */
+  #ultimate .vdsUTCompactTopBar{
+    min-height:76px!important;
+    padding:9px 10px!important;
+    gap:9px!important;
+  }
+  #ultimate .vdsUTSlimAvatar{
+    width:45px!important;
+    height:45px!important;
+    flex-basis:45px!important;
+  }
+  #ultimate .vdsUTSingleProfileMeta>small{
+    font-size:7px!important;
+  }
+  #ultimate .vdsUTSingleProfileMeta>b{
+    font-size:14px!important;
+  }
+  #ultimate .vdsUTSingleProfileMeta>span{
+    margin-top:6px!important;
+    font-size:8.5px!important;
+  }
+  #ultimate .vdsUTSingleWallet,
+  #ultimate .vdsUTSingleGift,
+  #ultimate .vdsUTSingleMissions{
+    min-height:58px!important;
+  }
+  #ultimate .vdsUTSingleWallet small,
+  #ultimate .vdsUTSingleGift small{
+    font-size:7px!important;
+  }
+  #ultimate .vdsUTSingleWallet b,
+  #ultimate .vdsUTSingleGift b{
+    font-size:15px!important;
+  }
+  #ultimate .vdsUTSingleMissions span,
+  #ultimate .vdsUTSingleMissions b{
+    font-size:8px!important;
+  }
+
+  /* UT section tabs shouldn't require squinting on desktop. */
+  #ultimate .vdsUTHubNavigation{
+    min-height:54px!important;
+    padding:8px 9px!important;
+  }
+  #ultimate .vdsUTHubTab{
+    min-height:38px!important;
+    padding:0 17px!important;
+    font-size:9px!important;
+  }
+  #ultimate .vdsUTHubNavMeta{
+    font-size:8px!important;
+  }
+
+  /* The court is a hero element, so the players need hero scale. */
+  #ultimate .aceUTHomeVisual{
+    gap:10px!important;
+  }
+  #ultimate .aceUTHomeSquadLabel{
+    padding:0 6px!important;
+  }
+  #ultimate .aceUTHomeSquadLabel>span{
+    font-size:8px!important;
+  }
+
+  #ultimate .aceUTReadyChip{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:27px!important;
+    padding:5px 9px!important;
+    border:1px solid rgba(232,185,74,.22)!important;
+    border-radius:999px!important;
+    background:rgba(92,62,9,.12)!important;
+    color:#e6ba67!important;
+    font-size:8px!important;
+    font-weight:1000!important;
+    letter-spacing:.065em!important;
+  }
+  #ultimate .aceUTReadyChip.ready{
+    border-color:rgba(83,213,143,.24)!important;
+    background:rgba(16,89,55,.13)!important;
+    color:#72dfa8!important;
+  }
+  #ultimate .aceUTReadyChip.empty{
+    border-color:rgba(255,255,255,.08)!important;
+    background:rgba(255,255,255,.025)!important;
+    color:#777482!important;
+  }
+
+  #ultimate .aceUTSquadPreview{
+    min-height:300px!important;
+    border-radius:20px!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt{
+    left:5%!important;
+    right:5%!important;
+    top:28%!important;
+    bottom:-17%!important;
+  }
+
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{
+    width:76px!important;
+    height:95px!important;
+    overflow:visible!important;
+    border-radius:13px!important;
+    border:1px solid rgba(210,177,255,.22)!important;
+    box-shadow:0 14px 26px rgba(0,0,0,.38)!important;
+    transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:hover{
+    transform:translate(-50%,-50%) scale(1.07)!important;
+    z-index:12!important;
+    border-color:rgba(211,177,255,.48)!important;
+    box-shadow:0 19px 34px rgba(0,0,0,.48),0 0 18px rgba(128,72,218,.16)!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer img{
+    width:100%!important;
+    height:100%!important;
+    border-radius:12px!important;
+    object-fit:cover!important;
+    object-position:center top!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer b{
+    left:5px!important;
+    top:5px!important;
+    min-width:31px!important;
+    padding:4px 6px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:1px!important;
+    border-radius:8px!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer b small{
+    display:block!important;
+    color:#9ca3af!important;
+    font-size:5px!important;
+    font-weight:1000!important;
+    letter-spacing:.06em!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(1){left:33%!important;top:39%!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(2){left:50%!important;top:34%!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(3){left:67%!important;top:39%!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(4){left:23%!important;top:72%!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(5){left:50%!important;top:68%!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(6){left:77%!important;top:72%!important}
+
+  #ultimate .aceUTPreviewName{
+    position:absolute!important;
+    left:50%!important;
+    top:calc(100% + 5px)!important;
+    width:132px!important;
+    transform:translateX(-50%) translateY(-2px)!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    padding:5px 7px!important;
+    border:1px solid rgba(184,143,241,.14)!important;
+    border-radius:7px!important;
+    background:rgba(5,7,12,.96)!important;
+    color:#f0edf7!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.36)!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    text-align:center!important;
+    font-size:7px!important;
+    font-weight:900!important;
+    transition:.15s ease!important;
+  }
+  #ultimate .vdsUTHubPreviewPlayer:hover .aceUTPreviewName{
+    opacity:1!important;
+    transform:translateX(-50%) translateY(0)!important;
+  }
+
+  /* Featured pack is already fully clickable; make that obvious. */
+  #ultimate .aceUTFeaturedPack{
+    min-height:76px!important;
+    grid-template-columns:62px minmax(0,1fr) auto!important;
+    padding:8px 13px 8px 8px!important;
+    transition:transform .16s ease,border-color .16s ease,background .16s ease!important;
+  }
+  #ultimate .aceUTFeaturedPack:hover{
+    transform:translateY(-2px)!important;
+    border-color:rgba(228,190,77,.34)!important;
+    background:
+      radial-gradient(circle at 4% 20%,rgba(218,174,54,.19),transparent 28%),
+      #0d1018!important;
+  }
+  #ultimate .aceUTFeaturedPackArt{
+    width:54px!important;
+    height:60px!important;
+  }
+  #ultimate .aceUTFeaturedPack small{
+    font-size:7px!important;
+  }
+  #ultimate .aceUTFeaturedPack strong{
+    font-size:17px!important;
+  }
+  #ultimate .aceUTFeaturedPack em{
+    font-size:8px!important;
+  }
+  #ultimate .aceUTFeaturedArrow{
+    min-width:70px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:7px!important;
+    color:#d4b85f!important;
+  }
+  #ultimate .aceUTFeaturedArrow small{
+    font-size:7px!important;
+    color:#a88d43!important;
+    letter-spacing:.09em!important;
+    font-weight:1000!important;
+  }
+  #ultimate .aceUTFeaturedArrow b{
+    font-size:19px!important;
+    font-weight:500!important;
+  }
+
+  /* Shorter, denser, actually useful lower rail. */
+  #ultimate .aceUTHomeRail{
+    gap:9px!important;
+    margin-top:9px!important;
+  }
+  #ultimate .aceUTHomeRail button{
+    min-height:78px!important;
+    padding:12px 42px 11px 14px!important;
+  }
+  #ultimate .aceUTHomeRail span{
+    font-size:7px!important;
+  }
+  #ultimate .aceUTHomeRail b{
+    margin-top:4px!important;
+    font-size:13px!important;
+  }
+  #ultimate .aceUTHomeRail small{
+    margin-top:4px!important;
+    font-size:7.5px!important;
+    letter-spacing:.025em!important;
+  }
+  #ultimate .aceUTHomeRail i{
+    font-size:16px!important;
+  }
+}
+
+/* Footer now reflects the actual connected game. */
+.aceOnlineFooter{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-height:42px!important;
+  color:#595765!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  letter-spacing:.08em!important;
+}
+.aceOnlineFooter span{
+  color:#8052c9!important;
+  font-size:11px!important;
+}
+
+/* Keep new ready state readable on tablets/phones too. */
+.aceUTReadyChip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+}
+@media(max-width:980px){
+  #ultimate .aceUTReadyChip{
+    padding:4px 7px!important;
+    border:1px solid rgba(232,185,74,.18)!important;
+    background:rgba(92,62,9,.11)!important;
+    color:#e2b962!important;
+    font-size:7px!important;
+  }
+  #ultimate .aceUTReadyChip.ready{
+    color:#70dca5!important;
+    border-color:rgba(83,213,143,.18)!important;
+    background:rgba(16,89,55,.11)!important;
+  }
+  #ultimate .aceUTPreviewName{
+    display:none!important;
+  }
+}
+</style>
+
+
+<script id="ace-b21-15-version-marker">
+window.ACE_PROJECT_BUILD="B21.15";
+window.ACE_DESKTOP_UT_PASS="LARGER_SQUAD_READABLE_DENSE";
+window.ACE_FOOTER_STATUS="ONLINE";
 window.ACE_QUICK_SELL="SERVER_ATOMIC_TIER_SCALED";
-window.ACE_POSITION_RATING_BACKEND="SPINNER_SYNCED_ALL_ROLES";
 window.ACE_OUT_OF_POSITION_UI="ASSIGNED_ROLE_OVR";
 window.ACE_SIM_MATCH_UI="CENTERED_AGREEMENT_MODAL";
 window.ACE_UT_HEADER_MODEL="SINGLE_PROFILE_SINGLE_WALLET";
