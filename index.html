@@ -6599,70 +6599,61 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 .aceCinemaFlash.fire{animation:aceCinemaFlash .72s ease-out forwards}
 @keyframes aceCinemaFlash{0%{opacity:0;transform:scale(.22)}18%{opacity:1}100%{opacity:0;transform:scale(2.4)}}
-.aceCinemaCardScene{position:relative;width:min(305px,72vw);aspect-ratio:.68;perspective:1200px}
-.aceCinemaCardBack,.aceCinemaCardFront{position:absolute;inset:0;border-radius:24px;overflow:hidden;backface-visibility:hidden}
+.aceCinemaCardScene{position:relative;width:min(312px,74vw);aspect-ratio:.68;perspective:1200px}
+.aceCinemaCardBack,.aceCinemaCardFront{position:absolute;inset:0;border-radius:24px;backface-visibility:hidden}
 .aceCinemaCardBack{
-  z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;overflow:hidden;
   border:1px solid rgba(177,127,239,.27);
   background:
-    radial-gradient(circle at 50% 28%,rgba(152,97,222,.18),transparent 35%),
+    radial-gradient(circle at 50% 24%,rgba(166,104,240,.22),transparent 34%),
+    radial-gradient(circle at 50% 78%,rgba(34,97,160,.14),transparent 36%),
     linear-gradient(150deg,#1b102f,#07121e 66%,#03070c);
   box-shadow:0 34px 95px rgba(0,0,0,.6),0 0 48px rgba(116,75,180,.16);
   transition:transform .46s ease,opacity .32s ease;
 }
+.aceCinemaCardBack::before{content:"";position:absolute;inset:14px;border-radius:18px;border:1px solid rgba(255,255,255,.08);pointer-events:none}
 .aceCinemaCardBack.gone{transform:rotateY(96deg) scale(.82);opacity:0;pointer-events:none}
+.aceCinemaBackLogoWrap{position:relative;z-index:2;display:grid;place-items:center;width:122px;height:122px;border-radius:26px;background:radial-gradient(circle at 34% 24%,rgba(255,255,255,.13),transparent 33%),linear-gradient(145deg,rgba(73,36,128,.92),rgba(10,17,28,.96));border:1px solid rgba(225,210,255,.14);box-shadow:0 22px 44px rgba(0,0,0,.34),0 0 28px rgba(146,95,223,.12)}
+.aceCinemaBackLogo{width:82px;height:82px;object-fit:contain;display:block;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35))}
 .aceCinemaBackAce{color:#eef1f3;font-size:52px;font-weight:1000;letter-spacing:-.08em}
-.aceCinemaBackProject{margin-top:2px;color:#966bcf;font-size:8px;font-weight:1000;letter-spacing:.22em}
+.aceCinemaBackProject{position:relative;z-index:2;margin-top:2px;color:#f2f5fb;font-size:11px;font-weight:1000;letter-spacing:.18em}
+.aceCinemaBackPackType{position:relative;z-index:2;color:#966bcf;font-size:7px;font-weight:1000;letter-spacing:.28em}
 .aceCinemaCardFront{
-  z-index:2;opacity:0;transform:rotateY(-92deg) scale(.84);
+  z-index:2;opacity:0;overflow:visible;transform:rotateY(-92deg) scale(.84);
   transition:transform .6s cubic-bezier(.17,.84,.18,1),opacity .28s ease;
 }
 .aceCinemaCardFront.revealed{opacity:1;transform:rotateY(0) scale(1)}
 .aceCinemaCardFront.exit{opacity:0;transform:translateX(-70px) scale(.91)}
-.aceCinemaPlayerCard,.aceCinemaSummaryCard{
-  position:relative;width:100%;height:100%;overflow:hidden;border-radius:24px;
-  border:2px solid #748692;background:linear-gradient(150deg,#52626e,#192734 63%,#08121b);
-  box-shadow:0 34px 95px rgba(0,0,0,.52);
+.aceCinemaPlayerCard,.aceCinemaSummaryCard{position:relative;width:100%;height:100%;}
+.aceCinemaPlayerCard .fifaPlayerCard,
+.aceCinemaSummaryCard .fifaPlayerCard{
+  width:100%!important;height:100%!important;min-height:0!important;margin:0!important;cursor:default!important;
+  border-radius:24px!important;clip-path:inset(0 round 24px)!important;overflow:hidden!important;
 }
-.aceCinemaPlayerCard.bronze,.aceCinemaSummaryCard.bronze{border-color:#b77b56;background:linear-gradient(150deg,#724329,#281a12 64%,#0e1013)}
-.aceCinemaPlayerCard.silver,.aceCinemaSummaryCard.silver{border-color:#d1dbe1;background:linear-gradient(150deg,#7a8992,#27333d 64%,#0b1319)}
-.aceCinemaPlayerCard.gold,.aceCinemaSummaryCard.gold{border-color:#e9ca51;background:linear-gradient(150deg,#765d16,#30250a 64%,#0e1114)}
-.aceCinemaPlayerCard.rare_gold,.aceCinemaSummaryCard.rare_gold{border-color:#f0d56b;background:linear-gradient(150deg,#92761d,#3e300a 60%,#111319)}
-.aceCinemaPlayerCard.elite,.aceCinemaSummaryCard.elite{border-color:#a76ae9;background:linear-gradient(150deg,#583188,#1e1732 60%,#090b12)}
-.aceCinemaPlayerCard.ace,.aceCinemaSummaryCard.ace{
-  border-color:#d9b9ff;background:linear-gradient(145deg,#180f29,#05070d 66%,#020306);
-  box-shadow:0 34px 95px rgba(0,0,0,.57),0 0 46px rgba(169,103,244,.22)
+.aceCinemaPlayerCard .fifaEditHint{font-size:8px!important;opacity:.66!important}
+.aceCinemaSummaryCards{
+  display:grid;grid-template-columns:repeat(3,minmax(150px,230px));justify-content:center;gap:13px;margin:25px auto 0
 }
-.aceCinemaPlayerCard img,.aceCinemaSummaryCard img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.8
-}
-.aceCinemaCardShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,5,9,.01) 28%,rgba(2,5,9,.13) 51%,rgba(2,5,9,.97) 100%)}
-.aceCinemaRating{position:absolute;z-index:3;left:16px;top:17px;color:#f5f7f8;font-size:45px;font-weight:1000;line-height:.82}
-.gold .aceCinemaRating,.rare_gold .aceCinemaRating{color:#f5dc79}
-.aceCinemaRating small{display:block;margin-top:7px;font-size:8px;letter-spacing:.12em}
-.aceCinemaRarity{position:absolute;z-index:3;left:17px;bottom:58px;color:#aaa7b0;font-size:6px;font-weight:1000;letter-spacing:.13em}
-.aceCinemaFeaturedBadge{
-  position:absolute;z-index:3;right:14px;top:15px;padding:6px 8px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);background:rgba(3,7,12,.75);
-  color:#e2c96c;font-size:5px;font-weight:1000;letter-spacing:.11em
-}
-.aceCinemaName{
-  position:absolute;z-index:3;left:12px;right:12px;bottom:22px;
-  color:#fff;font-size:18px;font-weight:1000;text-shadow:0 4px 12px rgba(0,0,0,.95)
-}
+.aceCinemaSummaryCard{aspect-ratio:.68;border-radius:17px}
+.aceCinemaSummaryCard .fifaPlayerCard{border-radius:17px!important;clip-path:inset(0 round 17px)!important}
+.aceCinemaSummaryCard .fifaOverall{font-size:36px!important}
+.aceCinemaSummaryCard .fifaMainPosLabel{font-size:7px!important}
+.aceCinemaSummaryCard .fifaPos{font-size:6px!important}
+.aceCinemaSummaryCard .fifaTierTag{font-size:5px!important;padding:3px 6px!important}
+.aceCinemaSummaryCard .fifaPhoto{height:228px!important;margin:-52px -11% -34px!important}
+.aceCinemaSummaryCard .fifaName{font-size:14px!important}
+.aceCinemaSummaryCard .fifaStat{font-size:7px!important}
+.aceCinemaSummaryCard .fifaStat b{font-size:16px!important}
+.aceCinemaSummaryCard .fifaSpec{font-size:6px!important}
+.aceCinemaSummaryCard .fifaSpec b{font-size:10px!important}
+.aceCinemaSummaryCard .fifaPlaystyleBadge{font-size:6px!important;padding:2px 5px!important}
+.aceCinemaSummaryCard .fifaServeType{font-size:6px!important;padding:4px 6px!important}
+.aceCinemaSummaryCard .fifaEditHint{font-size:6px!important;letter-spacing:.10em!important}
 .aceCinemaRevealLabel{
   min-height:17px;margin-top:17px;color:#7f93a2;font-size:7px;font-weight:1000;letter-spacing:.11em
 }
 .aceCinemaRevealLabel.featured{color:#d9bd66}
 .aceCinemaSummaryKicker{color:#9f7bd2;font-size:6px;font-weight:1000;letter-spacing:.17em}
-.aceCinemaSummaryCards{
-  display:grid;grid-template-columns:repeat(3,minmax(150px,230px));justify-content:center;gap:13px;margin:25px auto 0
-}
-.aceCinemaSummaryCard{aspect-ratio:.68;border-radius:17px}
-.aceCinemaSummaryCard .aceCinemaRating{font-size:31px;left:11px;top:12px}
-.aceCinemaSummaryCard .aceCinemaRarity{left:11px;bottom:43px;font-size:5px}
-.aceCinemaSummaryCard .aceCinemaName{bottom:14px;font-size:12px}
-.aceCinemaSummaryCard .aceCinemaFeaturedBadge{right:8px;top:9px;padding:4px 5px;font-size:4px}
 .aceCinemaSummaryActions{display:flex;justify-content:center;gap:8px;margin-top:18px}
 .aceCinemaSummaryActions button{
   min-height:47px;padding:0 19px;border-radius:10px;
@@ -7046,7 +7037,76 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B21.3 Ace Special Reveal">
+<style id="ace-b21-4-tactics-ai-progression-style">
+/* Tactics acceptance is now the primary online READY action. */
+.acePreMatchDone{
+  min-width:210px;
+  min-height:46px!important;
+  background:linear-gradient(135deg,#6840ad,#9b60de)!important;
+  box-shadow:0 10px 28px rgba(107,61,168,.16);
+}
+#confirmLineupBtn{
+  opacity:.76;
+}
+
+/* ACE League progression / Rookie Road */
+.aceAIRookieRoad{
+  margin:14px 0 0;
+  padding:13px;
+  border:1px solid rgba(145,100,202,.13);
+  border-radius:12px;
+  background:linear-gradient(155deg,rgba(72,43,102,.11),rgba(7,18,28,.82));
+  text-align:left;
+}
+.aceAIRookieHead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+}
+.aceAIRookieHead span,.aceAIRookieHead b{display:block}
+.aceAIRookieHead span{color:#765b98;font-size:5.2px;font-weight:1000;letter-spacing:.14em}
+.aceAIRookieHead b{margin-top:4px;color:#e7dff0;font-size:16px;letter-spacing:-.025em}
+.aceAIRookieHead strong{color:#b694dd;font-size:7px;letter-spacing:.08em}
+.aceAIProgressLine{
+  height:5px;margin-top:11px;border-radius:999px;overflow:hidden;background:#111e29;
+}
+.aceAIProgressLine i{
+  display:block;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,#6b43aa,#aa6fea);
+  box-shadow:0 0 14px rgba(154,91,220,.28);
+}
+.aceAIProgressMeta{
+  display:flex;justify-content:space-between;gap:8px;margin-top:6px;
+  color:#607687;font-size:5.2px;font-weight:900;letter-spacing:.06em;
+}
+.aceAIRookieMilestones{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:11px;
+}
+.aceAIRookieMilestones>div{
+  min-height:62px;padding:7px;border:1px solid rgba(255,255,255,.05);border-radius:8px;background:#07141f;
+}
+.aceAIRookieMilestones small,.aceAIRookieMilestones b,.aceAIRookieMilestones span{display:block}
+.aceAIRookieMilestones small{color:#654d7f;font-size:4.2px;font-weight:1000;letter-spacing:.09em}
+.aceAIRookieMilestones b{margin-top:4px;color:#8496a4;font-size:5.3px;line-height:1.25}
+.aceAIRookieMilestones span{margin-top:6px;color:#d1b165;font-size:7px;font-weight:1000}
+.aceAIRookieMilestones>div.claimed{opacity:.48;background:#09131b}
+.aceAIRookieMilestones>div.claimed span{color:#708278}
+.aceAIProgressNote{margin:9px 0 0!important;color:#5e7282!important;font-size:5.7px!important;line-height:1.45!important}
+.aceUTLeagueRewardGrid>div.rookie{
+  border-color:rgba(172,116,222,.18);
+  background:rgba(91,49,126,.09);
+}
+.aceAIRookieEarned{
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px;padding:9px 10px;
+  border:1px solid rgba(180,127,229,.17);border-radius:9px;background:rgba(85,45,119,.09);
+}
+.aceAIRookieEarned span{color:#8d68ad;font-size:5px;font-weight:1000;letter-spacing:.1em}
+.aceAIRookieEarned b{color:#d9c2ed;font-size:6px}
+@media(max-width:760px){
+  .aceAIRookieMilestones{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .aceAIProgressMeta{display:grid;gap:3px}
+  .aceAIRookieHead{align-items:flex-start}
+}
+</style>
+<meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -15725,7 +15785,9 @@ function renderLineupConfirmationState(){
         ? !!lineupConfirmState[`team${teamNo}`]
         : (lineupConfirmState.team1&&lineupConfirmState.team2);
       btn.disabled=localConfirmed;
-      btn.textContent=localConfirmed?"✓ READY":"✓ READY";
+      btn.textContent=localConfirmed
+        ? "✓ TACTICS LOCKED · READY"
+        : (mpInMultiplayerRoom()?"READY WITH DEFAULT TACTICS":"✓ READY");
     }
   }
   const planBtn=document.getElementById("acePreMatchPlanBtn");
@@ -15744,7 +15806,7 @@ function renderLineupConfirmationState(){
         :"2/2 READY · loading the match…";
     }else if(mpInMultiplayerRoom()){
       const waiting=!lineupConfirmState.team1?"Team 1":"Team 2";
-      hint.textContent=`${readyCount}/2 READY · waiting for ${waiting}.`;
+      hint.textContent=`${readyCount}/2 READY · waiting for ${waiting} to lock tactics.`;
     }else{
       hint.textContent=`${readyCount}/2 READY · both teams must be ready to enter the simulation.`;
     }
@@ -21917,8 +21979,9 @@ function ensureUltimateTripleReveal(){
 
         <div class="aceCinemaCardScene" id="aceCinemaCardScene">
           <div class="aceCinemaCardBack" id="aceCinemaCardBack">
-            <div class="aceCinemaBackAce">ACE</div>
-            <div class="aceCinemaBackProject">PROJECT</div>
+            <div class="aceCinemaBackLogoWrap" id="aceCinemaBackLogoWrap"><div class="aceCinemaBackAce">ACE</div></div>
+            <div class="aceCinemaBackProject">THE ACE PROJECT</div>
+            <div class="aceCinemaBackPackType">PLAYER PACK</div>
           </div>
           <div class="aceCinemaCardFront" id="aceCinemaCardFront"></div>
         </div>
@@ -21943,16 +22006,30 @@ function ensureUltimateTripleReveal(){
   return overlay;
 }
 
+function aceCinemaLogoSrc(){
+  return document.querySelector(".vdsBrandLogo")?.getAttribute("src")
+    || document.querySelector(".aceOnboardingBrand img")?.getAttribute("src")
+    || document.querySelector("header .brand img")?.getAttribute("src")
+    || "";
+}
+function aceCinemaApplyPackBackLogo(root=document){
+  const wrap=root?.querySelector?.("#aceCinemaBackLogoWrap");
+  if(!wrap)return;
+  const src=aceCinemaLogoSrc();
+  wrap.innerHTML=src
+    ? `<img class="aceCinemaBackLogo" src="${esc(src)}" alt="THE ACE PROJECT">`
+    : `<div class="aceCinemaBackAce">ACE</div>`;
+}
 function aceCinemaCardMarkup(card,{summary=false}={}){
-  const p=players.find(x=>x.name===card.playerName);
-  const rarity=(UT_RARITY[card.rarity]?.label||card.rarity||"PLAYER").toUpperCase();
-  return `<div class="${summary?"aceCinemaSummaryCard":"aceCinemaPlayerCard"} ${card.rarity}">
-    ${p?.photo?`<img src="${esc(p.photo)}" alt="${esc(card.playerName)}">`:""}
-    <div class="aceCinemaCardShade"></div>
-    <div class="aceCinemaRating">${Math.round(card.rating)}<small>${esc(card.position||"-")}</small></div>
-    <div class="aceCinemaRarity">${rarity}</div>
-    ${card.featured?'<div class="aceCinemaFeaturedBadge">FEATURED</div>':""}
-    <div class="aceCinemaName">${esc(card.playerName)}</div>
+  const p=players.find(x=>x.name===card.playerName)||{};
+  const rarity=(UT_RARITY[card.rarity]?.label||card.rarity||cardTierLabel?.(p)||"PLAYER").toUpperCase();
+  const role=card.position||p.position||"POS";
+  const rating=Math.round(Number(card.rating||mainPositionRating?.(p)||0));
+  const footer=card.featured?"FEATURED PULL":"PACK REVEAL";
+  return `<div class="${summary?"aceCinemaSummaryCard":"aceCinemaPlayerCard"}">
+    <div class="fifaPlayerCard ${esc(card.rarity||cardTier(p)||"silver")}">
+      ${vdsMasterPlayerCardHTML(p,{role,rating,tier:card.rarity||cardTier(p)||"silver",tierLabel:rarity,footer})}
+    </div>
   </div>`;
 }
 
@@ -21997,6 +22074,7 @@ async function showUltimateTripleReveal(cards,packId){
   counter.textContent="3 CARDS SAVED";
   overlay.classList.add("show");
   document.body.style.overflow="hidden";
+  aceCinemaApplyPackBackLogo(overlay);
 
   function setupCard(){
     const card=ordered[index];
@@ -26459,7 +26537,9 @@ let aceUTLeagueState={
   opponent:null,
   previousContext:null,
   reward:null,
-  cloudMatchId:null
+  cloudMatchId:null,
+  progress:null,
+  matchMeta:null
 };
 
 const ACE_UT_MATCH_ROLE_ORDER=[
@@ -26571,6 +26651,80 @@ function aceUTLeagueUserRolePlayers(cards){
   }).filter(Boolean);
 }
 
+
+const ACE_AI_DIVISIONS={
+  1:{name:"ROOKIE",modifier:-6,multiplier:1.00,next:3},
+  2:{name:"AMATEUR",modifier:-3,multiplier:1.05,next:6},
+  3:{name:"CHALLENGER",modifier:0,multiplier:1.10,next:10},
+  4:{name:"PRO",modifier:2,multiplier:1.15,next:15},
+  5:{name:"ELITE",modifier:4,multiplier:1.20,next:null}
+};
+
+const ACE_AI_ROOKIE_MILESTONES=[
+  {id:"play1",label:"FIRST AI MATCH",coins:300,test:p=>Number(p?.matches_completed||0)>=1},
+  {id:"win1",label:"FIRST AI WIN",coins:400,test:p=>Number(p?.wins||0)>=1},
+  {id:"play3",label:"3 AI MATCHES",coins:500,test:p=>Number(p?.matches_completed||0)>=3},
+  {id:"play5",label:"5 AI MATCHES",coins:700,test:p=>Number(p?.matches_completed||0)>=5},
+  {id:"win5",label:"5 AI WINS",coins:800,test:p=>Number(p?.wins||0)>=5},
+  {id:"play10",label:"10 AI MATCHES",coins:1000,test:p=>Number(p?.matches_completed||0)>=10}
+];
+
+function aceUTAIProgressConfig(progress=aceUTLeagueState.progress){
+  const div=Math.max(1,Math.min(5,Number(progress?.division||1)));
+  return {
+    ...ACE_AI_DIVISIONS[div],
+    division:div,
+    name:String(progress?.division_name||ACE_AI_DIVISIONS[div].name),
+    modifier:Number(progress?.ovr_modifier??ACE_AI_DIVISIONS[div].modifier),
+    multiplier:Number(progress?.reward_multiplier??ACE_AI_DIVISIONS[div].multiplier),
+    next:progress?.next_division_at==null?ACE_AI_DIVISIONS[div].next:Number(progress.next_division_at)
+  };
+}
+
+async function aceUTLoadAIProgress({quiet=false,force=false}={}){
+  if(aceUTLeagueState.progress && !force)return aceUTLeagueState.progress;
+  try{
+    const client=ensureMultiplayerClient?.();
+    if(!client)return null;
+    const {data,error}=await client.rpc("vds_get_ai_league_progress");
+    if(error)throw error;
+    aceUTLeagueState.progress=data||null;
+    return aceUTLeagueState.progress;
+  }catch(error){
+    if(!quiet)console.warn("ACE League progression load",error);
+    return aceUTLeagueState.progress||null;
+  }
+}
+
+function aceUTAIProgressHTML(progress=aceUTLeagueState.progress){
+  const p=progress||{matches_completed:0,wins:0,division:1,milestones_claimed:[]};
+  const cfg=aceUTAIProgressConfig(p);
+  const matches=Number(p.matches_completed||0);
+  const claimed=new Set(Array.isArray(p.milestones_claimed)?p.milestones_claimed:[]);
+  const prev=cfg.division===1?0:(cfg.division===2?3:cfg.division===3?6:cfg.division===4?10:15);
+  const next=cfg.next;
+  const pct=next==null?100:Math.max(0,Math.min(100,((matches-prev)/(next-prev))*100));
+
+  return `<div class="aceAIRookieRoad">
+    <div class="aceAIRookieHead">
+      <div><span>ACE LEAGUE PROGRESSION</span><b>${esc(cfg.name)} DIVISION</b></div>
+      <strong>${cfg.multiplier.toFixed(2)}× REWARDS</strong>
+    </div>
+    <div class="aceAIProgressLine"><i style="width:${pct}%"></i></div>
+    <div class="aceAIProgressMeta">
+      <span>${matches} AI MATCH${matches===1?'':'ES'} · ${Number(p.wins||0)} WIN${Number(p.wins||0)===1?'':'S'}</span>
+      <span>${next==null?'TOP AI DIVISION':`${Math.max(0,next-matches)} MATCH${Math.max(0,next-matches)===1?'':'ES'} TO NEXT DIVISION`}</span>
+    </div>
+    <div class="aceAIRookieMilestones">
+      ${ACE_AI_ROOKIE_MILESTONES.map(m=>{
+        const done=claimed.has(m.id)||m.test(p);
+        return `<div class="${done?'claimed':''}"><small>${done?'CLAIMED':'ROOKIE ROAD'}</small><b>${m.label}</b><span>+${m.coins} ◉</span></div>`;
+      }).join('')}
+    </div>
+    <p class="aceAIProgressNote">Early bonuses are one-time only. AI opponents get stronger as your division rises; ranked ELO is never affected.</p>
+  </div>`;
+}
+
 function aceUTLeagueOwnedBench(lineupCards){
   const usedNames=new Set(lineupCards.map(c=>String(c?.playerName||"")).filter(Boolean));
   return utBestUniqueCards()
@@ -26598,7 +26752,7 @@ function aceUTRoleRating(player,role){
   return Number(effectivePositionRating(player,key)||mainPositionRating(player)||0);
 }
 
-function aceUTBuildAiOpponent(userCards,userRolePlayers){
+function aceUTBuildAiOpponent(userCards,userRolePlayers,difficultyModifier=0){
   const userNames=new Set(userRolePlayers.map(p=>p.name));
   const approved=(typeof vdsUltimatePoolPlayers==="function"?vdsUltimatePoolPlayers():players.filter(p=>p?.ultimateTeamPool===true))
     .filter(Boolean);
@@ -26609,7 +26763,8 @@ function aceUTBuildAiOpponent(userCards,userRolePlayers){
 
   ACE_UT_MATCH_ROLE_ORDER.forEach((slot,index)=>{
     const targetPlayer=userRolePlayers[index];
-    const targetRating=targetPlayer?aceUTRoleRating(targetPlayer,slot.role):aceUTLeagueOvr(userCards);
+    const baseTarget=targetPlayer?aceUTRoleRating(targetPlayer,slot.role):aceUTLeagueOvr(userCards);
+    const targetRating=baseTarget+Number(difficultyModifier||0);
     let candidates=broad.filter(p=>!used.has(p.name) && !userNames.has(p.name) && String(p.position||"").toUpperCase()===slot.position);
     if(!candidates.length)candidates=broad.filter(p=>!used.has(p.name) && String(p.position||"").toUpperCase()===slot.position);
     if(!candidates.length)candidates=broad.filter(p=>!used.has(p.name) && !userNames.has(p.name));
@@ -26636,7 +26791,7 @@ function aceUTBuildAiOpponent(userCards,userRolePlayers){
 
   const bench=broad
     .filter(p=>!used.has(p.name) && !userNames.has(p.name))
-    .sort((a,b)=>Math.abs(mainPositionRating(a)-aceUTLeagueOvr(userCards))-Math.abs(mainPositionRating(b)-aceUTLeagueOvr(userCards)))
+    .sort((a,b)=>Math.abs(mainPositionRating(a)-(aceUTLeagueOvr(userCards)+Number(difficultyModifier||0)))-Math.abs(mainPositionRating(b)-(aceUTLeagueOvr(userCards)+Number(difficultyModifier||0))))
     .slice(0,2);
 
   const cards=selected.map(({player})=>aceUTPlayerSyntheticCard(player));
@@ -26719,8 +26874,10 @@ function aceUTRenderReady(){
       ${visualOrder.map(({card,role})=>aceUTLeagueMiniCard(card,aceUltimateMasterPlayer(card),role)).join("")}
     </div>
 
+    ${aceUTAIProgressHTML()}
+
     <div class="aceUTMatchActionRow">
-      <button class="aceUTMatchPrimary" type="button" onclick="aceUTFindOpponent()">FIND OPPONENT</button>
+      <button class="aceUTMatchPrimary" type="button" onclick="aceUTFindOpponent()">FIND AI OPPONENT</button>
       <button class="aceUTMatchSecondary" type="button" onclick="aceUTCloseMatchFlow()">BACK</button>
     </div>`;
 }
@@ -26730,7 +26887,7 @@ function aceUTOpenMatchFlow(){
   aceUTRenderReady();
 }
 
-function aceUTFindOpponent(){
+async function aceUTFindOpponent(){
   const body=aceUTMatchBody();
   if(!body)return;
   body.innerHTML=`
@@ -26740,8 +26897,11 @@ function aceUTFindOpponent(){
       <p>MATCHING YOUR TEAM RATING · ACE LEAGUE</p>
     </div>`;
 
+  const progress=await aceUTLoadAIProgress({quiet:true,force:true});
+  const cfg=aceUTAIProgressConfig(progress);
+
   setTimeout(()=>{
-    const opponent=aceUTBuildAiOpponent(aceUTLeagueState.userCards,aceUTLeagueState.userRolePlayers);
+    const opponent=aceUTBuildAiOpponent(aceUTLeagueState.userCards,aceUTLeagueState.userRolePlayers,cfg.modifier);
     if(!opponent){
       body.innerHTML=`
         <div class="aceUTMatchIntro">
@@ -26776,9 +26936,9 @@ function aceUTRenderOpponentFound(){
       </div>
       <div class="aceUTVersusVs">VS</div>
       <div class="aceUTVersusTeam right">
-        <span>AI OPPONENT</span>
+        <span>${esc(aceUTAIProgressConfig().name)} AI OPPONENT</span>
         <b>${esc(opponent.name)}</b>
-        <small>${opponent.ovr} OVR · ${opponent.chem}/18 CHEM</small>
+        <small>${opponent.ovr} OVR · ${opponent.chem}/18 CHEM · ${aceUTAIProgressConfig().multiplier.toFixed(2)}× REWARDS</small>
       </div>
     </div>
 
@@ -26874,6 +27034,18 @@ async function aceUTLaunchAiMatch(){
     const {data,error}=await client.rpc("vds_start_ai_league_match");
     if(error)throw error;
     aceUTLeagueState.cloudMatchId=data?.match_id||null;
+    aceUTLeagueState.matchMeta=data||null;
+    if(data?.division){
+      aceUTLeagueState.progress={
+        ...(aceUTLeagueState.progress||{}),
+        division:Number(data.division),
+        division_name:data.division_name,
+        ovr_modifier:Number(data.ovr_modifier||0),
+        reward_multiplier:Number(data.reward_multiplier||1),
+        matches_completed:Number(data.matches_completed||0),
+        wins:Number(data.wins||0)
+      };
+    }
     if(!aceUTLeagueState.cloudMatchId)throw new Error("AI_MATCH_TOKEN_MISSING");
   }catch(error){
     console.error("ACE League secure match start failed",error);
@@ -26966,8 +27138,15 @@ async function aceUTPersistAiRewards(reward){
 
     if(Number.isFinite(Number(data?.coins)))reward.coins=Number(data.coins);
     if(Number.isFinite(Number(data?.xp)))reward.xp=Number(data.xp);
+    if(Number.isFinite(Number(data?.match_coins)))reward.matchCoins=Number(data.match_coins);
+    if(Number.isFinite(Number(data?.result_coins)))reward.resultCoins=Number(data.result_coins);
     if(Number.isFinite(Number(data?.performance_coins)))reward.performanceCoins=Number(data.performance_coins);
     if(Number.isFinite(Number(data?.chemistry_coins)))reward.chemistryCoins=Number(data.chemistry_coins);
+    reward.rookieBonus=Number(data?.rookie_bonus||0);
+    reward.rookieRewards=Array.isArray(data?.rookie_rewards)?data.rookie_rewards:[];
+    reward.rewardMultiplier=Number(data?.reward_multiplier||1);
+    reward.divisionAtStart=Number(data?.division_at_start||1);
+    if(data?.progress)aceUTLeagueState.progress=data.progress;
 
     ultimateTeamState.coins=Math.max(0,Number(vdsAccountProfile?.coins||0));
     if(typeof vdsUpdateAccountUI==="function")vdsUpdateAccountUI();
@@ -27005,12 +27184,19 @@ function aceUTRenderAiPostMatch(reward,syncResult){
         <div><span>${reward.won?"WIN BONUS":"RESULT BONUS"}</span><b>+${reward.resultCoins}</b></div>
         <div><span>PERFORMANCE</span><b>+${reward.performanceCoins}</b></div>
         <div><span>CHEMISTRY</span><b>+${reward.chemistryCoins}</b></div>
+        ${Number(reward.rookieBonus||0)>0?`<div class="rookie"><span>ROOKIE ROAD</span><b>+${Number(reward.rookieBonus)} ◉</b></div>`:""}
       </div>
 
+      ${Number(reward.rookieBonus||0)>0?`<div class="aceAIRookieEarned">
+        <span>PROGRESSION REWARD UNLOCKED</span>
+        ${reward.rookieRewards.map(r=>`<b>${esc(r.label)} · +${Number(r.coins||0)} ◉</b>`).join('')}
+      </div>`:""}
+
       <div class="aceUTLeagueRewardFoot">
-        +${reward.xp} MANAGER XP · BEST CLUB RATING ${reward.bestRating.toFixed(1)} · AI LEAGUE DOES NOT CHANGE ELO.<br>
+        +${reward.xp} MANAGER XP · ${Number(reward.rewardMultiplier||1).toFixed(2)}× DIVISION PAY · BEST CLUB RATING ${reward.bestRating.toFixed(1)} · AI LEAGUE DOES NOT CHANGE ELO.<br>
         ${esc(syncText)}
       </div>
+      ${aceUTAIProgressHTML(aceUTLeagueState.progress)}
 
       <div class="aceUTLeagueResultActions">
         <button type="button" onclick="aceUTLeagueReplay()">PLAY AGAIN</button>
@@ -29814,7 +30000,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 
           <div class="acePreMatchFooter">
             <p><b>Manager intent ≠ automatic success.</b> You choose the volleyball idea; Service, Set Technique, Blocking, Positioning and the rest of the player's attributes determine how well the team actually executes it.</p>
-            <button class="acePreMatchDone" type="button">SAVE PLAN & RETURN TO READY</button>
+            <button class="acePreMatchDone" type="button">${(typeof mpInMultiplayerRoom==='function'&&mpInMultiplayerRoom())?'LOCK TACTICS & READY':'SAVE PLAN & RETURN'}</button>
           </div>
         </main>
       </div>`;
@@ -29839,10 +30025,27 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       render();
     }));
     body.querySelector('.acePreMatchDone')?.addEventListener('click',async()=>{
-      await savePrivateOpeningPlan(activeTeam,{quiet:false});
+      const done=body.querySelector('.acePreMatchDone');
+      if(done){done.disabled=true;done.textContent='LOCKING PLAN…';}
+
+      const saved=await savePrivateOpeningPlan(activeTeam,{quiet:false});
+      if(!saved){
+        if(done){done.disabled=false;done.textContent='LOCK TACTICS & READY';}
+        return;
+      }
+
       closeModal();
       const hint=document.getElementById('lineupConfirmHint');
-      if(hint)hint.textContent='Opening game plan saved · confirm your lineup when ready.';
+
+      // In online multiplayer, accepting the plan is the READY action.
+      // Existing 2/2 server confirmation then launches the simulation
+      // automatically the instant both managers have locked tactics.
+      if(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom()){
+        if(hint)hint.textContent='TACTICS LOCKED · READY · waiting for opponent…';
+        await confirmCurrentLineup();
+      }else{
+        if(hint)hint.textContent='Opening game plan saved.';
+      }
     });
   }
 
@@ -30736,8 +30939,8 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
             <span class="aceUTPlayModeIcon">🤖</span>
             <small>SOLO</small>
             <b>AI LEAGUE</b>
-            <p>Play your Ultimate Team against a CPU club. Earn coins and XP without changing ranked ELO.</p>
-            <div class="aceUTPlayModeMeta"><span>CPU</span><span>COIN REWARDS</span><span>NO ELO RISK</span></div>
+            <p>Build your club through ACE League. New managers get Rookie Road coin milestones while AI opponents scale up through five divisions.</p>
+            <div class="aceUTPlayModeMeta"><span>ROOKIE ROAD</span><span>COINS + XP</span><span>NO ELO RISK</span></div>
             <strong>PLAY CPU →</strong>
           </button>
 
@@ -30945,7 +31148,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 <script id="ace-b20-5-diagnostics">
 window.aceRuntimeHealth=function(){
   return {
-    build:"B21.3",
+    build:"B21.6",
     page:document.querySelector(".page.active")?.id||null,
     multiplayer:typeof mpInMultiplayerRoom==="function"?mpInMultiplayerRoom():false,
     persistentRoom:typeof mpHasPersistentRoom==="function"?mpHasPersistentRoom():false,
@@ -31074,6 +31277,39 @@ window.aceRuntimeHealth=function(){
   else start();
 
   window.aceSyncRankedQuitButton=syncQuitButton;
+})();
+</script>
+
+
+<script id="ace-b21-4-ai-progression-entry">
+(function(){
+  'use strict';
+  if(window.ACE_B21_4_AI_PROGRESSION_ENTRY)return;
+  window.ACE_B21_4_AI_PROGRESSION_ENTRY=true;
+
+  window.aceUTOpenAILeague=async function(){
+    aceUTOpenOverlay();
+    const body=aceUTMatchBody();
+    if(body)body.innerHTML=`<div class="aceUTSearching"><div class="aceUTSearchingMark">♠</div><h2>LOADING ACE LEAGUE…</h2><p>CHECKING YOUR AI DIVISION · ROOKIE ROAD</p></div>`;
+    await aceUTLoadAIProgress({force:true});
+    aceUTRenderReady();
+  };
+
+  window.aceUTChooseAILeague=()=>window.aceUTOpenAILeague();
+  window.aceUTMatchmakingPlayAI=async()=>{
+    try{await window.aceUTCancelOnlineMatchmaking?.();}catch(e){}
+    window.aceUTOpenAILeague();
+  };
+
+  aceUTLeagueReplay=function(){
+    aceUTLeagueState.active=false;
+    aceUTLeagueState.rewarded=false;
+    aceUTLeagueState.matchMeta=null;
+    aceUTRestoreMatchContext();
+    goPage("ultimate");
+    setTimeout(()=>window.aceUTOpenAILeague(),100);
+  };
+  window.aceUTLeagueReplay=aceUTLeagueReplay;
 })();
 </script>
 
