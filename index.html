@@ -6638,7 +6638,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 </style>
 
 <meta name="ace-build-prev" content="B20.5 Deep Audit Hardened">
-<meta name="ace-build" content="B20.6 Guest Commentary + Navigation Guard Fix">
+<meta name="ace-build-prev" content="B20.6 Guest Commentary + Navigation Guard Fix">
+<meta name="ace-build" content="B20.7 Disconnect Timeout Recovery">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -16034,6 +16035,8 @@ let mpAuthorityRefreshInFlight=false;
 let mpAuthorityClaimInFlight=false;
 let mpAuthorityLastSelf=false;
 let mpLeavingRoom=false;
+let mpDeadRoomReleaseInFlight=false;
+let mpOpponentMissingSince=0;
 
 function mpIsConnected(){ return !!mpChannel && !!mpRoom; }
 function mpIsHost(){ return mpRole==="host"; }
@@ -16274,6 +16277,60 @@ async function mpClaimAuthority(){
   }
 }
 
+async function mpReleaseDeadRoom(reason="OPPONENT DISCONNECTED"){
+  if(mpDeadRoomReleaseInFlight)return false;
+  mpDeadRoomReleaseInFlight=true;
+
+  const wasOnlineUT=!!window.aceUTOnlineMatchActive;
+  mpExplicitLeave=true;
+  clearTimeout(mpReconnectTimer);
+  mpReconnectAttempts=0;
+  mpReconnectInProgress=false;
+  mpStopAuthorityWatch();
+  stopPostMatchPolling?.();
+  stopLineupServerPolling?.();
+  stopMiniDraftServerPolling?.();
+  try{window.aceStopPrivateLiveTacticsPolling?.();}catch(e){}
+  try{window.aceStopSimToEndPolling?.();}catch(e){}
+
+  mpConnectionBanner(`${reason} · LOBBY CLOSED`,"offline",false);
+
+  try{
+    if(wasOnlineUT && typeof window.aceUTOnlineLeaveLobby==="function"){
+      await window.aceUTOnlineLeaveLobby({silent:true});
+    }else{
+      await leaveMultiplayer();
+    }
+  }catch(e){
+    console.warn("Dead room local release",e);
+    // Even a failed server call must never keep the browser trapped.
+    try{
+      mpChannel=null;
+      mpRoom="";
+      mpRoomId="";
+      mpRoomBacked=false;
+      mpRole=null;
+      mpTeam=null;
+      mpAuthorityUserId="";
+      mpAuthorityEpoch=0;
+      mpAuthorityLeaseUntil=0;
+      mpForgetRoom();
+      window.aceUTOnlineMatchActive=false;
+      updateMultiplayerUI();
+    }catch(ignore){}
+  }finally{
+    mpDeadRoomReleaseInFlight=false;
+    mpOpponentMissingSince=0;
+  }
+
+  mpConnectionBanner(
+    wasOnlineUT ? `${reason} · RETURNED TO ULTIMATE TEAM` : `${reason} · ROOM CLOSED`,
+    "offline",
+    true
+  );
+  return true;
+}
+
 async function mpRefreshAuthority({allowTakeover=true}={}){
   if(!mpHasPersistentRoom()||mpAuthorityRefreshInFlight)return false;
   mpAuthorityRefreshInFlight=true;
@@ -16281,6 +16338,12 @@ async function mpRefreshAuthority({allowTakeover=true}={}){
     const {data,error}=await mpClient.rpc("vds_room_heartbeat",{p_code:mpRoom});
     if(error)throw error;
     const row=Array.isArray(data)?data[0]:data;
+
+    if(String(row?.room_status||"").toLowerCase()==="released"){
+      await mpReleaseDeadRoom("OPPONENT DISCONNECTED");
+      return false;
+    }
+
     await mpApplyAuthorityRow(row);
 
     if(
@@ -16297,6 +16360,9 @@ async function mpRefreshAuthority({allowTakeover=true}={}){
     const msg=String(error?.message||error||"");
     if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg)){
       mpStopAuthorityWatch();
+      if(window.aceUTOnlineMatchActive){
+        await mpReleaseDeadRoom("ONLINE ROOM EXPIRED");
+      }
     }else{
       console.warn("VDS authority heartbeat failed",error);
     }
@@ -16506,6 +16572,15 @@ async function mpDisconnectTransport(){
 function mpScheduleReconnect(){
   if(mpExplicitLeave||mpReconnectInProgress||!mpRoom)return;
   clearTimeout(mpReconnectTimer);
+
+  // Automatic UT must never sit in an infinite reconnect loop.
+  // Seven attempts is roughly a one-minute recovery window.
+  if(window.aceUTOnlineMatchActive && mpReconnectAttempts>=7){
+    mpConnectionBanner("CONNECTION LOST · CLOSING ONLINE LOBBY","offline",false);
+    setTimeout(()=>mpReleaseDeadRoom("CONNECTION LOST"),120);
+    return;
+  }
+
   const delay=Math.min(12000,1200*Math.pow(1.7,mpReconnectAttempts));
   mpReconnectAttempts++;
   mpConnectionBanner(`RECONNECTING… ${mpReconnectAttempts>1?`(${mpReconnectAttempts})`:""}`,"reconnecting");
@@ -16514,9 +16589,12 @@ function mpScheduleReconnect(){
     mpReconnectInProgress=true;
     const resume=mpResumeRecord();
     const code=resume?.code||mpRoom;
+
     try{
+      // Resume always uses vds_join_room. That RPC recognises an existing Host
+      // membership too, so it safely restores either Player 1 or Player 2.
       const ok=await connectMultiplayer("guest",code,{resume:true,silent:true});
-      if(!ok)mpScheduleReconnect();
+      if(!ok && !mpExplicitLeave)mpScheduleReconnect();
     }finally{
       mpReconnectInProgress=false;
     }
@@ -17889,9 +17967,23 @@ async function connectMultiplayer(role,code,options={}){
     mpTeam=null;
     mpRoomBacked=false;
 
+    // A resumed room may have been intentionally released by the disconnect
+    // watchdog while this browser was offline. Treat that as a clean expiry,
+    // not a permanent reconnect error.
+    if(options.resume && /ROOM_(NOT_FOUND|ACCESS_DENIED)/i.test(mpLastConnectError)){
+      mpForgetRoom();
+      mpExplicitLeave=true;
+      clearTimeout(mpReconnectTimer);
+      mpReconnectAttempts=0;
+      mpReconnectInProgress=false;
+      mpConnectionBanner("ONLINE ROOM EXPIRED · READY TO PLAY AGAIN","offline",true);
+      updateMultiplayerUI();
+      return false;
+    }
+
     // Host code collisions are retried by hostMultiplayer() without an alert.
     if(!(role==="host" && mpLastConnectError==="ROOM_CODE_TAKEN")){
-      alert(multiplayerRoomErrorMessage(mpLastConnectError));
+      if(!options.silent)alert(multiplayerRoomErrorMessage(mpLastConnectError));
     }
     updateMultiplayerUI();
     return false;
@@ -18210,6 +18302,19 @@ async function connectMultiplayer(role,code,options={}){
       document.getElementById("mpPresence").innerHTML=
         `<span class="${playersOnline.length>=2?"mpOnline":"mpWaiting"}">${playersOnline.length}/2 players connected${playersOnline.length>=2?" ✓":""}</span>`+
         ` · <span class="spectatorTag">👁 ${spectators.length} spectator${spectators.length===1?"":"s"}</span>`;
+
+      if(window.aceUTOnlineMatchActive){
+        if(playersOnline.length<2){
+          if(!mpOpponentMissingSince)mpOpponentMissingSince=Date.now();
+          // This is the OPPONENT being absent. Do not pretend the local
+          // transport itself is reconnecting.
+          mpConnectionBanner("OPPONENT OFFLINE · RECONNECT GRACE ACTIVE","reconnecting",false);
+        }else if(mpOpponentMissingSince){
+          mpOpponentMissingSince=0;
+          mpConnectionBanner("OPPONENT RECONNECTED","online",true);
+        }
+      }
+
       if(mpIsAuthority() && people.length>=2) mpSendSnapshot();
     })
     .subscribe(async status=>{
@@ -18219,6 +18324,7 @@ async function connectMultiplayer(role,code,options={}){
       if(status==="SUBSCRIBED"){
         mpReconnectAttempts=0;
         mpReconnectInProgress=false;
+        mpDeadRoomReleaseInFlight=false;
         clearTimeout(mpReconnectTimer);
 
         // Recheck lease-backed authority before exchanging a fresh peer snapshot.
@@ -30172,7 +30278,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 <script id="ace-b20-5-diagnostics">
 window.aceRuntimeHealth=function(){
   return {
-    build:"B20.6",
+    build:"B20.7",
     page:document.querySelector(".page.active")?.id||null,
     multiplayer:typeof mpInMultiplayerRoom==="function"?mpInMultiplayerRoom():false,
     persistentRoom:typeof mpHasPersistentRoom==="function"?mpHasPersistentRoom():false,
@@ -30186,7 +30292,10 @@ window.aceRuntimeHealth=function(){
     matchmaking:window.aceUTIsMatchmakingActive?.()||false,
     matchConnecting:window.aceUTIsMatchConnecting?.()||false,
     commentaryState:Array.isArray(window.liveState?.commentary)?window.liveState.commentary.length:0,
-    commentaryDOM:document.querySelectorAll("#commentaryBox .commentaryLine").length
+    commentaryDOM:document.querySelectorAll("#commentaryBox .commentaryLine").length,
+    reconnectAttempts:typeof mpReconnectAttempts!=="undefined"?mpReconnectAttempts:0,
+    opponentMissingMs:typeof mpOpponentMissingSince!=="undefined"&&mpOpponentMissingSince?Date.now()-mpOpponentMissingSince:0,
+    deadRoomRelease:typeof mpDeadRoomReleaseInFlight!=="undefined"?mpDeadRoomReleaseInFlight:false
   };
 };
 </script>
