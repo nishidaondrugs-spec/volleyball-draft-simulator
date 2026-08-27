@@ -38504,6 +38504,716 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- /ACE B21.26 — HALF COURT HOME PREVIEW -->
 
+
+<!-- ACE B21.27 — SQUAD INTERACTION OVERHAUL -->
+<style id="ace-b21-27-squad-interaction">
+/* =========================================================
+   B21.27 — SQUAD ↔ MY CLUB INTERACTION
+   Clear selection state, position compatibility, live OVR
+   previews, best-fit placement, compare, bench/remove, and
+   visible team-stat feedback after swaps.
+   ========================================================= */
+
+#ultimate .ace27SelectionDock{
+  display:none;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  margin:10px 18px 0;
+  padding:11px 12px;
+  border-radius:14px;
+  border:1px solid rgba(175,126,242,.15);
+  background:
+    radial-gradient(circle at 0 50%,rgba(132,75,214,.10),transparent 30%),
+    linear-gradient(180deg,#0c1019,#090c13);
+  box-shadow:0 13px 28px rgba(0,0,0,.18);
+}
+#ultimate .ace27SelectionDock.show{display:grid}
+
+#ultimate .ace27SelectedPortrait{
+  width:56px;
+  height:70px;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid rgba(200,163,249,.22);
+  background:#111522;
+  box-shadow:0 10px 20px rgba(0,0,0,.28);
+}
+#ultimate .ace27SelectedPortrait img{
+  width:100%;height:100%;object-fit:cover;object-position:center top
+}
+#ultimate .ace27SelectedPortrait span{
+  width:100%;height:100%;display:grid;place-items:center;font-size:22px
+}
+#ultimate .ace27SelectedInfo{min-width:0}
+#ultimate .ace27SelectedInfo>small{
+  display:block;color:#886caf;font-size:5.5px;font-weight:1000;letter-spacing:.15em
+}
+#ultimate .ace27SelectedInfo h3{
+  margin:4px 0 0;
+  font-size:15px;
+  line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#ultimate .ace27SelectedMeta{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px
+}
+#ultimate .ace27SelectedMeta span{
+  padding:4px 6px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#080b12;
+  color:#787482;
+  font-size:5.4px;font-weight:1000;letter-spacing:.07em
+}
+#ultimate .ace27SelectedMeta span.good{
+  color:#a7e7bb;border-color:rgba(84,210,131,.14);background:rgba(30,105,57,.10)
+}
+#ultimate .ace27SelectedMeta span.warn{
+  color:#e6bd70;border-color:rgba(222,168,65,.17);background:rgba(100,69,13,.11)
+}
+
+#ultimate .ace27BestFit{
+  margin-top:6px;
+  color:#9c95a8;
+  font-size:6.5px;
+  line-height:1.45
+}
+#ultimate .ace27BestFit b{color:#c7a6ef}
+#ultimate .ace27BestFit .up{color:#79dda0}
+#ultimate .ace27BestFit .down{color:#e39a73}
+
+#ultimate .ace27DockActions{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+#ultimate .ace27DockActions button{
+  min-height:34px;
+  padding:0 9px;
+  border-radius:8px;
+  border:1px solid rgba(172,130,229,.10);
+  background:#080b12;
+  color:#817b8a;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#ultimate .ace27DockActions button:hover{
+  color:#d3b7f5;border-color:rgba(185,140,244,.24)
+}
+#ultimate .ace27DockActions .primary{
+  color:#fff;
+  border-color:rgba(191,145,251,.23);
+  background:linear-gradient(135deg,#7441c8,#9858e9);
+  box-shadow:0 8px 18px rgba(95,47,160,.20)
+}
+#ultimate .ace27DockActions .danger:hover{
+  color:#f3b2a2;border-color:rgba(225,111,88,.20)
+}
+
+/* Target states while a card is selected. */
+#ultimate #utSquadSlots .vdsSquadSlot.ace27Target{
+  cursor:pointer;
+}
+#ultimate #utSquadSlots .vdsSquadSlot.ace27Compatible .vdsSquadSpot{
+  background:radial-gradient(circle,rgba(112,227,151,.25),rgba(80,154,105,.10) 45%,transparent 73%)!important;
+}
+#ultimate #utSquadSlots .vdsSquadSlot.ace27OOPTarget .vdsSquadSpot{
+  background:radial-gradient(circle,rgba(230,171,75,.20),rgba(142,96,28,.08) 45%,transparent 73%)!important;
+}
+#ultimate #utSquadSlots .vdsSquadSlot.ace27Recommended .vdsSquadSpot{
+  background:radial-gradient(circle,rgba(190,131,255,.42),rgba(118,67,184,.15) 43%,transparent 72%)!important;
+  box-shadow:0 0 24px rgba(151,85,230,.15)!important;
+}
+#ultimate #utSquadSlots .vdsSquadSlot.ace27Recommended .vdsSquadPortrait,
+#ultimate #utSquadSlots .vdsSquadSlot.ace27Recommended .vdsSquadEmptyWrap{
+  filter:drop-shadow(0 0 13px rgba(160,96,239,.19));
+}
+
+#ultimate .ace27SlotProjection{
+  position:absolute;
+  z-index:18;
+  left:50%;
+  top:calc(50% - 74px);
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:4px;
+  max-width:125px;
+  pointer-events:none;
+}
+#ultimate .ace27SlotProjection>span,
+#ultimate .ace27SlotProjection>i{
+  padding:4px 6px;
+  border-radius:7px;
+  border:1px solid rgba(168,127,225,.12);
+  background:rgba(6,8,14,.91);
+  font-size:5.1px;
+  font-style:normal;
+  font-weight:1000;
+  letter-spacing:.05em;
+  white-space:nowrap;
+  box-shadow:0 5px 12px rgba(0,0,0,.20);
+}
+#ultimate .ace27SlotProjection>span{color:#d5b9f5}
+#ultimate .ace27SlotProjection>i.up{
+  color:#8be4a9;border-color:rgba(92,211,130,.15)
+}
+#ultimate .ace27SlotProjection>i.down{
+  color:#eca17d;border-color:rgba(226,125,86,.15)
+}
+#ultimate .ace27SlotProjection em{
+  position:absolute;
+  top:-13px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#c69dff;
+  font-size:4.7px;
+  font-style:normal;
+  font-weight:1000;
+  letter-spacing:.12em;
+  white-space:nowrap;
+}
+
+#ultimate .ace27SlotCompare{
+  position:absolute;
+  z-index:22;
+  right:-5px;
+  top:55%;
+  transform:translateY(-50%);
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  border:1px solid rgba(175,130,235,.12);
+  background:rgba(6,8,14,.92);
+  color:#a989cf;
+  font-size:8px;
+  cursor:pointer;
+}
+#ultimate .ace27SlotCompare:hover{
+  color:#fff;border-color:rgba(190,148,247,.28)
+}
+
+#ultimate .vdsUTBenchCard.ace27Selected,
+#ultimate .aceClubCard.ace27Selected .aceClubCardView>.fifaPlayerCard{
+  outline:2px solid rgba(171,105,255,.65)!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 26px rgba(140,76,226,.18)!important;
+}
+#ultimate .vdsUTBenchCard.ace27RecommendedBench{
+  border-color:rgba(171,105,255,.40)!important;
+}
+
+/* Swap result feedback */
+#ultimate .ace27SquadDeltaToast{
+  position:fixed;
+  z-index:46000;
+  left:50%;
+  bottom:92px;
+  transform:translate(-50%,14px);
+  opacity:0;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:calc(100vw - 28px);
+  padding:10px 13px;
+  border-radius:12px;
+  border:1px solid rgba(174,128,237,.18);
+  background:rgba(7,9,15,.96);
+  box-shadow:0 16px 38px rgba(0,0,0,.42);
+  transition:opacity .18s ease,transform .18s ease;
+}
+#ultimate .ace27SquadDeltaToast.show{
+  opacity:1;transform:translate(-50%,0)
+}
+#ultimate .ace27SquadDeltaToast b{
+  color:#d2b0f8;font-size:7px;letter-spacing:.08em
+}
+#ultimate .ace27SquadDeltaToast span{
+  color:#7fe0a1;font-size:6.5px;font-weight:1000;white-space:nowrap
+}
+#ultimate .ace27SquadDeltaToast span.down{color:#eba17f}
+
+/* My Club action now means choose where to place, not surprise auto-placement. */
+#ultimate .aceClubCardActions [data-club-squad]{
+  position:relative
+}
+#ultimate .aceClubCardActions [data-club-squad]::after{
+  content:"";
+}
+
+/* mobile */
+@media(max-width:760px){
+  #ultimate .ace27SelectionDock{
+    grid-template-columns:48px minmax(0,1fr);
+    gap:9px;
+    margin:8px;
+    padding:9px;
+  }
+  #ultimate .ace27SelectedPortrait{width:48px;height:61px}
+  #ultimate .ace27DockActions{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr;
+    width:100%;
+  }
+  #ultimate .ace27DockActions button{
+    min-height:42px;
+    padding:0 7px;
+    font-size:6px;
+  }
+  #ultimate .ace27SlotProjection{
+    top:calc(50% - 61px);
+  }
+  #ultimate .ace27SlotProjection>span,
+  #ultimate .ace27SlotProjection>i{
+    padding:3px 5px;
+    font-size:4.6px;
+  }
+  #ultimate .ace27SlotCompare{
+    width:27px;height:27px
+  }
+  #ultimate .ace27SquadDeltaToast{
+    bottom:calc(82px + env(safe-area-inset-bottom));
+  }
+}
+</style>
+
+<script id="ace-b21-27-squad-interaction-runtime">
+(function(){
+  "use strict";
+
+  const qs=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qsa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+  let ace27Rendering=false;
+  let ace27ToastTimer=0;
+
+  function slots(){
+    const a=Array.isArray(window.ultimateTeamState?.lineupSlots)
+      ? window.ultimateTeamState.lineupSlots.slice(0,6)
+      : Array(6).fill(null);
+    while(a.length<6)a.push(null);
+    return a;
+  }
+
+  function card(uid){
+    try{return uid?utCardByUid(uid):null}catch(_){return null}
+  }
+
+  function player(c){
+    try{return c?aceUltimateMasterPlayer(c):null}catch(_){return null}
+  }
+
+  function roleForIndex(dataIndex){
+    const s=UT_LINEUP_SLOTS.find(x=>Number(x.dataIndex)===Number(dataIndex));
+    return aceNormalizeVolleyballRole(s?.role||"OH");
+  }
+
+  function identity(slotState){
+    const entries=UT_LINEUP_SLOTS.map(s=>{
+      const c=card(slotState[s.dataIndex]);
+      const p=player(c);
+      return {slot:s,c,p};
+    });
+    const valid=entries.filter(x=>x.c&&x.p);
+    const avg=vals=>vals.length?Math.round(vals.reduce((a,b)=>a+Number(b||0),0)/vals.length):0;
+    const attack=avg(valid.map(x=>categoryRatings(x.p).attacking));
+    const defence=avg(valid.map(x=>categoryRatings(x.p).defense));
+    const setter=entries.find(x=>aceNormalizeVolleyballRole(x.slot.role)==="S");
+    const setting=setter?.p
+      ? Math.round(Number(setter.p.setting ?? (Number(setter.p.setTechnique||0)*.6+Number(setter.p.setCreativity||0)*.4)))
+      : 0;
+    const roleRatings=entries
+      .filter(x=>x.c)
+      .map(x=>aceUTCardRoleRating(x.c,x.slot.role))
+      .filter(v=>Number.isFinite(Number(v)));
+    const ovr=roleRatings.length?Math.round(roleRatings.reduce((a,b)=>a+Number(b||0),0)/roleRatings.length):0;
+    const oop=entries.reduce((n,x)=>n+(x.c&&aceUTCardIsOutOfPosition(x.c,x.slot.role)?1:0),0);
+    return {attack,defence,setting,ovr,oop,filled:entries.filter(x=>x.c).length};
+  }
+
+  function simulate(uid,target){
+    const s=slots();
+    const t=Number(target);
+    if(t<0||t>5)return s;
+    const source=s.findIndex(v=>String(v||"")===String(uid||""));
+    const targetPrev=s[t]||null;
+    if(source===t)return s;
+    if(source>=0)s[source]=targetPrev;
+    s[t]=uid;
+    if(source<0){
+      s.forEach((v,i)=>{if(i!==t&&String(v||"")===String(uid||""))s[i]=null});
+    }
+    return s;
+  }
+
+  function delta(n){
+    const x=Number(n||0);
+    if(!x)return "±0";
+    return `${x>0?"+":""}${x}`;
+  }
+
+  function projection(uid,target){
+    const selected=card(uid);
+    const current=card(slots()[target]);
+    const role=roleForIndex(target);
+    if(!selected)return null;
+
+    const rating=aceUTCardRoleRating(selected,role);
+    const currentRating=current?aceUTCardRoleRating(current,role):0;
+    const currentIdentity=identity(slots());
+    const nextIdentity=identity(simulate(uid,target));
+    const natural=aceUTCardNaturalRole(selected);
+    const oop=natural!==role;
+
+    return {
+      selected,current,role,natural,oop,rating,currentRating,
+      ratingDelta:current?rating-currentRating:rating,
+      before:currentIdentity,next:nextIdentity,
+      ovrDelta:nextIdentity.ovr-currentIdentity.ovr,
+      attackDelta:nextIdentity.attack-currentIdentity.attack,
+      defenceDelta:nextIdentity.defence-currentIdentity.defence,
+      settingDelta:nextIdentity.setting-currentIdentity.setting,
+      oopDelta:nextIdentity.oop-currentIdentity.oop
+    };
+  }
+
+  function bestTarget(uid){
+    let best=null;
+    for(let i=0;i<6;i++){
+      const p=projection(uid,i);
+      if(!p)continue;
+      const empty=!p.current;
+      const inPosition=!p.oop;
+      /* prioritise natural fit, then actual role OVR / team OVR improvement */
+      const score=
+        p.rating+
+        (inPosition?14:0)+
+        (empty?6:0)+
+        (p.ovrDelta*4)+
+        (p.attackDelta+p.defenceDelta)+
+        (p.oopDelta<0?7:0);
+      if(!best||score>best.score)best={...p,target:i,score};
+    }
+    return best;
+  }
+
+  function ensureDock(){
+    let dock=qs("#ace27SelectionDock");
+    if(dock)return dock;
+    const anchor=qs("#aceSquadIdentityMain")||qs("#aceSquadWarnings")||qs("#ultimate .vdsUTLineupHelp");
+    if(!anchor)return null;
+    dock=document.createElement("div");
+    dock.id="ace27SelectionDock";
+    dock.className="ace27SelectionDock";
+    anchor.insertAdjacentElement("afterend",dock);
+    return dock;
+  }
+
+  function renderDock(){
+    const dock=ensureDock();
+    if(!dock)return;
+    const uid=window.utSelectedBenchCardUid;
+    const c=card(uid);
+
+    if(!uid||!c){
+      dock.classList.remove("show");
+      dock.innerHTML="";
+      return;
+    }
+
+    const p=player(c);
+    const natural=aceUTCardNaturalRole(c);
+    const slotIndex=utFindSlotOfCard(uid);
+    const best=bestTarget(uid);
+
+    const roleScores=["OH","OP","M","S","L"]
+      .map(r=>({r,v:aceUTCardRoleRating(c,r)}))
+      .sort((a,b)=>b.v-a.v);
+    const top=roleScores[0];
+
+    let bestText="No available court target.";
+    if(best){
+      const slot=UT_LINEUP_SLOTS.find(x=>Number(x.dataIndex)===Number(best.target));
+      const bits=[];
+      if(best.ovrDelta)bits.push(`TEAM OVR <span class="${best.ovrDelta>0?"up":"down"}">${delta(best.ovrDelta)}</span>`);
+      if(best.attackDelta)bits.push(`ATT <span class="${best.attackDelta>0?"up":"down"}">${delta(best.attackDelta)}</span>`);
+      if(best.defenceDelta)bits.push(`DEF <span class="${best.defenceDelta>0?"up":"down"}">${delta(best.defenceDelta)}</span>`);
+      if(best.settingDelta)bits.push(`SET <span class="${best.settingDelta>0?"up":"down"}">${delta(best.settingDelta)}</span>`);
+      if(best.oopDelta<0)bits.push(`<span class="up">OOP RESOLVED</span>`);
+      bestText=`BEST FIT · <b>${slot?.label||best.role}</b> · ${best.rating} ${best.role} OVR${bits.length?" · "+bits.join(" · "):""}`;
+    }
+
+    dock.innerHTML=`
+      <div class="ace27SelectedPortrait">
+        ${c.photo?`<img src="${esc(c.photo)}" alt="${esc(c.playerName)}">`:"<span>♠</span>"}
+      </div>
+      <div class="ace27SelectedInfo">
+        <small>${slotIndex>=0?"STARTER SELECTED":"PLAYER SELECTED"}</small>
+        <h3>${esc(c.playerName)}</h3>
+        <div class="ace27SelectedMeta">
+          <span class="${natural===top.r?"good":""}">${Math.round(Number(c.rating||0))} ${natural} NATURAL</span>
+          <span>${top.v} ${top.r} BEST ROLE</span>
+          <span class="${slotIndex>=0?"good":""}">${slotIndex>=0?"IN STARTING SIX":"FROM BENCH / CLUB"}</span>
+        </div>
+        <div class="ace27BestFit">${bestText}</div>
+      </div>
+      <div class="ace27DockActions">
+        ${best?`<button class="primary" type="button" data-ace27-place-best="${best.target}">PLACE BEST</button>`:""}
+        ${best?.current?`<button type="button" data-ace27-compare-best="${best.target}">COMPARE</button>`:""}
+        <button type="button" data-ace27-view="${esc(c.playerName)}">VIEW</button>
+        ${slotIndex>=0?`<button class="danger" type="button" data-ace27-remove="${slotIndex}">BENCH</button>`:""}
+        <button type="button" data-ace27-clear>✕</button>
+      </div>`;
+
+    dock.classList.add("show");
+  }
+
+  function renderTargets(){
+    const uid=window.utSelectedBenchCardUid;
+    const selected=card(uid);
+    const best=selected?bestTarget(uid):null;
+
+    qsa("#ultimate #utSquadSlots .vdsSquadSlot").forEach(slotEl=>{
+      slotEl.classList.remove("ace27Target","ace27Compatible","ace27OOPTarget","ace27Recommended");
+      slotEl.querySelector(".ace27SlotProjection")?.remove();
+      slotEl.querySelector(".ace27SlotCompare")?.remove();
+
+      if(!selected)return;
+      const idx=Number(slotEl.dataset.slotIndex);
+      const p=projection(uid,idx);
+      if(!p)return;
+
+      slotEl.classList.add("ace27Target",p.oop?"ace27OOPTarget":"ace27Compatible");
+      if(best&&Number(best.target)===idx)slotEl.classList.add("ace27Recommended");
+
+      const badge=document.createElement("div");
+      badge.className="ace27SlotProjection";
+      badge.innerHTML=`
+        ${best&&Number(best.target)===idx?'<em>BEST FIT</em>':""}
+        <span>${p.rating} ${p.role}</span>
+        <i class="${p.ratingDelta>=0?"up":"down"}">${p.current?delta(p.ratingDelta):"ADD"}</i>`;
+      slotEl.appendChild(badge);
+
+      if(p.current && String(utCardUid(p.current))!==String(uid)){
+        const compare=document.createElement("button");
+        compare.type="button";
+        compare.className="ace27SlotCompare";
+        compare.dataset.ace27CompareSlot=String(idx);
+        compare.title=`Compare ${selected.playerName} with ${p.current.playerName}`;
+        compare.textContent="⇄";
+        slotEl.appendChild(compare);
+      }
+    });
+
+    qsa("#ultimate .vdsUTBenchCard").forEach(el=>{
+      el.classList.toggle("ace27Selected",String(el.dataset.cardUid||"")===String(uid||""));
+    });
+
+    qsa("#ultimate .aceClubCard").forEach(article=>{
+      article.classList.toggle("ace27Selected",String(article.dataset.clubCardUid||"")===String(uid||""));
+    });
+  }
+
+  function renderAll(){
+    if(ace27Rendering)return;
+    ace27Rendering=true;
+    try{
+      renderDock();
+      renderTargets();
+    }finally{
+      ace27Rendering=false;
+    }
+  }
+
+  function showDelta(before,after,slotIndex){
+    if(!before||!after)return;
+    const parts=[];
+    const push=(label,d)=>{
+      if(!d)return;
+      parts.push(`<span class="${d<0?"down":""}">${label} ${delta(d)}</span>`);
+    };
+    push("OVR",after.ovr-before.ovr);
+    push("ATT",after.attack-before.attack);
+    push("DEF",after.defence-before.defence);
+    push("SET",after.setting-before.setting);
+    if(after.oop<before.oop)parts.push(`<span>OOP RESOLVED ✓</span>`);
+    else if(after.oop>before.oop)parts.push(`<span class="down">OOP +${after.oop-before.oop}</span>`);
+
+    if(!parts.length)parts.push("<span>SQUAD UPDATED ✓</span>");
+
+    let toast=qs("#ace27SquadDeltaToast");
+    if(!toast){
+      toast=document.createElement("div");
+      toast.id="ace27SquadDeltaToast";
+      toast.className="ace27SquadDeltaToast";
+      const ultimate=qs("#ultimate")||document.body;
+      ultimate.appendChild(toast);
+    }
+    toast.innerHTML=`<b>SQUAD CHANGE</b>${parts.join("")}`;
+    toast.classList.add("show");
+    clearTimeout(ace27ToastTimer);
+    ace27ToastTimer=setTimeout(()=>toast.classList.remove("show"),2100);
+
+    requestAnimationFrame(()=>{
+      const slot=qs(`#ultimate #utSquadSlots .vdsSquadSlot[data-slot-index="${Number(slotIndex)}"]`);
+      if(slot){
+        slot.animate?.([
+          {filter:"brightness(1)",transform:slot.style.transform||""},
+          {filter:"brightness(1.18) drop-shadow(0 0 15px rgba(154,90,235,.25))"},
+          {filter:"brightness(1)"}
+        ],{duration:560,easing:"ease-out"});
+      }
+    });
+
+    try{
+      if(window.matchMedia?.("(max-width:760px)")?.matches)navigator.vibrate?.(12);
+    }catch(_){}
+  }
+
+  /* Wrap the actual placement function, preserving all existing save/cloud logic. */
+  if(typeof window.utAssignCardToSlot==="function" && !window.utAssignCardToSlot.__ace27Wrapped){
+    const base=window.utAssignCardToSlot;
+    const wrapped=function(uid,slotIndex){
+      const before=identity(slots());
+      const result=base.apply(this,arguments);
+      const after=identity(slots());
+      showDelta(before,after,slotIndex);
+      requestAnimationFrame(renderAll);
+      return result;
+    };
+    wrapped.__ace27Wrapped=true;
+    window.utAssignCardToSlot=wrapped;
+    try{utAssignCardToSlot=wrapped}catch(_){}
+  }
+
+  /* Re-render our interaction layer whenever the squad renderer runs. */
+  if(typeof window.renderUltimateSquadVisual==="function" && !window.renderUltimateSquadVisual.__ace27Wrapped){
+    const baseRender=window.renderUltimateSquadVisual;
+    const wrappedRender=function(){
+      const result=baseRender.apply(this,arguments);
+      requestAnimationFrame(renderAll);
+      return result;
+    };
+    wrappedRender.__ace27Wrapped=true;
+    window.renderUltimateSquadVisual=wrappedRender;
+    try{renderUltimateSquadVisual=wrappedRender}catch(_){}
+  }
+
+  /* My Club: "ADD TO SQUAD" now takes the card to the squad and lets the
+     player choose the position instead of silently auto-placing it. */
+  document.addEventListener("click",function(e){
+    const btn=e.target.closest?.("#ultimate [data-club-squad]");
+    if(!btn)return;
+    const uid=String(btn.dataset.clubSquad||"");
+    const c=(ultimateTeamState.cards||[]).find(x=>String(utCardUid(x))===uid);
+    if(!c)return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    window.utSelectedBenchCardUid=uid;
+    try{utSelectedBenchCardUid=uid}catch(_){}
+    if(typeof vdsSwitchUltimateInstance==="function")vdsSwitchUltimateInstance("squad");
+    setTimeout(()=>{
+      try{renderUltimateSquadVisual()}catch(_){renderAll()}
+      if(typeof aceNotify==="function"){
+        aceNotify({
+          title:`${c.playerName.toUpperCase()} SELECTED`,
+          body:utFindSlotOfCard(uid)>=0
+            ?"Choose another position to swap, or use BENCH to remove the player."
+            :"Compatible positions are highlighted. Tap a court slot to place the player.",
+          type:"info"
+        });
+      }
+    },80);
+  },true);
+
+  document.addEventListener("click",function(e){
+    const place=e.target.closest?.("[data-ace27-place-best]");
+    if(place){
+      e.preventDefault();e.stopPropagation();
+      const uid=window.utSelectedBenchCardUid;
+      if(uid)utAssignCardToSlot(uid,Number(place.dataset.ace27PlaceBest));
+      return;
+    }
+
+    const compareBest=e.target.closest?.("[data-ace27-compare-best]");
+    if(compareBest){
+      e.preventDefault();e.stopPropagation();
+      const uid=window.utSelectedBenchCardUid;
+      const p=projection(uid,Number(compareBest.dataset.ace27CompareBest));
+      if(p?.selected&&p?.current&&typeof aceOpenCompare==="function")aceOpenCompare(p.selected,p.current);
+      return;
+    }
+
+    const compare=e.target.closest?.("[data-ace27-compare-slot]");
+    if(compare){
+      e.preventDefault();e.stopImmediatePropagation();
+      const uid=window.utSelectedBenchCardUid;
+      const p=projection(uid,Number(compare.dataset.ace27CompareSlot));
+      if(p?.selected&&p?.current&&typeof aceOpenCompare==="function")aceOpenCompare(p.selected,p.current);
+      return;
+    }
+
+    const view=e.target.closest?.("[data-ace27-view]");
+    if(view){
+      e.preventDefault();e.stopPropagation();
+      if(typeof openVdsCardShowcase==="function")openVdsCardShowcase(view.dataset.ace27View);
+      return;
+    }
+
+    const remove=e.target.closest?.("[data-ace27-remove]");
+    if(remove){
+      e.preventDefault();e.stopPropagation();
+      utRemoveFromSlot(Number(remove.dataset.ace27Remove));
+      window.utSelectedBenchCardUid=null;
+      try{utSelectedBenchCardUid=null}catch(_){}
+      requestAnimationFrame(renderAll);
+      return;
+    }
+
+    const clear=e.target.closest?.("[data-ace27-clear]");
+    if(clear){
+      e.preventDefault();e.stopPropagation();
+      window.utSelectedBenchCardUid=null;
+      try{utSelectedBenchCardUid=null}catch(_){}
+      renderUltimateSquadVisual();
+    }
+  },true);
+
+  /* Existing bench/starter selection updates our dock instantly. */
+  document.addEventListener("click",function(e){
+    const selected=e.target.closest?.("#ultimate .vdsUTBenchCard[data-card-uid],#ultimate #utSquadSlots [data-card-uid]");
+    if(!selected)return;
+    if(e.target.closest?.("button"))return;
+    setTimeout(renderAll,0);
+  });
+
+  document.addEventListener("dragstart",function(e){
+    if(e.target.closest?.("#ultimate [data-card-uid]"))setTimeout(renderAll,0);
+  });
+
+  const observer=new MutationObserver(()=>{
+    if(qs("#ultimate"))requestAnimationFrame(renderAll);
+  });
+  if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+
+  try{
+    window.ACE_PROJECT_BUILD="B21.27";
+    window.ACE_SQUAD_INTERACTION_OVERHAUL=true;
+  }catch(_){}
+
+  requestAnimationFrame(renderAll);
+})();
+</script>
+<!-- /ACE B21.27 — SQUAD INTERACTION OVERHAUL -->
+
 </body>
 </html>
 
