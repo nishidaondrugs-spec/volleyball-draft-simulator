@@ -8096,11 +8096,82 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 
       <select id="playerSort" class="vdsPlayerSort" aria-label="Sort players">
         <option value="rating">Highest Rating</option>
+        <option value="newest">Newest</option>
         <option value="name">Name A–Z</option>
+        <option value="position">Position</option>
         <option value="attack">Best Attack</option>
         <option value="defense">Best Defence</option>
       </select>
+      <button id="ace30MoreFilters" class="ace30MoreFilters" type="button">FILTERS <span id="ace30FilterCount">0</span></button>
     </div>
+
+    <div class="ace30AdvancedFilters" id="ace30AdvancedFilters">
+      <div class="ace30FilterField ace30OvrField">
+        <label>OVR RANGE</label>
+        <div class="ace30RangeInputs">
+          <input id="ace30OvrMin" type="number" min="1" max="99" inputmode="numeric" placeholder="MIN">
+          <span>–</span>
+          <input id="ace30OvrMax" type="number" min="1" max="99" inputmode="numeric" placeholder="MAX">
+        </div>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30Serve">SERVE TYPE</label>
+        <select id="ace30Serve">
+          <option value="ALL">All Serves</option>
+          <option value="standing_float">Standing Float</option>
+          <option value="jump_float">Jump Float</option>
+          <option value="jump_topspin">Jump Topspin</option>
+          <option value="auto">Auto / Unset</option>
+        </select>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30AttackStyle">ATTACK PLAYSTYLE</label>
+        <select id="ace30AttackStyle"><option value="ALL">All Attack Styles</option></select>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30DefenseStyle">DEFENSIVE PLAYSTYLE</label>
+        <select id="ace30DefenseStyle"><option value="ALL">All Defence Styles</option></select>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30Edition">EDITION</label>
+        <select id="ace30Edition">
+          <option value="ALL">All Editions</option>
+          <option value="FOLLOWER">Follower Edition</option>
+          <option value="OFFICIAL">Official Players</option>
+        </select>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30UTStatus">ULTIMATE TEAM</label>
+        <select id="ace30UTStatus">
+          <option value="ALL">Any UT Status</option>
+          <option value="LIVE">Live in UT</option>
+          <option value="OFF">Not in UT</option>
+        </select>
+      </div>
+      <div class="ace30FilterField">
+        <label for="ace30Owned">MY CLUB</label>
+        <select id="ace30Owned">
+          <option value="ALL">Any Ownership</option>
+          <option value="OWNED">Owned</option>
+          <option value="NOT_OWNED">Not Owned</option>
+        </select>
+      </div>
+      <div class="ace30FilterField ace30AdminOnly">
+        <label for="ace30AdminState">ADMIN STATUS</label>
+        <select id="ace30AdminState">
+          <option value="ALL">All Admin States</option>
+          <option value="NEEDS_REVIEW">Needs Review</option>
+          <option value="REVIEWED">Reviewed</option>
+          <option value="NOT_UT">Not in UT Pool</option>
+        </select>
+      </div>
+      <div class="ace30FilterField ace30ResetField">
+        <label>&nbsp;</label>
+        <button id="ace30ResetFilters" type="button">RESET FILTERS</button>
+      </div>
+    </div>
+
+    <div class="ace30ActiveFilters" id="ace30ActiveFilters" aria-live="polite"></div>
 
     <div class="vdsTierRangeLegend" aria-label="ACE rarity ranges">
       <span class="bronze">BRONZE <b>1–59</b></span>
@@ -9858,17 +9929,72 @@ function renderPlayers(filter=""){
   if(!allGrid||!poolGrid)return;
 
   const query=String(filter??document.getElementById("playerSearch")?.value??"").trim().toLowerCase();
+  const ext=window.ace30PlayerFilters||{};
+  const isFollower=p=>/^follower_spinner_/i.test(String(p?.tendencies?.source||""));
+  const isReviewed=p=>p?.tendencies?.adminReviewed===true;
+  const owned=p=>{
+    const pid=Number(p?.cloudId||0);
+    return (ultimateTeamState?.cards||[]).some(c=>
+      (pid&&Number(c.playerId||0)===pid) || String(c.playerName||"")===String(p?.name||"")
+    );
+  };
+  const minOvr=Number.isFinite(Number(ext.ovrMin))&&String(ext.ovrMin)!==""?Number(ext.ovrMin):null;
+  const maxOvr=Number.isFinite(Number(ext.ovrMax))&&String(ext.ovrMax)!==""?Number(ext.ovrMax):null;
 
-  let shown=activePlayerPool().filter(p=>{
-    const nameMatch=(p.name||"").toLowerCase().includes(query);
-    const pos=(p.position||"").toUpperCase();
+  /* Needs Review intentionally searches the whole DB instead of only the
+     active player set, so newly published spinner cards cannot disappear
+     because the admin happens to be viewing another group. */
+  const basePool=(cloudAdmin&&ext.adminState==="NEEDS_REVIEW")
+    ? players
+    : activePlayerPool();
+
+  let shown=basePool.filter(p=>{
+    const name=String(p.name||"").toLowerCase();
+    const nameMatch=!query || name.includes(query);
+    const pos=String(p.position||"").toUpperCase();
     const posMatch=playerGalleryPosition==="ALL" || pos===playerGalleryPosition;
     const tierMatch=playerGalleryTier==="ALL" || cardTier(p)===playerGalleryTier;
-    return nameMatch && posMatch && tierMatch;
+    const rating=mainPositionRating(p);
+    const ovrMatch=(minOvr===null||rating>=minOvr)&&(maxOvr===null||rating<=maxOvr);
+    const serveMatch=!ext.serve||ext.serve==="ALL" || String(p.serveType||"auto")===ext.serve;
+    const attackMatch=!ext.attackStyle||ext.attackStyle==="ALL" || String(p.attackPlaystyle||"none")===ext.attackStyle;
+    const defenseMatch=!ext.defenseStyle||ext.defenseStyle==="ALL" || String(p.defensePlaystyle||"none")===ext.defenseStyle;
+    const follower=isFollower(p);
+    const editionMatch=!ext.edition||ext.edition==="ALL" ||
+      (ext.edition==="FOLLOWER"&&follower) ||
+      (ext.edition==="OFFICIAL"&&!follower);
+    const utLive=p.ultimateTeamPool===true;
+    const utMatch=!ext.utStatus||ext.utStatus==="ALL" ||
+      (ext.utStatus==="LIVE"&&utLive) ||
+      (ext.utStatus==="OFF"&&!utLive);
+    const isOwned=owned(p);
+    const ownedMatch=!ext.owned||ext.owned==="ALL" ||
+      (ext.owned==="OWNED"&&isOwned) ||
+      (ext.owned==="NOT_OWNED"&&!isOwned);
+
+    let adminMatch=true;
+    if(cloudAdmin&&ext.adminState&&ext.adminState!=="ALL"){
+      if(ext.adminState==="NEEDS_REVIEW")adminMatch=follower&&!isReviewed(p);
+      if(ext.adminState==="REVIEWED")adminMatch=isReviewed(p);
+      if(ext.adminState==="NOT_UT")adminMatch=!utLive;
+    }
+
+    return nameMatch&&posMatch&&tierMatch&&ovrMatch&&serveMatch&&attackMatch&&defenseMatch&&editionMatch&&utMatch&&ownedMatch&&adminMatch;
   });
 
   shown=[...shown].sort((a,b)=>{
+    if(playerGallerySort==="newest"){
+      const ta=Date.parse(b?.tendencies?.adminReviewedAt||"")||Number(b.cloudId||0)||0;
+      const tb=Date.parse(a?.tendencies?.adminReviewedAt||"")||Number(a.cloudId||0)||0;
+      return ta-tb;
+    }
     if(playerGallerySort==="name")return String(a.name).localeCompare(String(b.name));
+    if(playerGallerySort==="position"){
+      const order={OH:1,OP:2,M:3,S:4,L:5};
+      return (order[String(a.position||"").toUpperCase()]||99)-(order[String(b.position||"").toUpperCase()]||99)
+        || mainPositionRating(b)-mainPositionRating(a)
+        || String(a.name).localeCompare(String(b.name));
+    }
     if(playerGallerySort==="attack")return categoryRatings(b).attacking-categoryRatings(a).attacking;
     if(playerGallerySort==="defense")return categoryRatings(b).defense-categoryRatings(a).defense;
     return mainPositionRating(b)-mainPositionRating(a);
@@ -9878,7 +10004,7 @@ function renderPlayers(filter=""){
   const allPoolCount=players.filter(p=>p.ultimateTeamPool===true).length;
 
   const resultCount=document.getElementById("playerResultsCount");
-  if(resultCount)resultCount.textContent=`${shown.length} players found · ${poolShown.length} pool cards`;
+  if(resultCount)resultCount.textContent=`${shown.length} player${shown.length===1?"":"s"} · ${poolShown.length} live in UT`;
 
   const countEl=document.getElementById("playerDatabaseCount");
   const poolCountEl=document.getElementById("playerUTPoolCount");
@@ -9888,7 +10014,7 @@ function renderPlayers(filter=""){
   const psEl=document.getElementById("playerPlaystyleCount");
   if(countEl)countEl.textContent=players.length;
   if(poolCountEl)poolCountEl.textContent=allPoolCount;
-  if(poolSectionCount)poolSectionCount.textContent=allPoolCount;
+  if(poolSectionCount)poolSectionCount.textContent=poolShown.length;
   if(allSectionCount)allSectionCount.textContent=shown.length;
   if(goldEl)goldEl.textContent=players.filter(p=>["gold","rare_gold"].includes(cardTier(p))).length;
   if(psEl)psEl.textContent=players.reduce((n,p)=>n+selectedPlaystyleCount(p),0);
@@ -9896,12 +10022,23 @@ function renderPlayers(filter=""){
   const emptyPool=document.getElementById("utPoolEmptyState");
   if(emptyPool)emptyPool.classList.toggle("hidden",poolShown.length>0);
 
+  if(typeof window.ace30UpdateFilterUI==="function")window.ace30UpdateFilterUI(shown);
+
   const renderKey=[
     playerSetState?.active||"",
     query,
     playerGalleryPosition,
     playerGalleryTier,
     playerGallerySort,
+    ext.ovrMin||"",
+    ext.ovrMax||"",
+    ext.serve||"ALL",
+    ext.attackStyle||"ALL",
+    ext.defenseStyle||"ALL",
+    ext.edition||"ALL",
+    ext.utStatus||"ALL",
+    ext.owned||"ALL",
+    cloudAdmin?(ext.adminState||"ALL"):"VIEWER",
     shown.length,
     poolShown.length,
     players.length
@@ -9918,12 +10055,10 @@ function renderPlayers(filter=""){
   allGrid.replaceChildren();
   poolGrid.replaceChildren();
 
-  if(poolShown.length){
-    acePlayerAppendBatch("pool");
-  }
+  if(poolShown.length)acePlayerAppendBatch("pool");
 
   if(!shown.length){
-    allGrid.innerHTML=`<div class="vdsNoPlayers"><b>No players found.</b><span>Try another name, position or card tier.</span></div>`;
+    allGrid.innerHTML=`<div class="vdsNoPlayers"><b>No players match these filters.</b><span>Clear a filter or broaden the OVR range.</span></div>`;
   }else{
     acePlayerAppendBatch("all");
   }
@@ -37375,11 +37510,11 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
       lineup=typeof vdsHubOwnedLineupCards==="function"?vdsHubOwnedLineupCards():[];
     }catch(_){}
     const filled=Array.isArray(lineup)?lineup.filter(Boolean).length:0;
-    const cards=Array.isArray(window.ultimateTeamState?.cards)?window.ultimateTeamState.cards.filter(Boolean):[];
+    const cards=Array.isArray(ultimateTeamState?.cards)?ultimateTeamState.cards.filter(Boolean):[];
     const packCards=cards.filter(c=>String(c?.source||"")==="pack").length;
-    const free=Math.max(0,Number(window.vdsAccountProfile?.free_gold_packs||0));
-    const matches=Math.max(0,Number(window.vdsAccountProfile?.matches_played||0));
-    const d=window.vdsDailyProgressCache||{};
+    const free=Math.max(0,Number(vdsAccountProfile?.free_gold_packs||0));
+    const matches=Math.max(0,Number(vdsAccountProfile?.matches_played||0));
+    const d=vdsDailyProgressCache||{};
     const pending=
       (Number(d.matches_played||0)>=1 && !d.play_one_rewarded) ||
       (Number(d.wins||0)>=1 && !d.win_one_rewarded) ||
@@ -38794,8 +38929,8 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
   let ace27ToastTimer=0;
 
   function slots(){
-    const a=Array.isArray(window.ultimateTeamState?.lineupSlots)
-      ? window.ultimateTeamState.lineupSlots.slice(0,6)
+    const a=Array.isArray(ultimateTeamState?.lineupSlots)
+      ? ultimateTeamState.lineupSlots.slice(0,6)
       : Array(6).fill(null);
     while(a.length<6)a.push(null);
     return a;
@@ -39655,7 +39790,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
   }
 
   function queuePlayers(){
-    return (window.players||[])
+    return (players||[])
       .filter(p=>isFollowerCard(p) && !isReviewed(p))
       .sort((a,b)=>Number(b.cloudId||0)-Number(a.cloudId||0));
   }
@@ -39727,7 +39862,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
       const dbPool=data?.ultimate_team_pool===true;
       const localPool=typeof vdsUltimatePoolPlayers==="function"
         ? vdsUltimatePoolPlayers().some(x=>Number(x.cloudId)===Number(p.cloudId))
-        : (window.players||[]).some(x=>Number(x.cloudId)===Number(p.cloudId)&&x.ultimateTeamPool===true);
+        : (players||[]).some(x=>Number(x.cloudId)===Number(p.cloudId)&&x.ultimateTeamPool===true);
 
       const result={
         state:dbPool&&localPool?"live":"error",
@@ -39748,7 +39883,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
   }
 
   async function verifyVisibleQueue(){
-    if(!window.cloudAdmin)return;
+    if(!cloudAdmin)return;
     for(const p of queuePlayers().slice(0,12)){
       if(p.ultimateTeamPool===true){
         await verifyUT(p);
@@ -39924,7 +40059,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 
   function renderEditorReview(){
     const body=q("#playerEditorContent");
-    const idx=Number(window.playerEditorIndex);
+    const idx=Number(playerEditorIndex);
     const p=players?.[idx];
     if(!body||!p)return;
 
@@ -40676,7 +40811,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
   }
   function ownedCards(p){
     const pid=Number(p?.cloudId||0);
-    return (window.ultimateTeamState?.cards||[]).filter(c=>
+    return (ultimateTeamState?.cards||[]).filter(c=>
       (pid && Number(c.playerId||0)===pid) || String(c.playerName||"")===String(p?.name||"")
     );
   }
@@ -40684,7 +40819,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
     return ownedCards(p).slice().sort((a,b)=>Number(b.rating||0)-Number(a.rating||0))[0]||null;
   }
   function latestCommunity(){
-    return (window.players||[])
+    return (players||[])
       .filter(isApprovedFollower)
       .slice()
       .sort((a,b)=>{
@@ -40809,7 +40944,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
   }
 
   function ace29OpenPlayerProfile(name){
-    const p=(window.players||[]).find(x=>String(x.name)===String(name));
+    const p=(players||[]).find(x=>String(x.name)===String(name));
     if(!p)return;
 
     const overlay=q("#vdsCardShowcaseOverlay");
@@ -40864,7 +40999,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
               ${owned.length
                 ? `<button type="button" class="squad" data-ace29-profile-squad="${esc(p.name)}">ADD TO SQUAD</button>`
                 : `<button type="button" disabled>NOT OWNED IN UT</button>`}
-              ${window.cloudAdmin?`<button type="button" class="primary" data-ace29-profile-edit="${(window.players||[]).indexOf(p)}">EDIT PLAYER</button>`:""}
+              ${cloudAdmin?`<button type="button" class="primary" data-ace29-profile-edit="${(players||[]).indexOf(p)}">EDIT PLAYER</button>`:""}
               <button type="button" data-ace29-profile-close>CLOSE</button>
             </div>
           </div>
@@ -41008,7 +41143,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 
     const compare=e.target.closest?.("[data-ace29-profile-compare]");
     if(compare){
-      const p=(window.players||[]).find(x=>x.name===compare.dataset.ace29ProfileCompare);
+      const p=(players||[]).find(x=>x.name===compare.dataset.ace29ProfileCompare);
       if(!p)return;
       if(typeof closeVdsCardShowcase==="function")closeVdsCardShowcase();
       compareFromProfile(p);
@@ -41017,7 +41152,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 
     const squad=e.target.closest?.("[data-ace29-profile-squad]");
     if(squad){
-      const p=(window.players||[]).find(x=>x.name===squad.dataset.ace29ProfileSquad);
+      const p=(players||[]).find(x=>x.name===squad.dataset.ace29ProfileSquad);
       if(p)addOwnedToSquad(p);
       return;
     }
@@ -41052,6 +41187,1187 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 })();
 </script>
 <!-- /ACE B21.29 — PLAYER PROFILE + COMMUNITY SHOWCASE -->
+
+
+<!-- ACE B21.30 — PLAYERS DATABASE UX -->
+<style id="ace-b21-30-players-database-ux">
+#players .vdsPlayerToolbar{
+  display:grid!important;
+  grid-template-columns:minmax(235px,1.25fr) auto minmax(150px,.45fr) auto!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+#players .vdsPlayerSearchWrap{
+  min-width:0!important;
+}
+#players .vdsPlayerSearchWrap input{
+  height:42px!important;
+}
+#players .ace30MoreFilters{
+  min-height:42px;
+  padding:0 11px;
+  border-radius:9px;
+  border:1px solid rgba(175,130,231,.12);
+  background:#090c13;
+  color:#8d8495;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+#players .ace30MoreFilters span{
+  display:inline-grid;
+  place-items:center;
+  min-width:18px;
+  height:18px;
+  margin-left:4px;
+  border-radius:999px;
+  background:#7040bd;
+  color:#fff;
+  font-size:5.3px;
+}
+#players .ace30AdvancedFilters{
+  display:grid;
+  grid-template-columns:1.2fr repeat(7,minmax(120px,1fr)) auto;
+  gap:7px;
+  align-items:end;
+  margin:9px 0 7px;
+  padding:10px;
+  border:1px solid rgba(172,127,230,.09);
+  border-radius:13px;
+  background:
+    radial-gradient(circle at 0 0,rgba(119,67,194,.07),transparent 25%),
+    #080b12;
+}
+#players .ace30FilterField{
+  min-width:0;
+}
+#players .ace30FilterField label{
+  display:block;
+  margin:0 0 4px;
+  color:#716c78;
+  font-size:4.8px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+#players .ace30FilterField select,
+#players .ace30FilterField input{
+  width:100%;
+  height:34px;
+  min-width:0;
+  padding:0 7px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#060910;
+  color:#b6b0bc;
+  font-size:5.6px;
+  font-weight:850;
+  outline:none;
+}
+#players .ace30FilterField select:focus,
+#players .ace30FilterField input:focus{
+  border-color:rgba(174,119,241,.29);
+}
+#players .ace30RangeInputs{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:4px;
+  align-items:center;
+}
+#players .ace30RangeInputs span{
+  color:#504b57;
+  font-size:7px;
+}
+#players .ace30RangeInputs input{
+  text-align:center;
+}
+#players .ace30ResetField button{
+  min-height:34px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid rgba(174,129,230,.10);
+  background:#0a0d14;
+  color:#817b88;
+  font-size:5.4px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#players .ace30ResetField button:hover,
+#players .ace30MoreFilters:hover{
+  color:#d2b7f3;
+  border-color:rgba(188,142,246,.22);
+}
+#players .ace30ActiveFilters{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  min-height:0;
+  margin:0 0 7px;
+}
+#players .ace30FilterChip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  min-height:27px;
+  padding:0 8px;
+  border-radius:999px;
+  border:1px solid rgba(175,130,231,.11);
+  background:#080b12;
+  color:#91889b;
+  font-size:5.3px;
+  font-weight:1000;
+  cursor:pointer;
+}
+#players .ace30FilterChip b{
+  color:#c9a8ef;
+  font-weight:1000;
+}
+#players .ace30FilterChip i{
+  color:#625b69;
+  font-style:normal;
+  font-size:7px;
+}
+#players .ace30ResultsSummary{
+  color:#a58abf!important;
+  font-weight:1000;
+}
+#players .ace30AdminOnly{
+  display:none;
+}
+body:not(.cloudReadOnly) #players .ace30AdminOnly{
+  display:block;
+}
+
+/* Compact the two old filter rows instead of letting them dominate the page. */
+#players #playerPositionFilters,
+#players #playerTierFilters{
+  flex-wrap:nowrap!important;
+  overflow-x:auto!important;
+  scrollbar-width:none;
+}
+#players #playerPositionFilters::-webkit-scrollbar,
+#players #playerTierFilters::-webkit-scrollbar{display:none}
+#players .vdsFilter{
+  white-space:nowrap!important;
+}
+
+@media(max-width:1120px){
+  #players .vdsPlayerToolbar{
+    grid-template-columns:minmax(210px,1fr) auto minmax(145px,.55fr) auto!important;
+  }
+  #players .ace30AdvancedFilters{
+    grid-template-columns:repeat(4,minmax(130px,1fr));
+  }
+  #players .ace30ResetField{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:760px){
+  #players .vdsPlayerToolbar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:7px!important;
+  }
+  #players .vdsPlayerSearchWrap{
+    grid-column:1/-1;
+  }
+  #players #playerPositionFilters,
+  #players #playerTierFilters{
+    grid-column:1/-1;
+    width:100%;
+  }
+  #players .vdsPlayerSort{
+    min-height:42px!important;
+  }
+  #players .ace30MoreFilters{
+    display:block;
+  }
+  #players .ace30AdvancedFilters{
+    display:none;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding:9px;
+    margin-top:7px;
+  }
+  #players .ace30AdvancedFilters.open{
+    display:grid;
+  }
+  #players .ace30FilterField select,
+  #players .ace30FilterField input,
+  #players .ace30ResetField button{
+    min-height:42px;
+    font-size:6px;
+  }
+  #players .ace30OvrField,
+  #players .ace30ResetField{
+    grid-column:1/-1;
+  }
+  #players .ace30ActiveFilters{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  #players .ace30ActiveFilters::-webkit-scrollbar{display:none}
+  #players .ace30FilterChip{flex:0 0 auto;min-height:30px}
+}
+
+@media(min-width:761px){
+  #players .ace30MoreFilters{display:none}
+}
+</style>
+
+<script id="ace-b21-30-players-database-ux-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+
+  const state=window.ace30PlayerFilters=window.ace30PlayerFilters||{
+    ovrMin:"",ovrMax:"",serve:"ALL",attackStyle:"ALL",defenseStyle:"ALL",
+    edition:"ALL",utStatus:"ALL",owned:"ALL",adminState:"ALL"
+  };
+
+  function cleanStyleName(name){
+    return String(name||"").replace(/^[^A-Za-z0-9]+\s*/,"");
+  }
+
+  function populatePlaystyles(){
+    const atk=q("#ace30AttackStyle");
+    const def=q("#ace30DefenseStyle");
+    if(atk && atk.options.length<=1 && typeof ATTACK_PLAYSTYLES!=="undefined"){
+      ATTACK_PLAYSTYLES.filter(x=>x.id!=="none").forEach(x=>{
+        const o=document.createElement("option");o.value=x.id;o.textContent=cleanStyleName(x.name);atk.appendChild(o);
+      });
+    }
+    if(def && def.options.length<=1 && typeof DEFENSE_PLAYSTYLES!=="undefined"){
+      DEFENSE_PLAYSTYLES.filter(x=>x.id!=="none").forEach(x=>{
+        const o=document.createElement("option");o.value=x.id;o.textContent=cleanStyleName(x.name);def.appendChild(o);
+      });
+    }
+  }
+
+  function syncStateFromControls(){
+    state.ovrMin=q("#ace30OvrMin")?.value.trim()||"";
+    state.ovrMax=q("#ace30OvrMax")?.value.trim()||"";
+    state.serve=q("#ace30Serve")?.value||"ALL";
+    state.attackStyle=q("#ace30AttackStyle")?.value||"ALL";
+    state.defenseStyle=q("#ace30DefenseStyle")?.value||"ALL";
+    state.edition=q("#ace30Edition")?.value||"ALL";
+    state.utStatus=q("#ace30UTStatus")?.value||"ALL";
+    state.owned=q("#ace30Owned")?.value||"ALL";
+    state.adminState=q("#ace30AdminState")?.value||"ALL";
+  }
+
+  function rerender(){
+    syncStateFromControls();
+    renderPlayers(q("#playerSearch")?.value||"");
+  }
+
+  function labelForSelect(id,value){
+    const el=q(id);
+    return el?.querySelector(`option[value="${CSS.escape(String(value))}"]`)?.textContent||String(value);
+  }
+
+  function filterEntries(){
+    const entries=[];
+    if(playerGalleryPosition!=="ALL")entries.push({key:"position",label:"POSITION",value:playerGalleryPosition});
+    if(playerGalleryTier!=="ALL")entries.push({key:"tier",label:"RARITY",value:String(playerGalleryTier).replace("_"," ").toUpperCase()});
+    if(state.ovrMin||state.ovrMax)entries.push({key:"ovr",label:"OVR",value:`${state.ovrMin||1}–${state.ovrMax||99}`});
+    if(state.serve!=="ALL")entries.push({key:"serve",label:"SERVE",value:labelForSelect("#ace30Serve",state.serve)});
+    if(state.attackStyle!=="ALL")entries.push({key:"attackStyle",label:"ATT",value:labelForSelect("#ace30AttackStyle",state.attackStyle)});
+    if(state.defenseStyle!=="ALL")entries.push({key:"defenseStyle",label:"DEF",value:labelForSelect("#ace30DefenseStyle",state.defenseStyle)});
+    if(state.edition!=="ALL")entries.push({key:"edition",label:"EDITION",value:labelForSelect("#ace30Edition",state.edition)});
+    if(state.utStatus!=="ALL")entries.push({key:"utStatus",label:"UT",value:labelForSelect("#ace30UTStatus",state.utStatus)});
+    if(state.owned!=="ALL")entries.push({key:"owned",label:"CLUB",value:labelForSelect("#ace30Owned",state.owned)});
+    if(cloudAdmin&&state.adminState!=="ALL")entries.push({key:"adminState",label:"ADMIN",value:labelForSelect("#ace30AdminState",state.adminState)});
+    return entries;
+  }
+
+  function updateFilterUI(){
+    const chips=q("#ace30ActiveFilters");
+    const count=q("#ace30FilterCount");
+    if(!chips||!count)return;
+    const entries=filterEntries();
+    count.textContent=entries.length;
+    chips.innerHTML=entries.map(x=>`<button class="ace30FilterChip" type="button" data-ace30-clear="${x.key}"><span>${x.label}</span><b>${x.value}</b><i>×</i></button>`).join("");
+  }
+  window.ace30UpdateFilterUI=updateFilterUI;
+
+  function clearOne(key){
+    if(key==="position"){
+      playerGalleryPosition="ALL";
+      qa("[data-player-pos]").forEach(x=>x.classList.toggle("active",x.dataset.playerPos==="ALL"));
+    }else if(key==="tier"){
+      playerGalleryTier="ALL";
+      qa("[data-player-tier]").forEach(x=>x.classList.toggle("active",x.dataset.playerTier==="ALL"));
+    }else if(key==="ovr"){
+      state.ovrMin="";state.ovrMax="";
+      if(q("#ace30OvrMin"))q("#ace30OvrMin").value="";
+      if(q("#ace30OvrMax"))q("#ace30OvrMax").value="";
+    }else{
+      const map={serve:"#ace30Serve",attackStyle:"#ace30AttackStyle",defenseStyle:"#ace30DefenseStyle",edition:"#ace30Edition",utStatus:"#ace30UTStatus",owned:"#ace30Owned",adminState:"#ace30AdminState"};
+      if(key in state)state[key]="ALL";
+      if(map[key]&&q(map[key]))q(map[key]).value="ALL";
+    }
+    renderPlayers(q("#playerSearch")?.value||"");
+  }
+
+  function resetAll(){
+    playerGalleryPosition="ALL";
+    playerGalleryTier="ALL";
+    playerGallerySort="rating";
+    Object.assign(state,{ovrMin:"",ovrMax:"",serve:"ALL",attackStyle:"ALL",defenseStyle:"ALL",edition:"ALL",utStatus:"ALL",owned:"ALL",adminState:"ALL"});
+
+    const search=q("#playerSearch");if(search)search.value="";
+    const sort=q("#playerSort");if(sort)sort.value="rating";
+    ["#ace30OvrMin","#ace30OvrMax"].forEach(id=>{if(q(id))q(id).value=""});
+    ["#ace30Serve","#ace30AttackStyle","#ace30DefenseStyle","#ace30Edition","#ace30UTStatus","#ace30Owned","#ace30AdminState"].forEach(id=>{if(q(id))q(id).value="ALL"});
+    qa("[data-player-pos]").forEach(x=>x.classList.toggle("active",x.dataset.playerPos==="ALL"));
+    qa("[data-player-tier]").forEach(x=>x.classList.toggle("active",x.dataset.playerTier==="ALL"));
+    renderPlayers("");
+  }
+
+  function syncAdmin(){
+    const f=q("#ace30AdminState");
+    if(!f)return;
+    f.disabled=!cloudAdmin;
+    if(!cloudAdmin && state.adminState!=="ALL"){
+      state.adminState="ALL";
+      f.value="ALL";
+    }
+  }
+
+  function boot(){
+    populatePlaystyles();
+    syncAdmin();
+    updateFilterUI();
+
+    ["#ace30Serve","#ace30AttackStyle","#ace30DefenseStyle","#ace30Edition","#ace30UTStatus","#ace30Owned","#ace30AdminState"].forEach(id=>q(id)?.addEventListener("change",rerender));
+
+    let ovrTimer=0;
+    ["#ace30OvrMin","#ace30OvrMax"].forEach(id=>q(id)?.addEventListener("input",()=>{
+      clearTimeout(ovrTimer);
+      ovrTimer=setTimeout(rerender,160);
+    }));
+
+    q("#ace30ResetFilters")?.addEventListener("click",resetAll);
+    q("#ace30MoreFilters")?.addEventListener("click",()=>q("#ace30AdvancedFilters")?.classList.toggle("open"));
+
+    document.addEventListener("click",e=>{
+      const chip=e.target.closest?.("[data-ace30-clear]");
+      if(chip)clearOne(chip.dataset.ace30Clear);
+    });
+
+    /* Existing position/tier/sort listeners fire renderPlayers themselves.
+       We only refresh the chips after their state changes. */
+    qa("[data-player-pos],[data-player-tier]").forEach(btn=>btn.addEventListener("click",()=>requestAnimationFrame(updateFilterUI)));
+    q("#playerSort")?.addEventListener("change",()=>requestAnimationFrame(updateFilterUI));
+
+    if(typeof window.cloudAdminLogin==="function"&&!window.cloudAdminLogin.__ace30Wrapped){
+      const base=window.cloudAdminLogin;
+      const wrapped=async function(){const result=await base.apply(this,arguments);syncAdmin();renderPlayers(q("#playerSearch")?.value||"");return result;};
+      wrapped.__ace30Wrapped=true;window.cloudAdminLogin=wrapped;try{cloudAdminLogin=wrapped}catch(_){}
+    }
+    if(typeof window.cloudAdminLogout==="function"&&!window.cloudAdminLogout.__ace30Wrapped){
+      const base=window.cloudAdminLogout;
+      const wrapped=async function(){const result=await base.apply(this,arguments);syncAdmin();renderPlayers(q("#playerSearch")?.value||"");return result;};
+      wrapped.__ace30Wrapped=true;window.cloudAdminLogout=wrapped;try{cloudAdminLogout=wrapped}catch(_){}
+    }
+
+    /* Make result text more visually useful without changing its existing ID. */
+    q("#playerResultsCount")?.classList.add("ace30ResultsSummary");
+    renderPlayers(q("#playerSearch")?.value||"");
+  }
+
+  window.ACE_PROJECT_BUILD="B21.30";
+  window.ACE_PLAYERS_DATABASE_UX=true;
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
+})();
+</script>
+<!-- /ACE B21.30 — PLAYERS DATABASE UX -->
+
+
+<!-- ACE B21.31 — SHARE YOUR CARD -->
+<style id="ace-b21-31-share-card">
+/* =========================================================
+   B21.31 — SHARE YOUR CARD
+   Portrait social graphic + native share + PNG save
+   ========================================================= */
+
+#vdsCardShowcaseOverlay .ace31ShareBtn{
+  color:#fff!important;
+  border-color:rgba(196,149,255,.18)!important;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.10),transparent 35%),
+    linear-gradient(135deg,#8a4ee1,#5b36ba)!important;
+  box-shadow:0 8px 20px rgba(104,56,178,.18);
+}
+
+.ace31ShareOverlay{
+  position:fixed;
+  inset:0;
+  z-index:52000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(3,5,10,.88);
+  backdrop-filter:blur(14px);
+}
+.ace31ShareOverlay.show{display:flex}
+
+.ace31ShareModal{
+  width:min(1020px,96vw);
+  max-height:94dvh;
+  display:grid;
+  grid-template-columns:minmax(280px,420px) minmax(0,1fr);
+  gap:16px;
+  padding:16px;
+  overflow:auto;
+  border-radius:22px;
+  border:1px solid rgba(182,136,240,.15);
+  background:
+    radial-gradient(circle at 12% 0%,rgba(129,74,208,.13),transparent 29%),
+    linear-gradient(180deg,#0b0e17,#070910);
+  box-shadow:0 30px 80px rgba(0,0,0,.48);
+}
+
+.ace31SharePreview{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:610px;
+  padding:13px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#05070c;
+}
+.ace31SharePreview canvas{
+  display:block;
+  width:min(100%,355px);
+  height:auto;
+  aspect-ratio:9/16;
+  border-radius:13px;
+  box-shadow:0 24px 50px rgba(0,0,0,.42);
+}
+
+.ace31SharePanel{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+.ace31SharePanel small{
+  color:#9d6dde;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.17em;
+}
+.ace31SharePanel h2{
+  margin:5px 0 5px;
+  font-size:31px;
+  letter-spacing:-.04em;
+}
+.ace31SharePanel>p{
+  margin:0;
+  color:#7c818d;
+  font-size:7px;
+  line-height:1.5;
+}
+
+.ace31ShareIdentity{
+  margin-top:13px;
+  padding:11px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.05);
+  background:#080b12;
+}
+.ace31ShareIdentity b{
+  display:block;
+  font-size:12px;
+}
+.ace31ShareIdentity span{
+  display:block;
+  margin-top:4px;
+  color:#77727f;
+  font-size:6px;
+}
+
+.ace31ShareOptions{
+  display:grid;
+  gap:7px;
+  margin-top:12px;
+}
+.ace31ShareOption{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  min-height:44px;
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.05);
+  background:#080b12;
+}
+.ace31ShareOption span{
+  color:#8a8390;
+  font-size:6px;
+  font-weight:900;
+}
+.ace31ShareOption select{
+  min-width:150px;
+  height:32px;
+  padding:0 8px;
+  border-radius:8px;
+  border:1px solid rgba(176,130,231,.10);
+  background:#060910;
+  color:#c2bcc7;
+  font-size:6px;
+  font-weight:900;
+}
+
+.ace31ShareActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:auto;
+  padding-top:15px;
+}
+.ace31ShareActions button{
+  min-height:44px;
+  border-radius:10px;
+  border:1px solid rgba(175,130,230,.10);
+  background:#080b12;
+  color:#8a8291;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+.ace31ShareActions button:hover{
+  color:#d6bbf6;
+  border-color:rgba(190,145,247,.22);
+}
+.ace31ShareActions .primary{
+  color:#fff;
+  border-color:rgba(191,145,247,.18);
+  background:linear-gradient(135deg,#7441c8,#9b5beb);
+}
+.ace31ShareActions .native{
+  color:#101711;
+  border-color:transparent;
+  background:linear-gradient(135deg,#87dea1,#5ac987);
+}
+.ace31ShareStatus{
+  min-height:17px;
+  margin-top:8px;
+  color:#77727e;
+  font-size:5.8px;
+}
+.ace31ShareStatus.ok{color:#84dba1}
+.ace31ShareStatus.bad{color:#e5958e}
+
+@media(max-width:760px){
+  .ace31ShareOverlay{
+    padding:8px;
+    align-items:flex-start;
+  }
+  .ace31ShareModal{
+    width:100%;
+    max-height:calc(100dvh - 16px);
+    grid-template-columns:1fr;
+    padding:10px;
+    border-radius:17px;
+  }
+  .ace31SharePreview{
+    min-height:0;
+    padding:8px;
+  }
+  .ace31SharePreview canvas{
+    width:min(75vw,300px);
+  }
+  .ace31SharePanel h2{font-size:25px}
+  .ace31ShareActions{
+    position:sticky;
+    bottom:0;
+    padding:9px 0 calc(3px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,transparent,#070910 22%);
+  }
+  .ace31ShareActions button{
+    min-height:46px;
+  }
+}
+</style>
+
+<script id="ace-b21-31-share-card-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let ace31Player=null;
+  let ace31Canvas=null;
+  let ace31RenderToken=0;
+
+  function isFollower(p){
+    return /^follower_spinner_/i.test(String(p?.tendencies?.source||""));
+  }
+
+  function serveLabel(p){
+    return ({
+      auto:"Auto",
+      standing_float:"Standing Float",
+      jump_float:"Jump Float",
+      jump_topspin:"Jump Topspin"
+    })[p?.serveType||"auto"]||"Auto";
+  }
+
+  function safeFilename(name){
+    return String(name||"ace-card")
+      .replace(/^@/,"")
+      .replace(/[^a-z0-9]+/gi,"-")
+      .replace(/^-|-$/g,"")
+      .toLowerCase() || "ace-card";
+  }
+
+  function ensureOverlay(){
+    let overlay=q("#ace31ShareOverlay");
+    if(overlay)return overlay;
+
+    overlay=document.createElement("div");
+    overlay.id="ace31ShareOverlay";
+    overlay.className="ace31ShareOverlay";
+    overlay.setAttribute("aria-hidden","true");
+    overlay.innerHTML=`
+      <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
+        <div class="ace31SharePreview">
+          <canvas id="ace31ShareCanvas" width="1080" height="1920"></canvas>
+        </div>
+        <div class="ace31SharePanel">
+          <small>THE ACE PROJECT · SOCIAL CARD</small>
+          <h2>Share your card.</h2>
+          <p>Create a clean portrait graphic for Instagram Stories, TikTok, Reels or anywhere else you want to show the card.</p>
+
+          <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
+
+          <div class="ace31ShareOptions">
+            <label class="ace31ShareOption">
+              <span>FORMAT</span>
+              <select id="ace31ShareFormat">
+                <option value="story">Story · 9:16</option>
+                <option value="square">Square · 1:1</option>
+              </select>
+            </label>
+            <label class="ace31ShareOption">
+              <span>BACKGROUND</span>
+              <select id="ace31ShareTheme">
+                <option value="ace">ACE Purple</option>
+                <option value="dark">Dark Arena</option>
+                <option value="gold">Gold Spotlight</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="ace31ShareActions">
+            <button type="button" class="native" id="ace31NativeShare">SHARE</button>
+            <button type="button" class="primary" id="ace31SavePng">SAVE PNG</button>
+            <button type="button" id="ace31CopyText">COPY CAPTION</button>
+            <button type="button" id="ace31Close">CLOSE</button>
+          </div>
+          <div id="ace31ShareStatus" class="ace31ShareStatus"></div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    ace31Canvas=q("#ace31ShareCanvas");
+
+    q("#ace31Close")?.addEventListener("click",closeShare);
+    q("#ace31SavePng")?.addEventListener("click",savePng);
+    q("#ace31NativeShare")?.addEventListener("click",nativeShare);
+    q("#ace31CopyText")?.addEventListener("click",copyCaption);
+    q("#ace31ShareFormat")?.addEventListener("change",renderCurrent);
+    q("#ace31ShareTheme")?.addEventListener("change",renderCurrent);
+
+    overlay.addEventListener("click",e=>{
+      if(e.target===overlay)closeShare();
+    });
+
+    return overlay;
+  }
+
+  function setStatus(text,type=""){
+    const el=q("#ace31ShareStatus");
+    if(!el)return;
+    el.className="ace31ShareStatus"+(type?" "+type:"");
+    el.textContent=text||"";
+  }
+
+  function openShare(p){
+    if(!p)return;
+    ace31Player=p;
+    const overlay=ensureOverlay();
+    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
+    const tier=typeof cardTierLabel==="function"?cardTierLabel(p):"ACE CARD";
+    q("#ace31ShareIdentity").innerHTML=`
+      <b>${esc(p.name)}</b>
+      <span>${rating} ${esc(p.position||"POS")} · ${esc(tier)} · ${esc(serveLabel(p))}</span>`;
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+    setStatus("");
+    renderCurrent();
+  }
+
+  function closeShare(){
+    const overlay=q("#ace31ShareOverlay");
+    overlay?.classList.remove("show");
+    overlay?.setAttribute("aria-hidden","true");
+  }
+
+  function roundedRect(ctx,x,y,w,h,r){
+    const rr=Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);
+    ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);
+    ctx.arcTo(x,y,x+w,y,rr);
+    ctx.closePath();
+  }
+
+  function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines=3){
+    const words=String(text||"").split(/\s+/);
+    const lines=[];
+    let line="";
+    for(const word of words){
+      const test=line?line+" "+word:word;
+      if(ctx.measureText(test).width>maxWidth && line){
+        lines.push(line);
+        line=word;
+        if(lines.length>=maxLines-1)break;
+      }else{
+        line=test;
+      }
+    }
+    if(line && lines.length<maxLines)lines.push(line);
+    lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));
+    return lines.length;
+  }
+
+  function loadPhoto(url){
+    return new Promise(resolve=>{
+      if(!url){resolve(null);return}
+      const img=new Image();
+      img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img);
+      img.onerror=()=>resolve(null);
+      img.src=url;
+    });
+  }
+
+  function drawCover(ctx,img,x,y,w,h){
+    const ir=img.width/img.height;
+    const tr=w/h;
+    let sx=0,sy=0,sw=img.width,sh=img.height;
+    if(ir>tr){
+      sw=img.height*tr;
+      sx=(img.width-sw)/2;
+    }else{
+      sh=img.width/tr;
+      sy=Math.max(0,(img.height-sh)*0.18);
+    }
+    ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+  }
+
+  function drawBackground(ctx,w,h,theme){
+    const g=ctx.createLinearGradient(0,0,0,h);
+    if(theme==="gold"){
+      g.addColorStop(0,"#251b0d");
+      g.addColorStop(.45,"#100d0b");
+      g.addColorStop(1,"#07080b");
+    }else if(theme==="dark"){
+      g.addColorStop(0,"#10131a");
+      g.addColorStop(.48,"#090b10");
+      g.addColorStop(1,"#040609");
+    }else{
+      g.addColorStop(0,"#231238");
+      g.addColorStop(.42,"#100b1b");
+      g.addColorStop(1,"#06080c");
+    }
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,w,h);
+
+    const rg=ctx.createRadialGradient(w*.5,h*.32,20,w*.5,h*.32,w*.72);
+    rg.addColorStop(0,theme==="gold"?"rgba(218,178,83,.27)":"rgba(145,79,230,.29)");
+    rg.addColorStop(.52,theme==="dark"?"rgba(88,106,140,.08)":"rgba(95,55,155,.08)");
+    rg.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=rg;
+    ctx.fillRect(0,0,w,h);
+
+    ctx.strokeStyle="rgba(255,255,255,.035)";
+    ctx.lineWidth=Math.max(1,w*.0012);
+    const spacing=w*.085;
+    for(let x=-h;x<w+h;x+=spacing){
+      ctx.beginPath();
+      ctx.moveTo(x,0);
+      ctx.lineTo(x+h,h);
+      ctx.stroke();
+    }
+  }
+
+  function drawPlaystyle(ctx,style,x,y,w,accent){
+    roundedRect(ctx,x,y,w,70,18);
+    ctx.fillStyle="rgba(7,9,14,.78)";
+    ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.07)";
+    ctx.stroke();
+
+    ctx.fillStyle=accent;
+    ctx.font="900 22px Inter, system-ui, sans-serif";
+    ctx.textAlign="left";
+    ctx.fillText(String(style?.name||"NO PLAYSTYLE").replace(/^[^A-Za-z0-9]+\s*/,"").toUpperCase(),x+20,y+29);
+
+    ctx.fillStyle="rgba(232,228,237,.60)";
+    ctx.font="700 14px Inter, system-ui, sans-serif";
+    const desc=String(style?.desc||"");
+    wrapText(ctx,desc,x+20,y+51,w-40,17,1);
+  }
+
+  async function renderShareCanvas(p,format,theme){
+    const token=++ace31RenderToken;
+    const canvas=ace31Canvas||q("#ace31ShareCanvas");
+    if(!canvas)return;
+
+    const square=format==="square";
+    canvas.width=1080;
+    canvas.height=square?1080:1920;
+    const ctx=canvas.getContext("2d");
+    const w=canvas.width,h=canvas.height;
+
+    drawBackground(ctx,w,h,theme);
+
+    const photo=await loadPhoto(p.photo);
+    if(token!==ace31RenderToken)return;
+
+    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
+    const tierLabel=typeof cardTierLabel==="function"?cardTierLabel(p):"ACE CARD";
+    const cats=typeof categoryRatings==="function"?categoryRatings(p):{attacking:0,defense:0,physical:0};
+    const atk=(p.attackPlaystyle||"none")!=="none"&&typeof attackingPlaystyle==="function"?attackingPlaystyle(p):null;
+    const def=(p.defensePlaystyle||"none")!=="none"&&typeof defensivePlaystyle==="function"?defensivePlaystyle(p):null;
+    const follower=isFollower(p);
+
+    const topPad=square?58:96;
+
+    ctx.textAlign="center";
+    ctx.fillStyle="rgba(211,184,247,.95)";
+    ctx.font="1000 24px Inter, system-ui, sans-serif";
+    ctx.fillText("THE ACE PROJECT",w/2,topPad);
+
+    ctx.fillStyle="rgba(255,255,255,.50)";
+    ctx.font="800 15px Inter, system-ui, sans-serif";
+    ctx.fillText(follower?"FOLLOWER EDITION · COMMUNITY CARD":"VOLLEYBALL ULTIMATE TEAM",w/2,topPad+34);
+
+    const cardW=square?390:560;
+    const cardH=square?520:760;
+    const cardX=(w-cardW)/2;
+    const cardY=square?148:230;
+
+    roundedRect(ctx,cardX,cardY,cardW,cardH,34);
+    const cg=ctx.createLinearGradient(cardX,cardY,cardX+cardW,cardY+cardH);
+    if(theme==="gold"){
+      cg.addColorStop(0,"#80662c");
+      cg.addColorStop(.35,"#2a2112");
+      cg.addColorStop(1,"#0f1014");
+    }else{
+      cg.addColorStop(0,"#7950a5");
+      cg.addColorStop(.36,"#2b1b45");
+      cg.addColorStop(1,"#0d1017");
+    }
+    ctx.fillStyle=cg;
+    ctx.fill();
+    ctx.strokeStyle="rgba(245,230,255,.36)";
+    ctx.lineWidth=3;
+    ctx.stroke();
+
+    const artPad=22;
+    const artX=cardX+artPad;
+    const artY=cardY+artPad;
+    const artW=cardW-artPad*2;
+    const artH=cardH*(square?.50:.54);
+
+    roundedRect(ctx,artX,artY,artW,artH,22);
+    ctx.save();
+    ctx.clip();
+    if(photo){
+      drawCover(ctx,photo,artX,artY,artW,artH);
+      const overlay=ctx.createLinearGradient(0,artY,0,artY+artH);
+      overlay.addColorStop(.55,"rgba(7,8,12,0)");
+      overlay.addColorStop(1,"rgba(7,8,12,.78)");
+      ctx.fillStyle=overlay;
+      ctx.fillRect(artX,artY,artW,artH);
+    }else{
+      ctx.fillStyle="#111521";
+      ctx.fillRect(artX,artY,artW,artH);
+      ctx.fillStyle="rgba(255,255,255,.18)";
+      ctx.font="1000 120px Inter, system-ui, sans-serif";
+      ctx.textAlign="center";
+      ctx.fillText("♠",w/2,artY+artH*.60);
+    }
+    ctx.restore();
+
+    ctx.textAlign="left";
+    ctx.fillStyle="#fff";
+    ctx.font=`1000 ${square?66:92}px Inter, system-ui, sans-serif`;
+    ctx.fillText(String(rating),cardX+34,cardY+artH+76);
+
+    ctx.fillStyle="rgba(220,195,251,.94)";
+    ctx.font=`1000 ${square?22:28}px Inter, system-ui, sans-serif`;
+    ctx.fillText(String(p.position||"POS"),cardX+38,cardY+artH+108);
+
+    ctx.textAlign="right";
+    ctx.fillStyle="#fff";
+    ctx.font=`1000 ${square?28:40}px Inter, system-ui, sans-serif`;
+    ctx.fillText(String(p.name||"PLAYER"),cardX+cardW-34,cardY+artH+74);
+
+    ctx.fillStyle="rgba(255,255,255,.55)";
+    ctx.font=`800 ${square?14:18}px Inter, system-ui, sans-serif`;
+    ctx.fillText(`${tierLabel.toUpperCase()} · ${serveLabel(p).toUpperCase()}`,cardX+cardW-34,cardY+artH+105);
+
+    const statsY=cardY+artH+(square?142:165);
+    const statLabels=[["ATT",cats.attacking],["DEF",cats.defense],["PHY",cats.physical],["SET",Math.round(Number(p.setting||0))]];
+    const statGap=12;
+    const statW=(cardW-68-statGap*3)/4;
+    statLabels.forEach(([label,val],i)=>{
+      const x=cardX+34+i*(statW+statGap);
+      roundedRect(ctx,x,statsY,statW,square?66:78,14);
+      ctx.fillStyle="rgba(4,6,10,.48)";
+      ctx.fill();
+      ctx.textAlign="center";
+      ctx.fillStyle="rgba(255,255,255,.55)";
+      ctx.font=`800 ${square?11:14}px Inter, system-ui, sans-serif`;
+      ctx.fillText(label,x+statW/2,statsY+(square?21:25));
+      ctx.fillStyle="#fff";
+      ctx.font=`1000 ${square?24:31}px Inter, system-ui, sans-serif`;
+      ctx.fillText(String(Math.round(Number(val||0))),x+statW/2,statsY+(square?50:60));
+    });
+
+    const footerY=cardY+cardH-(square?34:44);
+    ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,.42)";
+    ctx.font=`800 ${square?11:14}px Inter, system-ui, sans-serif`;
+    ctx.fillText("BUILD YOUR SIX · OWN THE COURT",w/2,footerY);
+
+    if(!square){
+      ctx.textAlign="left";
+      ctx.fillStyle="rgba(159,116,219,.90)";
+      ctx.font="1000 19px Inter, system-ui, sans-serif";
+      ctx.fillText("PLAYSTYLES",104,1104);
+
+      drawPlaystyle(ctx,atk,104,1130,872,"#d4acff");
+      drawPlaystyle(ctx,def,104,1214,872,"#91cfee");
+
+      ctx.fillStyle="rgba(255,255,255,.55)";
+      ctx.font="800 16px Inter, system-ui, sans-serif";
+      ctx.fillText("SERVE TYPE",104,1342);
+      ctx.fillStyle="#fff";
+      ctx.font="1000 34px Inter, system-ui, sans-serif";
+      ctx.fillText(serveLabel(p),104,1382);
+
+      const divider=ctx.createLinearGradient(104,0,976,0);
+      divider.addColorStop(0,"rgba(172,112,240,0)");
+      divider.addColorStop(.5,"rgba(172,112,240,.48)");
+      divider.addColorStop(1,"rgba(172,112,240,0)");
+      ctx.fillStyle=divider;
+      ctx.fillRect(104,1460,872,2);
+
+      ctx.textAlign="center";
+      ctx.fillStyle="rgba(255,255,255,.90)";
+      ctx.font="1000 35px Inter, system-ui, sans-serif";
+      ctx.fillText("YOUR CARD. YOUR COURT.",w/2,1555);
+
+      ctx.fillStyle="rgba(255,255,255,.44)";
+      ctx.font="800 17px Inter, system-ui, sans-serif";
+      ctx.fillText("THE ACE PROJECT · VOLLEYBALL ULTIMATE TEAM",w/2,1592);
+
+      if(p.ultimateTeamPool===true){
+        roundedRect(ctx,w/2-145,1640,290,52,26);
+        ctx.fillStyle="rgba(48,143,79,.18)";
+        ctx.fill();
+        ctx.strokeStyle="rgba(99,219,137,.30)";
+        ctx.stroke();
+        ctx.fillStyle="#8fe0aa";
+        ctx.font="1000 17px Inter, system-ui, sans-serif";
+        ctx.fillText("LIVE IN ULTIMATE TEAM ✓",w/2,1673);
+      }
+
+      ctx.fillStyle="rgba(255,255,255,.28)";
+      ctx.font="800 15px Inter, system-ui, sans-serif";
+      ctx.fillText("THEACEPROJECT",w/2,1822);
+    }
+
+    setStatus("Share image ready.","ok");
+  }
+
+  function renderCurrent(){
+    if(!ace31Player)return;
+    const format=q("#ace31ShareFormat")?.value||"story";
+    const theme=q("#ace31ShareTheme")?.value||"ace";
+    setStatus("Rendering…");
+    renderShareCanvas(ace31Player,format,theme);
+  }
+
+  function canvasBlob(){
+    return new Promise((resolve,reject)=>{
+      if(!ace31Canvas){reject(new Error("No share image available."));return}
+      try{
+        ace31Canvas.toBlob(blob=>{
+          if(blob)resolve(blob);
+          else reject(new Error("Could not create PNG."));
+        },"image/png",.96);
+      }catch(error){reject(error)}
+    });
+  }
+
+  async function savePng(){
+    if(!ace31Player)return;
+    setStatus("Preparing PNG…");
+    try{
+      const blob=await canvasBlob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.download=`ace-${safeFilename(ace31Player.name)}-card.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      setStatus("PNG saved.","ok");
+    }catch(error){
+      setStatus("Could not save image: "+(error?.message||error),"bad");
+    }
+  }
+
+  function caption(){
+    if(!ace31Player)return "";
+    const rating=typeof mainPositionRating==="function"?mainPositionRating(ace31Player):Math.round(Number(ace31Player.finalRating||0));
+    return `${ace31Player.name} · ${rating} ${ace31Player.position||"POS"} · ${serveLabel(ace31Player)}\n\nMy card on The ACE Project 🏐`;
+  }
+
+  async function copyCaption(){
+    try{
+      await navigator.clipboard.writeText(caption());
+      setStatus("Caption copied.","ok");
+    }catch(_){
+      const ta=document.createElement("textarea");
+      ta.value=caption();
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      setStatus("Caption copied.","ok");
+    }
+  }
+
+  async function nativeShare(){
+    if(!ace31Player)return;
+
+    setStatus("Preparing share…");
+    try{
+      const blob=await canvasBlob();
+      const file=new File([blob],`ace-${safeFilename(ace31Player.name)}-card.png`,{type:"image/png"});
+
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({
+          title:`${ace31Player.name} · The ACE Project`,
+          text:caption(),
+          files:[file]
+        });
+        setStatus("Shared.","ok");
+        return;
+      }
+
+      setStatus("Native image sharing is not available in this browser. Saving the PNG instead.","");
+      await savePng();
+    }catch(error){
+      if(error?.name==="AbortError"){
+        setStatus("Share cancelled.");
+        return;
+      }
+      setStatus("Share failed: "+(error?.message||error),"bad");
+    }
+  }
+
+  /* Add SHARE CARD to the B21.29 player profile after it renders. */
+  const previousOpen=window.ace29OpenPlayerProfile || window.openVdsCardShowcase;
+  if(typeof previousOpen==="function"){
+    const wrapped=function(name){
+      const result=previousOpen.apply(this,arguments);
+      requestAnimationFrame(()=>{
+        const p=(players||[]).find(x=>String(x.name)===String(name));
+        const actions=q("#vdsCardShowcaseOverlay .ace29ProfileActions");
+        if(!p||!actions||actions.querySelector(".ace31ShareBtn"))return;
+
+        const btn=document.createElement("button");
+        btn.type="button";
+        btn.className="ace31ShareBtn";
+        btn.textContent="SHARE CARD";
+        btn.addEventListener("click",()=>openShare(p));
+        actions.insertAdjacentElement("afterbegin",btn);
+      });
+      return result;
+    };
+    window.ace29OpenPlayerProfile=wrapped;
+    window.openVdsCardShowcase=wrapped;
+    try{openVdsCardShowcase=wrapped}catch(_){}
+  }
+
+  /* Also make sharing callable from future surfaces. */
+  window.ace31SharePlayerCard=function(name){
+    const p=(players||[]).find(x=>String(x.name)===String(name));
+    if(p)openShare(p);
+  };
+
+  window.ACE_PROJECT_BUILD="B21.31";
+  window.ACE_SHARE_YOUR_CARD=true;
+})();
+</script>
+<!-- /ACE B21.31 — SHARE YOUR CARD -->
+
+
+<!-- ACE B21.31.1 — CARD VIEW / LEXICAL STATE HOTFIX -->
+<script id="ace-b21-31-1-card-view-hotfix">
+(function(){
+  "use strict";
+
+  /* Runtime sanity helper: public card/profile surfaces all use the original
+     lexical site state now, rather than nonexistent window.* copies. */
+  window.ACE_PROJECT_BUILD="B21.31.1";
+  window.ACE_CARD_VIEW_HOTFIX=true;
+
+  /* Re-render Players once after load so cards created before the patched
+     wrappers initialized get rebuilt with the working profile click handler. */
+  function refresh(){
+    try{
+      if(typeof renderPlayers==="function"){
+        renderPlayers(document.getElementById("playerSearch")?.value||"");
+      }
+      if(typeof ace29RenderCommunity==="function")ace29RenderCommunity();
+    }catch(error){
+      console.error("ACE B21.31.1 refresh failed",error);
+    }
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(refresh),{once:true});
+  }else{
+    requestAnimationFrame(refresh);
+  }
+})();
+</script>
+<!-- /ACE B21.31.1 — CARD VIEW / LEXICAL STATE HOTFIX -->
 
 </body>
 </html>
