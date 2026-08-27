@@ -35885,7 +35885,7 @@ body.aceQuickSellOpen{overflow:hidden!important}
 
 
 <script id="ace-b21-20-version-marker">
-window.ACE_PROJECT_BUILD="B21.20";
+window.ACE_PROJECT_BUILD="B21.21";
 window.ACE_HOME_CAPTURE="DYNAMIC_CTA_CARD_SPOTLIGHT";
 window.ACE_REWARD_FEEDBACK="ANIMATED_WALLET_REWARDS";
 window.ACE_PREMATCH_PRESENTATION="SKIPPABLE_VS_REVEAL";
@@ -35896,6 +35896,866 @@ window.ACE_QOL_PASS="COMPLETE_MOBILE_PC";
 window.ACE_QUICK_SELL_UI="CENTERED_PROJECT_ACE_MODAL";
 window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
+
+
+
+<!-- =========================================================
+     THE ACE PROJECT — B21.21 COMPLETE CAPTIVATION PASS
+     UI/game-feel layer only. Existing B21.19 tactics lock,
+     Supabase authority, pack odds and match engine are retained.
+     ========================================================= -->
+<style id="ace-b21-21-complete-captivation-style">
+:root{
+  --ace21-purple:#9f62f3;
+  --ace21-purple2:#6f39c6;
+  --ace21-panel:#0a0c13;
+  --ace21-line:rgba(185,137,250,.14);
+}
+
+/* ---------- MAIN HOME: less repeated branding + unsquashed hero cards ---------- */
+#home .gameHero{
+  grid-template-columns:minmax(0,.92fr) minmax(450px,1.08fr)!important;
+  min-height:610px!important;
+  background:
+    radial-gradient(circle at 78% 42%,rgba(123,70,196,.14),transparent 35%),
+    linear-gradient(135deg,#07101a 0%,#070a11 56%,#090a12 100%)!important;
+}
+#home .gameHeroCopy{max-width:700px!important;padding-right:18px!important;align-self:center!important}
+#home .gameEyebrow{color:#9c72d7!important}
+#home .gameAceText .gameAceMini{color:#8e6ab9!important;letter-spacing:.16em!important}
+#home .gameAceText strong{font-size:24px!important}
+#home .gameHeroCopy h1{
+  max-width:760px!important;
+  margin:18px 0 0!important;
+  font-size:clamp(50px,5vw,84px)!important;
+  line-height:.90!important;
+  letter-spacing:-.045em!important;
+}
+#home .gameHeroCopy h1 span{
+  background:linear-gradient(135deg,#9a59ef,#c187ff)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+#home .gameHeroCopy>p{max-width:560px!important;color:#969eaa!important;line-height:1.65!important}
+#home .heroWordmark{font-size:clamp(90px,12vw,190px)!important;opacity:.025!important}
+#home .gameHeroVisual{height:600px!important;min-height:600px!important;contain:layout paint!important}
+#home .heroCardStage .heroCarouselPlayerCard{
+  width:260px!important;
+  height:420px!important;
+  min-width:260px!important;
+  min-height:420px!important;
+  aspect-ratio:13/21!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+}
+#home .homeLightSweep,#home .homeParticleField{animation:none!important}
+
+/* ---------- PURPLE, CLEANER UT HOME + COURT ---------- */
+#ultimate{
+  --ace-club-accent:#9f62f3;
+  --ace-club-accent-soft:rgba(159,98,243,.16);
+}
+#ultimate .aceUTHomeStage{
+  grid-template-columns:minmax(350px,.75fr) minmax(580px,1.25fr)!important;
+  gap:22px!important;
+  border-color:rgba(174,123,244,.11)!important;
+  background:
+    radial-gradient(circle at 73% 45%,var(--ace-club-accent-soft),transparent 34%),
+    linear-gradient(145deg,#0a0c14,#080a10 73%)!important;
+  contain:layout paint!important;
+}
+#ultimate .aceUTHomeCopy{padding:29px 26px 27px 30px!important}
+#ultimate .aceUTHomeCopy h1{font-size:clamp(40px,3.6vw,62px)!important;letter-spacing:-.045em!important}
+#ultimate .aceUTHomePrimary{
+  border-color:color-mix(in srgb,var(--ace-club-accent) 36%,transparent)!important;
+  background:linear-gradient(135deg,var(--ace-club-accent),#6c35be)!important;
+  box-shadow:0 13px 28px color-mix(in srgb,var(--ace-club-accent) 22%,transparent)!important;
+}
+#ultimate .aceUTHomePrimary.gift{
+  border-color:rgba(239,203,88,.40)!important;
+  background:radial-gradient(circle at 16% 20%,rgba(255,232,138,.16),transparent 26%),linear-gradient(135deg,#87671a,#4d3910)!important;
+}
+
+/* Mini Starting Six court */
+#ultimate .aceUTSquadPreview{
+  min-height:320px!important;border-radius:20px!important;overflow:hidden!important;
+  border:1px solid rgba(191,151,255,.13)!important;
+  background:linear-gradient(180deg,#0c0e17,#080a11)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt{
+  left:4%!important;right:4%!important;top:24%!important;bottom:-16%!important;
+  clip-path:polygon(25% 0,75% 0,100% 100%,0 100%)!important;
+  opacity:1!important;
+  background:
+    linear-gradient(90deg,transparent 49.7%,rgba(238,225,255,.67) 49.9%,rgba(238,225,255,.67) 50.1%,transparent 50.3%),
+    linear-gradient(180deg,transparent 49.6%,rgba(238,225,255,.70) 49.8%,rgba(238,225,255,.70) 50.2%,transparent 50.4%),
+    linear-gradient(180deg,#55316a,#39264f 53%,#251d39)!important;
+  box-shadow:inset 0 0 0 1px rgba(239,226,255,.52),0 13px 32px rgba(0,0,0,.23)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{
+  width:64px!important;height:90px!important;border-radius:13px!important;
+  border:1px solid rgba(207,174,255,.22)!important;
+  background:#11131d!important;box-shadow:0 11px 22px rgba(0,0,0,.34)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer img{object-fit:cover!important;object-position:center top!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(1){left:31%!important;top:38%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(2){left:50%!important;top:33%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(3){left:69%!important;top:38%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(4){left:23%!important;top:72%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(5){left:50%!important;top:67%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(6){left:77%!important;top:72%!important}
+
+/* Full squad editor: remove noisy stadium, keep a premium purple court */
+#ultimate .vdsUTCourtEnhanced{
+  height:620px!important;border-radius:22px!important;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(141,84,214,.13),transparent 34%),
+    linear-gradient(180deg,#0b0d15,#07090f)!important;
+  border:1px solid rgba(181,132,247,.11)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 20px 45px rgba(0,0,0,.26)!important;
+}
+#ultimate .vdsUTCourtEnhanced:before{
+  content:""!important;position:absolute!important;
+  left:7%!important;right:7%!important;top:16%!important;bottom:7%!important;
+  border-radius:20px!important;
+  transform:perspective(1450px) rotateX(64deg)!important;
+  transform-origin:center center!important;
+  border:1px solid rgba(241,230,255,.64)!important;
+  background:
+    linear-gradient(90deg,transparent 49.72%,rgba(241,230,255,.65) 49.88%,rgba(241,230,255,.65) 50.12%,transparent 50.28%),
+    linear-gradient(180deg,transparent 49.65%,rgba(241,230,255,.62) 49.84%,rgba(241,230,255,.62) 50.16%,transparent 50.35%),
+    linear-gradient(180deg,#57326d 0%,#3b2853 52%,#261d3b 100%)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.24),inset 0 0 0 1px rgba(255,255,255,.05)!important;
+}
+#ultimate .vdsUTCourtEnhanced:after{
+  content:""!important;position:absolute!important;left:15%!important;right:15%!important;top:50%!important;height:1px!important;
+  background:rgba(239,227,255,.52)!important;box-shadow:0 0 12px rgba(205,170,255,.20)!important;
+}
+#ultimate .vdsUTStadiumBackdrop,#ultimate .vdsUTLightBeams,#ultimate .vdsUTOpponentGhosts,#ultimate .vdsUTOpponentHint{display:none!important}
+#ultimate .vdsUTNetPerspective{opacity:.72!important;filter:saturate(.6) hue-rotate(25deg)!important}
+#ultimate .vdsUTCourtLabel{color:rgba(223,207,241,.42)!important}
+#ultimate .vdsSquadPortrait{width:84px!important;height:116px!important;border-radius:16px!important;border:1px solid rgba(190,143,250,.14)!important}
+#ultimate .vdsSquadEmpty{width:84px!important;height:116px!important;border-color:rgba(190,143,250,.24)!important;background:rgba(64,36,94,.13)!important}
+
+/* ---------- FIRST SESSION JOURNEY ---------- */
+.ace21Journey{
+  display:flex;align-items:center;gap:0;margin:0 0 16px;padding:9px 10px;
+  border:1px solid rgba(173,126,237,.09);border-radius:12px;background:#080b12;overflow-x:auto;scrollbar-width:none
+}
+.ace21Journey::-webkit-scrollbar{display:none}
+.ace21JourneyStep{
+  flex:0 0 auto;display:grid;grid-template-columns:22px auto;gap:6px;align-items:center;padding:5px 7px;
+  border:0;background:transparent;color:#666271;text-align:left;cursor:pointer
+}
+.ace21JourneyStep i{
+  width:21px;height:21px;display:grid;place-items:center;border-radius:50%;font-style:normal;font-size:7px;
+  border:1px solid rgba(255,255,255,.07);background:#0c0f17
+}
+.ace21JourneyStep span{display:block;font-size:5.6px;font-weight:1000;letter-spacing:.08em;white-space:nowrap}
+.ace21JourneyStep.done{color:#a9d9bc}.ace21JourneyStep.done i{background:rgba(53,129,88,.15);border-color:rgba(89,190,127,.18);color:#70da9a}
+.ace21JourneyStep.current{color:#d7b9ff}.ace21JourneyStep.current i{background:rgba(126,68,208,.19);border-color:rgba(172,112,250,.27);color:#c9a2ff}
+.ace21JourneyArrow{flex:0 0 auto;color:#34303d;font-size:10px}
+
+/* ---------- HOME CARD SPOTLIGHT ---------- */
+#ultimate .aceHomeSpotlight{
+  max-width:450px!important;grid-template-columns:140px minmax(0,1fr)!important;
+  min-height:166px!important;padding:9px 14px 9px 8px!important;
+  border-color:rgba(181,130,249,.15)!important;background:linear-gradient(135deg,rgba(99,54,159,.12),rgba(9,11,18,.88))!important
+}
+#ultimate .aceHomeSpotlightCard{width:134px!important;height:156px!important;overflow:hidden!important}
+#ultimate .aceHomeSpotlightCard>.fifaPlayerCard{
+  width:260px!important;min-width:260px!important;height:420px!important;min-height:420px!important;
+  transform:scale(.37)!important;transform-origin:top left!important
+}
+.ace21SpotlightDots{display:flex;gap:4px;margin-top:7px}
+.ace21SpotlightDots i{width:17px;height:3px;border-radius:99px;background:#31293c}
+.ace21SpotlightDots i.on{background:var(--ace-club-accent)}
+
+/* ---------- ROOKIE ROAD: always-visible nearby goal ---------- */
+.ace21Rookie{
+  max-width:450px;margin-top:10px;padding:10px 11px;border-radius:12px;
+  border:1px solid rgba(180,126,237,.11);background:linear-gradient(135deg,rgba(91,48,128,.08),#090b12);
+  cursor:pointer
+}
+.ace21RookieTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ace21RookieTop span{font-size:5.5px;font-weight:1000;letter-spacing:.13em;color:#80619d}
+.ace21RookieTop b{font-size:8px;color:#c7a6e7}
+.ace21Rookie strong{display:block;margin-top:5px;font-size:11px}
+.ace21RookieLine{height:4px;margin-top:7px;border-radius:99px;background:#211a28;overflow:hidden}
+.ace21RookieLine i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7942bf,#b06ef1)}
+
+/* ---------- PACK DECISIONS ---------- */
+.ace21PackDecisionGrid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px auto 0;width:min(920px,94vw)
+}
+.ace21PackDecision{
+  min-width:0;padding:10px;border:1px solid rgba(174,124,239,.10);border-radius:13px;background:#090c13;text-align:left
+}
+.ace21PackDecisionHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ace21PackDecisionHead b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ace21PackDecisionHead span{padding:4px 6px;border-radius:999px;background:rgba(131,78,206,.13);color:#bb92ec;font-size:5px;font-weight:1000}
+.ace21PackDecisionHead span.dup{background:rgba(131,92,31,.13);color:#d9bb70}
+.ace21PackDecisionMeta{margin-top:4px;color:#777280;font-size:6px}
+.ace21PackDecisionActions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px}
+.ace21PackDecisionActions button{
+  min-height:32px;border:1px solid rgba(174,124,239,.10);border-radius:8px;background:#0d1018;color:#918999;
+  font-size:5.4px;font-weight:1000;letter-spacing:.06em;cursor:pointer
+}
+.ace21PackDecisionActions button.primary{grid-column:1/-1;background:linear-gradient(135deg,#7240bd,#9a5de2);border-color:transparent;color:#fff}
+.ace21PackDecisionActions button.sell{color:#d6ba68}
+.ace21PackDecisionActions button:disabled{opacity:.38;cursor:not-allowed}
+
+/* ---------- RARITY-SPECIFIC INTERACTION MOTION ---------- */
+@keyframes ace21GoldHit{0%{filter:brightness(1)}45%{filter:brightness(1.14) drop-shadow(0 0 10px rgba(226,191,79,.22))}100%{filter:brightness(1.02)}}
+@keyframes ace21EliteHit{0%{filter:brightness(1)}45%{filter:brightness(1.10) drop-shadow(0 0 18px rgba(235,199,91,.36))}100%{filter:brightness(1.02)}}
+@keyframes ace21AceHit{0%{filter:brightness(1)}42%{filter:brightness(1.13) drop-shadow(0 0 22px rgba(160,91,248,.47))}100%{filter:brightness(1.03)}}
+.aceCinemaCardFront.gold.revealed{animation:ace21GoldHit .6s ease both}
+.aceCinemaCardFront.elite.revealed{animation:ace21EliteHit .72s ease both}
+.aceCinemaCardFront.ace.revealed{animation:ace21AceHit .86s ease both}
+@media(hover:hover) and (pointer:fine){
+  #ultimate .aceClubCardView>.fifaPlayerCard,
+  #ultimate .vdsUTBenchCard,
+  #ultimate .vdsSquadPortrait,
+  #home .heroCarouselPlayerCard{transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important}
+  #ultimate .aceClubCard:hover .fifaPlayerCard{transform:translateY(-6px) rotateX(1.5deg)!important}
+  #ultimate .vdsUTBenchCard:hover{transform:translateY(-3px) scale(1.018)!important}
+  #ultimate .vdsSquadPortrait:hover{transform:translateY(-3px) scale(1.02)!important}
+  #ultimate .aceClubCard:hover .fifaPlayerCard.gold{filter:drop-shadow(0 0 13px rgba(222,188,74,.20)) brightness(1.03)!important}
+  #ultimate .aceClubCard:hover .fifaPlayerCard.elite{filter:drop-shadow(0 0 18px rgba(235,196,74,.28)) brightness(1.04)!important}
+  #ultimate .aceClubCard:hover .fifaPlayerCard.ace{filter:drop-shadow(0 0 22px rgba(159,86,245,.34)) brightness(1.04)!important}
+}
+.ace21Pressed{transform:scale(.975)!important;transition:transform .07s ease!important}
+
+/* ---------- EMPTY STATES ---------- */
+.ace21EmptyAction{
+  position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);
+  min-width:78px;min-height:24px;padding:0 7px;border:1px solid rgba(180,128,244,.18);border-radius:7px;
+  background:#0b0d14;color:#b694dc;font-size:5px;font-weight:1000;white-space:nowrap;cursor:pointer
+}
+.ace21EmptyClub{display:grid;place-items:center;gap:9px;min-height:150px;text-align:center}
+.ace21EmptyClub b{font-size:13px}.ace21EmptyClub span{font-size:7px;color:#77717e}
+.ace21EmptyClub button{min-height:37px;padding:0 13px;border:0;border-radius:9px;background:linear-gradient(135deg,#7441c4,#a05dec);color:#fff;font-size:6px;font-weight:1000;cursor:pointer}
+.ace21AllDone{
+  margin:0 0 10px;padding:11px 12px;border-radius:11px;border:1px solid rgba(80,193,126,.12);
+  background:rgba(31,101,61,.08);color:#8bd3a8;font-size:8px;font-weight:1000;letter-spacing:.08em
+}
+
+/* ---------- PROFILE IDENTITY ---------- */
+.ace21ClubIdentityMini{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;color:#91869e
+}
+.ace21ClubIdentityMini>i{
+  width:32px;height:32px;display:grid;place-items:center;border-radius:10px;font-style:normal;font-size:17px;
+  border:1px solid color-mix(in srgb,var(--ace-club-accent) 28%,transparent);
+  background:color-mix(in srgb,var(--ace-club-accent) 12%,#090b12);color:var(--ace-club-accent)
+}
+.ace21ClubIdentityMini small,.ace21ClubIdentityMini b{display:block}
+.ace21ClubIdentityMini small{font-size:5px;letter-spacing:.12em;color:#756c7f}.ace21ClubIdentityMini b{margin-top:2px;font-size:9px;color:#c7bdce}
+.ace21IdentityEditor{
+  margin-top:12px;padding:14px;border:1px solid rgba(174,124,239,.10);border-radius:15px;background:#090c13
+}
+.ace21IdentityHead{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.ace21IdentityBadge{
+  width:52px;height:52px;display:grid;place-items:center;border-radius:14px;font-size:26px;
+  border:1px solid color-mix(in srgb,var(--ace-club-accent) 34%,transparent);
+  background:color-mix(in srgb,var(--ace-club-accent) 14%,#080b12);color:var(--ace-club-accent)
+}
+.ace21IdentityHead small,.ace21IdentityHead b{display:block}.ace21IdentityHead small{color:#786b84;font-size:6px;letter-spacing:.14em}.ace21IdentityHead b{margin-top:3px;font-size:16px}
+.ace21IdentityFields{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:7px}
+.ace21IdentityFields label{display:grid;gap:4px;color:#716b78;font-size:5px;font-weight:1000;letter-spacing:.10em}
+.ace21IdentityFields input,.ace21IdentityFields select{
+  min-height:38px;padding:0 9px;border:1px solid rgba(174,124,239,.10);border-radius:9px;background:#0d1018;color:#e9e5ef;font-size:8px
+}
+
+/* ---------- NOTIFICATIONS: tap to dismiss ---------- */
+.aceToast{pointer-events:auto!important;cursor:pointer!important}
+.aceToast:after{content:"×";margin-left:auto;color:#514a59;font-size:14px}
+.aceNotificationItem{cursor:pointer!important}
+.aceNotificationItem:hover{background:rgba(255,255,255,.018)}
+
+/* ---------- MOBILE: primary action within thumb reach ---------- */
+@media(max-width:760px){
+  #home .gameHero{display:block!important;min-height:auto!important}
+  #home .gameHeroCopy{padding-right:0!important}
+  #home .gameHeroVisual{height:390px!important;min-height:390px!important}
+  #home .heroCardStage .heroCarouselPlayerCard{width:220px!important;height:356px!important;min-width:220px!important;min-height:356px!important}
+  #ultimate .aceUTHomeStage{display:block!important}
+  #ultimate .aceUTHomePrimary{
+    position:sticky!important;bottom:84px!important;z-index:70!important;
+    min-height:64px!important;box-shadow:0 12px 32px rgba(0,0,0,.42)!important
+  }
+  #ultimate .aceSquadPlayBtn{
+    position:sticky!important;bottom:84px!important;z-index:70!important;min-height:54px!important
+  }
+  #ultimate .acePackOpen{min-height:52px!important}
+  #ultimate .aceUTSquadPreview{min-height:285px!important}
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{width:55px!important;height:78px!important}
+  #ultimate .vdsUTCourtEnhanced{height:525px!important}
+  #ultimate .vdsSquadPortrait,#ultimate .vdsSquadEmpty{width:64px!important;height:88px!important}
+  .ace21Journey{margin-bottom:11px;padding:7px}
+  .ace21JourneyStep{padding:4px 5px}.ace21JourneyStep span{font-size:5px}
+  #ultimate .aceHomeSpotlight{grid-template-columns:100px minmax(0,1fr)!important;min-height:128px!important;padding:7px!important}
+  #ultimate .aceHomeSpotlightCard{width:96px!important;height:116px!important}
+  #ultimate .aceHomeSpotlightCard>.fifaPlayerCard{transform:scale(.285)!important}
+  .ace21PackDecisionGrid{grid-template-columns:1fr!important;width:min(430px,92vw)}
+  .ace21PackDecisionActions button{min-height:39px!important;font-size:6px!important}
+  .ace21IdentityFields{grid-template-columns:1fr 1fr}
+  .ace21IdentityFields label:first-child{grid-column:1/-1}
+  .aceQOLModal,.aceQuickSellModal,.acePreMatchVS{align-items:center!important;justify-content:center!important}
+}
+
+/* Performance safety */
+@media(prefers-reduced-motion:reduce){
+  .aceCinemaCardFront.revealed,.ace21Pressed{animation:none!important;transition:none!important}
+}
+</style>
+
+<script id="ace-b21-21-complete-captivation-runtime">
+(function(){
+  "use strict";
+  if(window.ACE_B21_21_CAPTIVATION)return;
+  window.ACE_B21_21_CAPTIVATION=true;
+  window.ACE_PROJECT_BUILD="B21.21";
+  window.ACE_CAPTIVATION_PASS="COMPLETE";
+
+  const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const html=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  /* =========================
+     BRAND CLEANUP
+     ========================= */
+  function ace21ApplyLanding(){
+    const home=$("#home"); if(!home)return;
+    const eyebrow=$(".gameEyebrow",home); if(eyebrow)eyebrow.textContent="WELCOME TO ACE";
+    const mini=$(".gameAceMini",home); if(mini)mini.textContent="VOLLEYBALL";
+    const strong=$(".gameAceText strong",home); if(strong)strong.textContent="ACE ULTIMATE TEAM";
+    const h1=$(".gameHeroCopy h1",home); if(h1)h1.innerHTML='ACE<br><span>ULTIMATE TEAM.</span>';
+    const p=$(".gameHeroCopy>p",home); if(p)p.textContent="Build your club, open packs, shape your starting six, and compete rally by rally.";
+    const word=$(".heroWordmark",home); if(word)word.textContent="ACE";
+  }
+
+  /* =========================
+     CLUB IDENTITY (local per account)
+     ========================= */
+  const accentMap={
+    purple:["#9f62f3","rgba(159,98,243,.16)"],
+    gold:["#d0a84a","rgba(208,168,74,.15)"],
+    blue:["#4d9fe8","rgba(77,159,232,.15)"],
+    crimson:["#d65b78","rgba(214,91,120,.15)"]
+  };
+  function identityKey(){return `ace_club_identity_${String(vdsAccountSession?.user?.id||"device")}`;}
+  function loadIdentity(){
+    const fallback={clubName:"ACE CLUB",title:"ACE MANAGER",badge:"♠",accent:"purple"};
+    try{
+      const raw=typeof safeStore!=="undefined"?safeStore.get(identityKey()):localStorage.getItem(identityKey());
+      return {...fallback,...(raw?JSON.parse(raw):{})};
+    }catch(_){return fallback;}
+  }
+  function saveIdentity(value){
+    try{
+      const raw=JSON.stringify(value);
+      if(typeof safeStore!=="undefined")safeStore.set(identityKey(),raw); else localStorage.setItem(identityKey(),raw);
+    }catch(_){}
+  }
+  function applyIdentityTheme(){
+    const id=loadIdentity(), colours=accentMap[id.accent]||accentMap.purple;
+    const ut=$("#ultimate");
+    ut?.style.setProperty("--ace-club-accent",colours[0]);
+    ut?.style.setProperty("--ace-club-accent-soft",colours[1]);
+    return id;
+  }
+  function identityMiniHTML(){
+    const id=applyIdentityTheme();
+    return `<div class="ace21ClubIdentityMini"><i>${html(id.badge)}</i><div><small>${html(id.title)}</small><b>${html(id.clubName)}</b></div></div>`;
+  }
+  function enhanceProfileIdentity(){
+    const mount=$("#vdsUTHubProfile"); if(!mount)return;
+    const id=applyIdentityTheme();
+    let editor=$("#ace21IdentityEditor",mount);
+    if(!editor){
+      editor=document.createElement("section");
+      editor.id="ace21IdentityEditor";
+      editor.className="ace21IdentityEditor";
+      const hero=$(".vdsUTHubProfileHero",mount);
+      hero?.insertAdjacentElement("afterend",editor);
+    }
+    editor.innerHTML=`
+      <div class="ace21IdentityHead">
+        <div class="ace21IdentityBadge">${html(id.badge)}</div>
+        <div><small>CLUB IDENTITY</small><b>${html(id.clubName)}</b></div>
+      </div>
+      <div class="ace21IdentityFields">
+        <label>CLUB NAME<input data-ace21-id="clubName" maxlength="24" value="${html(id.clubName)}"></label>
+        <label>MANAGER TITLE<select data-ace21-id="title">
+          ${["ACE MANAGER","ROOKIE MANAGER","TACTICIAN","COURT GENERAL","PACK HUNTER"].map(x=>`<option ${id.title===x?"selected":""}>${x}</option>`).join("")}
+        </select></label>
+        <label>BADGE<select data-ace21-id="badge">
+          ${["♠","⚡","✦","⬡","🏐"].map(x=>`<option ${id.badge===x?"selected":""}>${x}</option>`).join("")}
+        </select></label>
+        <label>CLUB COLOUR<select data-ace21-id="accent">
+          ${["purple","gold","blue","crimson"].map(x=>`<option value="${x}" ${id.accent===x?"selected":""}>${x.toUpperCase()}</option>`).join("")}
+        </select></label>
+      </div>`;
+  }
+  document.addEventListener("change",e=>{
+    const field=e.target.closest?.("[data-ace21-id]"); if(!field)return;
+    const id=loadIdentity();
+    const key=field.dataset.ace21Id;
+    let value=String(field.value||"").trim();
+    if(key==="clubName")value=(value||"ACE CLUB").slice(0,24);
+    id[key]=value;
+    saveIdentity(id);applyIdentityTheme();
+    enhanceProfileIdentity();
+    if(typeof vdsRenderUltimateHubHome==="function" && vdsUltimateHubActive==="home")vdsRenderUltimateHubHome();
+  });
+
+  /* =========================
+     DYNAMIC CTA + FIRST SESSION JOURNEY
+     ========================= */
+  function homeState(){
+    const lineup=typeof vdsHubOwnedLineupCards==="function"?vdsHubOwnedLineupCards():[];
+    const filled=lineup.filter(Boolean).length;
+    const cards=(ultimateTeamState?.cards||[]).filter(Boolean);
+    const packCards=cards.filter(c=>String(c.source||"")==="pack").length;
+    const free=Math.max(0,Number(vdsAccountProfile?.free_gold_packs||0));
+    const matches=Math.max(0,Number(vdsAccountProfile?.matches_played||0));
+    const d=vdsDailyProgressCache||{};
+    const pending=
+      (Number(d.matches_played||0)>=1 && !d.play_one_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.win_one_rewarded) ||
+      (Number(d.matches_played||0)>=3 && !d.play_three_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.first_win_rewarded);
+    const earned=Number(d.coins_earned||0)>0 || matches>0;
+    return {lineup,filled,cards,packCards,free,matches,d,pending,earned};
+  }
+  function nextAction(){
+    const s=homeState();
+    if(s.pending)return {icon:"✓",title:"CLAIM REWARD",sub:"A COMPLETED OBJECTIVE IS READY",action:"missions"};
+    if(s.free>0)return {icon:"🎁",title:"OPEN YOUR FREE GOLD PACK",sub:`${s.free} FREE GOLD PACK${s.free===1?"":"S"} WAITING`,action:"packs"};
+    if(s.filled<6)return {icon:"⬡",title:"BUILD YOUR STARTING SIX",sub:`${s.filled}/6 STARTERS READY`,action:"squad"};
+    if(s.matches===0)return {icon:"▶",title:"PLAY YOUR FIRST MATCH",sub:"START YOUR ACE LEAGUE RUN",action:"match"};
+    return {icon:"▶",title:"PLAY NEXT MATCH",sub:"KEEP YOUR CLUB MOVING",action:"match"};
+  }
+  function runAction(action){
+    if(action==="match")return typeof aceUTOpenMatchFlow==="function"&&aceUTOpenMatchFlow();
+    if(typeof vdsSwitchUltimateInstance==="function")vdsSwitchUltimateInstance(action);
+  }
+  function journeyHTML(){
+    const s=homeState();
+    const steps=[
+      {label:"OPEN PACK",done:s.packCards>0||s.free===0,action:"packs"},
+      {label:"BUILD SIX",done:s.filled===6,action:"squad"},
+      {label:"PLAY MATCH",done:s.matches>0,action:"match"},
+      {label:"EARN COINS",done:s.earned,action:"missions"}
+    ];
+    const firstOpen=steps.findIndex(x=>!x.done);
+    return `<div class="ace21Journey">${steps.map((x,i)=>`
+      ${i?'<span class="ace21JourneyArrow">→</span>':""}
+      <button class="ace21JourneyStep ${x.done?"done":i===firstOpen?"current":""}" data-ace21-journey="${x.action}" type="button">
+        <i>${x.done?"✓":i+1}</i><span>${x.label}</span>
+      </button>`).join("")}</div>`;
+  }
+  document.addEventListener("click",e=>{
+    const step=e.target.closest?.("[data-ace21-journey]");
+    if(step){e.preventDefault();runAction(step.dataset.ace21Journey);}
+  });
+
+  /* =========================
+     CARD-LED HOME + ROTATION
+     ========================= */
+  let spotlightIndex=0,spotlightTimer=0;
+  function rarityRank(r){return ({ace:5,elite:4,gold:3,silver:2,bronze:1}[String(r||"").toLowerCase()]||0);}
+  function spotlightCandidates(){
+    const cards=(ultimateTeamState?.cards||[]).filter(Boolean);
+    return cards.slice().sort((a,b)=>{
+      const af=typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(a)?1:0;
+      const bf=typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(b)?1:0;
+      return bf-af || rarityRank(b.rarity)-rarityRank(a.rarity) || Number(b.rating||0)-Number(a.rating||0);
+    }).slice(0,5);
+  }
+  function renderSpotlight(){
+    const mount=$("#ultimate .aceHomeSpotlight"); if(!mount)return;
+    const list=spotlightCandidates(); if(!list.length)return;
+    spotlightIndex=(spotlightIndex+list.length)%list.length;
+    const c=list[spotlightIndex],p=typeof aceUltimateMasterPlayer==="function"?aceUltimateMasterPlayer(c):null;
+    if(!p)return;
+    const tier=String(c.rarity||"silver");
+    const label=(UT_RARITY?.[tier]?.label||tier).toUpperCase();
+    const fresh=typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(c);
+    mount.innerHTML=`
+      <div class="aceHomeSpotlightCard"><div class="fifaPlayerCard ${html(tier)}">${
+        typeof vdsMasterPlayerCardHTML==="function"?vdsMasterPlayerCardHTML(p,{
+          role:c.position||p.position,rating:Number(c.rating||mainPositionRating(p)),
+          tier,tierLabel:label,footer:fresh?"LATEST PULL":"CLUB STAR"
+        }):""
+      }</div></div>
+      <div class="aceHomeSpotlightCopy">
+        <small>${fresh?"LATEST PULL":"FEATURED FROM YOUR CLUB"}</small>
+        <b>${html(c.playerName||p.name)}</b>
+        <span>${Number(c.rating||0)} ${html(c.position||p.position)} · ${html(label)}</span>
+        <button type="button" data-ace21-view-spotlight="${html(typeof utCardUid==="function"?utCardUid(c):c.playerName)}">VIEW CARD →</button>
+        <div class="ace21SpotlightDots">${list.map((_,i)=>`<i class="${i===spotlightIndex?"on":""}"></i>`).join("")}</div>
+      </div>`;
+  }
+  function startSpotlightRotation(){
+    clearInterval(spotlightTimer);
+    spotlightTimer=setInterval(()=>{
+      if(vdsUltimateHubActive!=="home"||!$("#ultimate.page.active"))return;
+      const list=spotlightCandidates(); if(list.length<2)return;
+      spotlightIndex=(spotlightIndex+1)%list.length;renderSpotlight();
+    },6500);
+  }
+  document.addEventListener("click",e=>{
+    const b=e.target.closest?.("[data-ace21-view-spotlight]"); if(!b)return;
+    const uid=b.dataset.ace21ViewSpotlight;
+    const card=(ultimateTeamState?.cards||[]).find(c=>String(typeof utCardUid==="function"?utCardUid(c):c.playerName)===String(uid));
+    if(card && typeof openVdsCardShowcase==="function")openVdsCardShowcase(card.playerName);
+  });
+
+  /* =========================
+     ROOKIE ROAD COMPACT GOAL
+     ========================= */
+  const rookieTargets={play1:["matches_completed",1],win1:["wins",1],play3:["matches_completed",3],play5:["matches_completed",5],win5:["wins",5],play10:["matches_completed",10]};
+  function rookieHTML(progress){
+    const p=progress||{matches_completed:0,wins:0,milestones_claimed:[]};
+    const claimed=new Set(Array.isArray(p.milestones_claimed)?p.milestones_claimed:[]);
+    const ms=Array.isArray(window.ACE_AI_ROOKIE_MILESTONES)?window.ACE_AI_ROOKIE_MILESTONES:(typeof ACE_AI_ROOKIE_MILESTONES!=="undefined"?ACE_AI_ROOKIE_MILESTONES:[]);
+    const next=ms.find(m=>!claimed.has(m.id) && !m.test(p));
+    if(!next)return `<div class="ace21Rookie" data-ace21-rookie><div class="ace21RookieTop"><span>ROOKIE ROAD</span><b>COMPLETE ✓</b></div><strong>All Rookie Road milestones claimed.</strong><div class="ace21RookieLine"><i style="width:100%"></i></div></div>`;
+    const [field,target]=rookieTargets[next.id]||["matches_completed",1];
+    const current=Math.min(target,Number(p?.[field]||0));
+    const noun=field==="wins"?"WIN":"MATCH";
+    const pct=Math.max(0,Math.min(100,current/target*100));
+    return `<div class="ace21Rookie" data-ace21-rookie>
+      <div class="ace21RookieTop"><span>ROOKIE ROAD · NEXT GOAL</span><b>+${Number(next.coins||0).toLocaleString()} ◉</b></div>
+      <strong>${current}/${target} ${noun}${target===1?"":"ES"} → ${Number(next.coins||0).toLocaleString()} COINS</strong>
+      <div class="ace21RookieLine"><i style="width:${pct}%"></i></div>
+    </div>`;
+  }
+  async function renderRookie(){
+    const copy=$("#ultimate .aceUTHomeCopy"); if(!copy)return;
+    let node=$("#ace21Rookie",copy);
+    if(!node){node=document.createElement("div");node.id="ace21Rookie";copy.appendChild(node);}
+    let progress=typeof aceUTLeagueState!=="undefined"?aceUTLeagueState.progress:null;
+    if(!progress && typeof aceUTLoadAIProgress==="function"){
+      try{progress=await aceUTLoadAIProgress({quiet:true});}catch(_){}
+    }
+    node.innerHTML=rookieHTML(progress);
+  }
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("[data-ace21-rookie]"))typeof aceUTOpenMatchFlow==="function"&&aceUTOpenMatchFlow();
+  });
+
+  /* =========================
+     HOME / PROFILE ENHANCERS
+     ========================= */
+  function enhanceHome(){
+    const stage=$("#ultimate .aceUTHomeStage"); if(!stage)return;
+    applyIdentityTheme();
+
+    const copy=$(".aceUTHomeCopy",stage);
+    let journey=$("#ace21JourneyMount",copy);
+    if(!journey){
+      journey=document.createElement("div");journey.id="ace21JourneyMount";
+      copy?.prepend(journey);
+    }
+    if(journey)journey.innerHTML=journeyHTML();
+
+    const action=nextAction();
+    const primary=$(".aceUTHomePrimary",stage);
+    if(primary){
+      primary.innerHTML=`<span>${action.icon}</span><b>${html(action.title)}</b><small>${html(action.sub)}</small>`;
+      primary.onclick=()=>runAction(action.action);
+      primary.classList.toggle("gift",action.action==="packs"&&action.icon==="🎁");
+    }
+
+    let mini=$("#ace21ClubIdentityMini",stage);
+    if(!mini){
+      mini=document.createElement("div");mini.id="ace21ClubIdentityMini";
+      const kicker=$(".aceUTHomeSectionKicker",stage);
+      kicker?.insertAdjacentElement("beforebegin",mini);
+    }
+    if(mini)mini.innerHTML=identityMiniHTML();
+
+    if($(".aceHomeSpotlight",stage)){
+      renderSpotlight();
+    }else{
+      /* Existing B21.20 enhancer creates this on the next animation frame. */
+      requestAnimationFrame(renderSpotlight);
+    }
+    renderRookie();
+  }
+
+  /* Keep existing renderers, then add the new pass. */
+  if(typeof vdsRenderUltimateHubHome==="function"){
+    const base=vdsRenderUltimateHubHome;
+    vdsRenderUltimateHubHome=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(enhanceHome);
+      return result;
+    };
+  }
+  if(typeof vdsRenderUltimateHubProfile==="function"){
+    const base=vdsRenderUltimateHubProfile;
+    vdsRenderUltimateHubProfile=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(enhanceProfileIdentity);
+      return result;
+    };
+  }
+
+  /* =========================
+     PACK ACQUISITION DECISIONS
+     ========================= */
+  let lastPackCards=[];
+  function findCompare(card){
+    const role=typeof aceUTCardNaturalRole==="function"?aceUTCardNaturalRole(card):String(card.position||"");
+    return (typeof utBestUniqueCards==="function"?utBestUniqueCards():(ultimateTeamState?.cards||[]))
+      .filter(c=>c && String(c.playerId)!==String(card.playerId))
+      .map(c=>({card:c,score:typeof aceUTCardRoleRating==="function"?aceUTCardRoleRating(c,role):Number(c.rating||0)}))
+      .sort((a,b)=>b.score-a.score)[0]?.card||null;
+  }
+  function renderPackDecisions(){
+    const summary=$("#aceCinemaSummary");
+    const cardsMount=$("#aceCinemaSummaryCards");
+    if(!summary||!cardsMount||summary.classList.contains("hidden")||!lastPackCards.length)return;
+    let grid=$("#ace21PackDecisionGrid",summary);
+    if(!grid){
+      grid=document.createElement("div");grid.id="ace21PackDecisionGrid";grid.className="ace21PackDecisionGrid";
+      cardsMount.insertAdjacentElement("afterend",grid);
+    }
+    grid.innerHTML=lastPackCards.map((card,index)=>{
+      const group=(ultimateTeamState?.cards||[]).filter(c=>Number(c.playerId||0)===Number(card.playerId||0)&&String(c.rarity||"")===String(card.rarity||""));
+      const count=group.length,dup=count>1,value=typeof aceUTQuickSellValue==="function"?aceUTQuickSellValue(card.rating):0;
+      const sellable=typeof aceUTSellableCloudCopy==="function"?aceUTSellableCloudCopy(card):card;
+      const inSquad=(ultimateTeamState?.lineupSlots||[]).some(uid=>group.some(c=>String(typeof utCardUid==="function"?utCardUid(c):c.id)===String(uid)));
+      return `<article class="ace21PackDecision">
+        <div class="ace21PackDecisionHead"><b>${html(card.playerName)}</b><span class="${dup?"dup":""}">${dup?`DUPLICATE ×${count}`:"NEW"}</span></div>
+        <div class="ace21PackDecisionMeta">${Number(card.rating||0)} ${html(card.position||"")} · ${html((UT_RARITY?.[card.rarity]?.label||card.rarity||"CARD").toUpperCase())}</div>
+        <div class="ace21PackDecisionActions">
+          <button class="primary" data-ace21-pack="${index}" data-action="squad" ${inSquad?"disabled":""}>${inSquad?"IN STARTING SIX ✓":"ADD TO SQUAD"}</button>
+          <button data-ace21-pack="${index}" data-action="compare">COMPARE</button>
+          <button class="sell" data-ace21-pack="${index}" data-action="sell" ${sellable?"":"disabled"}>QUICK SELL ${Number(value).toLocaleString()} ◉</button>
+          <button data-ace21-pack="${index}" data-action="view">VIEW CARD</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+  function watchPackSummary(){
+    const summary=$("#aceCinemaSummary"); if(!summary)return;
+    if(!summary.__ace21Observer){
+      const obs=new MutationObserver(renderPackDecisions);
+      obs.observe(summary,{attributes:true,attributeFilter:["class"]});
+      summary.__ace21Observer=obs;
+    }
+    renderPackDecisions();
+  }
+  if(typeof showUltimateTripleReveal==="function"){
+    const base=showUltimateTripleReveal;
+    showUltimateTripleReveal=function(cards,packId){
+      lastPackCards=Array.isArray(cards)?cards.slice():[];
+      const result=base.apply(this,arguments);
+      setTimeout(watchPackSummary,0);
+      return result;
+    };
+  }
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest?.("[data-ace21-pack]"); if(!btn)return;
+    const card=lastPackCards[Number(btn.dataset.ace21Pack)]; if(!card)return;
+    const action=btn.dataset.action;
+    if(action==="squad"){
+      const placed=typeof aceAssignFreshCardToSquad==="function"?aceAssignFreshCardToSquad(card):false;
+      window.aceNotify?.({title:placed?"ADDED TO STARTING SIX":"CARD SELECTED",body:placed?`${card.playerName} has been placed into an open role.`:"Your six is full. The card is selected for squad editing.",type:"success"});
+      renderPackDecisions();
+    }else if(action==="compare"){
+      const other=findCompare(card);
+      if(other&&window.aceOpenCompare)window.aceOpenCompare(card,other);
+      else window.aceNotify?.({title:"NO COMPARISON YET",body:"Open more packs to add a comparable club card.",type:"info"});
+    }else if(action==="sell"){
+      if(typeof aceUTQuickSellGroupedCard==="function")aceUTQuickSellGroupedCard(card.playerId,card.rarity);
+    }else if(action==="view"){
+      if(typeof openVdsCardShowcase==="function")openVdsCardShowcase(card.playerName);
+    }
+  });
+
+  /* =========================
+     EMPTY STATES
+     ========================= */
+  function enhanceEmptyStates(){
+    $$("#utSquadSlots .vdsSquadSlot.is-empty").forEach(slot=>{
+      if($(".ace21EmptyAction",slot))return;
+      const idx=Number(slot.dataset.slotIndex);
+      const meta=typeof UT_LINEUP_SLOTS!=="undefined"?UT_LINEUP_SLOTS.find(s=>Number(s.dataIndex)===idx):null;
+      const b=document.createElement("button");
+      b.className="ace21EmptyAction";b.type="button";b.textContent=`ADD BEST ${meta?.role||""}`.trim();
+      b.addEventListener("click",ev=>{
+        ev.preventDefault();ev.stopPropagation();
+        slot.querySelector(".aceSlotSuggestBtn")?.click();
+      });
+      slot.appendChild(b);
+    });
+
+    $$("#utCollection .aceClubEmpty,#utCollection .vdsUTEmpty").forEach(empty=>{
+      if(empty.dataset.ace21Done)return; empty.dataset.ace21Done="1";
+      empty.innerHTML=`<div class="ace21EmptyClub"><b>YOUR CLUB IS EMPTY</b><span>Open a pack to start building your collection.</span><button type="button" data-ace21-open-packs>OPEN A PACK</button></div>`;
+    });
+
+    const bench=$("#utBenchCards .vdsUTBenchEmpty");
+    if(bench && !bench.querySelector("[data-ace21-open-packs]")){
+      bench.innerHTML=`No available bench cards. <button type="button" data-ace21-open-packs>OPEN A PACK</button>`;
+    }
+
+    const missions=$('#ultimate .vdsUTInstance[data-ut-instance="missions"]');
+    if(missions){
+      const d=vdsDailyProgressCache||{};
+      const done=[d.first_win_rewarded,d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded].filter(Boolean).length;
+      let all=$("#ace21AllDone",missions);
+      if(done===4 && !all){
+        all=document.createElement("div");all.id="ace21AllDone";all.className="ace21AllDone";all.textContent="ALL DONE ✓ · DAILY MISSIONS COMPLETE";
+        missions.prepend(all);
+      }else if(done!==4)all?.remove();
+    }
+  }
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("[data-ace21-open-packs]"))typeof vdsSwitchUltimateInstance==="function"&&vdsSwitchUltimateInstance("packs");
+  });
+  if(typeof renderUltimateSquadVisual==="function"){
+    const base=renderUltimateSquadVisual;
+    renderUltimateSquadVisual=function(){
+      const result=base.apply(this,arguments);requestAnimationFrame(enhanceEmptyStates);return result;
+    };
+  }
+  if(typeof renderUltimateTeam==="function"){
+    const base=renderUltimateTeam;
+    renderUltimateTeam=function(){
+      const result=base.apply(this,arguments);requestAnimationFrame(enhanceEmptyStates);return result;
+    };
+  }
+
+  /* =========================
+     SOUND HIERARCHY (generated locally, no audio files)
+     ========================= */
+  let audioCtx=null;
+  function unlockAudio(){
+    if(audioCtx)return;
+    try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(_){}
+  }
+  document.addEventListener("pointerdown",unlockAudio,{once:true,passive:true});
+  function tone(freq,duration=0.08,type="sine",gain=.025,delay=0){
+    if(!audioCtx||audioCtx.state==="suspended")return;
+    const t=audioCtx.currentTime+delay;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+    o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+duration+.02);
+  }
+  const sounds={
+    coins(){tone(680,.07,"sine",.025);tone(920,.09,"sine",.021,.055)},
+    card(){tone(420,.08,"triangle",.021);tone(620,.10,"triangle",.018,.055)},
+    rare(){tone(210,.12,"sine",.026);tone(540,.13,"triangle",.024,.08);tone(880,.16,"sine",.022,.16)},
+    lock(){tone(260,.055,"square",.014);tone(390,.06,"sine",.016,.045)},
+    ready(){tone(440,.09,"triangle",.021);tone(660,.10,"triangle",.022,.08)},
+    achievement(){tone(520,.08,"sine",.02);tone(660,.08,"sine",.02,.07);tone(880,.11,"sine",.022,.14)}
+  };
+  window.aceSound=sounds;
+
+  const toastStack=$("#aceToastStack");
+  if(toastStack){
+    new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{
+      if(!(n instanceof HTMLElement))return;
+      if(n.classList.contains("reward")||n.classList.contains("sale"))sounds.coins();
+      else if(n.classList.contains("pack"))sounds.card();
+      else if(n.classList.contains("achievement"))sounds.achievement();
+    }))).observe(toastStack,{childList:true});
+  }
+  const front=$("#aceCinemaCardFront");
+  if(front){
+    let was=false;
+    new MutationObserver(()=>{
+      const now=front.classList.contains("revealed");
+      if(now&&!was){
+        const r=["ace","elite"].find(x=>front.classList.contains(x));
+        if(r)sounds.rare();else sounds.card();
+      }
+      was=now;
+    }).observe(front,{attributes:true,attributeFilter:["class"]});
+  }
+  const readyBtn=$("#confirmLineupBtn");
+  if(readyBtn){
+    let last=readyBtn.textContent;
+    new MutationObserver(()=>{
+      const now=readyBtn.textContent;
+      if(now!==last && /TACTICS LOCKED|READY/.test(now))sounds.lock();
+      last=now;
+    }).observe(readyBtn,{childList:true,subtree:true,characterData:true});
+  }
+  const vs=$("#acePreMatchVS");
+  if(vs){
+    let open=vs.classList.contains("show");
+    new MutationObserver(()=>{
+      const now=vs.classList.contains("show");
+      if(now&&!open)sounds.ready();
+      open=now;
+    }).observe(vs,{attributes:true,attributeFilter:["class"]});
+  }
+
+  /* Tap-to-dismiss toasts + tiny mobile haptic/press feedback. */
+  document.addEventListener("click",e=>{
+    const toast=e.target.closest?.(".aceToast");
+    if(toast){toast.classList.remove("show");setTimeout(()=>toast.remove(),180);}
+  });
+  document.addEventListener("pointerdown",e=>{
+    const target=e.target.closest?.("#ultimate button,.aceClubCardView,.vdsUTBenchCard,.vdsSquadPortrait");
+    if(!target)return;
+    target.classList.add("ace21Pressed");
+    if(matchMedia("(pointer:coarse)").matches)navigator.vibrate?.(8);
+  },{passive:true});
+  ["pointerup","pointercancel","pointerleave"].forEach(type=>document.addEventListener(type,e=>e.target.closest?.(".ace21Pressed")?.classList.remove("ace21Pressed"),{passive:true}));
+
+  /* Decorate existing VS reveal with local club identity where safe. */
+  if(typeof window.aceShowPreMatchVSCurrent==="function"){
+    const base=window.aceShowPreMatchVSCurrent;
+    window.aceShowPreMatchVSCurrent=function(opts){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>{
+        const id=loadIdentity();
+        const first=$("#aceVSTeams .aceVSTeam.left .aceVSTeamMeta");
+        if(first && !first.querySelector(".ace21ClubIdentityMini"))first.insertAdjacentHTML("afterbegin",identityMiniHTML());
+      });
+      return result;
+    };
+  }
+
+  /* Main render hooks for identity / empty-state freshness. */
+  if(typeof vdsSwitchUltimateInstance==="function"){
+    const base=vdsSwitchUltimateInstance;
+    vdsSwitchUltimateInstance=function(id,opts){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>{
+        if(id==="home")enhanceHome();
+        if(id==="profile")enhanceProfileIdentity();
+        enhanceEmptyStates();
+      });
+      return result;
+    };
+  }
+
+  /* =========================
+     INITIALISE
+     ========================= */
+  function init(){
+    ace21ApplyLanding();applyIdentityTheme();enhanceEmptyStates();
+    if(typeof vdsUltimateHubActive!=="undefined"&&vdsUltimateHubActive==="home")enhanceHome();
+    if(typeof vdsUltimateHubActive!=="undefined"&&vdsUltimateHubActive==="profile")enhanceProfileIdentity();
+    startSpotlightRotation();
+    watchPackSummary();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(init,0),{once:true});
+  else setTimeout(init,0);
+})();
+</script>
+<!-- ACE_B21_21_COMPLETE_CAPTIVATION_END -->
 
 </body>
 </html>
