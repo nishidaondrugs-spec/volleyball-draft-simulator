@@ -39214,6 +39214,980 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- /ACE B21.27 — SQUAD INTERACTION OVERHAUL -->
 
+
+<!-- ACE B21.28 — ADMIN NEW CARD PIPELINE -->
+<style id="ace-b21-28-admin-card-pipeline">
+/* =========================================================
+   B21.28 — SPINNER → REVIEW → EDIT → APPROVE → LIVE IN UT
+   ========================================================= */
+
+#players .ace28AdminQueue{
+  display:none;
+  margin:12px 0 14px;
+  border:1px solid rgba(172,126,236,.14);
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(136,76,216,.09),transparent 28%),
+    linear-gradient(180deg,#0b0e17,#080a11);
+  box-shadow:0 18px 38px rgba(0,0,0,.20);
+}
+body:not(.cloudReadOnly) #players .ace28AdminQueue{
+  display:block;
+}
+
+#players .ace28QueueHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:17px 18px 14px;
+  border-bottom:1px solid rgba(255,255,255,.045);
+}
+#players .ace28QueueHead>div:first-child span{
+  display:block;
+  color:#9e6ee0;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+#players .ace28QueueHead h3{
+  margin:5px 0 0;
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+#players .ace28QueueHead p{
+  margin:5px 0 0;
+  color:#777f8d;
+  font-size:7px;
+}
+#players .ace28QueueCount{
+  min-width:74px;
+  padding:9px 11px;
+  border-radius:11px;
+  border:1px solid rgba(176,130,234,.10);
+  background:#080b12;
+  text-align:center;
+}
+#players .ace28QueueCount b{
+  display:block;
+  color:#c7a6ef;
+  font-size:20px;
+}
+#players .ace28QueueCount span{
+  display:block;
+  margin-top:2px;
+  color:#696473;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+
+#players .ace28QueueBody{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:9px;
+  padding:12px;
+}
+#players .ace28QueueEmpty{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  min-height:74px;
+  padding:13px 15px;
+  border-radius:12px;
+  border:1px dashed rgba(164,121,221,.11);
+  background:#080b12;
+}
+#players .ace28QueueEmpty b{
+  display:block;
+  color:#9fdab2;
+  font-size:9px;
+}
+#players .ace28QueueEmpty span{
+  display:block;
+  margin-top:4px;
+  color:#6c7180;
+  font-size:6.5px;
+}
+#players .ace28QueueRefresh{
+  min-height:34px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid rgba(167,126,221,.10);
+  background:#0b0e16;
+  color:#8d8299;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+
+#players .ace28ReviewCard{
+  position:relative;
+  display:grid;
+  grid-template-columns:78px minmax(0,1fr);
+  gap:10px;
+  min-height:155px;
+  padding:10px;
+  border:1px solid rgba(181,138,238,.09);
+  border-radius:13px;
+  background:#090c13;
+}
+#players .ace28ReviewCard:hover{
+  border-color:rgba(191,143,250,.19);
+  background:#0b0e16;
+}
+#players .ace28ReviewArt{
+  position:relative;
+  width:78px;
+  height:108px;
+  border-radius:11px;
+  overflow:hidden;
+  border:1px solid rgba(205,169,248,.17);
+  background:#111522;
+}
+#players .ace28ReviewArt img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+#players .ace28ReviewArt .fallback{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-size:25px;
+}
+#players .ace28ReviewRating{
+  position:absolute;
+  top:5px;
+  left:5px;
+  padding:4px 5px;
+  border-radius:7px;
+  background:rgba(5,7,12,.86);
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+}
+#players .ace28ReviewInfo{
+  min-width:0;
+}
+#players .ace28ReviewTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+#players .ace28ReviewTop>div{
+  min-width:0;
+}
+#players .ace28ReviewTop small{
+  display:block;
+  color:#9b6cda;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+#players .ace28ReviewTop h4{
+  margin:3px 0 0;
+  font-size:14px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+#players .ace28NewBadge{
+  flex:0 0 auto;
+  padding:4px 6px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#7b43d1,#aa6cf4);
+  color:#fff;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+#players .ace28ReviewMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:6px;
+}
+#players .ace28ReviewMeta span{
+  padding:4px 6px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.045);
+  background:#070a10;
+  color:#777381;
+  font-size:5.2px;
+  font-weight:1000;
+}
+#players .ace28ReviewMeta .serve{
+  color:#a5cce0;
+}
+#players .ace28ReviewMeta .pool{
+  color:#9eddb1;
+  border-color:rgba(75,203,119,.10);
+}
+#players .ace28ReviewActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  margin-top:8px;
+}
+#players .ace28ReviewActions button{
+  min-height:32px;
+  padding:0 7px;
+  border-radius:8px;
+  border:1px solid rgba(175,132,230,.09);
+  background:#080b12;
+  color:#807988;
+  font-size:5.4px;
+  font-weight:1000;
+  letter-spacing:.06em;
+  cursor:pointer;
+}
+#players .ace28ReviewActions button:hover{
+  color:#d4b9f5;
+  border-color:rgba(190,145,246,.20);
+}
+#players .ace28ReviewActions .approve{
+  color:#fff;
+  background:linear-gradient(135deg,#7040c0,#9657e6);
+  border-color:rgba(192,148,249,.18);
+}
+#players .ace28ReviewActions .approveUT{
+  color:#0e1912;
+  background:linear-gradient(135deg,#84df9f,#58c786);
+  border-color:transparent;
+}
+#players .ace28ReviewActions .removeUT{
+  color:#e5b176;
+}
+
+#players .ace28LiveBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 6px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#070a10;
+  color:#77727f;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  white-space:nowrap;
+}
+#players .ace28LiveBadge::before{
+  content:"";
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#68636e;
+}
+#players .ace28LiveBadge.live{
+  color:#91e4a9;
+  border-color:rgba(77,205,120,.12);
+  background:rgba(26,91,49,.08);
+}
+#players .ace28LiveBadge.live::before{
+  background:#67d98c;
+  box-shadow:0 0 8px rgba(82,214,126,.35);
+}
+#players .ace28LiveBadge.pending{
+  color:#dfbd74;
+  border-color:rgba(216,170,69,.12);
+}
+#players .ace28LiveBadge.pending::before{
+  background:#d5a845;
+}
+#players .ace28LiveBadge.error{
+  color:#eb958e;
+  border-color:rgba(224,105,95,.12);
+}
+#players .ace28LiveBadge.error::before{
+  background:#dc6e65;
+}
+
+/* Editor review strip */
+#playerEditorModal .ace28EditorReview{
+  margin:0 0 14px;
+  padding:11px;
+  border:1px solid rgba(176,132,233,.12);
+  border-radius:13px;
+  background:
+    radial-gradient(circle at 0 50%,rgba(131,75,210,.08),transparent 28%),
+    #090c13;
+}
+#playerEditorModal .ace28EditorReviewTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+#playerEditorModal .ace28EditorReviewTop span{
+  display:block;
+  color:#966bd0;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+#playerEditorModal .ace28EditorReviewTop b{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+}
+#playerEditorModal .ace28EditorReviewInfo{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+#playerEditorModal .ace28EditorReviewInfo span{
+  padding:4px 6px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.05);
+  background:#070a10;
+  color:#797481;
+  font-size:5.2px;
+  font-weight:1000;
+}
+#playerEditorModal .ace28EditorReviewActions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:9px;
+}
+#playerEditorModal .ace28EditorReviewActions button{
+  min-height:35px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid rgba(173,130,229,.10);
+  background:#080b12;
+  color:#85808e;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+#playerEditorModal .ace28EditorReviewActions .save{
+  color:#fff;
+  background:linear-gradient(135deg,#7241c5,#9959e8);
+  border-color:rgba(190,145,246,.18);
+}
+#playerEditorModal .ace28EditorReviewActions .ut{
+  color:#0d1911;
+  background:linear-gradient(135deg,#83dda0,#5bc887);
+  border-color:transparent;
+}
+#playerEditorModal .ace28EditorSaveStatus{
+  min-height:16px;
+  margin-top:7px;
+  color:#77727f;
+  font-size:5.8px;
+}
+#playerEditorModal .ace28EditorSaveStatus.ok{color:#8bdaa5}
+#playerEditorModal .ace28EditorSaveStatus.bad{color:#e7948e}
+
+/* Make queue easy to use on phone too */
+@media(max-width:720px){
+  #players .ace28QueueHead{
+    align-items:flex-start;
+  }
+  #players .ace28QueueBody{
+    grid-template-columns:1fr;
+    padding:8px;
+  }
+  #players .ace28ReviewCard{
+    grid-template-columns:68px minmax(0,1fr);
+  }
+  #players .ace28ReviewArt{
+    width:68px;
+    height:96px;
+  }
+  #players .ace28ReviewActions{
+    grid-template-columns:1fr;
+  }
+  #playerEditorModal .ace28EditorReviewActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  #playerEditorModal .ace28EditorReviewActions button{
+    min-height:42px;
+  }
+}
+</style>
+
+<script id="ace-b21-28-admin-card-pipeline-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+  const ace28VerifyCache=new Map();
+  let ace28Rendering=false;
+
+  function isFollowerCard(p){
+    const source=String(p?.tendencies?.source||"");
+    return /^follower_spinner_/i.test(source);
+  }
+
+  function isReviewed(p){
+    return p?.tendencies?.adminReviewed===true;
+  }
+
+  function sourceLabel(p){
+    const source=String(p?.tendencies?.source||"");
+    if(/^follower_spinner_/i.test(source))return "FOLLOWER SPINNER";
+    return "PLAYER DATABASE";
+  }
+
+  function serveLabel(p){
+    return ({
+      auto:"Auto",
+      standing_float:"Standing Float",
+      jump_float:"Jump Float",
+      jump_topspin:"Jump Topspin"
+    })[p?.serveType||"auto"]||"Auto";
+  }
+
+  function queuePlayers(){
+    return (window.players||[])
+      .filter(p=>isFollowerCard(p) && !isReviewed(p))
+      .sort((a,b)=>Number(b.cloudId||0)-Number(a.cloudId||0));
+  }
+
+  function ensureQueue(){
+    let section=q("#ace28AdminQueue");
+    if(section)return section;
+
+    const anchor=q("#players .vdsPlayerStatusRow");
+    if(!anchor)return null;
+
+    section=document.createElement("section");
+    section.id="ace28AdminQueue";
+    section.className="ace28AdminQueue";
+    section.innerHTML=`
+      <div class="ace28QueueHead">
+        <div>
+          <span>ADMIN REVIEW</span>
+          <h3>New Cards</h3>
+          <p>Cards published from the follower spinner appear here until you approve them.</p>
+        </div>
+        <div class="ace28QueueCount"><b id="ace28QueueCount">0</b><span>WAITING</span></div>
+      </div>
+      <div class="ace28QueueBody" id="ace28QueueBody"></div>`;
+    anchor.insertAdjacentElement("afterend",section);
+    return section;
+  }
+
+  function verificationBadge(p){
+    const key=Number(p?.cloudId||0);
+    const cached=ace28VerifyCache.get(key);
+
+    if(p?.ultimateTeamPool!==true){
+      return `<span class="ace28LiveBadge">NOT IN UT</span>`;
+    }
+
+    if(cached?.state==="live"){
+      return `<span class="ace28LiveBadge live">LIVE IN UT ✓</span>`;
+    }
+    if(cached?.state==="error"){
+      return `<span class="ace28LiveBadge error">VERIFY FAILED</span>`;
+    }
+    return `<span class="ace28LiveBadge pending">VERIFYING…</span>`;
+  }
+
+  async function verifyUT(p,{force=false}={}){
+    if(!p?.cloudId || !window.cloudDb)return {state:"error",reason:"No cloud player ID"};
+
+    const key=Number(p.cloudId);
+    if(!force && ace28VerifyCache.has(key))return ace28VerifyCache.get(key);
+
+    if(p.ultimateTeamPool!==true){
+      const result={state:"off",dbPool:false,localPool:false};
+      ace28VerifyCache.set(key,result);
+      return result;
+    }
+
+    ace28VerifyCache.set(key,{state:"pending"});
+
+    try{
+      const {data,error}=await cloudDb
+        .from("players")
+        .select("id,name,ultimate_team_pool")
+        .eq("id",p.cloudId)
+        .single();
+
+      if(error)throw error;
+
+      const dbPool=data?.ultimate_team_pool===true;
+      const localPool=typeof vdsUltimatePoolPlayers==="function"
+        ? vdsUltimatePoolPlayers().some(x=>Number(x.cloudId)===Number(p.cloudId))
+        : (window.players||[]).some(x=>Number(x.cloudId)===Number(p.cloudId)&&x.ultimateTeamPool===true);
+
+      const result={
+        state:dbPool&&localPool?"live":"error",
+        dbPool,
+        localPool,
+        reason:dbPool&&!localPool
+          ?"Supabase is enabled but the local pool has not refreshed."
+          :(!dbPool?"Supabase says this card is not in the UT pool.":"")
+      };
+
+      ace28VerifyCache.set(key,result);
+      return result;
+    }catch(error){
+      const result={state:"error",reason:error?.message||String(error)};
+      ace28VerifyCache.set(key,result);
+      return result;
+    }
+  }
+
+  async function verifyVisibleQueue(){
+    if(!window.cloudAdmin)return;
+    for(const p of queuePlayers().slice(0,12)){
+      if(p.ultimateTeamPool===true){
+        await verifyUT(p);
+      }
+    }
+    renderQueue({skipVerify:true});
+  }
+
+  function reviewCardHTML(p){
+    const idx=players.indexOf(p);
+    const rating=typeof overall==="function"?overall(p):Math.round(Number(p.finalRating||0));
+    const tier=typeof cardTierLabel==="function"?cardTierLabel(p):"CARD";
+    const pool=p.ultimateTeamPool===true;
+
+    return `
+      <article class="ace28ReviewCard" data-ace28-card="${Number(p.cloudId||0)}">
+        <div class="ace28ReviewArt">
+          ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:`<div class="fallback">♠</div>`}
+          <div class="ace28ReviewRating">${rating}</div>
+        </div>
+        <div class="ace28ReviewInfo">
+          <div class="ace28ReviewTop">
+            <div>
+              <small>${sourceLabel(p)}</small>
+              <h4>${esc(p.name)}</h4>
+            </div>
+            <span class="ace28NewBadge">NEW</span>
+          </div>
+
+          <div class="ace28ReviewMeta">
+            <span>${esc(p.position||"POS")}</span>
+            <span>${tier}</span>
+            <span class="serve">🏐 ${serveLabel(p)}</span>
+            ${pool?`<span class="pool">UT POOL ON</span>`:""}
+          </div>
+
+          <div style="margin-top:7px">${verificationBadge(p)}</div>
+
+          <div class="ace28ReviewActions">
+            <button type="button" data-ace28-edit="${idx}">EDIT / REVIEW</button>
+            <button type="button" class="approve" data-ace28-approve="${idx}">APPROVE</button>
+            ${pool
+              ? `<button type="button" class="removeUT" data-ace28-pool-off="${idx}">REMOVE FROM UT</button>
+                 <button type="button" data-ace28-verify="${idx}">VERIFY UT</button>`
+              : `<button type="button" class="approveUT" data-ace28-approve-ut="${idx}">APPROVE + UT</button>
+                 <button type="button" data-ace28-verify="${idx}">VERIFY</button>`}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderQueue({skipVerify=false}={}){
+    if(ace28Rendering)return;
+    ace28Rendering=true;
+    try{
+      const section=ensureQueue();
+      const body=q("#ace28QueueBody");
+      const count=q("#ace28QueueCount");
+      if(!section||!body||!count)return;
+
+      const waiting=queuePlayers();
+      count.textContent=waiting.length;
+
+      if(!cloudAdmin){
+        body.innerHTML="";
+        return;
+      }
+
+      if(!waiting.length){
+        body.innerHTML=`
+          <div class="ace28QueueEmpty">
+            <div><b>✓ NO CARDS WAITING FOR REVIEW</b><span>New follower-spinner submissions will appear here automatically.</span></div>
+            <button type="button" class="ace28QueueRefresh" data-ace28-refresh>REFRESH DATABASE</button>
+          </div>`;
+        return;
+      }
+
+      body.innerHTML=waiting.slice(0,12).map(reviewCardHTML).join("");
+    }finally{
+      ace28Rendering=false;
+    }
+
+    if(!skipVerify)setTimeout(verifyVisibleQueue,0);
+  }
+
+  function markReviewed(p){
+    if(!p.tendencies || typeof p.tendencies!=="object")p.tendencies={};
+    p.tendencies.adminReviewed=true;
+    p.tendencies.adminReviewedAt=new Date().toISOString();
+    p.tendencies.adminReviewedBy="vds_admin";
+  }
+
+  async function saveReviewed(p,{addToUT=false}={}){
+    if(!cloudAdmin){
+      alert("Admin login required.");
+      return false;
+    }
+
+    const previousReviewed=isReviewed(p);
+    const previousPool=p.ultimateTeamPool===true;
+    const previousTendencies={...(p.tendencies||{})};
+
+    markReviewed(p);
+    if(addToUT)p.ultimateTeamPool=true;
+
+    try{
+      const result=await savePlayerToCloud(p);
+      if(!result?.ok)throw new Error(result?.error||"Could not save player.");
+
+      safeStore.set("vballPlayers",JSON.stringify(players));
+
+      if(addToUT){
+        ace28VerifyCache.delete(Number(p.cloudId||0));
+        const verified=await verifyUT(p,{force:true});
+        if(verified.state!=="live"){
+          throw new Error(verified.reason||"Card saved, but Ultimate Team could not be verified.");
+        }
+      }
+
+      renderPlayers(q("#playerSearch")?.value||"");
+      renderQueue({skipVerify:true});
+      if(typeof vdsRequestUltimateRender==="function")vdsRequestUltimateRender();
+
+      if(typeof aceNotify==="function"){
+        aceNotify({
+          title:addToUT?"CARD APPROVED + LIVE IN UT":"CARD APPROVED",
+          body:addToUT
+            ? `${p.name} is approved and verified in the Ultimate Team pool.`
+            : `${p.name} is approved in the player database.`,
+          type:"success"
+        });
+      }
+      return true;
+    }catch(error){
+      p.tendencies=previousTendencies;
+      p.ultimateTeamPool=previousPool;
+      if(!previousReviewed && p.tendencies)delete p.tendencies.adminReviewed;
+      safeStore.set("vballPlayers",JSON.stringify(players));
+      console.error("ACE card approval failed",error);
+      alert(`Could not approve ${p.name}: ${error?.message||error}`);
+      renderQueue({skipVerify:true});
+      return false;
+    }
+  }
+
+  async function setPool(p,enabled){
+    if(!p||!cloudAdmin)return;
+    await vdsSetUltimatePoolMembership(p,enabled);
+    ace28VerifyCache.delete(Number(p.cloudId||0));
+    if(enabled)await verifyUT(p,{force:true});
+    renderQueue({skipVerify:true});
+    renderEditorReview();
+  }
+
+  async function refreshDatabase(){
+    const btn=q("[data-ace28-refresh]");
+    if(btn){
+      btn.disabled=true;
+      btn.textContent="REFRESHING…";
+    }
+    try{
+      await loadPlayersFromCloud();
+      ace28VerifyCache.clear();
+      renderQueue();
+    }finally{
+      const live=q("[data-ace28-refresh]");
+      if(live){
+        live.disabled=false;
+        live.textContent="REFRESH DATABASE";
+      }
+    }
+  }
+
+  function renderEditorReview(){
+    const body=q("#playerEditorContent");
+    const idx=Number(window.playerEditorIndex);
+    const p=players?.[idx];
+    if(!body||!p)return;
+
+    body.querySelector(".ace28EditorReview")?.remove();
+    if(!cloudAdmin)return;
+
+    const reviewed=isReviewed(p);
+    const follower=isFollowerCard(p);
+
+    const panel=document.createElement("div");
+    panel.className="ace28EditorReview";
+    panel.innerHTML=`
+      <div class="ace28EditorReviewTop">
+        <div>
+          <span>${follower?"SPINNER SUBMISSION":"LIVE PLAYER DATABASE"}</span>
+          <b>${reviewed?"✓ ADMIN REVIEWED":"REVIEW REQUIRED"}</b>
+        </div>
+        ${verificationBadge(p)}
+      </div>
+      <div class="ace28EditorReviewInfo">
+        <span>${esc(p.position||"POS")}</span>
+        <span>🏐 ${serveLabel(p)}</span>
+        <span>${p.ultimateTeamPool===true?"ULTIMATE TEAM POOL ON":"UT POOL OFF"}</span>
+        ${p.tendencies?.adminReviewedAt?`<span>REVIEWED ${new Date(p.tendencies.adminReviewedAt).toLocaleDateString()}</span>`:""}
+      </div>
+      <div class="ace28EditorReviewActions">
+        <button type="button" class="save" data-ace28-editor-save="${idx}">SAVE CHANGES TO LIVE VDS</button>
+        ${!reviewed?`<button type="button" data-ace28-editor-approve="${idx}">APPROVE</button>`:""}
+        ${p.ultimateTeamPool===true
+          ? `<button type="button" data-ace28-editor-verify="${idx}">VERIFY LIVE IN UT</button>
+             <button type="button" data-ace28-editor-pool-off="${idx}">REMOVE FROM UT</button>`
+          : `<button type="button" class="ut" data-ace28-editor-approve-ut="${idx}">${reviewed?"ADD TO UT + VERIFY":"APPROVE + ADD TO UT"}</button>`}
+      </div>
+      <div id="ace28EditorSaveStatus" class="ace28EditorSaveStatus"></div>`;
+    body.insertAdjacentElement("afterbegin",panel);
+
+    if(p.ultimateTeamPool===true){
+      verifyUT(p).then(()=>renderEditorReview());
+    }
+  }
+
+  async function explicitEditorSave(idx){
+    const p=players?.[Number(idx)];
+    const status=q("#ace28EditorSaveStatus");
+    if(!p||!cloudAdmin)return;
+
+    if(status){
+      status.className="ace28EditorSaveStatus";
+      status.textContent="Saving all current editor changes to Supabase…";
+    }
+
+    const result=await savePlayerToCloud(p);
+    if(!result?.ok){
+      if(status){
+        status.className="ace28EditorSaveStatus bad";
+        status.textContent=result?.error||"Save failed.";
+      }
+      return;
+    }
+
+    safeStore.set("vballPlayers",JSON.stringify(players));
+    if(status){
+      status.className="ace28EditorSaveStatus ok";
+      status.textContent="✓ Saved to the live VDS player database.";
+    }
+
+    ace28VerifyCache.delete(Number(p.cloudId||0));
+    renderPlayers(q("#playerSearch")?.value||"");
+    renderQueue();
+  }
+
+  /* Wrap existing renders/syncs rather than replacing them. */
+  if(typeof window.renderPlayers==="function" && !window.renderPlayers.__ace28Wrapped){
+    const base=window.renderPlayers;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(renderQueue);
+      return result;
+    };
+    wrapped.__ace28Wrapped=true;
+    window.renderPlayers=wrapped;
+    try{renderPlayers=wrapped}catch(_){}
+  }
+
+  if(typeof window.renderPlayerEditor==="function" && !window.renderPlayerEditor.__ace28Wrapped){
+    const base=window.renderPlayerEditor;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(renderEditorReview);
+      return result;
+    };
+    wrapped.__ace28Wrapped=true;
+    window.renderPlayerEditor=wrapped;
+    try{renderPlayerEditor=wrapped}catch(_){}
+  }
+
+  if(typeof window.loadPlayersFromCloud==="function" && !window.loadPlayersFromCloud.__ace28Wrapped){
+    const base=window.loadPlayersFromCloud;
+    const wrapped=async function(){
+      const result=await base.apply(this,arguments);
+      ace28VerifyCache.clear();
+      requestAnimationFrame(renderQueue);
+      return result;
+    };
+    wrapped.__ace28Wrapped=true;
+    window.loadPlayersFromCloud=wrapped;
+    try{loadPlayersFromCloud=wrapped}catch(_){}
+  }
+
+  if(typeof window.cloudAdminLogin==="function" && !window.cloudAdminLogin.__ace28Wrapped){
+    const base=window.cloudAdminLogin;
+    const wrapped=async function(){
+      const result=await base.apply(this,arguments);
+      requestAnimationFrame(renderQueue);
+      return result;
+    };
+    wrapped.__ace28Wrapped=true;
+    window.cloudAdminLogin=wrapped;
+    try{cloudAdminLogin=wrapped}catch(_){}
+  }
+
+  if(typeof window.cloudAdminLogout==="function" && !window.cloudAdminLogout.__ace28Wrapped){
+    const base=window.cloudAdminLogout;
+    const wrapped=async function(){
+      const result=await base.apply(this,arguments);
+      requestAnimationFrame(renderQueue);
+      return result;
+    };
+    wrapped.__ace28Wrapped=true;
+    window.cloudAdminLogout=wrapped;
+    try{cloudAdminLogout=wrapped}catch(_){}
+  }
+
+  document.addEventListener("click",async function(e){
+    const edit=e.target.closest?.("[data-ace28-edit]");
+    if(edit){
+      openPlayerEditor(Number(edit.dataset.ace28Edit));
+      return;
+    }
+
+    const approve=e.target.closest?.("[data-ace28-approve]");
+    if(approve){
+      approve.disabled=true;
+      await saveReviewed(players[Number(approve.dataset.ace28Approve)],{addToUT:false});
+      return;
+    }
+
+    const approveUT=e.target.closest?.("[data-ace28-approve-ut]");
+    if(approveUT){
+      approveUT.disabled=true;
+      await saveReviewed(players[Number(approveUT.dataset.ace28ApproveUt)],{addToUT:true});
+      return;
+    }
+
+    const poolOff=e.target.closest?.("[data-ace28-pool-off]");
+    if(poolOff){
+      await setPool(players[Number(poolOff.dataset.ace28PoolOff)],false);
+      return;
+    }
+
+    const verify=e.target.closest?.("[data-ace28-verify]");
+    if(verify){
+      const p=players[Number(verify.dataset.ace28Verify)];
+      if(!p)return;
+      verify.disabled=true;
+      ace28VerifyCache.delete(Number(p.cloudId||0));
+      const result=await verifyUT(p,{force:true});
+      renderQueue({skipVerify:true});
+      verify.disabled=false;
+      if(result.state==="live"){
+        alert(`${p.name} is verified LIVE in the Ultimate Team pool.`);
+      }else if(p.ultimateTeamPool!==true){
+        alert(`${p.name} is not currently enabled for Ultimate Team.`);
+      }else{
+        alert(`Ultimate Team verification failed for ${p.name}: ${result.reason||"Unknown reason"}`);
+      }
+      return;
+    }
+
+    if(e.target.closest?.("[data-ace28-refresh]")){
+      await refreshDatabase();
+      return;
+    }
+
+    const save=e.target.closest?.("[data-ace28-editor-save]");
+    if(save){
+      save.disabled=true;
+      await explicitEditorSave(save.dataset.ace28EditorSave);
+      const live=q("[data-ace28-editor-save]");
+      if(live)live.disabled=false;
+      return;
+    }
+
+    const editorApprove=e.target.closest?.("[data-ace28-editor-approve]");
+    if(editorApprove){
+      await saveReviewed(players[Number(editorApprove.dataset.ace28EditorApprove)],{addToUT:false});
+      renderEditorReview();
+      return;
+    }
+
+    const editorApproveUT=e.target.closest?.("[data-ace28-editor-approve-ut]");
+    if(editorApproveUT){
+      const p=players[Number(editorApproveUT.dataset.ace28EditorApproveUt)];
+      if(!p)return;
+
+      if(isReviewed(p)){
+        p.ultimateTeamPool=true;
+        const result=await savePlayerToCloud(p);
+        if(!result?.ok){
+          alert(`Could not add ${p.name} to Ultimate Team: ${result?.error||"Save failed"}`);
+          return;
+        }
+        ace28VerifyCache.delete(Number(p.cloudId||0));
+        const verified=await verifyUT(p,{force:true});
+        if(verified.state!=="live"){
+          alert(`The card was enabled, but VDS could not verify it in Ultimate Team: ${verified.reason||"Unknown reason"}`);
+        }
+        renderPlayers(q("#playerSearch")?.value||"");
+      }else{
+        await saveReviewed(p,{addToUT:true});
+      }
+
+      renderEditorReview();
+      return;
+    }
+
+    const editorVerify=e.target.closest?.("[data-ace28-editor-verify]");
+    if(editorVerify){
+      const p=players[Number(editorVerify.dataset.ace28EditorVerify)];
+      if(!p)return;
+      ace28VerifyCache.delete(Number(p.cloudId||0));
+      const result=await verifyUT(p,{force:true});
+      renderEditorReview();
+      alert(result.state==="live"
+        ? `${p.name} is verified LIVE in Ultimate Team.`
+        : `Verification failed: ${result.reason||"Unknown reason"}`);
+      return;
+    }
+
+    const editorPoolOff=e.target.closest?.("[data-ace28-editor-pool-off]");
+    if(editorPoolOff){
+      await setPool(players[Number(editorPoolOff.dataset.ace28EditorPoolOff)],false);
+      return;
+    }
+  });
+
+  /* Periodic refresh is deliberately NOT used. Admin remains in control;
+     refresh happens when the DB loads, after a publish/save, or when requested. */
+
+  window.ace28RenderNewCards=renderQueue;
+  window.ace28VerifyPlayerUT=verifyUT;
+  window.ACE_PROJECT_BUILD="B21.28";
+  window.ACE_ADMIN_CARD_PIPELINE=true;
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(renderQueue),{once:true});
+  }else{
+    requestAnimationFrame(renderQueue);
+  }
+})();
+</script>
+<!-- /ACE B21.28 — ADMIN NEW CARD PIPELINE -->
+
 </body>
 </html>
 
