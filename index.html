@@ -34151,10 +34151,220 @@ body.aceSimModalOpen .aceLiveCommandBar{
 </style>
 
 
-<script id="ace-b21-15-version-marker">
-window.ACE_PROJECT_BUILD="B21.15";
+
+<style id="ace-b21-16-desktop-squad-density">
+/* =========================================================
+   B21.16 — DESKTOP SQUAD DENSITY
+   PC only: larger players, tighter formation, shorter court,
+   clearer role / empty-slot information.
+   ========================================================= */
+
+@media(min-width:981px){
+
+  /* Reduce vertical dead space without changing mobile/tablet. */
+  #ultimate .vdsSquadCourt{
+    min-height:620px!important;
+    height:620px!important;
+    max-height:620px!important;
+  }
+
+  #ultimate .vdsSquadCourt::before{
+    opacity:.92!important;
+  }
+
+  /* Pull the playable formation in from the edges. */
+  #ultimate .vdsSquadSlots{
+    inset:34px 56px 38px!important;
+  }
+
+  /* Occupied / empty slot footprint gets larger. */
+  #ultimate .vdsSquadSlot{
+    width:150px!important;
+    max-width:150px!important;
+  }
+
+  #ultimate .vdsSquadFloatWrap{
+    min-height:176px!important;
+  }
+
+  #ultimate .vdsSquadPortrait{
+    width:132px!important;
+    height:160px!important;
+    border-radius:16px!important;
+  }
+
+  #ultimate .vdsSquadPortrait img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center top!important;
+    border-radius:15px!important;
+  }
+
+  /* Make the assigned-role rating the first thing you see. */
+  #ultimate .vdsSquadRatingBadge{
+    min-width:46px!important;
+    min-height:43px!important;
+    padding:5px 7px!important;
+    font-size:16px!important;
+    border-radius:9px!important;
+  }
+
+  #ultimate .vdsSquadRatingBadge small{
+    margin-top:3px!important;
+    font-size:5.3px!important;
+  }
+
+  /* Position and rotation labels should read comfortably on desktop. */
+  #ultimate .vdsSquadSlotMeta{
+    gap:5px!important;
+    margin-bottom:7px!important;
+  }
+
+  #ultimate .vdsSquadZone,
+  #ultimate .vdsSquadRole{
+    min-height:25px!important;
+    padding:5px 8px!important;
+    border-radius:999px!important;
+    font-size:7px!important;
+    line-height:1!important;
+  }
+
+  #ultimate .vdsSquadPlayerName{
+    max-width:148px!important;
+    margin:7px auto 0!important;
+    font-size:11px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* Compact role summary sits close to the card rather than floating below. */
+  #ultimate .vdsSquadOOP,
+  #ultimate .vdsSquadNaturalRole{
+    max-width:148px!important;
+    margin-top:5px!important;
+    min-height:21px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:4px 6px!important;
+    border-radius:7px!important;
+    font-size:6.1px!important;
+    line-height:1!important;
+    letter-spacing:.04em!important;
+  }
+
+  #ultimate .vdsSquadOOP{
+    border:1px solid rgba(230,163,58,.20)!important;
+    background:rgba(71,39,5,.27)!important;
+  }
+
+  #ultimate .vdsSquadNaturalRole{
+    border:1px solid rgba(255,255,255,.045)!important;
+    background:rgba(5,13,20,.28)!important;
+  }
+
+  #ultimate .vdsSquadSlotLabel{
+    margin-top:4px!important;
+    font-size:6.5px!important;
+    letter-spacing:.085em!important;
+  }
+
+  #ultimate .vdsSquadSlotHint{
+    display:none!important;
+  }
+
+  /* Strong, readable empty slots. */
+  #ultimate .vdsSquadSlot.is-empty,
+  #ultimate .vdsSquadSlot:has(.vdsSquadEmptySlot){
+    min-height:210px!important;
+  }
+
+  #ultimate .vdsSquadEmptySlot{
+    width:126px!important;
+    height:150px!important;
+    border:1.5px dashed rgba(144,91,229,.42)!important;
+    border-radius:15px!important;
+    background:
+      radial-gradient(circle at 50% 35%,rgba(112,61,195,.12),transparent 56%),
+      rgba(8,15,25,.22)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.015)!important;
+  }
+
+  #ultimate .vdsSquadEmptySlot::before{
+    font-size:24px!important;
+    color:#9f66f4!important;
+  }
+
+  /* If the historical empty slot uses raw '+' content, make it obvious too. */
+  #ultimate .vdsSquadSlot:has(.vdsSquadEmptySlot) .vdsSquadSlotLabel{
+    color:#8f70b8!important;
+    font-size:7px!important;
+  }
+
+  /* Tighter volleyball formation.
+     Top/front row pulled inward; back row slightly inward/up. */
+  #ultimate .vdsSquadSlot[data-view-index="0"]{
+    left:29%!important;
+    top:18%!important;
+  }
+  #ultimate .vdsSquadSlot[data-view-index="1"]{
+    left:50%!important;
+    top:13%!important;
+  }
+  #ultimate .vdsSquadSlot[data-view-index="2"]{
+    left:71%!important;
+    top:18%!important;
+  }
+  #ultimate .vdsSquadSlot[data-view-index="3"]{
+    left:27%!important;
+    top:61%!important;
+  }
+  #ultimate .vdsSquadSlot[data-view-index="4"]{
+    left:50%!important;
+    top:57%!important;
+  }
+  #ultimate .vdsSquadSlot[data-view-index="5"]{
+    left:73%!important;
+    top:61%!important;
+  }
+
+  /* Keep transformed centre point consistent. */
+  #ultimate .vdsSquadSlot[data-view-index]{
+    transform:translate(-50%,-50%)!important;
+  }
+
+  /* Better visible empty-court instruction on desktop. */
+  #ultimate .vdsUTLineupHelp{
+    min-height:38px!important;
+    padding:9px 14px!important;
+    font-size:9px!important;
+    line-height:1.35!important;
+  }
+
+  #ultimate .vdsSquadCourtHeader,
+  #ultimate .vdsSquadCourtFooter{
+    font-size:7px!important;
+    letter-spacing:.10em!important;
+  }
+
+  /* Add a touch more weight to the court title without adding clutter. */
+  #ultimate .vdsSquadCourtBrand{
+    transform:scale(1.08)!important;
+    transform-origin:center top!important;
+  }
+}
+
+/* Nothing in this patch intentionally changes phone/tablet sizing. */
+</style>
+
+
+<script id="ace-b21-16-version-marker">
+window.ACE_PROJECT_BUILD="B21.16";
+window.ACE_DESKTOP_SQUAD="LARGER_TIGHTER_SHORTER";
 window.ACE_DESKTOP_UT_PASS="LARGER_SQUAD_READABLE_DENSE";
-window.ACE_FOOTER_STATUS="ONLINE";
 window.ACE_QUICK_SELL="SERVER_ATOMIC_TIER_SCALED";
 window.ACE_OUT_OF_POSITION_UI="ASSIGNED_ROLE_OVR";
 window.ACE_SIM_MATCH_UI="CENTERED_AGREEMENT_MODAL";
