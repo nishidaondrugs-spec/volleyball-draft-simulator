@@ -6384,7 +6384,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B19.0 Automatic Online Matchmaking">
+<meta name="ace-build" content="B20.0 Global Reset + Welcome Gold Pack Fix">
 
 <style id="ace-b19-auto-matchmaking-style">
 .aceUTOnlineModeTag{
@@ -20498,25 +20498,42 @@ async function vdsClaimAndRevealWelcomeGoldPack(state){
     const rows=Array.isArray(data?.cards)?data.cards:[];
     if(rows.length!==3)throw new Error("WELCOME_PACK_CARDS_MISSING");
 
-    // Cards are already safely committed on Supabase before any reveal starts.
-    const cards=rows.map(row=>vdsCloudUTCardObject(row,{
-      rarity:row?.rarity,
-      rating:row?.rating
-    })).filter(Boolean);
+    // The RPC commits the three cards atomically. Sync the whole cloud
+    // collection FIRST, then reveal those exact saved card UUIDs.
+    vdsAccountProfile={
+      ...(vdsAccountProfile||{}),
+      coins:Number.isFinite(Number(data?.coin_balance))
+        ? Number(data.coin_balance)
+        : Number(vdsAccountProfile?.coins||0),
+      welcome_pack_claimed:true,
+      onboarding_complete:true
+    };
 
-    if(cards.length!==3){
-      await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
-      throw new Error("WELCOME_PACK_PLAYER_DATA_NOT_READY");
-    }
-
-    vdsAccountProfile={...(vdsAccountProfile||{}),welcome_pack_claimed:true,onboarding_complete:true};
-    await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+    const synced=await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+    if(!synced)throw new Error("WELCOME_PACK_CLOUD_SYNC_FAILED");
     vdsUpdateAccountUI();
+
+    const claimedIds=new Set(rows.map(row=>String(row?.id||"")).filter(Boolean));
+    const rowMeta=new Map(rows.map(row=>[String(row?.id||""),row]));
+    const cards=(ultimateTeamState.cards||[])
+      .filter(card=>claimedIds.has(String(card?.cloudCardId||"")))
+      .map(card=>{
+        const meta=rowMeta.get(String(card.cloudCardId))||{};
+        return {
+          ...card,
+          rarity:meta.rarity||card.rarity,
+          rating:Number.isFinite(Number(meta.rating))?Math.round(Number(meta.rating)):card.rating,
+          positionRating:Number.isFinite(Number(meta.rating))?Math.round(Number(meta.rating)):card.positionRating
+        };
+      });
+
+    if(cards.length!==3)throw new Error(`WELCOME_PACK_CLOUD_CARDS_${cards.length}_OF_3`);
 
     await vdsRevealWelcomeGoldCards(cards,state);
   }catch(error){
     console.error("Welcome Gold Pack failed",error);
-    if(status)status.textContent="Your Welcome Pack could not open yet. Tap to try again — you will never be charged.";
+    const code=String(error?.message||"WELCOME_PACK_ERROR").replace(/^.*?:\s*/,"").slice(0,80);
+    if(status)status.textContent=`Welcome Pack could not finish (${code}). Tap to retry — you will never be charged twice.`;
     if(btn){btn.disabled=false;btn.textContent="TRY AGAIN";}
     // Rebind after an error because the original listener used {once:true}.
     btn?.addEventListener("click",()=>vdsClaimAndRevealWelcomeGoldPack(state),{once:true});
