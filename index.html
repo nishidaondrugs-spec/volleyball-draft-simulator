@@ -37527,6 +37527,249 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- /ACE B21.22 — VISUAL COHESION / PURPLE COURT -->
 
+
+<!-- ACE B21.23 — PURPLE 3D COURTS -->
+<style id="ace-b21-23-purple-3d-courts">
+/* =========================================================
+   B21.23
+   - full Squad court finally made properly ACE purple
+   - Ultimate Team Home preview court removes incorrect vertical line
+   - stronger 3D perspective on both courts
+   ========================================================= */
+
+/* ---------- ULTIMATE TEAM HOME PREVIEW COURT ---------- */
+#ultimate .aceUTSquadPreview{
+  background:
+    radial-gradient(circle at 50% 24%,rgba(126,77,205,.14),transparent 36%),
+    linear-gradient(180deg,#0b0f18 0%,#070911 100%)!important;
+}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt{
+  left:6%!important;
+  right:6%!important;
+  top:24%!important;
+  bottom:-16%!important;
+  opacity:1!important;
+  clip-path:polygon(24% 0,76% 0,100% 100%,0 100%)!important;
+  background:
+    linear-gradient(180deg,
+      transparent 33.1%,
+      rgba(237,226,255,.21) 33.35%,
+      rgba(237,226,255,.21) 33.7%,
+      transparent 33.95%,
+      transparent 66.2%,
+      rgba(237,226,255,.21) 66.45%,
+      rgba(237,226,255,.21) 66.8%,
+      transparent 67.05%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.014) 0 1px,transparent 1px 45px),
+    linear-gradient(180deg,#72459b 0%,#55347d 48%,#362257 76%,#24193f 100%)!important;
+  box-shadow:
+    inset 0 0 0 2px rgba(241,233,255,.58),
+    inset 0 -16px 32px rgba(0,0,0,.18),
+    0 18px 42px rgba(0,0,0,.28)!important;
+}
+
+/* no vertical line down the middle; only the net / court depth lines */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:49.7%;
+  height:2px;
+  background:rgba(243,235,255,.82);
+  box-shadow:
+    0 -8px 0 rgba(243,235,255,.06),
+    0 8px 0 rgba(243,235,255,.06),
+    0 0 10px rgba(180,131,242,.12);
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt::after{
+  content:"";
+  position:absolute;
+  inset:9% 8% 8%;
+  clip-path:polygon(24% 0,76% 0,100% 100%,0 100%);
+  border:1px solid rgba(239,228,255,.18);
+}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{
+  box-shadow:
+    0 16px 28px rgba(0,0,0,.34),
+    0 10px 16px rgba(63,31,106,.17)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3){
+  transform:translate(-50%,-50%) scale(.93)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+  transform:translate(-50%,-50%) scale(1.03)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:hover{
+  transform:translate(-50%,-50%) scale(1.06)!important;
+}
+
+/* ---------- MAIN SQUAD COURT ---------- */
+#ultimate .vdsUTCourt.vdsUTCourtEnhanced{
+  border:1px solid rgba(179,136,241,.11)!important;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(134,84,216,.16),transparent 26%),
+    radial-gradient(circle at 50% 88%,rgba(72,36,118,.25),transparent 36%),
+    linear-gradient(180deg,#081320 0%,#070b12 70%,#05080d 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 28px 68px rgba(0,0,0,.30)!important;
+}
+
+/* remove the old flat orange feel with a stronger trapezoid / depth surface */
+#ultimate .vdsUTCourtEnhanced:before{
+  content:""!important;
+  position:absolute!important;
+  left:7%!important;
+  right:7%!important;
+  top:8%!important;
+  bottom:4%!important;
+  border-radius:22px!important;
+  transform:perspective(1260px) rotateX(66deg)!important;
+  transform-origin:center top!important;
+  background:
+    linear-gradient(180deg,
+      transparent 32.75%,
+      rgba(241,232,255,.24) 33%,
+      rgba(241,232,255,.24) 33.28%,
+      transparent 33.55%,
+      transparent 66.42%,
+      rgba(241,232,255,.24) 66.68%,
+      rgba(241,232,255,.24) 66.96%,
+      transparent 67.2%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 1px,transparent 1px 58px),
+    linear-gradient(180deg,#7d4aa5 0%,#603883 42%,#432764 72%,#2b1c47 100%)!important;
+  box-shadow:
+    inset 0 0 0 3px rgba(244,235,255,.70),
+    inset 0 -18px 40px rgba(0,0,0,.18),
+    0 36px 70px rgba(0,0,0,.28)!important;
+}
+
+/* net line and slight glow only */
+#ultimate .vdsUTCourtEnhanced:after{
+  content:""!important;
+  position:absolute!important;
+  left:10%!important;
+  right:10%!important;
+  top:51%!important;
+  height:2px!important;
+  background:rgba(246,239,255,.82)!important;
+  box-shadow:
+    0 -8px 0 rgba(246,239,255,.05),
+    0 8px 0 rgba(246,239,255,.05),
+    0 0 14px rgba(201,167,248,.15)!important;
+}
+
+/* hide the older default flat line element if present */
+#ultimate .vdsUTCourtEnhanced .vdsUTAttackLine{
+  display:none!important;
+}
+#ultimate .vdsUTCourtEnhanced .vdsUTNet{
+  height:2px!important;
+  top:50.6%!important;
+  background:rgba(246,239,255,.88)!important;
+  box-shadow:none!important;
+  opacity:.92!important;
+}
+#ultimate .vdsUTCourtEnhanced .vdsUTNet::after{
+  top:4px!important;
+  height:9px!important;
+  opacity:.16!important;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 1px,transparent 1px 11px)!important;
+}
+
+/* stronger depth: far side cards slightly smaller, near side cards slightly bigger */
+#ultimate .vdsSquadSlot{
+  width:136px!important;
+}
+#ultimate .vdsSquadSlot:nth-child(-n+3){
+  transform:translate(-50%,-50%) scale(.93)!important;
+}
+#ultimate .vdsSquadSlot:nth-child(n+4){
+  transform:translate(-50%,-50%) scale(1.04)!important;
+}
+
+#ultimate .vdsSquadSlot:nth-child(1){left:30%!important;top:29%!important}
+#ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:24%!important}
+#ultimate .vdsSquadSlot:nth-child(3){left:70%!important;top:29%!important}
+#ultimate .vdsSquadSlot:nth-child(4){left:28%!important;top:69%!important}
+#ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:66%!important}
+#ultimate .vdsSquadSlot:nth-child(6){left:72%!important;top:69%!important}
+
+#ultimate .vdsSquadMiniCard{
+  border-color:rgba(211,181,249,.22)!important;
+  background:#111421!important;
+  box-shadow:
+    0 22px 36px rgba(0,0,0,.34),
+    0 12px 18px rgba(73,38,118,.18)!important;
+}
+#ultimate .vdsSquadMiniCard:hover{
+  transform:translateY(-4px) scale(1.028)!important;
+}
+#ultimate .vdsSquadMiniCard img,
+#ultimate .vdsSquadPortrait img{
+  object-position:center top!important;
+}
+
+#ultimate .vdsSquadSpot{
+  bottom:29px!important;
+  width:104px!important;
+  height:24px!important;
+  background:
+    radial-gradient(circle,rgba(176,123,242,.27),rgba(112,67,172,.11) 44%,transparent 72%)!important;
+  filter:blur(.1px)!important;
+  box-shadow:
+    0 14px 24px rgba(0,0,0,.22),
+    0 0 18px rgba(131,77,210,.09)!important;
+}
+
+#ultimate .vdsUTCourtAura{
+  width:470px!important;
+  height:92px!important;
+  bottom:16px!important;
+  background:radial-gradient(circle,rgba(144,87,225,.28),rgba(103,61,166,.10) 48%,transparent 74%)!important;
+  filter:blur(24px)!important;
+}
+
+#ultimate .vdsUTOpponentHint{
+  color:rgba(194,174,221,.37)!important;
+}
+#ultimate .vdsUTCourtLabel{
+  color:rgba(206,185,230,.42)!important;
+}
+
+/* responsive */
+@media(max-width:760px){
+  #ultimate .vdsUTCourtEnhanced{
+    height:455px!important;
+  }
+  #ultimate .vdsSquadSlot{
+    width:110px!important;
+  }
+  #ultimate .vdsSquadMiniCard{
+    width:75px!important;
+    height:108px!important;
+    min-height:108px!important;
+  }
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3),
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+    transform:translate(-50%,-50%) scale(1)!important;
+  }
+}
+</style>
+
+<script id="ace-b21-23-build-tag">
+(function(){
+  try{
+    window.ACE_PROJECT_BUILD="B21.23";
+    window.ACE_PURPLE_3D_COURTS=true;
+  }catch(e){}
+})();
+</script>
+<!-- /ACE B21.23 — PURPLE 3D COURTS -->
+
 </body>
 </html>
 
