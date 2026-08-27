@@ -22464,6 +22464,164 @@ function aceUltimateMasterPlayer(card){
   return players.find(p=>String(p.name||"")===String(card.playerName||""))||null;
 }
 
+function aceNormalizeVolleyballRole(value){
+  const role=String(value||"OH").toUpperCase();
+  if(role==="OH1"||role==="OH2")return "OH";
+  return ["OH","OP","M","S","L"].includes(role)?role:"OH";
+}
+
+function aceUTCardRoleRating(card,role){
+  if(!card)return 0;
+  const target=aceNormalizeVolleyballRole(role);
+  const player=aceUltimateMasterPlayer(card);
+  if(!player)return Math.round(Number(card.rating||card.positionRating||0));
+  const pr=positionRatings(player);
+  return Math.round(Number(pr?.[target]??card.rating??mainPositionRating(player)??0));
+}
+
+function aceUTCardNaturalRole(card){
+  return aceNormalizeVolleyballRole(card?.position||aceUltimateMasterPlayer(card)?.position||"OH");
+}
+
+function aceUTCardIsOutOfPosition(card,role){
+  return !!card && aceUTCardNaturalRole(card)!==aceNormalizeVolleyballRole(role);
+}
+
+function aceUTRoleForDataIndex(dataIndex){
+  const slot=UT_LINEUP_SLOTS.find(s=>Number(s.dataIndex)===Number(dataIndex));
+  return aceNormalizeVolleyballRole(slot?.role||"OH");
+}
+
+function aceUTQuickSellValue(rating){
+  const r=Math.max(0,Math.min(100,Math.round(Number(rating)||0)));
+  if(r>=100)return 5000;
+  if(r===99)return 3500;
+  if(r===98)return 3000;
+  if(r===97)return 2600;
+  if(r===96)return 2200;
+  if(r===95)return 1600;
+  if(r===94)return 1450;
+  if(r===93)return 1300;
+  if(r===92)return 1200;
+  if(r===91)return 1100;
+  if(r===90)return 1000;
+  if(r>=85)return Math.round(550+(r-85)*(250/4));
+  if(r>=75)return Math.round(300+(r-75)*(150/9));
+  if(r>=60)return Math.round(150+(r-60)*(100/14));
+  return Math.max(80,Math.min(120,Math.round(80+(Math.max(r,20)-20)*(40/39))));
+}
+
+function aceUTSellableCloudCopy(groupCard){
+  if(!groupCard)return null;
+  const squad=new Set((ultimateTeamState.lineupSlots||[]).filter(Boolean).map(String));
+  const playerId=Number(groupCard.playerId||0);
+  const rarity=String(groupCard.rarity||"");
+  const candidates=(ultimateTeamState.cards||[])
+    .filter(card=>
+      !!card?.cloudCardId
+      && String(card.id||"").startsWith("ut_")
+      && Number(card.playerId||0)===playerId
+      && String(card.rarity||"")===rarity
+    )
+    .sort((a,b)=>(Date.parse(b.pulledAt||"")||0)-(Date.parse(a.pulledAt||"")||0));
+  return candidates.find(card=>!squad.has(String(utCardUid(card))))||null;
+}
+
+function aceUTQuickSellToast(message,type="ok"){
+  let toast=document.getElementById("aceUTQuickSellToast");
+  if(!toast){
+    toast=document.createElement("div");
+    toast.id="aceUTQuickSellToast";
+    toast.className="aceUTQuickSellToast";
+    document.body.appendChild(toast);
+  }
+  toast.className=`aceUTQuickSellToast ${type}`;
+  toast.textContent=message;
+  toast.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer=setTimeout(()=>toast.classList.remove("show"),2700);
+}
+
+async function aceUTQuickSellGroupedCard(playerId,rarity){
+  if(!vdsHasPermanentAccount?.()){
+    aceUTQuickSellToast("Sign in with a permanent account to sell cards.","error");
+    return;
+  }
+
+  const group=(ultimateTeamState.cards||[]).find(card=>
+    Number(card.playerId||0)===Number(playerId||0)
+    && String(card.rarity||"")===String(rarity||"")
+  );
+  if(!group)return;
+
+  const sellCard=aceUTSellableCloudCopy(group);
+  if(!sellCard){
+    const anyCloud=(ultimateTeamState.cards||[]).some(card=>
+      Number(card.playerId||0)===Number(playerId||0)
+      && String(card.rarity||"")===String(rarity||"")
+      && !!card.cloudCardId
+    );
+    aceUTQuickSellToast(
+      anyCloud
+        ?"That copy is in your Starting Six. Remove it from the squad before selling."
+        :"Starter Club cards cannot be quick sold.",
+      "error"
+    );
+    return;
+  }
+
+  const rating=Math.round(Number(sellCard.rating||sellCard.positionRating||0));
+  const value=aceUTQuickSellValue(rating);
+  const tier=String(UT_RARITY[sellCard.rarity]?.label||sellCard.rarity||"CARD").toUpperCase();
+  const elite=rating>=90;
+
+  const prompt=elite
+    ? `QUICK SELL ${tier}?\n\n${sellCard.playerName} · ${rating} OVR\nYou will receive ${value.toLocaleString()} ACE Coins.\n\nThis ${rating>=96?"ACE":"Elite"} card will be permanently removed. This cannot be undone.`
+    : `Quick sell ${sellCard.playerName} · ${rating} OVR for ${value.toLocaleString()} ACE Coins?\n\nThis cannot be undone.`;
+
+  if(!window.confirm(prompt))return;
+
+  const client=ensureMultiplayerClient?.();
+  if(!client){
+    aceUTQuickSellToast("Project ACE connection unavailable.","error");
+    return;
+  }
+
+  try{
+    aceUTQuickSellToast(`Selling ${sellCard.playerName}…`,"working");
+    const {data,error}=await client.rpc("vds_quick_sell_ut_card",{p_card_id:sellCard.cloudCardId});
+    if(error)throw error;
+
+    const soldUid=String(utCardUid(sellCard));
+    ultimateTeamState.cards=(ultimateTeamState.cards||[]).filter(card=>String(utCardUid(card))!==soldUid);
+
+    const newCoins=Number(data?.coin_balance);
+    if(Number.isFinite(newCoins)){
+      ultimateTeamState.coins=newCoins;
+      vdsAccountProfile={...(vdsAccountProfile||{}),coins:newCoins};
+    }
+
+    vdsCacheUltimateTeam();
+    vdsUpdateAccountUI?.();
+    renderUltimateTeam();
+    vdsScheduleWalletVerification?.(180,{rerender:true});
+
+    aceUTQuickSellToast(
+      `+${Number(data?.sell_value||value).toLocaleString()} ACE Coins · ${sellCard.playerName} sold`,
+      "ok"
+    );
+  }catch(error){
+    console.error("ACE quick sell failed",error);
+    const msg=String(error?.message||error||"");
+    if(msg.includes("CARD_IN_ACTIVE_SQUAD")){
+      aceUTQuickSellToast("Remove this card from your Starting Six before selling it.","error");
+    }else{
+      aceUTQuickSellToast(msg||"Quick sell failed.","error");
+    }
+  }
+}
+
+
 function aceAssignFreshCardToSquad(card){
   if(!card)return false;
   utEnsureLineup();
@@ -22677,26 +22835,51 @@ function renderUltimateSquadVisual(){
         <div class="vdsSquadSlotHint">${slot.hint}</div>
       </div>`;
     }
-    return `<div class="vdsSquadSlot" data-slot-index="${slot.dataIndex}" data-view-index="${visualIdx}">
+    const naturalRole=aceUTCardNaturalRole(card);
+    const assignedRole=aceNormalizeVolleyballRole(slot.role);
+    const assignedRating=aceUTCardRoleRating(card,assignedRole);
+    const naturalRating=Math.round(Number(card.rating||card.positionRating||0));
+    const oop=naturalRole!==assignedRole;
+
+    return `<div class="vdsSquadSlot ${oop?"is-out-of-position":""}" data-slot-index="${slot.dataIndex}" data-view-index="${visualIdx}">
       <div class="vdsSquadSlotMeta"><span class="vdsSquadZone">${slot.zone}</span><span class="vdsSquadRole">${slot.role}</span></div>
       <div class="vdsSquadRallyMarker"></div>
       <div class="vdsSquadFloatWrap">
         <div class="vdsSquadPortrait" draggable="true" data-card-uid="${esc(utCardUid(card))}">
           <button class="vdsSquadMiniRemove" type="button" data-remove-slot="${slot.dataIndex}" aria-label="Remove from slot">×</button>
-          <div class="vdsSquadRatingBadge">${card.rating}</div>
+          <div class="vdsSquadRatingBadge ${oop?"oop":""}">
+            ${assignedRating}<small>${assignedRole} OVR</small>
+          </div>
           ${card.photo?`<img src="${card.photo}" alt="${esc(card.playerName)}">`:`<div class="vdsSquadMiniPhoto">👤</div>`}
         </div>
       </div>
       <div class="vdsSquadPlayerName">${esc(card.playerName)}</div>
+      ${oop
+        ? `<div class="vdsSquadOOP">OUT OF POSITION · ${naturalRating} ${naturalRole} → <b>${assignedRating} ${assignedRole}</b></div>`
+        : `<div class="vdsSquadNaturalRole">${naturalRole} · ${assignedRating} OVR</div>`}
       <div class="vdsSquadSlotLabel">${slot.label}</div>
       <div class="vdsSquadSlotHint">${slot.hint}</div>
     </div>`;
   }).join("");
 
+  const slotRatings=UT_LINEUP_SLOTS.map(slot=>{
+    const card=utCardByUid(dataSlots[slot.dataIndex]);
+    return card?aceUTCardRoleRating(card,slot.role):null;
+  }).filter(v=>Number.isFinite(Number(v)));
+
+  const outOfPositionCount=UT_LINEUP_SLOTS.reduce((count,slot)=>{
+    const card=utCardByUid(dataSlots[slot.dataIndex]);
+    return count+(card&&aceUTCardIsOutOfPosition(card,slot.role)?1:0);
+  },0);
+
   const avgEl=document.getElementById("utSquadRating");
   if(avgEl){
-    const avg=filled.length?Math.round(filled.reduce((sum,card)=>sum+Number(card.rating??card.positionRating??0),0)/filled.length):null;
+    const avg=slotRatings.length?Math.round(slotRatings.reduce((sum,r)=>sum+Number(r||0),0)/slotRatings.length):null;
     avgEl.textContent=avg?`TEAM OVR ${avg}`:"TEAM OVR —";
+    avgEl.classList.toggle("has-oop",outOfPositionCount>0);
+    avgEl.title=outOfPositionCount
+      ? `${outOfPositionCount} starter${outOfPositionCount===1?" is":"s are"} playing out of natural position. Team OVR uses their assigned-role ratings.`
+      : "Team OVR uses each starter's rating in the role they are actually playing.";
   }
   const serveBtn=document.getElementById('utServeModeBtn');
   if(serveBtn)serveBtn.classList.toggle('active',(ultimateTeamState.lineupMode||'serving')==='serving');
@@ -22725,6 +22908,7 @@ function renderUltimateSquadVisual(){
   if(status){
     if(!filled.length)status.textContent='Select a bench card and place it on court.';
     else if(filled.length<6)status.textContent=`${filled.length}/6/6 starters · complete your starting six.`;
+    else if(outOfPositionCount>0)status.textContent=`Starting six ready · ${outOfPositionCount} out of position · Team OVR uses actual assigned-role ratings.`;
     else status.textContent=(ultimateTeamState.lineupMode==='serving')
       ? 'Starting six ready · serving rotation active.'
       : 'Starting six ready · custom lineup active.';
@@ -22787,6 +22971,9 @@ function aceClubCardMarkup(entry){
   const uid=utCardUid(card);
   const fresh=aceIsRecentClubCard(card);
   const inSquad=utFindSlotOfCard(uid)>=0;
+  const sellable=aceUTSellableCloudCopy(card);
+  const sellRating=Math.round(Number(sellable?.rating||card.rating||0));
+  const sellValue=aceUTQuickSellValue(sellRating);
   const cardMarkup=player?vdsMasterPlayerCardHTML(player,{
     role:card.position||player.position||"POS",
     rating:card.rating,
@@ -22807,6 +22994,15 @@ function aceClubCardMarkup(entry){
     <div class="aceClubCardActions">
       <button type="button" data-club-squad="${esc(uid)}">${inSquad?'SELECT IN SQUAD':'ADD TO SQUAD'}</button>
       <button type="button" data-club-view="${esc(card.playerName)}">VIEW CARD</button>
+      <button
+        type="button"
+        class="aceClubQuickSell ${sellRating>=90?"high-tier":""}"
+        data-club-sell-player-id="${Number(card.playerId||0)}"
+        data-club-sell-rarity="${esc(card.rarity||"")}"
+        ${sellable?"":'disabled'}
+        title="${sellable?`Quick sell for ${sellValue.toLocaleString()} ACE Coins`:(inSquad?"Remove a copy from the Starting Six before selling":"Starter cards cannot be sold")}">
+        ${sellable?`SELL · ${sellValue.toLocaleString()} ◉`:(inSquad?"IN SIX":"NO SELL")}
+      </button>
     </div>
   </article>`;
 }
@@ -22816,6 +23012,17 @@ function aceBindClubGrid(){
   if(!grid||grid.dataset.aceDelegated==="1")return;
   grid.dataset.aceDelegated="1";
   grid.addEventListener("click",event=>{
+    const sellBtn=event.target.closest?.("[data-club-sell-player-id]");
+    if(sellBtn){
+      event.stopPropagation();
+      if(sellBtn.disabled)return;
+      aceUTQuickSellGroupedCard(
+        Number(sellBtn.dataset.clubSellPlayerId||0),
+        sellBtn.dataset.clubSellRarity||""
+      );
+      return;
+    }
+
     const viewBtn=event.target.closest?.("[data-club-view]");
     if(viewBtn){
       event.stopPropagation();
@@ -25879,7 +26086,13 @@ function vdsRenderUltimateHubHome(){
         <div class="vdsUTHubSquadPreview aceUTSquadPreview">
           <div class="vdsUTHubPreviewCourt"></div>
           <div class="vdsUTHubPreviewPlayers">
-            ${filled.length?lineup.map(card=>card?`<div class="vdsUTHubPreviewPlayer">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${card.rating}</b></div>`:'').join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
+            ${filled.length?lineup.map((card,dataIndex)=>{
+              if(!card)return "";
+              const role=aceUTRoleForDataIndex(dataIndex);
+              const actual=aceUTCardRoleRating(card,role);
+              const oop=aceUTCardIsOutOfPosition(card,role);
+              return `<div class="vdsUTHubPreviewPlayer ${oop?"oop":""}" title="${oop?`${card.rating} ${aceUTCardNaturalRole(card)} → ${actual} ${role}`:`${actual} ${role}`}">${card.photo?`<img src="${card.photo}" alt="">`:""}<b>${actual}</b>${oop?'<i>!</i>':""}</div>`;
+            }).join(""):'<div class="vdsUTHubPreviewEmpty">BUILD YOUR STARTING SIX</div>'}
           </div>
         </div>
 
@@ -26765,8 +26978,12 @@ function aceUTLeagueChem(cards){
   return valid.reduce((sum,card)=>sum+Number(vdsUTPlayerChemScore(card,valid)?.score||0),0);
 }
 function aceUTLeagueOvr(cards){
-  const valid=(cards||[]).filter(Boolean);
-  return valid.length?Math.round(valid.reduce((s,c)=>s+Number(c.rating||0),0)/valid.length):0;
+  const list=Array.isArray(cards)?cards:[];
+  const ratings=ACE_UT_MATCH_ROLE_ORDER.map(slot=>{
+    const card=list[slot.userDataIndex];
+    return card?aceUTCardRoleRating(card,slot.role):null;
+  }).filter(v=>Number.isFinite(Number(v)));
+  return ratings.length?Math.round(ratings.reduce((s,r)=>s+Number(r||0),0)/ratings.length):0;
 }
 
 function aceUTLeagueClubName(){
@@ -26778,13 +26995,18 @@ function aceUTLeagueClubName(){
 
 function aceUTLeagueMiniCard(card,player,roleLabel=""){
   if(!player)return "";
-  const rating=Math.round(Number(card?.rating||mainPositionRating(player)||0));
+  const assigned=aceNormalizeVolleyballRole(roleLabel||player.position||"OH");
+  const natural=aceNormalizeVolleyballRole(player.position||card?.position||"OH");
+  const rating=roleLabel?aceUTRoleRating(player,assigned):Math.round(Number(card?.rating||mainPositionRating(player)||0));
+  const naturalRating=Math.round(Number(card?.rating||mainPositionRating(player)||0));
+  const oop=natural!==assigned;
   const tier=String(card?.rarity||cardTier(player)||"bronze");
-  return `<div class="aceUTLeagueCard ${tier}">
-    <div class="aceUTLeagueRating">${rating}<small>${esc(roleLabel||player.position||"-")}</small></div>
+  return `<div class="aceUTLeagueCard ${tier} ${oop?"oop":""}">
+    <div class="aceUTLeagueRating">${rating}<small>${esc(assigned)} OVR</small></div>
     ${player.photo?`<img src="${esc(player.photo)}" alt="${esc(player.name)}" loading="lazy" decoding="async">`:`<div class="aceUTLeagueFallback">♠</div>`}
     <div class="aceUTLeagueShade"></div>
     <div class="aceUTLeagueName">${esc(player.name)}</div>
+    ${oop?`<div class="aceUTLeagueOOP">${naturalRating} ${natural} → ${rating} ${assigned}</div>`:""}
   </div>`;
 }
 
@@ -33456,15 +33678,108 @@ body.aceSimModalOpen .aceLiveCommandBar{
 </style>
 
 
-<script id="ace-b21-13-version-marker">
-window.ACE_PROJECT_BUILD="B21.13";
+
+<style id="ace-b21-14-quick-sell-oop">
+.vdsSquadRatingBadge{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  min-width:40px!important;
+  min-height:38px!important;
+  padding:4px 6px!important;
+  border-radius:8px!important;
+}
+.vdsSquadRatingBadge small{
+  display:block!important;
+  margin-top:2px!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:4.8px!important;
+  font-weight:1000!important;
+  letter-spacing:.08em!important;
+  white-space:nowrap!important;
+}
+.vdsSquadRatingBadge.oop{
+  color:#ffd175!important;
+  border:1px solid rgba(255,185,77,.42)!important;
+  background:rgba(70,35,4,.86)!important;
+  box-shadow:0 0 15px rgba(228,151,43,.18)!important;
+}
+.vdsSquadSlot.is-out-of-position .vdsSquadPortrait{
+  border-color:rgba(237,165,62,.55)!important;
+  box-shadow:0 0 0 2px rgba(229,145,36,.11),0 14px 25px rgba(0,0,0,.32)!important;
+}
+.vdsSquadOOP,.vdsSquadNaturalRole{
+  position:relative;z-index:5;width:100%;max-width:118px;margin:3px auto 0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;
+  font-size:5px;font-weight:1000;letter-spacing:.045em;
+}
+.vdsSquadOOP{color:#eeb35e}
+.vdsSquadOOP b{color:#ffd986}
+.vdsSquadNaturalRole{color:#71869a}
+#utSquadRating.has-oop{
+  color:#eeb85f!important;
+  border-color:rgba(233,169,68,.27)!important;
+}
+
+.aceClubCardActions{grid-template-columns:1fr 1fr!important}
+.aceClubCardActions .aceClubQuickSell{
+  grid-column:1/-1!important;min-height:38px!important;color:#d9b96c!important;
+  border-color:rgba(210,171,72,.14)!important;
+  background:linear-gradient(180deg,rgba(68,52,10,.14),rgba(12,11,8,.88))!important;
+  font-size:7px!important;
+}
+.aceClubCardActions .aceClubQuickSell:hover:not(:disabled){
+  color:#ffe18a!important;border-color:rgba(230,189,78,.30)!important;
+}
+.aceClubCardActions .aceClubQuickSell.high-tier{
+  color:#f6cd72!important;border-color:rgba(226,171,67,.28)!important;
+}
+.aceClubCardActions .aceClubQuickSell:disabled{opacity:.40!important;cursor:not-allowed!important}
+
+.aceUTQuickSellToast{
+  position:fixed;z-index:39000;left:50%;bottom:88px;
+  max-width:min(420px,calc(100vw - 24px));transform:translate(-50%,18px);opacity:0;
+  pointer-events:none;padding:10px 14px;border:1px solid rgba(94,205,146,.24);
+  border-radius:12px;background:rgba(5,18,14,.96);color:#9be6bc;
+  box-shadow:0 16px 38px rgba(0,0,0,.38);font-size:10px;font-weight:900;text-align:center;
+  transition:.2s ease;
+}
+.aceUTQuickSellToast.show{opacity:1;transform:translate(-50%,0)}
+.aceUTQuickSellToast.error{border-color:rgba(246,104,116,.28);background:rgba(30,8,11,.96);color:#ffabb3}
+.aceUTQuickSellToast.working{border-color:rgba(104,180,235,.25);background:rgba(5,14,25,.96);color:#9bd5ff}
+
+.aceUTLeagueCard.oop{border-color:rgba(232,166,63,.42)!important}
+.aceUTLeagueOOP{
+  position:absolute;z-index:7;left:5px;right:5px;bottom:4px;padding:3px 4px;
+  border-radius:5px;background:rgba(36,20,4,.88);color:#f2be69;
+  font-size:5px;font-weight:1000;text-align:center;letter-spacing:.04em;
+}
+.vdsUTHubPreviewPlayer.oop{
+  outline:1px solid rgba(235,168,65,.50);
+  box-shadow:0 0 12px rgba(233,154,41,.14);
+}
+.vdsUTHubPreviewPlayer.oop i{
+  position:absolute;right:-3px;top:-4px;width:13px;height:13px;display:grid;place-items:center;
+  border-radius:50%;background:#b46f18;color:#fff1c5;font-style:normal;font-size:8px;font-weight:1000;
+}
+
+@media(max-width:760px){
+  .vdsSquadOOP,.vdsSquadNaturalRole{max-width:92px!important;font-size:4.7px!important}
+  .aceClubCardActions .aceClubQuickSell{min-height:42px!important;font-size:8px!important}
+  .aceUTQuickSellToast{bottom:96px;font-size:9px}
+}
+</style>
+
+
+<script id="ace-b21-14-version-marker">
+window.ACE_PROJECT_BUILD="B21.14";
+window.ACE_QUICK_SELL="SERVER_ATOMIC_TIER_SCALED";
+window.ACE_POSITION_RATING_BACKEND="SPINNER_SYNCED_ALL_ROLES";
+window.ACE_OUT_OF_POSITION_UI="ASSIGNED_ROLE_OVR";
 window.ACE_SIM_MATCH_UI="CENTERED_AGREEMENT_MODAL";
-window.ACE_GIFT_DROP_2="PLUS_5_GOLD_PACKS_CURRENT_PERMANENT_USERS_2026_08_27";
 window.ACE_UT_HEADER_MODEL="SINGLE_PROFILE_SINGLE_WALLET";
-window.ACE_WALLET_SYNC="SERVER_VERIFIED_ON_REWARD_FOCUS_UT_ENTRY";
 window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
-window.ACE_FREE_GOLD_PACKS="LIVE_BACKEND_CREDITS";
-window.ACE_POSITION_OVR_MODEL="SPINNER_SYNC_2026_08_27";
 window.ACE_PACK_CARD_RENDERER="CANONICAL_MASTER_CARD";
 </script>
 
