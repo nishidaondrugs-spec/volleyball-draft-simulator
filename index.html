@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="ace-build" content="B12.0 Cloud Ultimate Team">
+  <meta name="ace-build-prev" content="B12.0 Cloud Ultimate Team">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>THE ACE PROJECT</title>
@@ -4813,9 +4813,9 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-  <meta name="ace-build" content="B12.1 Pack Return Flow">
-  <meta name="ace-build" content="B12.2 Cloud Rating Fix">
-  <meta name="ace-build" content="B12.3 Ultimate Team Nav Bar">
+  <meta name="ace-build-prev" content="B12.1 Pack Return Flow">
+  <meta name="ace-build-prev" content="B12.2 Cloud Rating Fix">
+  <meta name="ace-build-prev" content="B12.3 Ultimate Team Nav Bar">
 
 <style id="ace-b12-3-ut-navbar">
 /* =========================================================
@@ -4963,8 +4963,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 @media(max-width:430px){.aceTacticsFields{grid-template-columns:1fr;}}
 </style>
 
-<meta name="ace-build" content="B13.0 Manager Tactics + Ace Balance">
-<meta name="ace-build" content="B13.1 Match Controls + Fatigue + Subs">
+<meta name="ace-build-prev" content="B13.0 Manager Tactics + Ace Balance">
+<meta name="ace-build-prev" content="B13.1 Match Controls + Fatigue + Subs">
 
 <style id="ace-b13-1-match-control-ux">
 /* =========================================================
@@ -5244,7 +5244,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B13.2 Queued Subs + Tactics Clarity">
+<meta name="ace-build-prev" content="B13.2 Queued Subs + Tactics Clarity">
 
 <style id="ace-b13-2-queued-subs-tactics-style">
 /* B13.2 — queued substitutions + readable manager tactics */
@@ -5344,7 +5344,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B14.0 Manager 2.0 Volleyball Tactics">
+<meta name="ace-build-prev" content="B14.0 Manager 2.0 Volleyball Tactics">
 
 <style id="ace-b14-manager2-style">
 /* =========================================================
@@ -5667,10 +5667,10 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B14.2 Tactics Fix + Clean Manager UI">
-<meta name="ace-build" content="B14.3 Tactics Runtime Fix">
-<meta name="ace-build" content="B14.4 Ran Card Art Tuning">
-<meta name="ace-build" content="B15.0 Pre-Match Coaching Room">
+<meta name="ace-build-prev" content="B14.2 Tactics Fix + Clean Manager UI">
+<meta name="ace-build-prev" content="B14.3 Tactics Runtime Fix">
+<meta name="ace-build-prev" content="B14.4 Ran Card Art Tuning">
+<meta name="ace-build-prev" content="B15.0 Pre-Match Coaching Room">
 
 <style id="ace-b15-prematch-coaching-style">
 /* =========================================================
@@ -6074,7 +6074,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B15.1 Pre-Match Coaching Visible Fix">
+<meta name="ace-build-prev" content="B15.1 Pre-Match Coaching Visible Fix">
 
 <style id="ace-b15-1-visible-ready-fix">
 #lineup .lineupConfirmCard{
@@ -6111,7 +6111,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B16.0 Private Tactics + 2/2 Ready + Mutual Sim Sync">
+<meta name="ace-build-prev" content="B16.0 Private Tactics + 2/2 Ready + Mutual Sim Sync">
 
 <style id="ace-b16-private-multiplayer-style">
 /* B16.0 — private tactics + 2/2 ready + mutual Sim Match */
@@ -6206,7 +6206,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B17.0 Starter Club v2">
+<meta name="ace-build-prev" content="B17.0 Starter Club v2">
 
 <style id="ace-b17-starter-v2-style">
 .vdsCaptainCard.gold{
@@ -6234,7 +6234,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B18.0 Welcome Gold Pack">
+<meta name="ace-build-prev" content="B18.0 Welcome Gold Pack">
 
 <style id="ace-b18-welcome-pack-style">
 .vdsWelcomePackOffer,.vdsWelcomeReveal{
@@ -6613,7 +6613,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
-<meta name="ace-build" content="B20.4 Postmatch + UT Nav Fix">
+<meta name="ace-build-prev" content="B20.4 Postmatch + UT Nav Fix">
 
 <style id="ace-b20-4-postmatch-nav-style">
 /* B20.4: online UT post-match actions */
@@ -6637,6 +6637,8 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
+<meta name="ace-build-prev" content="B20.5 Deep Audit Hardened">
+<meta name="ace-build" content="B20.6 Guest Commentary + Navigation Guard Fix">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -13522,6 +13524,7 @@ async function requestSubstitution(teamNo){
 function updateLiveUI(){
   if(!liveState) return;
   const s=liveState;
+  renderLiveCommentary();
   document.getElementById("liveName1").textContent=s.name1;
   document.getElementById("liveName2").textContent=s.name2;
   document.getElementById("livePts1").textContent=s.p1;
@@ -13569,11 +13572,22 @@ function updateLiveUI(){
   document.getElementById("nextSetBtn").classList.toggle("hidden",!s.setFinished || s.matchFinished);
 }
 
+function renderLiveCommentary(){
+  const box=document.getElementById("commentaryBox");
+  if(!box||!liveState)return;
+  const feed=Array.isArray(liveState.commentary)?liveState.commentary:[];
+  box.innerHTML=feed.length
+    ? feed.map(x=>`<div class="commentaryLine">${x}</div>`).join("")
+    : '<div class="aceNarrationEmpty">Start the next rally and live commentary will appear here.</div>';
+  box.scrollTop=0;
+}
+
 function addCommentary(text){
   if(!liveState) return;
+  liveState.commentary=Array.isArray(liveState.commentary)?liveState.commentary:[];
   liveState.commentary.unshift(text);
   liveState.commentary=liveState.commentary.slice(0,6);
-  document.getElementById("commentaryBox").innerHTML=liveState.commentary.map(x=>`<div class="commentaryLine">${x}</div>`).join("");
+  renderLiveCommentary();
 }
 
 
@@ -13621,6 +13635,7 @@ function applyRemoteMatchSnapshot(snapshot){
     document.getElementById("resultsCard").classList.toggle("hidden",!liveState.matchFinished);
     renderLiveCourtPlayers();
     updateLiveUI();
+    renderLiveCommentary();
     try{window.aceStartSimToEndPolling?.();}catch(e){}
 
     if(liveState.matchFinished){
@@ -14630,6 +14645,9 @@ function finishLiveMatch(options={}){
   const s=liveState;
   if(!s)return;
 
+  try{window.aceStopPrivateLiveTacticsPolling?.();}catch(e){}
+  try{window.aceStopSimToEndPolling?.();}catch(e){}
+
   const resultCard=document.getElementById("resultsCard");
   resultCard.classList.remove("hidden");
   resultCard.classList.add("vdsPostMatchResults");
@@ -14880,7 +14898,9 @@ async function refreshPostMatchState(){
     if(error)throw error;
     return applyPostMatchServerState(postMatchServerRow(data));
   }catch(error){
-    console.warn("VDS post-match state refresh failed",error);
+    const msg=String(error?.message||error||"");
+    if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg))stopPostMatchPolling();
+    else console.warn("VDS post-match state refresh failed",error);
     return false;
   }finally{
     postMatchRefreshInFlight=false;
@@ -14895,7 +14915,7 @@ function startPostMatchPolling(){
     if(liveState?.matchFinished && !postMatchActionInFlight){
       refreshPostMatchState();
     }
-  },700);
+  },1000);
 }
 
 async function submitPostMatchChoice(choice){
@@ -15000,6 +15020,12 @@ async function executePostMatchAgreement(choice,roundNo){
 
       const started=beginLiveMatch();
       if(started===false)throw new Error("REMATCH_START_FAILED");
+
+      try{await mpClient.rpc("vds_reset_sim_to_end_state",{p_code:mpRoom});}catch(e){
+        console.warn("Rematch Sim state reset",e);
+      }
+      try{window.aceStartPrivateLiveTacticsPolling?.();}catch(e){}
+      try{window.aceStartSimToEndPolling?.();}catch(e){}
 
       goPage("sim");
       await mpPersistRoomState("match_start");
@@ -15161,7 +15187,9 @@ async function refreshLineupFromServer(){
     if(error)throw error;
     return applyLineupServerState(lineupServerRow(data));
   }catch(error){
-    console.warn("VDS lineup state refresh failed",error);
+    const msg=String(error?.message||error||"");
+    if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg))stopLineupServerPolling();
+    else console.warn("VDS lineup state refresh failed",error);
     return false;
   }
 }
@@ -15175,7 +15203,7 @@ function startLineupServerPolling(){
     if(active==="lineup" && !lineupAutoStarting){
       refreshLineupFromServer();
     }
-  },650);
+  },1000);
 }
 
 async function submitLineupToServer(teamNo){
@@ -16005,6 +16033,7 @@ let mpAuthorityHeartbeatTimer=null;
 let mpAuthorityRefreshInFlight=false;
 let mpAuthorityClaimInFlight=false;
 let mpAuthorityLastSelf=false;
+let mpLeavingRoom=false;
 
 function mpIsConnected(){ return !!mpChannel && !!mpRoom; }
 function mpIsHost(){ return mpRole==="host"; }
@@ -16015,7 +16044,7 @@ function mpIsSpectator(){ return mpRole==="spectator"; }
    Realtime transport is reconnecting. Never use mpIsConnected() as the test for
    authoritative draft/lineup ownership or readiness. */
 function mpHasPersistentRoom(){
-  return !!mpRoomBacked && !!mpRoom && !!mpRoomId && !!mpClient && !!mpRole;
+  return !mpLeavingRoom && !!mpRoomBacked && !!mpRoom && !!mpRoomId && !!mpClient && !!mpRole;
 }
 
 function mpInMultiplayerRoom(){
@@ -16265,7 +16294,12 @@ async function mpRefreshAuthority({allowTakeover=true}={}){
     }
     return true;
   }catch(error){
-    console.warn("VDS authority heartbeat failed",error);
+    const msg=String(error?.message||error||"");
+    if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg)){
+      mpStopAuthorityWatch();
+    }else{
+      console.warn("VDS authority heartbeat failed",error);
+    }
     return false;
   }finally{
     mpAuthorityRefreshInFlight=false;
@@ -16463,8 +16497,10 @@ async function mpDisconnectTransport(){
   const channel=mpChannel;
   mpChannel=null;
   if(!channel)return;
-  try{await channel.untrack();}catch(e){}
-  try{await mpClient?.removeChannel(channel);}catch(e){}
+
+  const timeout=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+  try{await Promise.race([Promise.resolve(channel.untrack?.()),timeout(700)]);}catch(e){}
+  try{await Promise.race([Promise.resolve(mpClient?.removeChannel?.(channel)),timeout(900)]);}catch(e){}
 }
 
 function mpScheduleReconnect(){
@@ -18163,6 +18199,7 @@ async function connectMultiplayer(role,code,options={}){
       if(mpIsAuthority())return;
       goPage("sim");
       await animateRemoteRally(payload);
+      renderLiveCommentary();
       applyMultiplayerMatchControls();
     })
     .on("presence",{event:"sync"},()=>{
@@ -18248,44 +18285,56 @@ async function spectateMultiplayer(){
 async function leaveMultiplayer(){
   const leavingCode=mpRoom;
   const backed=mpRoomBacked;
+  const client=mpClient;
+
+  // Gate every room-specific poll immediately. This prevents the interval
+  // storm that previously generated ROOM_ACCESS_DENIED after membership left.
+  mpLeavingRoom=true;
   mpExplicitLeave=true;
   clearTimeout(mpReconnectTimer);
   clearTimeout(mpStateSaveTimer);
   mpStopAuthorityWatch();
   stopPostMatchPolling();
+  stopLineupServerPolling();
+  stopMiniDraftServerPolling();
+  try{window.aceStopPrivateLiveTacticsPolling?.();}catch(e){}
+  try{window.aceStopSimToEndPolling?.();}catch(e){}
 
-  await mpDisconnectTransport();
+  try{
+    await mpDisconnectTransport();
 
-  // Explicit Leave updates persistent room membership.
-  // The signed-in VDS account session remains active for the next room.
-  if(backed && leavingCode && mpClient){
-    try{
-      const {error}=await mpClient.rpc("vds_leave_room",{p_code:leavingCode});
-      if(error)console.warn("VDS room leave RPC failed",error);
-    }catch(e){
-      console.warn("VDS room leave RPC failed",e);
+    // Explicit Leave updates persistent room membership. Auto-matched UT rooms
+    // are invalidated for both managers by the hardened server RPC.
+    if(backed && leavingCode && client){
+      try{
+        const {error}=await client.rpc("vds_leave_room",{p_code:leavingCode});
+        if(error)console.warn("VDS room leave RPC failed",error);
+      }catch(e){
+        console.warn("VDS room leave RPC failed",e);
+      }
     }
+  }finally{
+    mpChannel=null;
+    mpRoom="";
+    mpRoomId="";
+    mpRoomBacked=false;
+    mpRole=null;
+    mpTeam=null;
+    mpReconnectAttempts=0;
+    mpReconnectInProgress=false;
+    mpAuthorityUserId="";
+    mpAuthorityEpoch=0;
+    mpAuthorityLeaseUntil=0;
+    mpAuthorityStale=false;
+    postMatchState={team1Choice:null,team2Choice:null,roundNo:0,version:-1};
+    postMatchActionInFlight=false;
+    postMatchProcessedRound=0;
+    mpForgetRoom();
+    window.aceUTOnlineMatchActive=false;
+    mpLeavingRoom=false;
   }
 
-  mpChannel=null;
-  mpRoom="";
-  mpRoomId="";
-  mpRoomBacked=false;
-  mpRole=null;
-  mpTeam=null;
-  mpReconnectAttempts=0;
-  mpReconnectInProgress=false;
-  mpAuthorityUserId="";
-  mpAuthorityEpoch=0;
-  mpAuthorityLeaseUntil=0;
-  mpAuthorityStale=false;
-  postMatchState={team1Choice:null,team2Choice:null,roundNo:0,version:-1};
-  postMatchActionInFlight=false;
-  postMatchProcessedRound=0;
-  mpForgetRoom();
-  window.aceUTOnlineMatchActive=false;
   mpConnectionBanner("ROOM LEFT","offline",true);
-
   document.body.classList.remove("multiplayerGuest");
   document.body.classList.remove("multiplayerSpectator");
   updateMultiplayerUI();
@@ -18814,6 +18863,11 @@ async function refreshMiniDraftFromServer(){
     const row=miniDraftServerRow(data);
     return applyMiniDraftServerAggregate(row);
   }catch(error){
+    const msg=String(error?.message||error||"");
+    if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg)){
+      stopMiniDraftServerPolling();
+      return false;
+    }
     console.warn("VDS Mini Draft server refresh failed",error);
     const status=document.getElementById("miniDraftStatus");
     if(status && !miniDraftLineupTransitioned){
@@ -18834,7 +18888,7 @@ function startMiniDraftServerPolling(){
     if(active==="minidraft" && !miniDraftLineupTransitioned){
       refreshMiniDraftFromServer();
     }
-  },650);
+  },1000);
 }
 
 function queueMiniDraftServerSync(teamNo){
@@ -22593,6 +22647,7 @@ function goPage(id){
   }
 
   if(id!=="lineup")stopLineupServerPolling();
+  if(id!=="minidraft")stopMiniDraftServerPolling();
   if(id!=="sim")stopPostMatchPolling();
 
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
@@ -29329,17 +29384,29 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
         if(Number(mpOwnedTeam?.()||0)===2)window.aceLiveOwnTactics=JSON.parse(JSON.stringify(liveState.managerTactics2));
       }
     }catch(e){
+      const msg=String(e?.message||e||"");
+      if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg)){
+        window.aceStopPrivateLiveTacticsPolling?.();
+        return;
+      }
       // Authority may briefly lose its lease during reconnect; polling will recover.
-      if(!String(e?.message||"").includes("AUTHORITY_REQUIRED"))console.warn("Authority live-tactics poll",e);
+      if(!msg.includes("AUTHORITY_REQUIRED"))console.warn("Authority live-tactics poll",e);
     }
   }
 
+  window.aceStopPrivateLiveTacticsPolling=function(){
+    clearInterval(livePlanPollTimer);
+    livePlanPollTimer=null;
+    clearTimeout(livePlanSaveTimer);
+    livePlanSaveTimer=null;
+  };
+
   window.aceStartPrivateLiveTacticsPolling=function(){
     if(!mpHasPersistentRoom?.())return;
-    clearInterval(livePlanPollTimer);
+    window.aceStopPrivateLiveTacticsPolling();
     if(mpIsAuthority?.()){
       authorityRefreshLivePlans();
-      livePlanPollTimer=setInterval(authorityRefreshLivePlans,500);
+      livePlanPollTimer=setInterval(authorityRefreshLivePlans,800);
     }
   };
 
@@ -29454,6 +29521,11 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       renderSimState();
       if(simState.approved)await maybeExecuteApprovedSim();
     }catch(e){
+      const msg=String(e?.message||e||"");
+      if(/ROOM_(ACCESS_DENIED|NOT_FOUND)/i.test(msg)){
+        window.aceStopSimToEndPolling?.();
+        return;
+      }
       console.warn("Sim-to-end poll",e);
     }
   }
@@ -29513,14 +29585,20 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     }
   }
 
+  window.aceStopSimToEndPolling=function(){
+    clearInterval(simPollTimer);
+    simPollTimer=null;
+    closeSimModal();
+  };
+
   window.aceStartSimToEndPolling=function(){
     if(!mpHasPersistentRoom?.())return;
-    clearInterval(simPollTimer);
+    window.aceStopSimToEndPolling();
     refreshSimState();
     simPollTimer=setInterval(()=>{
       const active=document.querySelector(".page.active")?.id;
       if(active==="sim"&&liveState&&!liveState.matchFinished)refreshSimState();
-    },650);
+    },900);
   };
 
   document.addEventListener("click",e=>{
@@ -29568,7 +29646,8 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     benchRefs:[],
     last:null,
     entering:false,
-    cancelRequested:false
+    cancelRequested:false,
+    pollCount:0
   };
 
   function delay(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -29686,9 +29765,11 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     if(!mm.active||token!==mm.token)return;
     try{
       const client=ensureMultiplayerClient();
-      const {data,error}=await client.rpc("vds_join_ut_matchmaking",{
-        p_bench_slots:mm.benchRefs
-      });
+      const fullAttempt=(mm.pollCount++%4)===0;
+      const response=fullAttempt
+        ? await client.rpc("vds_join_ut_matchmaking",{p_bench_slots:mm.benchRefs})
+        : await client.rpc("vds_get_ut_matchmaking_status");
+      const {data,error}=response;
       if(error)throw error;
       if(!mm.active||token!==mm.token)return;
 
@@ -29702,9 +29783,15 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
         return;
       }
 
+      if(data?.status==="reconnecting"){
+        renderSearching({...mm.last,queued_seconds:Number(mm.last?.queued_seconds||0)});
+        setTimeout(()=>poll(token),1200);
+        return;
+      }
+
       if(data?.status==="idle" || data?.recovered_stale_match===true){
-        // Server detected a broken/abandoned hidden room. Re-enter the queue
-        // automatically rather than surfacing SEARCH INTERRUPTED.
+        // Recovered a stale pair: force the next tick to perform a full join.
+        mm.pollCount=0;
         await delay(180);
         if(mm.active&&token===mm.token)return poll(token);
         return;
@@ -29715,7 +29802,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       }
 
       renderSearching(data);
-      setTimeout(()=>poll(token),1150);
+      setTimeout(()=>poll(token),1100);
     }catch(error){
       console.error("ACE online matchmaking poll failed",error);
       mm.active=false;
@@ -29766,6 +29853,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     mm.active=true;
     mm.cancelRequested=false;
     mm.entering=false;
+    mm.pollCount=0;
     mm.token++;
     const token=mm.token;
 
@@ -30007,14 +30095,26 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   };
   window.aceUTLeagueReplay=aceUTLeagueReplay;
 
-  // Accidental navigation protection. Search is cancelled cleanly before
-  // opening another mode. Once an opponent is already paired, pre-match
-  // navigation requires an explicit leave so the other manager is released.
+  // Online-match navigation guard.
+  // IMPORTANT: goPage() is used heavily by the multiplayer engine itself.
+  // Browser confirm()/alert() dialogs here caused the guest to receive repeated
+  // "Leave this online match" popups from INTERNAL transitions. Internal calls
+  // must therefore never trigger a modal dialog.
   const aceUTBaseGoPage=goPage;
+  let aceUTNavNoticeAt=0;
+
+  function aceUTOnlineNavNotice(text){
+    const now=Date.now();
+    if(now-aceUTNavNoticeAt<1800)return;
+    aceUTNavNoticeAt=now;
+    try{mpConnectionBanner(text,"waiting",true);}catch(e){}
+  }
+
   goPage=function(id){
     const target=String(id||"");
     const stayingInOnlineFlow=["lineup","sim"].includes(target);
 
+    // While only SEARCHING, moving elsewhere is safe: cancel queue first.
     if(mm.active && target!=="ultimate"){
       (async()=>{
         await cancel({close:true});
@@ -30023,20 +30123,22 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       return;
     }
 
-    // Opponent found but this browser is still attaching to the room. Do not
-    // let a stray Mini Draft/Home tap break the committed pairing mid-handshake.
+    // During the short Opponent Found handshake, ignore stray non-match page
+    // calls. No native popup: the handshake will complete into Lineup.
     if(mm.entering && !stayingInOnlineFlow){
-      alert("Opponent found — finishing the online match connection first.");
+      aceUTOnlineNavNotice("OPPONENT FOUND · CONNECTING ONLINE MATCH");
       return;
     }
 
+    // Once a UT online match exists, only Lineup/Sim are valid internal pages.
+    // Explicit FIND NEW OPPONENT / LEAVE LOBBY use aceUTBaseGoPage directly and
+    // therefore remain the clean, intentional ways out of the room.
     if(window.aceUTOnlineMatchActive && mpInMultiplayerRoom?.() && !stayingInOnlineFlow){
-      const leave=confirm("Leave this online match and open another mode? Your opponent will be released back to matchmaking.");
-      if(!leave)return;
-      (async()=>{
-        await leaveMultiplayer();
-        aceUTBaseGoPage(target);
-      })();
+      aceUTOnlineNavNotice(
+        window.liveState?.matchFinished
+          ? "ONLINE MATCH COMPLETE · USE LEAVE LOBBY OR FIND NEW OPPONENT"
+          : "ONLINE MATCH ACTIVE"
+      );
       return;
     }
 
@@ -30064,6 +30166,29 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     }
   },true);
 })();
+</script>
+
+
+<script id="ace-b20-5-diagnostics">
+window.aceRuntimeHealth=function(){
+  return {
+    build:"B20.6",
+    page:document.querySelector(".page.active")?.id||null,
+    multiplayer:typeof mpInMultiplayerRoom==="function"?mpInMultiplayerRoom():false,
+    persistentRoom:typeof mpHasPersistentRoom==="function"?mpHasPersistentRoom():false,
+    role:typeof mpRole!=="undefined"?mpRole:null,
+    team:typeof mpOwnedTeam==="function"?mpOwnedTeam():0,
+    authority:typeof mpIsAuthority==="function"?mpIsAuthority():false,
+    leaving:typeof mpLeavingRoom!=="undefined"?mpLeavingRoom:false,
+    live:!!window.liveState,
+    finished:!!window.liveState?.matchFinished,
+    onlineUT:!!window.aceUTOnlineMatchActive,
+    matchmaking:window.aceUTIsMatchmakingActive?.()||false,
+    matchConnecting:window.aceUTIsMatchConnecting?.()||false,
+    commentaryState:Array.isArray(window.liveState?.commentary)?window.liveState.commentary.length:0,
+    commentaryDOM:document.querySelectorAll("#commentaryBox .commentaryLine").length
+  };
+};
 </script>
 
 </body>
