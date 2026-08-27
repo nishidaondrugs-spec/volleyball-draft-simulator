@@ -41850,7 +41850,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
         <div class="ace31SharePanel">
           <small>THE ACE PROJECT · SOCIAL CARD</small>
           <h2>Share your card.</h2>
-          <p>Create a clean portrait graphic for Instagram Stories, TikTok, Reels or anywhere else you want to show the card.</p>
+          <p>Create a clean share graphic that mirrors the base ACE card with the playstyles and serve type underneath.</p>
 
           <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
 
@@ -42057,156 +42057,186 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const cats=typeof categoryRatings==="function"?categoryRatings(p):{attacking:0,defense:0,physical:0};
     const atk=(p.attackPlaystyle||"none")!=="none"&&typeof attackingPlaystyle==="function"?attackingPlaystyle(p):null;
     const def=(p.defensePlaystyle||"none")!=="none"&&typeof defensivePlaystyle==="function"?defensivePlaystyle(p):null;
-    const follower=isFollower(p);
 
-    const topPad=square?58:96;
-
+    const topPad=square?50:78;
     ctx.textAlign="center";
-    ctx.fillStyle="rgba(211,184,247,.95)";
+    ctx.fillStyle="rgba(255,255,255,.95)";
     ctx.font="1000 24px Inter, system-ui, sans-serif";
     ctx.fillText("THE ACE PROJECT",w/2,topPad);
+    ctx.fillStyle="rgba(255,255,255,.55)";
+    ctx.font="800 14px Inter, system-ui, sans-serif";
+    ctx.fillText("VOLLEYBALL ULTIMATE TEAM",w/2,topPad+28);
 
-    ctx.fillStyle="rgba(255,255,255,.50)";
-    ctx.font="800 15px Inter, system-ui, sans-serif";
-    ctx.fillText(follower?"FOLLOWER EDITION · COMMUNITY CARD":"VOLLEYBALL ULTIMATE TEAM",w/2,topPad+34);
-
-    const cardW=square?390:560;
-    const cardH=square?520:760;
+    /* Main base card */
+    const cardW=square?420:470;
+    const cardH=square?575:720;
     const cardX=(w-cardW)/2;
-    const cardY=square?148:230;
+    const cardY=square?120:140;
 
-    roundedRect(ctx,cardX,cardY,cardW,cardH,34);
-    const cg=ctx.createLinearGradient(cardX,cardY,cardX+cardW,cardY+cardH);
+    roundedRect(ctx,cardX,cardY,cardW,cardH,28);
+    const cardFill=ctx.createLinearGradient(cardX,cardY,cardX,cardY+cardH);
     if(theme==="gold"){
-      cg.addColorStop(0,"#80662c");
-      cg.addColorStop(.35,"#2a2112");
-      cg.addColorStop(1,"#0f1014");
+      cardFill.addColorStop(0,"#7d6322");
+      cardFill.addColorStop(.28,"#2b2417");
+      cardFill.addColorStop(1,"#101219");
     }else{
-      cg.addColorStop(0,"#7950a5");
-      cg.addColorStop(.36,"#2b1b45");
-      cg.addColorStop(1,"#0d1017");
+      cardFill.addColorStop(0,"#7b5b24");
+      cardFill.addColorStop(.30,"#25201a");
+      cardFill.addColorStop(1,"#0c0e13");
     }
-    ctx.fillStyle=cg;
+    ctx.fillStyle=cardFill;
     ctx.fill();
-    ctx.strokeStyle="rgba(245,230,255,.36)";
-    ctx.lineWidth=3;
+    ctx.strokeStyle="rgba(255,255,255,.32)";
+    ctx.lineWidth=2;
     ctx.stroke();
 
-    const artPad=22;
+    ctx.shadowColor="rgba(0,0,0,.38)";
+    ctx.shadowBlur=34;
+    ctx.shadowOffsetY=20;
+    roundedRect(ctx,cardX,cardY,cardW,cardH,28);
+    ctx.strokeStyle="rgba(0,0,0,.18)";
+    ctx.stroke();
+    ctx.shadowColor="transparent";
+
+    const artPad=14;
     const artX=cardX+artPad;
     const artY=cardY+artPad;
     const artW=cardW-artPad*2;
-    const artH=cardH*(square?.50:.54);
-
-    roundedRect(ctx,artX,artY,artW,artH,22);
+    const artH=square?295:360;
+    roundedRect(ctx,artX,artY,artW,artH,18);
     ctx.save();
     ctx.clip();
     if(photo){
       drawCover(ctx,photo,artX,artY,artW,artH);
-      const overlay=ctx.createLinearGradient(0,artY,0,artY+artH);
-      overlay.addColorStop(.55,"rgba(7,8,12,0)");
-      overlay.addColorStop(1,"rgba(7,8,12,.78)");
-      ctx.fillStyle=overlay;
+      const ov=ctx.createLinearGradient(0,artY,0,artY+artH);
+      ov.addColorStop(.55,"rgba(5,7,11,0)");
+      ov.addColorStop(1,"rgba(5,7,11,.84)");
+      ctx.fillStyle=ov;
       ctx.fillRect(artX,artY,artW,artH);
     }else{
-      ctx.fillStyle="#111521";
+      ctx.fillStyle="#121621";
       ctx.fillRect(artX,artY,artW,artH);
       ctx.fillStyle="rgba(255,255,255,.18)";
-      ctx.font="1000 120px Inter, system-ui, sans-serif";
+      ctx.font="1000 128px Inter, system-ui, sans-serif";
       ctx.textAlign="center";
-      ctx.fillText("♠",w/2,artY+artH*.60);
+      ctx.fillText("♠",cardX+cardW/2,artY+artH*.65);
     }
     ctx.restore();
 
+    const infoY=cardY+artH+50;
     ctx.textAlign="left";
     ctx.fillStyle="#fff";
-    ctx.font=`1000 ${square?66:92}px Inter, system-ui, sans-serif`;
-    ctx.fillText(String(rating),cardX+34,cardY+artH+76);
+    ctx.font="1000 62px Inter, system-ui, sans-serif";
+    ctx.fillText(String(rating),cardX+18,infoY);
 
-    ctx.fillStyle="rgba(220,195,251,.94)";
-    ctx.font=`1000 ${square?22:28}px Inter, system-ui, sans-serif`;
-    ctx.fillText(String(p.position||"POS"),cardX+38,cardY+artH+108);
-
-    ctx.textAlign="right";
     ctx.fillStyle="#fff";
-    ctx.font=`1000 ${square?28:40}px Inter, system-ui, sans-serif`;
-    ctx.fillText(String(p.name||"PLAYER"),cardX+cardW-34,cardY+artH+74);
+    ctx.font="1000 25px Inter, system-ui, sans-serif";
+    ctx.fillText(String(p.position||"POS"),cardX+24,infoY+32);
 
-    ctx.fillStyle="rgba(255,255,255,.55)";
-    ctx.font=`800 ${square?14:18}px Inter, system-ui, sans-serif`;
-    ctx.fillText(`${tierLabel.toUpperCase()} · ${serveLabel(p).toUpperCase()}`,cardX+cardW-34,cardY+artH+105);
+    ctx.fillStyle="#fff";
+    ctx.font="1000 36px Inter, system-ui, sans-serif";
+    ctx.fillText(String(p.name||"PLAYER"),cardX+138,infoY+8);
 
-    const statsY=cardY+artH+(square?142:165);
-    const statLabels=[["ATT",cats.attacking],["DEF",cats.defense],["PHY",cats.physical],["SET",Math.round(Number(p.setting||0))]];
-    const statGap=12;
-    const statW=(cardW-68-statGap*3)/4;
-    statLabels.forEach(([label,val],i)=>{
-      const x=cardX+34+i*(statW+statGap);
-      roundedRect(ctx,x,statsY,statW,square?66:78,14);
-      ctx.fillStyle="rgba(4,6,10,.48)";
+    ctx.fillStyle="rgba(255,255,255,.60)";
+    ctx.font="800 14px Inter, system-ui, sans-serif";
+    ctx.fillText(`${String(tierLabel).toUpperCase()} · ${serveLabel(p).toUpperCase()}`,cardX+138,infoY+34);
+
+    const stats=[["ATT",cats.attacking],["DEF",cats.defense],["PHY",cats.physical],["SET",Math.round(Number(p.setting||0))]];
+    const statY=cardY+cardH-130;
+    const statGap=10;
+    const statW=(cardW-42-statGap*3)/4;
+    stats.forEach(([label,val],i)=>{
+      const x=cardX+16+i*(statW+statGap);
+      roundedRect(ctx,x,statY,statW,64,12);
+      ctx.fillStyle="rgba(8,10,15,.72)";
       ctx.fill();
+      ctx.strokeStyle="rgba(255,255,255,.06)";
+      ctx.stroke();
       ctx.textAlign="center";
-      ctx.fillStyle="rgba(255,255,255,.55)";
-      ctx.font=`800 ${square?11:14}px Inter, system-ui, sans-serif`;
-      ctx.fillText(label,x+statW/2,statsY+(square?21:25));
+      ctx.fillStyle="rgba(255,255,255,.50)";
+      ctx.font="800 12px Inter, system-ui, sans-serif";
+      ctx.fillText(label,x+statW/2,statY+20);
       ctx.fillStyle="#fff";
-      ctx.font=`1000 ${square?24:31}px Inter, system-ui, sans-serif`;
-      ctx.fillText(String(Math.round(Number(val||0))),x+statW/2,statsY+(square?50:60));
+      ctx.font="1000 26px Inter, system-ui, sans-serif";
+      ctx.fillText(String(Math.round(Number(val||0))),x+statW/2,statY+47);
     });
 
-    const footerY=cardY+cardH-(square?34:44);
     ctx.textAlign="center";
-    ctx.fillStyle="rgba(255,255,255,.42)";
-    ctx.font=`800 ${square?11:14}px Inter, system-ui, sans-serif`;
-    ctx.fillText("BUILD YOUR SIX · OWN THE COURT",w/2,footerY);
+    ctx.fillStyle="rgba(255,255,255,.28)";
+    ctx.font="800 10px Inter, system-ui, sans-serif";
+    ctx.fillText("WORLD YOUR SIX · OWN THE COURT",cardX+cardW/2,cardY+cardH-26);
 
-    if(!square){
-      ctx.textAlign="left";
-      ctx.fillStyle="rgba(159,116,219,.90)";
-      ctx.font="1000 19px Inter, system-ui, sans-serif";
-      ctx.fillText("PLAYSTYLES",104,1104);
-
-      drawPlaystyle(ctx,atk,104,1130,872,"#d4acff");
-      drawPlaystyle(ctx,def,104,1214,872,"#91cfee");
-
-      ctx.fillStyle="rgba(255,255,255,.55)";
-      ctx.font="800 16px Inter, system-ui, sans-serif";
-      ctx.fillText("SERVE TYPE",104,1342);
-      ctx.fillStyle="#fff";
-      ctx.font="1000 34px Inter, system-ui, sans-serif";
-      ctx.fillText(serveLabel(p),104,1382);
-
-      const divider=ctx.createLinearGradient(104,0,976,0);
-      divider.addColorStop(0,"rgba(172,112,240,0)");
-      divider.addColorStop(.5,"rgba(172,112,240,.48)");
-      divider.addColorStop(1,"rgba(172,112,240,0)");
-      ctx.fillStyle=divider;
-      ctx.fillRect(104,1460,872,2);
-
-      ctx.textAlign="center";
-      ctx.fillStyle="rgba(255,255,255,.90)";
-      ctx.font="1000 35px Inter, system-ui, sans-serif";
-      ctx.fillText("YOUR CARD. YOUR COURT.",w/2,1555);
-
-      ctx.fillStyle="rgba(255,255,255,.44)";
-      ctx.font="800 17px Inter, system-ui, sans-serif";
-      ctx.fillText("THE ACE PROJECT · VOLLEYBALL ULTIMATE TEAM",w/2,1592);
-
-      if(p.ultimateTeamPool===true){
-        roundedRect(ctx,w/2-145,1640,290,52,26);
-        ctx.fillStyle="rgba(48,143,79,.18)";
-        ctx.fill();
-        ctx.strokeStyle="rgba(99,219,137,.30)";
-        ctx.stroke();
-        ctx.fillStyle="#8fe0aa";
-        ctx.font="1000 17px Inter, system-ui, sans-serif";
-        ctx.fillText("LIVE IN ULTIMATE TEAM ✓",w/2,1673);
-      }
-
-      ctx.fillStyle="rgba(255,255,255,.28)";
-      ctx.font="800 15px Inter, system-ui, sans-serif";
-      ctx.fillText("THEACEPROJECT",w/2,1822);
+    if(square){
+      setStatus("Share image ready.","ok");
+      return;
     }
+
+    /* Under-card information mirrors the clean playstyle layout. */
+    const labelX=86;
+    let cursorY=920;
+    ctx.textAlign="left";
+    ctx.fillStyle="rgba(161,120,220,.92)";
+    ctx.font="1000 16px Inter, system-ui, sans-serif";
+    ctx.fillText("PLAYSTYLES",labelX,cursorY);
+    cursorY += 18;
+
+    function boxedStyle(title,desc,accent){
+      roundedRect(ctx,82,cursorY,916,74,12);
+      ctx.fillStyle="rgba(7,10,16,.92)";
+      ctx.fill();
+      ctx.strokeStyle="rgba(73,126,179,.34)";
+      ctx.lineWidth=1.4;
+      ctx.stroke();
+      ctx.fillStyle=accent;
+      ctx.font="1000 18px Inter, system-ui, sans-serif";
+      ctx.fillText(String(title||"NO PLAYSTYLE").toUpperCase(),104,cursorY+24);
+      ctx.fillStyle="rgba(255,255,255,.56)";
+      ctx.font="700 12px Inter, system-ui, sans-serif";
+      wrapText(ctx,String(desc||"No specialist behaviour assigned."),104,cursorY+47,872,15,2);
+      cursorY += 88;
+    }
+
+    boxedStyle(
+      atk ? String(atk.name).replace(/^[^A-Za-z0-9]+\s*/,"") : "No Attacking Playstyle",
+      atk?.desc || "No attacking playstyle assigned.",
+      "#d8b5ff"
+    );
+    boxedStyle(
+      def ? String(def.name).replace(/^[^A-Za-z0-9]+\s*/,"") : "No Defensive Playstyle",
+      def?.desc || "No defensive playstyle assigned.",
+      "#9bd4e9"
+    );
+
+    ctx.fillStyle="rgba(161,120,220,.92)";
+    ctx.font="1000 16px Inter, system-ui, sans-serif";
+    ctx.fillText("SERVE TYPE",labelX,cursorY+8);
+    ctx.fillStyle="#fff";
+    ctx.font="1000 34px Inter, system-ui, sans-serif";
+    ctx.fillText(serveLabel(p),labelX,cursorY+48);
+
+    cursorY += 150;
+    ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,.96)";
+    ctx.font="1000 36px Inter, system-ui, sans-serif";
+    ctx.fillText("YOUR CARD. YOUR COURT.",w/2,cursorY);
+    ctx.fillStyle="rgba(255,255,255,.46)";
+    ctx.font="800 14px Inter, system-ui, sans-serif";
+    ctx.fillText("THE ACE PROJECT · VOLLEYBALL ULTIMATE TEAM",w/2,cursorY+30);
+
+    if(p.ultimateTeamPool===true){
+      roundedRect(ctx,w/2-167,cursorY+62,334,44,22);
+      ctx.fillStyle="rgba(16,68,39,.34)";
+      ctx.fill();
+      ctx.strokeStyle="rgba(113,230,151,.28)";
+      ctx.stroke();
+      ctx.fillStyle="#9bf0b4";
+      ctx.font="1000 16px Inter, system-ui, sans-serif";
+      ctx.fillText("LIVE IN ULTIMATE TEAM ✓",w/2,cursorY+90);
+    }
+
+    ctx.fillStyle="rgba(255,255,255,.22)";
+    ctx.font="800 14px Inter, system-ui, sans-serif";
+    ctx.fillText("THEACEPROJECT",w/2,h-56);
 
     setStatus("Share image ready.","ok");
   }
@@ -42368,6 +42398,66 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 })();
 </script>
 <!-- /ACE B21.31.1 — CARD VIEW / LEXICAL STATE HOTFIX -->
+
+
+<!-- ACE B21.31.2 — PLAYSTYLE BOX VISUAL FIX -->
+<style id="ace-b21-31-2-playstyle-box-fix">
+#vdsCardShowcaseOverlay .ace29Playstyles{
+  display:grid!important;
+  gap:8px!important;
+}
+#vdsCardShowcaseOverlay .ace29Playstyle{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(173,129,236,.16)!important;
+  background:linear-gradient(180deg,rgba(14,18,29,.96),rgba(8,10,16,.96))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 10px 24px rgba(0,0,0,.14);
+}
+#vdsCardShowcaseOverlay .ace29Playstyle::after{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:3px;
+  background:linear-gradient(180deg,#8a51e1,#55b7db);
+  opacity:.85;
+}
+#vdsCardShowcaseOverlay .ace29PlaystyleIcon{
+  border:1px solid rgba(255,255,255,.06)!important;
+  background:#0b0f18!important;
+}
+#vdsCardShowcaseOverlay .ace29Playstyle b{
+  color:#f2edf9!important;
+  letter-spacing:.03em;
+}
+#vdsCardShowcaseOverlay .ace29Playstyle p{
+  color:#a9adba!important;
+}
+#vdsCardShowcaseOverlay .vdsCardShowcasePlaystyles{
+  display:grid!important;
+  gap:8px!important;
+}
+#vdsCardShowcaseOverlay .vdsCardShowcasePlaystyle{
+  display:block!important;
+  width:100%!important;
+  padding:11px 12px!important;
+  border-radius:10px!important;
+  border:1px solid rgba(172,129,236,.16)!important;
+  background:linear-gradient(180deg,rgba(13,17,27,.96),rgba(8,10,16,.96))!important;
+  color:#efe7fb!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 10px 24px rgba(0,0,0,.12);
+}
+</style>
+<!-- /ACE B21.31.2 — PLAYSTYLE BOX VISUAL FIX -->
+
+
+<!-- ACE B21.31.2 — SHARE CARD + PLAYSTYLE BOX FIX -->
+<script id="ace-b21-31-2-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.2";
+  window.ACE_SHARE_CARD_PLAYSTYLE_BOX_FIX=true;
+})();
+</script>
+<!-- /ACE B21.31.2 — SHARE CARD + PLAYSTYLE BOX FIX -->
 
 </body>
 </html>
