@@ -7864,7 +7864,15 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
           <div><span>ACTIVE SQUAD</span><b>Your Court</b></div>
           <div class="vdsUTHeadRight">
             <button class="vdsUTSmallPill active" id="utServeModeBtn" type="button">SERVING ROTATION</button>
+            <select class="aceAutoBuildMode" id="aceAutoBuildMode" aria-label="Auto Build style">
+              <option value="in_position">IN POSITION</option>
+              <option value="best_ovr">BEST OVR</option>
+              <option value="attacking">ATTACKING</option>
+              <option value="defensive">DEFENSIVE</option>
+              <option value="balanced">BALANCED</option>
+            </select>
             <button class="vdsUTSmallPill" id="utAutoLineupBtn" type="button">AUTO BUILD</button>
+            <button class="vdsUTSmallPill" id="aceSquadUndoBtn" type="button" disabled>↶ UNDO</button>
             <button class="vdsUTSmallPill" id="utClearLineupBtn" type="button">CLEAR</button>
             <div id="utSquadRating">OVR —</div>
           </div>
@@ -7950,12 +7958,18 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
         <div class="aceClubTopActions">
           <button type="button" onclick="vdsSwitchUltimateInstance('packs')">＋ OPEN PACKS</button>
           <button type="button" onclick="vdsSwitchUltimateInstance('squad')">MANAGE SQUAD →</button>
+          <button type="button" id="aceClubCompareModeBtn">⇄ COMPARE</button>
+          <button type="button" id="aceSellDuplicatesBtn">◉ SELL DUPLICATES</button>
         </div>
       </div>
       <div class="aceClubControls">
         <label class="aceClubSearch"><span>⌕</span><input id="aceClubSearch" type="search" placeholder="Search your club" autocomplete="off"></label>
         <div class="aceClubFilters" id="aceClubFilters">
           <button class="active" type="button" data-club-filter="all">ALL</button>
+          <button type="button" data-club-filter="new">NEW</button>
+          <button type="button" data-club-filter="duplicates">DUPLICATES</button>
+          <button type="button" data-club-filter="favorites">★ FAVOURITES</button>
+          <button type="button" data-club-filter="locked">🔒 LOCKED</button>
           <button type="button" data-club-filter="ace">ACE</button>
           <button type="button" data-club-filter="elite">ELITE</button>
           <button type="button" data-club-filter="rare_gold">RARE GOLD</button>
@@ -21660,6 +21674,9 @@ function vdsCloudUTCardObject(row,{rarity=null,rating=null}={}){
     source:row.source||"pack",
     packId:row.pack_id||null,
     legacyUid:row.legacy_uid||null,
+    favorite:row.is_favorite===true,
+    locked:row.is_locked===true,
+    viewedAt:row.viewed_at||null,
     sourceOverall:master,
     sourceStats:{
       attack:categoryRatings(player).attacking,
@@ -22450,9 +22467,10 @@ let aceClubSearch="";
 
 function aceIsRecentClubCard(card){
   if(!card)return false;
+  if(card.source==="starter")return false;
+  if(card.viewedAt)return false;
   if(aceLastRevealedCardUid && String(utCardUid(card))===String(aceLastRevealedCardUid))return true;
-  const t=Date.parse(card.pulledAt||"");
-  return Number.isFinite(t) && Date.now()-t < 15*60*1000;
+  return !!card.cloudCardId && card.source==="pack";
 }
 
 function aceUltimateMasterPlayer(card){
@@ -22522,6 +22540,7 @@ function aceUTSellableCloudCopy(groupCard){
       && String(card.id||"").startsWith("ut_")
       && Number(card.playerId||0)===playerId
       && String(card.rarity||"")===rarity
+      && card.locked!==true
     )
     .sort((a,b)=>(Date.parse(b.pulledAt||"")||0)-(Date.parse(a.pulledAt||"")||0));
   return candidates.find(card=>!squad.has(String(utCardUid(card))))||null;
@@ -22540,6 +22559,118 @@ function aceUTQuickSellToast(message,type="ok"){
   toast.classList.add("show");
   clearTimeout(toast._timer);
   toast._timer=setTimeout(()=>toast.classList.remove("show"),2700);
+}
+
+let aceUTPendingQuickSell=null;
+
+function aceUTCloseQuickSellModal(){
+  const modal=document.getElementById("aceQuickSellModal");
+  if(!modal)return;
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden","true");
+  document.body.classList.remove("aceQuickSellOpen");
+  aceUTPendingQuickSell=null;
+}
+
+function aceUTOpenQuickSellModal(sellCard,value){
+  const modal=document.getElementById("aceQuickSellModal");
+  if(!modal||!sellCard)return;
+
+  const player=aceUltimateMasterPlayer(sellCard);
+  const rating=Math.round(Number(sellCard.rating||sellCard.positionRating||0));
+  const tier=String(UT_RARITY[sellCard.rarity]?.label||sellCard.rarity||"CARD").toUpperCase();
+  const natural=aceUTCardNaturalRole(sellCard);
+  const high=rating>=90;
+  const ace=rating>=96;
+
+  aceUTPendingQuickSell={sellCard,value};
+
+  const portrait=document.getElementById("aceQuickSellPortrait");
+  if(portrait){
+    portrait.className=`aceQuickSellPortrait ${ace?"ace":high?"elite":String(sellCard.rarity||"")}`;
+    portrait.innerHTML=player?.photo
+      ? `<img src="${esc(player.photo)}" alt="${esc(sellCard.playerName||player.name||"Player")}">`
+      : `<span>♠</span>`;
+  }
+
+  const tierEl=document.getElementById("aceQuickSellTier");
+  if(tierEl){
+    tierEl.className=`aceQuickSellTier ${String(sellCard.rarity||"")}`;
+    tierEl.textContent=tier;
+  }
+
+  document.getElementById("aceQuickSellTitle").textContent=sellCard.playerName||player?.name||"Player";
+  document.getElementById("aceQuickSellMeta").textContent=`${rating} OVR · ${natural}`;
+  document.getElementById("aceQuickSellValue").textContent=Number(value||0).toLocaleString();
+
+  const warning=document.getElementById("aceQuickSellWarning");
+  if(warning){
+    warning.className=`aceQuickSellWarning ${ace?"ace":high?"high-tier":""}`;
+    warning.innerHTML=ace
+      ? `<b>ACE CARD WARNING</b><span>This ${rating} OVR Ace card will be permanently removed. This cannot be undone.</span>`
+      : high
+        ? `<b>ELITE CARD WARNING</b><span>This ${rating} OVR Elite card will be permanently removed. This cannot be undone.</span>`
+        : `<span>This card will be permanently removed from your club. This cannot be undone.</span>`;
+  }
+
+  const confirmBtn=document.getElementById("aceQuickSellConfirm");
+  if(confirmBtn){
+    confirmBtn.disabled=false;
+    confirmBtn.className=`aceQuickSellConfirm ${ace?"ace":high?"high-tier":""}`;
+    confirmBtn.textContent=`QUICK SELL · ${Number(value||0).toLocaleString()} ◉`;
+  }
+
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+  document.body.classList.add("aceQuickSellOpen");
+}
+
+async function aceUTConfirmQuickSell(){
+  const pending=aceUTPendingQuickSell;
+  if(!pending?.sellCard)return;
+
+  const sellCard=pending.sellCard;
+  const value=Number(pending.value||0);
+  const confirmBtn=document.getElementById("aceQuickSellConfirm");
+  if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent="SELLING…";}
+
+  const client=ensureMultiplayerClient?.();
+  if(!client){
+    aceUTQuickSellToast("Project ACE connection unavailable.","error");
+    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=`QUICK SELL · ${value.toLocaleString()} ◉`;}
+    return;
+  }
+
+  try{
+    const {data,error}=await client.rpc("vds_quick_sell_ut_card",{p_card_id:sellCard.cloudCardId});
+    if(error)throw error;
+
+    const soldUid=String(utCardUid(sellCard));
+    ultimateTeamState.cards=(ultimateTeamState.cards||[]).filter(card=>String(utCardUid(card))!==soldUid);
+
+    const newCoins=Number(data?.coin_balance);
+    if(Number.isFinite(newCoins)){
+      ultimateTeamState.coins=newCoins;
+      vdsAccountProfile={...(vdsAccountProfile||{}),coins:newCoins};
+    }
+
+    aceUTCloseQuickSellModal();
+    vdsCacheUltimateTeam();
+    vdsUpdateAccountUI?.();
+    renderUltimateTeam();
+    vdsScheduleWalletVerification?.(180,{rerender:true});
+
+    aceUTQuickSellToast(`+${Number(data?.sell_value||value).toLocaleString()} ACE Coins · ${sellCard.playerName} sold`,"ok");
+  }catch(error){
+    console.error("ACE quick sell failed",error);
+    const msg=String(error?.message||error||"");
+    if(msg.includes("CARD_IN_ACTIVE_SQUAD")){
+      aceUTQuickSellToast("Remove this card from your Starting Six before selling it.","error");
+    }else{
+      aceUTQuickSellToast(msg||"Quick sell failed.","error");
+    }
+    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=`QUICK SELL · ${value.toLocaleString()} ◉`;}
+  }
 }
 
 async function aceUTQuickSellGroupedCard(playerId,rarity){
@@ -22572,53 +22703,7 @@ async function aceUTQuickSellGroupedCard(playerId,rarity){
 
   const rating=Math.round(Number(sellCard.rating||sellCard.positionRating||0));
   const value=aceUTQuickSellValue(rating);
-  const tier=String(UT_RARITY[sellCard.rarity]?.label||sellCard.rarity||"CARD").toUpperCase();
-  const elite=rating>=90;
-
-  const prompt=elite
-    ? `QUICK SELL ${tier}?\n\n${sellCard.playerName} · ${rating} OVR\nYou will receive ${value.toLocaleString()} ACE Coins.\n\nThis ${rating>=96?"ACE":"Elite"} card will be permanently removed. This cannot be undone.`
-    : `Quick sell ${sellCard.playerName} · ${rating} OVR for ${value.toLocaleString()} ACE Coins?\n\nThis cannot be undone.`;
-
-  if(!window.confirm(prompt))return;
-
-  const client=ensureMultiplayerClient?.();
-  if(!client){
-    aceUTQuickSellToast("Project ACE connection unavailable.","error");
-    return;
-  }
-
-  try{
-    aceUTQuickSellToast(`Selling ${sellCard.playerName}…`,"working");
-    const {data,error}=await client.rpc("vds_quick_sell_ut_card",{p_card_id:sellCard.cloudCardId});
-    if(error)throw error;
-
-    const soldUid=String(utCardUid(sellCard));
-    ultimateTeamState.cards=(ultimateTeamState.cards||[]).filter(card=>String(utCardUid(card))!==soldUid);
-
-    const newCoins=Number(data?.coin_balance);
-    if(Number.isFinite(newCoins)){
-      ultimateTeamState.coins=newCoins;
-      vdsAccountProfile={...(vdsAccountProfile||{}),coins:newCoins};
-    }
-
-    vdsCacheUltimateTeam();
-    vdsUpdateAccountUI?.();
-    renderUltimateTeam();
-    vdsScheduleWalletVerification?.(180,{rerender:true});
-
-    aceUTQuickSellToast(
-      `+${Number(data?.sell_value||value).toLocaleString()} ACE Coins · ${sellCard.playerName} sold`,
-      "ok"
-    );
-  }catch(error){
-    console.error("ACE quick sell failed",error);
-    const msg=String(error?.message||error||"");
-    if(msg.includes("CARD_IN_ACTIVE_SQUAD")){
-      aceUTQuickSellToast("Remove this card from your Starting Six before selling it.","error");
-    }else{
-      aceUTQuickSellToast(msg||"Quick sell failed.","error");
-    }
-  }
+  aceUTOpenQuickSellModal(sellCard,value);
 }
 
 
@@ -23001,7 +23086,7 @@ function aceClubCardMarkup(entry){
         data-club-sell-rarity="${esc(card.rarity||"")}"
         ${sellable?"":'disabled'}
         title="${sellable?`Quick sell for ${sellValue.toLocaleString()} ACE Coins`:(inSquad?"Remove a copy from the Starting Six before selling":"Starter cards cannot be sold")}">
-        ${sellable?`SELL · ${sellValue.toLocaleString()} ◉`:(inSquad?"IN SIX":"NO SELL")}
+        ${sellable?`QUICK SELL · ${sellValue.toLocaleString()} ◉`:(inSquad?"IN STARTING SIX":"NOT SELLABLE")}
       </button>
     </div>
   </article>`;
@@ -23190,12 +23275,22 @@ function renderUltimateTeam(){
   const uniqueCount=document.getElementById("aceClubUniqueCount");
   if(uniqueCount)uniqueCount.textContent=String(uniqueEntries.length);
 
-  let entries=uniqueEntries.filter(({card})=>{
-    const rarityOk=aceClubFilter==="all"||card.rarity===aceClubFilter;
+  let entries=uniqueEntries.filter(entry=>{
+    const card=entry.card;
+    const groupCards=(ultimateTeamState.cards||[]).filter(c=>
+      Number(c.playerId||0)===Number(card.playerId||0)
+      && String(c.rarity||"")===String(card.rarity||"")
+    );
+    const specialOk=aceClubFilter==="all"
+      || (aceClubFilter==="new" && groupCards.some(aceIsRecentClubCard))
+      || (aceClubFilter==="duplicates" && entry.count>1)
+      || (aceClubFilter==="favorites" && groupCards.some(c=>c.favorite===true))
+      || (aceClubFilter==="locked" && groupCards.some(c=>c.locked===true))
+      || card.rarity===aceClubFilter;
     const searchOk=!aceClubSearch
       ||String(card.playerName||"").toLowerCase().includes(aceClubSearch.toLowerCase())
       ||String(card.position||"").toLowerCase().includes(aceClubSearch.toLowerCase());
-    return rarityOk&&searchOk;
+    return specialOk&&searchOk;
   });
 
   entries.sort((a,b)=>{
@@ -23525,9 +23620,35 @@ function vdsServeTypeLabel(value){
   })[value||"auto"]||"Auto";
 }
 
+function aceUTShowcaseSellInfo(player){
+  if(!player)return null;
+  const playerId=Number(player.cloudId||0);
+  if(!playerId)return null;
+  const owned=(ultimateTeamState.cards||[]).filter(card=>Number(card.playerId||0)===playerId);
+  if(!owned.length)return null;
+
+  const preferred=owned.slice().sort((a,b)=>Number(b.rating||0)-Number(a.rating||0))[0];
+  const sellable=aceUTSellableCloudCopy(preferred);
+  if(!sellable)return {
+    playerId,
+    rarity:preferred.rarity,
+    sellable:false,
+    value:aceUTQuickSellValue(preferred.rating),
+    rating:preferred.rating
+  };
+  return {
+    playerId,
+    rarity:sellable.rarity,
+    sellable:true,
+    value:aceUTQuickSellValue(sellable.rating),
+    rating:sellable.rating
+  };
+}
+
 function openVdsCardShowcase(name){
   const p=players.find(x=>x.name===name);
   if(!p)return;
+  const sellInfo=aceUTShowcaseSellInfo(p);
   const overlay=document.getElementById("vdsCardShowcaseOverlay");
   const content=document.getElementById("vdsCardShowcaseContent");
   if(!overlay||!content)return;
@@ -23617,6 +23738,21 @@ function openVdsCardShowcase(name){
               </div>
             </div>
           </div>
+
+          ${sellInfo?`<div class="vdsCardShowcasePanel aceShowcaseQuickSellPanel">
+            <div>
+              <h3>Club Actions</h3>
+              <p>${sellInfo.sellable?`Sell one owned copy for <b>${Number(sellInfo.value).toLocaleString()} ACE Coins</b>.`:`This card cannot currently be sold because it is a Starter card or the only sellable cloud copy is in your Starting Six.`}</p>
+            </div>
+            <button
+              type="button"
+              class="aceShowcaseQuickSellBtn"
+              data-showcase-sell-player-id="${sellInfo.playerId}"
+              data-showcase-sell-rarity="${esc(sellInfo.rarity||"")}"
+              ${sellInfo.sellable?"":"disabled"}>
+              ${sellInfo.sellable?`QUICK SELL · ${Number(sellInfo.value).toLocaleString()} ◉`:`QUICK SELL UNAVAILABLE`}
+            </button>
+          </div>`:""}
         </div>
       </div>
     </div>`;
@@ -24202,6 +24338,18 @@ document.getElementById("playerEditorViewOnlyBtn")?.addEventListener("click",e=>
 });
 document.getElementById("vdsCardShowcaseClose")?.addEventListener("click",closeVdsCardShowcase);
 document.getElementById("vdsCardShowcaseOverlay")?.addEventListener("click",e=>{
+  const sellBtn=e.target.closest?.("[data-showcase-sell-player-id]");
+  if(sellBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    if(sellBtn.disabled)return;
+    closeVdsCardShowcase();
+    aceUTQuickSellGroupedCard(
+      Number(sellBtn.dataset.showcaseSellPlayerId||0),
+      sellBtn.dataset.showcaseSellRarity||""
+    );
+    return;
+  }
   if(e.target.id==="vdsCardShowcaseOverlay")closeVdsCardShowcase();
 });
 
@@ -34361,16 +34509,613 @@ body.aceSimModalOpen .aceLiveCommandBar{
 </style>
 
 
-<script id="ace-b21-16-version-marker">
-window.ACE_PROJECT_BUILD="B21.16";
-window.ACE_DESKTOP_SQUAD="LARGER_TIGHTER_SHORTER";
-window.ACE_DESKTOP_UT_PASS="LARGER_SQUAD_READABLE_DENSE";
-window.ACE_QUICK_SELL="SERVER_ATOMIC_TIER_SCALED";
+
+<div class="aceQuickSellModal" id="aceQuickSellModal" aria-hidden="true">
+  <div class="aceQuickSellSheet" role="dialog" aria-modal="true" aria-labelledby="aceQuickSellTitle">
+    <button class="aceQuickSellClose" id="aceQuickSellClose" type="button" aria-label="Close">✕</button>
+    <div class="aceQuickSellKicker">PROJECT ACE · QUICK SELL</div>
+    <div class="aceQuickSellHero">
+      <div class="aceQuickSellPortrait" id="aceQuickSellPortrait"><span>♠</span></div>
+      <div class="aceQuickSellIdentity">
+        <div class="aceQuickSellTier" id="aceQuickSellTier">GOLD</div>
+        <h2 id="aceQuickSellTitle">Player</h2>
+        <div class="aceQuickSellMeta" id="aceQuickSellMeta">75 OVR · OH</div>
+      </div>
+    </div>
+    <div class="aceQuickSellValueBox">
+      <span>YOU RECEIVE</span>
+      <b><i>◉</i> <strong id="aceQuickSellValue">300</strong></b>
+      <small>ACE COINS</small>
+    </div>
+    <div class="aceQuickSellWarning" id="aceQuickSellWarning">
+      This card will be permanently removed from your club. This cannot be undone.
+    </div>
+    <div class="aceQuickSellActions">
+      <button class="aceQuickSellCancel" id="aceQuickSellCancel" type="button">CANCEL</button>
+      <button class="aceQuickSellConfirm" id="aceQuickSellConfirm" type="button">QUICK SELL</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="ace-b21-17-quick-sell-modal-events">
+(function(){
+  const close=()=>{ if(typeof aceUTCloseQuickSellModal==="function")aceUTCloseQuickSellModal(); };
+  document.getElementById("aceQuickSellClose")?.addEventListener("click",close);
+  document.getElementById("aceQuickSellCancel")?.addEventListener("click",close);
+  document.getElementById("aceQuickSellConfirm")?.addEventListener("click",()=>{
+    if(typeof aceUTConfirmQuickSell==="function")aceUTConfirmQuickSell();
+  });
+  document.getElementById("aceQuickSellModal")?.addEventListener("click",e=>{
+    if(e.target?.id==="aceQuickSellModal")close();
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape" && document.getElementById("aceQuickSellModal")?.classList.contains("show"))close();
+  });
+})();
+</script>
+
+
+<style id="ace-b21-17-quick-sell-modal-style">
+body.aceQuickSellOpen{overflow:hidden!important}
+.aceQuickSellModal{position:fixed;inset:0;z-index:42000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(1,4,9,.88);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
+.aceQuickSellModal.show{display:flex}
+.aceQuickSellSheet{position:relative;width:min(460px,calc(100vw - 28px));padding:22px;border-radius:22px;border:1px solid rgba(222,183,79,.18);background:radial-gradient(circle at 50% -8%,rgba(184,138,38,.12),transparent 39%),linear-gradient(180deg,#0c1018,#070a10);box-shadow:0 34px 100px rgba(0,0,0,.68),inset 0 1px 0 rgba(255,255,255,.025)}
+.aceQuickSellClose{position:absolute;right:13px;top:13px;width:35px;height:35px;border-radius:50%;border:1px solid rgba(255,255,255,.09);background:#0a0d13;color:#8d8995;font-size:12px;cursor:pointer}
+.aceQuickSellKicker{color:#a98740;font-size:7px;font-weight:1000;letter-spacing:.16em}
+.aceQuickSellHero{display:flex;align-items:center;gap:14px;margin-top:14px;padding-right:36px}
+.aceQuickSellPortrait{flex:0 0 80px;width:80px;height:100px;display:grid;place-items:center;overflow:hidden;border-radius:14px;border:1px solid rgba(220,181,78,.18);background:linear-gradient(145deg,#4f3d11,#13110a);box-shadow:0 12px 26px rgba(0,0,0,.36)}
+.aceQuickSellPortrait img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.aceQuickSellPortrait>span{font-size:33px;color:#bea95c}
+.aceQuickSellPortrait.elite{border-color:rgba(239,196,72,.33);box-shadow:0 0 23px rgba(229,177,50,.13),0 12px 26px rgba(0,0,0,.36)}
+.aceQuickSellPortrait.ace{border-color:rgba(157,102,255,.42);background:linear-gradient(145deg,#171223,#573097);box-shadow:0 0 26px rgba(129,71,224,.22),0 12px 26px rgba(0,0,0,.36)}
+.aceQuickSellIdentity{min-width:0}.aceQuickSellTier{display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid rgba(222,183,79,.15);background:rgba(83,62,9,.18);color:#dfc468;font-size:7px;font-weight:1000;letter-spacing:.08em}.aceQuickSellTier.silver{color:#cbd5df;border-color:rgba(201,214,224,.18);background:rgba(80,90,101,.14)}.aceQuickSellTier.elite{color:#ffe47d;border-color:rgba(238,195,74,.28)}.aceQuickSellTier.ace{color:#e6d7ff;border-color:rgba(164,108,255,.34);background:rgba(94,48,159,.18)}
+.aceQuickSellIdentity h2{margin:7px 0 0;font-size:27px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aceQuickSellMeta{margin-top:6px;color:#7d7a86;font-size:10px;font-weight:850}
+.aceQuickSellValueBox{margin-top:18px;padding:15px;border:1px solid rgba(222,183,79,.14);border-radius:15px;background:rgba(60,45,7,.12);text-align:center}.aceQuickSellValueBox>span,.aceQuickSellValueBox>small{display:block;color:#8d7c4c;font-size:6.5px;font-weight:1000;letter-spacing:.14em}.aceQuickSellValueBox>b{display:flex;align-items:center;justify-content:center;gap:7px;margin:5px 0 4px;color:#f0d36c;font-size:31px;line-height:1}.aceQuickSellValueBox>b i{font-style:normal;font-size:20px}
+.aceQuickSellWarning{margin-top:12px;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.055);background:#090c12;color:#817e89;font-size:9px;line-height:1.45}.aceQuickSellWarning b,.aceQuickSellWarning span{display:block}.aceQuickSellWarning b{margin-bottom:4px;color:#d59e4b;font-size:7px;letter-spacing:.12em}.aceQuickSellWarning.high-tier{border-color:rgba(229,161,55,.20);background:rgba(65,34,6,.13)}.aceQuickSellWarning.ace{border-color:rgba(162,101,255,.25);background:rgba(71,35,127,.13)}.aceQuickSellWarning.ace b{color:#c59aff}
+.aceQuickSellActions{display:grid;grid-template-columns:.82fr 1.18fr;gap:8px;margin-top:14px}.aceQuickSellActions button{min-height:48px;border-radius:11px;font-size:9px;font-weight:1000;letter-spacing:.07em;cursor:pointer}.aceQuickSellCancel{border:1px solid rgba(255,255,255,.08);background:#0a0d13;color:#8d8995}.aceQuickSellConfirm{border:1px solid rgba(228,189,77,.24);background:linear-gradient(135deg,#94701e,#d2a93c);color:#110d05;box-shadow:0 10px 24px rgba(179,131,30,.16)}.aceQuickSellConfirm.high-tier{background:linear-gradient(135deg,#b78920,#efca5b)}.aceQuickSellConfirm.ace{border-color:rgba(181,126,255,.35);background:linear-gradient(135deg,#6433aa,#a266f2);color:#fff;box-shadow:0 10px 25px rgba(109,57,182,.24)}.aceQuickSellConfirm:disabled{opacity:.58;cursor:wait}
+
+.aceClubCardActions .aceClubQuickSell{grid-column:1/-1!important;min-height:43px!important;margin-top:2px!important;border:1px solid rgba(220,180,70,.23)!important;background:linear-gradient(180deg,rgba(95,70,9,.20),rgba(20,15,6,.94))!important;color:#e2c66b!important;font-size:8px!important;letter-spacing:.075em!important;box-shadow:inset 0 1px rgba(255,255,255,.02)!important}.aceClubCardActions .aceClubQuickSell:hover:not(:disabled){border-color:rgba(236,196,84,.42)!important;color:#ffe487!important;background:linear-gradient(180deg,rgba(128,94,10,.28),rgba(28,20,5,.96))!important}
+.aceShowcaseQuickSellPanel{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important}.aceShowcaseQuickSellPanel>div{min-width:0}.aceShowcaseQuickSellPanel p{margin:0;color:#8596a8;font-size:10px;line-height:1.45}.aceShowcaseQuickSellPanel p b{color:#e0c468}.aceShowcaseQuickSellBtn{flex:0 0 auto;min-width:190px;min-height:46px;padding:0 13px;border-radius:11px;border:1px solid rgba(224,184,73,.23);background:linear-gradient(135deg,#8b681a,#c49a32);color:#120e05;font-size:8px;font-weight:1000;letter-spacing:.065em;cursor:pointer}.aceShowcaseQuickSellBtn:disabled{opacity:.40;cursor:not-allowed}
+@media(max-width:760px){.aceQuickSellModal{padding:12px}.aceQuickSellSheet{padding:18px 15px;width:min(390px,calc(100vw - 20px));border-radius:19px}.aceQuickSellHero{gap:11px}.aceQuickSellPortrait{flex-basis:70px;width:70px;height:90px}.aceQuickSellIdentity h2{font-size:23px}.aceQuickSellValueBox>b{font-size:28px}.aceQuickSellActions button{min-height:50px;font-size:9px}.aceShowcaseQuickSellPanel{display:grid!important;grid-template-columns:1fr!important}.aceShowcaseQuickSellBtn{width:100%;min-width:0;min-height:48px}.aceClubCardActions .aceClubQuickSell{min-height:46px!important;font-size:9px!important}}
+</style>
+
+
+
+<div class="aceQOLModal" id="aceCompareModal" aria-hidden="true">
+  <div class="aceQOLSheet aceCompareSheet">
+    <button class="aceQOLClose" data-qol-close="aceCompareModal" type="button">✕</button>
+    <span class="aceQOLKicker">PROJECT ACE · CARD COMPARISON</span>
+    <h2>Compare Players</h2>
+    <div id="aceCompareContent"></div>
+  </div>
+</div>
+
+<div class="aceQOLModal" id="aceDuplicateModal" aria-hidden="true">
+  <div class="aceQOLSheet aceDuplicateSheet">
+    <button class="aceQOLClose" data-qol-close="aceDuplicateModal" type="button">✕</button>
+    <span class="aceQOLKicker">PROJECT ACE · DUPLICATE MANAGEMENT</span>
+    <h2>Quick Sell Duplicates</h2>
+    <p class="aceQOLIntro">One copy of every player/rarity is kept. Starting Six, Favourite and Locked copies are protected.</p>
+    <div id="aceDuplicateReview"></div>
+    <div class="aceDuplicateTotal"><span>TOTAL RETURN</span><b id="aceDuplicateTotalValue">0 ◉</b></div>
+    <div class="aceQOLActions"><button data-qol-close="aceDuplicateModal" type="button">CANCEL</button><button id="aceDuplicateConfirm" class="primary" type="button">SELL REVIEWED DUPLICATES</button></div>
+  </div>
+</div>
+
+<div class="aceQOLModal" id="acePositionSuggestModal" aria-hidden="true">
+  <div class="aceQOLSheet aceSuggestSheet">
+    <button class="aceQOLClose" data-qol-close="acePositionSuggestModal" type="button">✕</button>
+    <span class="aceQOLKicker">PROJECT ACE · SQUAD ASSIST</span>
+    <h2 id="aceSuggestTitle">Best for Position</h2>
+    <p class="aceQOLIntro" id="aceSuggestIntro"></p>
+    <div id="aceSuggestList"></div>
+  </div>
+</div>
+
+<div class="aceCardContextMenu" id="aceCardContextMenu" aria-hidden="true"></div>
+
+<div class="aceCloudSavePill" id="aceCloudSavePill"><i></i><span>CLOUD READY</span></div>
+
+<div class="aceQOLModal" id="aceQOLTour" aria-hidden="true">
+  <div class="aceQOLSheet aceTourSheet">
+    <span class="aceQOLKicker">PROJECT ACE · QUICK GUIDE</span>
+    <div id="aceTourContent"></div>
+    <div class="aceQOLActions"><button id="aceTourSkip" type="button">SKIP</button><button id="aceTourNext" class="primary" type="button">NEXT</button></div>
+  </div>
+</div>
+
+
+<script id="ace-b21-18-qol-runtime">
+(function(){
+  /* ---------- shared ---------- */
+  const $=s=>document.querySelector(s);
+  const $$=s=>Array.from(document.querySelectorAll(s));
+  const delay=ms=>new Promise(r=>setTimeout(r,ms));
+  const aceQOLKey=suffix=>`ace_qol_${String(vdsAccountSession?.user?.id||"device")}_${suffix}`;
+  const storeGet=(key,fallback=null)=>{try{const v=safeStore.get(key);return v==null?fallback:JSON.parse(v)}catch(_){return fallback}};
+  const storeSet=(key,value)=>{try{safeStore.set(key,JSON.stringify(value))}catch(_){}};
+  const closeModal=id=>{const el=document.getElementById(id);if(el){el.classList.remove("show");el.setAttribute("aria-hidden","true");}};
+  const openModal=id=>{const el=document.getElementById(id);if(el){el.classList.add("show");el.setAttribute("aria-hidden","false");}};
+  $$('[data-qol-close]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.qolClose)));
+
+  /* ---------- remembered Club view ---------- */
+  let clubPrefsLoaded=false;
+  function aceLoadClubPrefs(){
+    if(clubPrefsLoaded)return;
+    clubPrefsLoaded=true;
+    const prefs=storeGet(aceQOLKey("club_prefs"),{});
+    if(prefs?.filter)aceClubFilter=prefs.filter;
+    if(prefs?.sort)aceClubSort=prefs.sort;
+    if(typeof prefs?.search==="string")aceClubSearch=prefs.search;
+  }
+  function aceSaveClubPrefs(){
+    storeSet(aceQOLKey("club_prefs"),{filter:aceClubFilter,sort:aceClubSort,search:aceClubSearch});
+  }
+  aceLoadClubPrefs();
+  document.addEventListener('click',e=>{
+    if(e.target.closest?.('#aceClubFilters [data-club-filter]'))setTimeout(aceSaveClubPrefs,0);
+  });
+  document.addEventListener('change',e=>{if(e.target?.id==='aceClubSort')setTimeout(aceSaveClubPrefs,0)});
+  document.addEventListener('input',e=>{if(e.target?.id==='aceClubSearch')setTimeout(aceSaveClubPrefs,160)});
+
+  /* ---------- cloud status ---------- */
+  let cloudTimer=0;
+  function aceCloudStatus(state,text){
+    const pill=$('#aceCloudSavePill');if(!pill)return;
+    pill.className=`aceCloudSavePill ${state||""}`;
+    pill.querySelector('span').textContent=text||"CLOUD READY";
+    clearTimeout(cloudTimer);
+    if(state==='saved')cloudTimer=setTimeout(()=>{pill.className='aceCloudSavePill';pill.querySelector('span').textContent='CLOUD READY';},1800);
+  }
+  window.aceCloudStatus=aceCloudStatus;
+  const baseSaveSquad=window.vdsSaveUTSquadCloudNow||vdsSaveUTSquadCloudNow;
+  vdsSaveUTSquadCloudNow=async function(){
+    aceCloudStatus('saving','SAVING…');
+    const ok=await baseSaveSquad.apply(this,arguments);
+    aceCloudStatus(ok?'saved':'error',ok?'SAVED ✓':'SAVE FAILED');
+    return ok;
+  };
+  const baseCloudSync=window.vdsSyncUltimateTeamCloud||vdsSyncUltimateTeamCloud;
+  vdsSyncUltimateTeamCloud=async function(){
+    aceCloudStatus('saving','SYNCING CLUB…');
+    const ok=await baseCloudSync.apply(this,arguments);
+    aceCloudStatus(ok?'saved':'error',ok?'CLOUD SYNCED ✓':'SYNC FAILED');
+    return ok;
+  };
+
+  /* ---------- cloud flags ---------- */
+  const starterFlagsKey=()=>aceQOLKey('starter_flags');
+  function aceStarterFlags(){return storeGet(starterFlagsKey(),{})||{}}
+  function aceGroupCards(card){
+    if(!card)return[];
+    return (ultimateTeamState.cards||[]).filter(c=>Number(c.playerId||0)===Number(card.playerId||0)&&String(c.rarity||"")===String(card.rarity||""));
+  }
+  function aceApplyStarterFlags(){
+    const flags=aceStarterFlags();
+    (ultimateTeamState.cards||[]).forEach(card=>{
+      if(card.source!=="starter")return;
+      const f=flags[String(utCardUid(card))]||{};
+      card.favorite=f.favorite===true;
+      card.locked=true; // Starter cards are inherently protected.
+    });
+  }
+  aceApplyStarterFlags();
+
+  async function aceSetCardFlag(card,flag,value){
+    if(!card)return false;
+    if(card.source==='starter'){
+      const flags=aceStarterFlags();
+      const uid=String(utCardUid(card));
+      flags[uid]={...(flags[uid]||{}),[flag]:value};
+      storeSet(starterFlagsKey(),flags);
+      card[flag]=value;
+      if(flag==='locked')card.locked=true;
+      vdsCacheUltimateTeam();
+      return true;
+    }
+    if(!card.cloudCardId)return false;
+    const client=ensureMultiplayerClient?.();if(!client)return false;
+    const args={p_card_id:card.cloudCardId,p_favorite:null,p_locked:null,p_mark_viewed:false};
+    if(flag==='favorite')args.p_favorite=!!value;
+    if(flag==='locked')args.p_locked=!!value;
+    if(flag==='viewed')args.p_mark_viewed=true;
+    try{
+      aceCloudStatus('saving','SAVING CARD…');
+      const {data,error}=await client.rpc('vds_set_ut_card_flags',args);
+      if(error)throw error;
+      if(flag==='favorite')card.favorite=data?.is_favorite===true;
+      if(flag==='locked')card.locked=data?.is_locked===true;
+      if(flag==='viewed')card.viewedAt=data?.viewed_at||new Date().toISOString();
+      vdsCacheUltimateTeam();
+      aceCloudStatus('saved','CARD SAVED ✓');
+      return true;
+    }catch(err){console.warn('Card flag save failed',err);aceCloudStatus('error','CARD SAVE FAILED');return false;}
+  }
+  async function aceSetGroupFlag(card,flag,value){
+    const group=aceGroupCards(card);
+    if(!group.length)return;
+    await Promise.all(group.map(c=>aceSetCardFlag(c,flag,value)));
+    renderUltimateTeam();
+  }
+  async function aceMarkGroupViewed(card){
+    const group=aceGroupCards(card).filter(c=>aceIsRecentClubCard(c));
+    if(!group.length)return;
+    await Promise.all(group.map(c=>aceSetCardFlag(c,'viewed',true)));
+    renderUltimateTeam();
+  }
+  window.aceSetGroupFlag=aceSetGroupFlag;
+
+  /* ---------- My Club flags enhancer ---------- */
+  function aceEnhanceClubCards(){
+    $$('#utCollection .aceClubCard').forEach(article=>{
+      const uid=article.dataset.clubCardUid;
+      const card=(ultimateTeamState.cards||[]).find(c=>String(utCardUid(c))===String(uid));
+      if(!card)return;
+      const group=aceGroupCards(card);
+      const flags=article.querySelector('.aceClubCardFlags');
+      if(flags){
+        flags.querySelectorAll('.aceQOLFlag').forEach(x=>x.remove());
+        if(group.some(c=>c.favorite))flags.insertAdjacentHTML('beforeend','<span class="aceQOLFlag favourite">★</span>');
+        if(group.some(c=>c.locked)||card.source==='starter')flags.insertAdjacentHTML('beforeend','<span class="aceQOLFlag locked">🔒</span>');
+      }
+      article.classList.toggle('is-favourite',group.some(c=>c.favorite));
+      article.classList.toggle('is-locked',group.some(c=>c.locked)||card.source==='starter');
+    });
+  }
+  const clubObserver=new MutationObserver(()=>requestAnimationFrame(aceEnhanceClubCards));
+  const observeClub=()=>{const g=$('#utCollection');if(g){clubObserver.disconnect();clubObserver.observe(g,{childList:true,subtree:true});aceEnhanceClubCards();}};
+  window.addEventListener('load',()=>setTimeout(observeClub,250));
+
+  /* ---------- viewed + compare capture before old Club click handler ---------- */
+  let compareMode=false;
+  let compareSelection=[];
+  function aceGroupCardFromArticle(article){
+    const uid=article?.dataset?.clubCardUid;
+    return (ultimateTeamState.cards||[]).find(c=>String(utCardUid(c))===String(uid))||null;
+  }
+  function aceUpdateCompareUI(){
+    const btn=$('#aceClubCompareModeBtn');
+    if(btn){btn.classList.toggle('active',compareMode);btn.textContent=compareMode?`✓ SELECT ${Math.min(compareSelection.length,2)}/2`:'⇄ COMPARE';}
+    $$('#utCollection .aceClubCard').forEach(a=>{
+      const c=aceGroupCardFromArticle(a);
+      a.classList.toggle('compare-selected',!!c&&compareSelection.some(x=>Number(x.playerId)===Number(c.playerId)&&String(x.rarity)===String(c.rarity)));
+    });
+  }
+  function aceToggleCompareCard(card){
+    if(!card)return;
+    const idx=compareSelection.findIndex(x=>Number(x.playerId)===Number(card.playerId)&&String(x.rarity)===String(card.rarity));
+    if(idx>=0)compareSelection.splice(idx,1);
+    else{
+      if(compareSelection.length>=2)compareSelection.shift();
+      compareSelection.push(card);
+    }
+    aceUpdateCompareUI();
+    if(compareSelection.length===2){aceOpenCompare(compareSelection[0],compareSelection[1]);compareMode=false;aceUpdateCompareUI();}
+  }
+  function aceOpenCompare(a,b){
+    const content=$('#aceCompareContent');if(!content)return;
+    const cards=[a,b];
+    const ps=cards.map(aceUltimateMasterPlayer);
+    if(ps.some(x=>!x))return;
+    const rows=[
+      ['NATURAL OVR',cards.map(c=>Number(c.rating||0))],
+      ['OH',ps.map(p=>positionRatings(p).OH)],['OP',ps.map(p=>positionRatings(p).OP)],['M',ps.map(p=>positionRatings(p).M)],['S',ps.map(p=>positionRatings(p).S)],['L',ps.map(p=>positionRatings(p).L)],
+      ['ATTACK',ps.map(p=>categoryRatings(p).attacking)],['DEFENCE',ps.map(p=>categoryRatings(p).defense)],['PHYSICAL',ps.map(p=>categoryRatings(p).physical)],
+      ['SET TECH',ps.map(p=>p.setTechnique)],['SET CRE',ps.map(p=>p.setCreativity)],['SERVE',ps.map(p=>p.service)],['BLOCK',ps.map(p=>p.blocking)]
+    ];
+    content.innerHTML=`<div class="aceCompareHeads">${cards.map((c,i)=>`<div>${ps[i].photo?`<img src="${esc(ps[i].photo)}" alt="">`:''}<b>${esc(c.playerName)}</b><span>${c.rating} ${aceUTCardNaturalRole(c)}</span></div>`).join('')}</div>
+      <div class="aceCompareRows">${rows.map(([label,vals])=>`<div class="aceCompareRow"><span>${label}</span><b class="${vals[0]>vals[1]?'win':''}">${vals[0]}</b><b class="${vals[1]>vals[0]?'win':''}">${vals[1]}</b></div>`).join('')}</div>
+      <div class="aceComparePlaystyles">${ps.map(p=>`<div><small>PLAYSTYLES</small><b>${esc(attackingPlaystyle(p)?.name||'—')}</b><b>${esc(defensivePlaystyle(p)?.name||'—')}</b></div>`).join('')}</div>`;
+    openModal('aceCompareModal');
+  }
+  window.aceOpenCompare=aceOpenCompare;
+
+  document.addEventListener('click',e=>{
+    if(e.target?.id==='aceClubCompareModeBtn'){
+      compareMode=!compareMode;compareSelection=[];aceUpdateCompareUI();return;
+    }
+  });
+  document.addEventListener('click',e=>{
+    const grid=e.target.closest?.('#utCollection');if(!grid)return;
+    const article=e.target.closest?.('.aceClubCard');if(!article)return;
+    const card=aceGroupCardFromArticle(article);if(!card)return;
+    if(e.target.closest('.aceClubCardView,[data-club-view]'))aceMarkGroupViewed(card);
+    if(compareMode && e.target.closest('.aceClubCardView')){
+      e.preventDefault();e.stopImmediatePropagation();aceToggleCompareCard(card);
+    }
+  },true);
+
+  /* ---------- duplicate bulk sell ---------- */
+  function aceDuplicateCandidates(){
+    const groups=new Map();
+    (ultimateTeamState.cards||[]).forEach(card=>{
+      if(!card.cloudCardId)return;
+      const key=`${Number(card.playerId||0)}|${String(card.rarity||'')}`;
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(card);
+    });
+    const squad=new Set((ultimateTeamState.lineupSlots||[]).filter(Boolean).map(String));
+    const out=[];
+    groups.forEach(group=>{
+      if(group.length<=1)return;
+      const sorted=group.slice().sort((a,b)=>{
+        const protectA=(squad.has(String(utCardUid(a)))?100:(a.locked?80:0)+(a.favorite?40:0));
+        const protectB=(squad.has(String(utCardUid(b)))?100:(b.locked?80:0)+(b.favorite?40:0));
+        return protectB-protectA || (Date.parse(b.pulledAt||'')||0)-(Date.parse(a.pulledAt||'')||0);
+      });
+      const keep=sorted[0];
+      sorted.slice(1).forEach(card=>{
+        if(squad.has(String(utCardUid(card)))||card.locked||card.favorite)return;
+        out.push(card);
+      });
+    });
+    return out;
+  }
+  let duplicateReview=[];
+  function aceOpenDuplicateReview(){
+    duplicateReview=aceDuplicateCandidates();
+    const box=$('#aceDuplicateReview'),totalEl=$('#aceDuplicateTotalValue'),confirm=$('#aceDuplicateConfirm');
+    const total=duplicateReview.reduce((s,c)=>s+aceUTQuickSellValue(c.rating),0);
+    if(box)box.innerHTML=duplicateReview.length?duplicateReview.map(c=>`<div class="aceDuplicateRow"><span>${c.photo?`<img src="${esc(c.photo)}" alt="">`:'♠'}</span><div><b>${esc(c.playerName)}</b><small>${c.rating} ${aceUTCardNaturalRole(c)} · ${(UT_RARITY[c.rarity]?.label||c.rarity).toUpperCase()}</small></div><strong>+${aceUTQuickSellValue(c.rating).toLocaleString()} ◉</strong></div>`).join(''):'<div class="aceQOLEmpty">No safe duplicates to sell. Favourite, Locked and Starting Six cards are protected.</div>';
+    if(totalEl)totalEl.textContent=`${total.toLocaleString()} ◉`;
+    if(confirm)confirm.disabled=!duplicateReview.length;
+    openModal('aceDuplicateModal');
+  }
+  async function aceSellDuplicateReview(){
+    if(!duplicateReview.length)return;
+    const btn=$('#aceDuplicateConfirm');if(btn){btn.disabled=true;btn.textContent='SELLING…';}
+    const client=ensureMultiplayerClient?.();if(!client)return;
+    let sold=0,value=0,lastBalance=null;
+    for(const card of duplicateReview){
+      try{
+        const {data,error}=await client.rpc('vds_quick_sell_ut_card',{p_card_id:card.cloudCardId});
+        if(error)throw error;
+        sold++;value+=Number(data?.sell_value||0);lastBalance=Number(data?.coin_balance);
+        ultimateTeamState.cards=(ultimateTeamState.cards||[]).filter(c=>String(utCardUid(c))!==String(utCardUid(card)));
+      }catch(err){console.warn('Duplicate quick sell skipped',card.playerName,err)}
+    }
+    if(Number.isFinite(lastBalance)){ultimateTeamState.coins=lastBalance;vdsAccountProfile={...(vdsAccountProfile||{}),coins:lastBalance};}
+    vdsCacheUltimateTeam();vdsUpdateAccountUI?.();renderUltimateTeam();vdsScheduleWalletVerification?.(160,{rerender:true});
+    closeModal('aceDuplicateModal');aceUTQuickSellToast(`Sold ${sold} duplicate${sold===1?'':'s'} · +${value.toLocaleString()} ACE Coins`,'ok');
+    if(btn){btn.disabled=false;btn.textContent='SELL REVIEWED DUPLICATES';}
+  }
+  $('#aceSellDuplicatesBtn')?.addEventListener('click',aceOpenDuplicateReview);
+  $('#aceDuplicateConfirm')?.addEventListener('click',aceSellDuplicateReview);
+
+  /* ---------- Favourite / Lock context actions ---------- */
+  const context=$('#aceCardContextMenu');
+  let contextCard=null;
+  function aceCloseContext(){if(context){context.classList.remove('show');context.setAttribute('aria-hidden','true');}contextCard=null;}
+  function aceOpenContext(card,x,y){
+    if(!context||!card)return;
+    contextCard=card;
+    const group=aceGroupCards(card);
+    const fav=group.some(c=>c.favorite);
+    const locked=group.some(c=>c.locked)||card.source==='starter';
+    const sellable=aceUTSellableCloudCopy(card);
+    context.innerHTML=`
+      <button data-ctx="view">VIEW CARD <small>Full details</small></button>
+      <button data-ctx="squad">ADD / SELECT SQUAD <small>Open squad editor</small></button>
+      <button data-ctx="compare">COMPARE <small>Select for side-by-side</small></button>
+      <button data-ctx="favorite">${fav?'★ UNFAVOURITE':'☆ FAVOURITE'} <small>${fav?'Remove favourite':'Pin this card'}</small></button>
+      <button data-ctx="lock" ${card.source==='starter'?'disabled':''}>${locked?'🔒 UNLOCK':'🔓 LOCK'} <small>${card.source==='starter'?'Starter cards are protected':'Protect from sell / Auto Build'}</small></button>
+      <button data-ctx="sell" class="danger" ${sellable?'':'disabled'}>QUICK SELL · ${sellable?aceUTQuickSellValue(sellable.rating).toLocaleString():'—'} ◉ <small>${locked?'Locked':'Permanent removal'}</small></button>`;
+    const vw=window.innerWidth,vh=window.innerHeight;
+    context.style.left=`${Math.min(Math.max(8,x),vw-230)}px`;
+    context.style.top=`${Math.min(Math.max(8,y),vh-320)}px`;
+    context.classList.add('show');context.setAttribute('aria-hidden','false');
+  }
+  context?.addEventListener('click',async e=>{
+    const btn=e.target.closest('[data-ctx]');if(!btn||btn.disabled||!contextCard)return;
+    const action=btn.dataset.ctx,card=contextCard;aceCloseContext();
+    if(action==='view'){aceMarkGroupViewed(card);openVdsCardShowcase(card.playerName);}
+    if(action==='squad'){aceAssignFreshCardToSquad(card);vdsSwitchUltimateInstance('squad');}
+    if(action==='compare'){compareMode=true;aceToggleCompareCard(card);}
+    if(action==='favorite')await aceSetGroupFlag(card,'favorite',!aceGroupCards(card).some(c=>c.favorite));
+    if(action==='lock')await aceSetGroupFlag(card,'locked',!aceGroupCards(card).some(c=>c.locked));
+    if(action==='sell')aceUTQuickSellGroupedCard(card.playerId,card.rarity);
+  });
+  document.addEventListener('click',e=>{if(context?.classList.contains('show')&&!e.target.closest('#aceCardContextMenu'))aceCloseContext();});
+  document.addEventListener('contextmenu',e=>{
+    const article=e.target.closest?.('#utCollection .aceClubCard');if(!article)return;
+    e.preventDefault();const card=aceGroupCardFromArticle(article);if(card)aceOpenContext(card,e.clientX,e.clientY);
+  });
+  let longPressTimer=0,longPressStart=null;
+  document.addEventListener('pointerdown',e=>{
+    const article=e.target.closest?.('#utCollection .aceClubCard');if(!article||e.pointerType==='mouse')return;
+    longPressStart={x:e.clientX,y:e.clientY,article};
+    clearTimeout(longPressTimer);longPressTimer=setTimeout(()=>{const card=aceGroupCardFromArticle(article);if(card){navigator.vibrate?.(35);aceOpenContext(card,e.clientX,e.clientY);}},520);
+  });
+  document.addEventListener('pointermove',e=>{if(longPressStart&&Math.hypot(e.clientX-longPressStart.x,e.clientY-longPressStart.y)>12){clearTimeout(longPressTimer);longPressStart=null;}});
+  document.addEventListener('pointerup',()=>{clearTimeout(longPressTimer);longPressStart=null;});
+
+  /* ---------- squad undo + build modes ---------- */
+  let undoStack=[];
+  let suppressUndo=false;
+  function aceSquadSnapshot(){return{slots:(ultimateTeamState.lineupSlots||[]).slice(0,6),mode:ultimateTeamState.lineupMode||'custom'}}
+  function acePushUndo(){if(suppressUndo)return;undoStack.push(aceSquadSnapshot());if(undoStack.length>12)undoStack.shift();aceUpdateUndoButton();}
+  function aceUpdateUndoButton(){const b=$('#aceSquadUndoBtn');if(b)b.disabled=!undoStack.length;}
+  function aceUndoSquad(){const prev=undoStack.pop();if(!prev)return;suppressUndo=true;ultimateTeamState.lineupSlots=prev.slots.slice();ultimateTeamState.lineupMode=prev.mode;utSelectedBenchCardUid=null;saveUltimateTeam();renderUltimateSquadVisual();suppressUndo=false;aceUpdateUndoButton();}
+  window.aceUndoSquad=aceUndoSquad;
+  $('#aceSquadUndoBtn')?.addEventListener('click',aceUndoSquad);
+  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&$('#ultimate')?.classList.contains('active')){e.preventDefault();aceUndoSquad();}});
+
+  const baseAssign=utAssignCardToSlot,baseRemove=utRemoveFromSlot,baseClear=utClearLineup,baseAuto=utAutoBuildLineup;
+  utAssignCardToSlot=function(){acePushUndo();return baseAssign.apply(this,arguments)};
+  utRemoveFromSlot=function(){acePushUndo();return baseRemove.apply(this,arguments)};
+  utClearLineup=function(){acePushUndo();return baseClear.apply(this,arguments)};
+
+  function aceAutoBuildScore(card,role,mode){
+    const actual=aceUTCardRoleRating(card,role),natural=Number(card.rating||0),p=aceUltimateMasterPlayer(card);
+    const cat=p?categoryRatings(p):{attacking:0,defense:0,physical:0};
+    if(mode==='in_position')return actual+(aceUTCardNaturalRole(card)===role?30:-18);
+    if(mode==='best_ovr')return actual*.82+natural*.18;
+    if(mode==='attacking')return actual*.72+Number(cat.attacking||0)*.28;
+    if(mode==='defensive')return actual*.70+Number(cat.defense||0)*.30;
+    return actual*.68+(Number(cat.attacking||0)+Number(cat.defense||0)+Number(cat.physical||0))/3*.32;
+  }
+  function aceAutoBuildSlots(mode='in_position'){
+    const current=(ultimateTeamState.lineupSlots||Array(6).fill(null)).slice(0,6);
+    const slots=Array(6).fill(null),used=new Set();
+    // Locked starters currently on court are never replaced by Auto Build.
+    current.forEach((uid,index)=>{const card=utCardByUid(uid);if(card?.locked){slots[index]=uid;used.add(String(uid));}});
+    const pool=utBestUniqueCards().filter(c=>!used.has(String(utCardUid(c))));
+    UT_LINEUP_SLOTS.forEach(slot=>{
+      if(slots[slot.dataIndex])return;
+      const role=aceNormalizeVolleyballRole(slot.role);
+      const best=pool.filter(c=>!used.has(String(utCardUid(c)))).sort((a,b)=>aceAutoBuildScore(b,role,mode)-aceAutoBuildScore(a,role,mode))[0];
+      if(best){slots[slot.dataIndex]=utCardUid(best);used.add(String(utCardUid(best)));}
+    });
+    return slots;
+  }
+  utAutoBuildLineup=function(event){
+    acePushUndo();
+    const mode=(event?.currentTarget?.id==='utServeModeBtn')?'in_position':($('#aceAutoBuildMode')?.value||'in_position');
+    ultimateTeamState.lineupSlots=aceAutoBuildSlots(mode);ultimateTeamState.lineupMode='serving';utSelectedBenchCardUid=null;saveUltimateTeam();renderUltimateSquadVisual();
+  };
+  // Old direct listeners captured the old function object. Replace them once.
+  const autoBtn=$('#utAutoLineupBtn'),serveBtn=$('#utServeModeBtn'),clearBtn=$('#utClearLineupBtn');
+  if(autoBtn){autoBtn.removeEventListener('click',baseAuto);autoBtn.dataset.bound='qol';autoBtn.addEventListener('click',utAutoBuildLineup);}
+  if(serveBtn){serveBtn.removeEventListener('click',baseAuto);serveBtn.dataset.bound='qol';serveBtn.addEventListener('click',utAutoBuildLineup);}
+  if(clearBtn){clearBtn.removeEventListener('click',baseClear);clearBtn.dataset.bound='qol';clearBtn.addEventListener('click',utClearLineup);}
+
+  /* ---------- best-for-position + swap preview + warnings ---------- */
+  function aceOpenSuggestions(slotIndex){
+    const slot=UT_LINEUP_SLOTS.find(s=>Number(s.dataIndex)===Number(slotIndex));if(!slot)return;
+    const role=aceNormalizeVolleyballRole(slot.role);
+    const current=utCardByUid((ultimateTeamState.lineupSlots||[])[slotIndex]);
+    const list=utBestUniqueCards().filter(c=>String(utCardUid(c))!==String(utCardUid(current)||''))
+      .map(c=>({card:c,actual:aceUTCardRoleRating(c,role)})).sort((a,b)=>b.actual-a.actual).slice(0,7);
+    $('#aceSuggestTitle').textContent=`Best for ${role} · ${slot.label}`;
+    $('#aceSuggestIntro').textContent=current?`Current: ${current.playerName} · ${aceUTCardRoleRating(current,role)} ${role} OVR. Choose a replacement below.`:`Choose the strongest card for the actual ${role} role.`;
+    $('#aceSuggestList').innerHTML=list.map(({card,actual},i)=>`<button class="aceSuggestRow" data-suggest-uid="${esc(utCardUid(card))}" data-suggest-slot="${slotIndex}" type="button"><span>${card.photo?`<img src="${esc(card.photo)}" alt="">`:'♠'}</span><div><b>${i===0?'BEST · ':''}${esc(card.playerName)}</b><small>${card.rating} ${aceUTCardNaturalRole(card)} ${aceUTCardIsOutOfPosition(card,role)?'· OUT OF POSITION':''}</small></div><strong>${actual}<small>${role} OVR</small></strong></button>`).join('');
+    openModal('acePositionSuggestModal');
+  }
+  $('#aceSuggestList')?.addEventListener('click',e=>{const row=e.target.closest('[data-suggest-uid]');if(!row)return;closeModal('acePositionSuggestModal');utAssignCardToSlot(row.dataset.suggestUid,Number(row.dataset.suggestSlot));});
+
+  function aceSquadWarnings(){
+    const slots=(ultimateTeamState.lineupSlots||Array(6).fill(null)).slice(0,6);
+    const cards=UT_LINEUP_SLOTS.map(s=>utCardByUid(slots[s.dataIndex]));
+    const warnings=[];
+    const empty=cards.filter(c=>!c).length;if(empty)warnings.push({type:'warn',text:`${empty} EMPTY SLOT${empty===1?'':'S'}`});
+    const oop=cards.reduce((n,c,i)=>n+(c&&aceUTCardIsOutOfPosition(c,UT_LINEUP_SLOTS[i].role)?1:0),0);if(oop)warnings.push({type:'warn',text:`${oop} OUT OF POSITION`});
+    const setter=cards.find((c,i)=>c&&aceNormalizeVolleyballRole(UT_LINEUP_SLOTS[i].role)==='S');if(setter&&aceUTCardRoleRating(setter,'S')<65)warnings.push({type:'danger',text:'LOW SETTING'});
+    const libero=cards.find((c,i)=>c&&aceNormalizeVolleyballRole(UT_LINEUP_SLOTS[i].role)==='L');if(libero&&aceUTCardRoleRating(libero,'L')<65)warnings.push({type:'danger',text:'LOW BACK-COURT DEFENCE'});
+    if(!empty&&!oop&&!warnings.length)warnings.push({type:'good',text:'SQUAD BALANCED ✓'});
+    return warnings;
+  }
+  function aceEnhanceSquad(){
+    const target=$('#utSquadSlots');if(!target)return;
+    $$('#utSquadSlots .aceSlotSuggestBtn,.aceSlotDropPreview').forEach(x=>x.remove());
+    $$('#utSquadSlots .vdsSquadSlot').forEach(slotEl=>{
+      const idx=Number(slotEl.dataset.slotIndex),slot=UT_LINEUP_SLOTS.find(s=>Number(s.dataIndex)===idx);if(!slot)return;
+      slotEl.insertAdjacentHTML('beforeend',`<button class="aceSlotSuggestBtn" data-slot-suggest="${idx}" type="button" title="Best players for ${slot.role}">BEST</button>`);
+      if(utSelectedBenchCardUid){
+        const selected=utCardByUid(utSelectedBenchCardUid),current=utCardByUid((ultimateTeamState.lineupSlots||[])[idx]);
+        if(selected){const role=aceNormalizeVolleyballRole(slot.role),next=aceUTCardRoleRating(selected,role),old=current?aceUTCardRoleRating(current,role):null,delta=old==null?null:next-old;slotEl.insertAdjacentHTML('beforeend',`<div class="aceSlotDropPreview"><span>${esc(selected.playerName)}</span><b>${next} ${role}</b>${delta==null?'':`<i class="${delta>=0?'up':'down'}">${delta>=0?'+':''}${delta}</i>`}</div>`);}
+      }
+    });
+    let bar=$('#aceSquadWarnings');
+    if(!bar){bar=document.createElement('div');bar.id='aceSquadWarnings';bar.className='aceSquadWarnings';document.querySelector('#ultimate .vdsUTLineupHelp')?.insertAdjacentElement('afterend',bar);}
+    if(bar)bar.innerHTML=aceSquadWarnings().map(w=>`<span class="${w.type}">${w.text}</span>`).join('');
+    aceUpdateUndoButton();
+  }
+  const baseRenderSquad=renderUltimateSquadVisual;
+  renderUltimateSquadVisual=function(){const r=baseRenderSquad.apply(this,arguments);requestAnimationFrame(aceEnhanceSquad);return r;};
+  document.addEventListener('click',e=>{const btn=e.target.closest?.('[data-slot-suggest]');if(btn){e.preventDefault();e.stopPropagation();aceOpenSuggestions(Number(btn.dataset.slotSuggest));return;}const empty=e.target.closest?.('#utSquadSlots .vdsSquadSlot.is-empty');if(empty&&!utSelectedBenchCardUid)aceOpenSuggestions(Number(empty.dataset.slotIndex));});
+  document.addEventListener('dragstart',e=>{if(e.target.closest?.('[data-card-uid]'))setTimeout(aceEnhanceSquad,0);});
+
+  /* ---------- pack reveal NEW / DUPLICATE / sell-value ---------- */
+  const baseCinemaCardMarkup=aceCinemaCardMarkup;
+  aceCinemaCardMarkup=function(card,opts={}){
+    let markup=baseCinemaCardMarkup.apply(this,arguments);
+    const group=(ultimateTeamState.cards||[]).filter(c=>Number(c.playerId||0)===Number(card.playerId||0)&&String(c.rarity||'')===String(card.rarity||''));
+    const count=group.length;
+    const duplicate=count>1;
+    const value=aceUTQuickSellValue(card.rating);
+    const badge=`<div class="acePackQOLBadge ${duplicate?'duplicate':'new'}"><b>${duplicate?`DUPLICATE ×${count}`:'NEW'}</b><span>QUICK SELL ${value.toLocaleString()} ◉</span></div>`;
+    const close='</div>';
+    const pos=markup.lastIndexOf(close);if(pos>=0)markup=markup.slice(0,pos)+badge+markup.slice(pos);
+    return markup;
+  };
+
+  /* ---------- improved reconnect wording ---------- */
+  const baseConnectionBanner=mpConnectionBanner;
+  mpConnectionBanner=function(text,mode='online',autoHide=false){
+    let next=String(text||'');
+    if(mode==='reconnecting'&&!/SAFE|RECONNECTING/i.test(next))next=`RECONNECTING… · ${next} · MATCH PROGRESS IS SAFE`;
+    if(mode==='offline'&&!/CONNECTION/i.test(next))next=`CONNECTION LOST · ${next}`;
+    return baseConnectionBanner.call(this,next,mode,autoHide);
+  };
+
+  /* ---------- one-time feature tour ---------- */
+  const tourSteps=[
+    {title:'Actual Position OVR',body:'A card can play anywhere, but the squad now shows the rating it actually performs at in that role. Dragging or selecting a card previews the change before you place it.'},
+    {title:'Smarter Club Management',body:'Use NEW, DUPLICATES, FAVOURITES and LOCKED filters. Long-press a card on mobile or right-click on PC for quick actions.'},
+    {title:'Safe Quick Sell',body:'Locked cards cannot be sold on the server. Bulk Duplicate Sell keeps one copy and automatically protects Starting Six, Favourite and Locked cards.'},
+    {title:'Squad Assist',body:'BEST suggests the strongest cards for a position. Auto Build now supports In Position, Best OVR, Attacking, Defensive and Balanced builds. Undo is available after squad edits.'}
+  ];
+  let tourIndex=0;
+  function aceRenderTour(){const step=tourSteps[tourIndex];$('#aceTourContent').innerHTML=`<div class="aceTourProgress">${tourSteps.map((_,i)=>`<i class="${i<=tourIndex?'on':''}"></i>`).join('')}</div><h2>${step.title}</h2><p>${step.body}</p>`;$('#aceTourNext').textContent=tourIndex===tourSteps.length-1?'GOT IT':'NEXT';}
+  function aceFinishTour(){storeSet(aceQOLKey('tour_seen'),true);closeModal('aceQOLTour');}
+  $('#aceTourSkip')?.addEventListener('click',aceFinishTour);
+  $('#aceTourNext')?.addEventListener('click',()=>{if(tourIndex>=tourSteps.length-1){aceFinishTour();return;}tourIndex++;aceRenderTour();});
+  function aceMaybeTour(){if(storeGet(aceQOLKey('tour_seen'),false))return;tourIndex=0;aceRenderTour();openModal('aceQOLTour');}
+  const ultimatePage=$('#ultimate');if(ultimatePage){new MutationObserver(()=>{if(ultimatePage.classList.contains('active'))setTimeout(aceMaybeTour,450)}).observe(ultimatePage,{attributes:true,attributeFilter:['class']});}
+
+  /* ---------- re-run small enhancements after renders ---------- */
+  const baseRenderUT=renderUltimateTeam;
+  renderUltimateTeam=function(){const r=baseRenderUT.apply(this,arguments);requestAnimationFrame(()=>{observeClub();aceEnhanceClubCards();aceApplyStarterFlags();if(vdsUltimateHubActive==='squad')aceEnhanceSquad();});return r;};
+  requestAnimationFrame(()=>{observeClub();aceEnhanceClubCards();if(vdsUltimateHubActive==='squad')aceEnhanceSquad();});
+})();
+</script>
+
+
+<style id="ace-b21-18-qol-style">
+/* QOL overlays */
+.aceQOLModal{position:fixed;inset:0;z-index:43000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(1,4,9,.88);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
+.aceQOLModal.show{display:flex}.aceQOLSheet{position:relative;width:min(720px,calc(100vw - 28px));max-height:min(820px,calc(100dvh - 30px));overflow:auto;padding:22px;border:1px solid rgba(160,111,236,.18);border-radius:22px;background:radial-gradient(circle at 50% -8%,rgba(106,58,181,.13),transparent 38%),linear-gradient(180deg,#0b0f18,#070a10);box-shadow:0 34px 100px rgba(0,0,0,.68)}
+.aceQOLClose{position:absolute;right:13px;top:13px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#0a0d13;color:#8e8997;cursor:pointer}.aceQOLKicker{color:#9a74c8;font-size:7px;font-weight:1000;letter-spacing:.16em}.aceQOLSheet h2{margin:8px 0 0;font-size:28px}.aceQOLIntro{margin:8px 0 14px;color:#8292a4;font-size:10px;line-height:1.5}.aceQOLActions{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;margin-top:15px}.aceQOLActions button{min-height:48px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:#0a0e15;color:#a9a5af;font-size:9px;font-weight:1000;cursor:pointer}.aceQOLActions button.primary{border-color:rgba(153,94,236,.35);background:linear-gradient(135deg,#6234a7,#9559e8);color:#fff}.aceQOLActions button:disabled{opacity:.42;cursor:not-allowed}.aceQOLEmpty{padding:24px;border:1px dashed rgba(255,255,255,.08);border-radius:13px;color:#76717e;font-size:10px;text-align:center}
+/* compare */
+.aceCompareHeads{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.aceCompareHeads>div{display:grid;grid-template-columns:60px 1fr;grid-template-rows:auto auto;gap:2px 10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:14px;background:#090d14}.aceCompareHeads img{grid-row:1/3;width:60px;height:75px;object-fit:cover;object-position:center top;border-radius:10px}.aceCompareHeads b{font-size:13px}.aceCompareHeads span{color:#8b7c9e;font-size:8px}.aceCompareRows{margin-top:10px;border:1px solid rgba(255,255,255,.055);border-radius:14px;overflow:hidden}.aceCompareRow{display:grid;grid-template-columns:1.3fr .7fr .7fr;min-height:36px;align-items:center;padding:0 11px;border-bottom:1px solid rgba(255,255,255,.04)}.aceCompareRow:last-child{border-bottom:0}.aceCompareRow span{color:#727a88;font-size:8px;font-weight:900}.aceCompareRow b{text-align:center;font-size:12px}.aceCompareRow b.win{color:#7fe3ac}.aceComparePlaystyles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.aceComparePlaystyles>div{display:grid;gap:4px;padding:10px;border:1px solid rgba(255,255,255,.05);border-radius:12px;background:#090c13}.aceComparePlaystyles small{color:#766087;font-size:6px;font-weight:1000}.aceComparePlaystyles b{font-size:8px;color:#c9b7df}
+/* duplicates */
+#aceDuplicateReview{display:grid;gap:6px}.aceDuplicateRow{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:9px;min-height:60px;padding:7px 10px;border:1px solid rgba(255,255,255,.055);border-radius:11px;background:#090d13}.aceDuplicateRow>span{width:43px;height:48px;display:grid;place-items:center;overflow:hidden;border-radius:8px;background:#12131a;color:#b797dc}.aceDuplicateRow img{width:100%;height:100%;object-fit:cover}.aceDuplicateRow b{display:block;font-size:10px}.aceDuplicateRow small{display:block;margin-top:4px;color:#767d88;font-size:7px}.aceDuplicateRow strong{color:#e4c768;font-size:10px}.aceDuplicateTotal{display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding:13px;border-radius:12px;border:1px solid rgba(226,185,72,.14);background:rgba(73,53,7,.13)}.aceDuplicateTotal span{color:#8b7742;font-size:7px;font-weight:1000}.aceDuplicateTotal b{color:#edcf6b;font-size:18px}
+/* position suggestions */
+#aceSuggestList{display:grid;gap:6px}.aceSuggestRow{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:10px;min-height:66px;padding:7px 10px;border:1px solid rgba(255,255,255,.055);border-radius:12px;background:#090d14;color:#fff;text-align:left;cursor:pointer}.aceSuggestRow:hover{border-color:rgba(151,96,232,.25);background:#0d111b}.aceSuggestRow>span{width:48px;height:55px;display:grid;place-items:center;overflow:hidden;border-radius:9px;background:#13141c;color:#a87ce1}.aceSuggestRow img{width:100%;height:100%;object-fit:cover;object-position:center top}.aceSuggestRow div b{display:block;font-size:10px}.aceSuggestRow div small{display:block;margin-top:4px;color:#788391;font-size:7px}.aceSuggestRow>strong{display:flex;flex-direction:column;align-items:flex-end;color:#d9c2f7;font-size:17px}.aceSuggestRow>strong small{font-size:5px;color:#776989}
+/* context menu */
+.aceCardContextMenu{position:fixed;z-index:44000;display:none;width:220px;padding:6px;border:1px solid rgba(165,116,235,.17);border-radius:13px;background:rgba(8,10,16,.985);box-shadow:0 20px 55px rgba(0,0,0,.55);backdrop-filter:blur(14px)}.aceCardContextMenu.show{display:grid}.aceCardContextMenu button{min-height:44px;padding:7px 9px;border:0;border-radius:8px;background:transparent;color:#ddd8e6;text-align:left;font-size:8px;font-weight:1000;cursor:pointer}.aceCardContextMenu button:hover{background:rgba(145,86,225,.11)}.aceCardContextMenu button small{display:block;margin-top:3px;color:#6f6978;font-size:6px;font-weight:700}.aceCardContextMenu button.danger{color:#e5c26a}.aceCardContextMenu button:disabled{opacity:.35;cursor:not-allowed}
+/* club flags / compare */
+.aceClubCardFlags .aceQOLFlag{font-size:8px!important;padding:4px 6px!important}.aceClubCardFlags .aceQOLFlag.favourite{color:#f1cc66;border-color:rgba(238,197,78,.24)}.aceClubCardFlags .aceQOLFlag.locked{color:#ac94d0;border-color:rgba(166,116,233,.22)}.aceClubCard.compare-selected .aceClubCardView>.fifaPlayerCard{filter:brightness(1.08)!important;box-shadow:0 0 0 2px rgba(167,104,255,.66),0 0 30px rgba(128,66,219,.25)!important}.aceClubTopActions #aceClubCompareModeBtn.active{color:#d8c0ff;border-color:rgba(161,101,244,.31);background:rgba(113,59,193,.15)}
+/* squad */
+.aceAutoBuildMode{min-height:36px!important;max-width:120px!important;padding:0 8px!important;border:1px solid rgba(177,138,234,.12)!important;border-radius:8px!important;background:#0a0e16!important;color:#8d839a!important;font-size:7px!important;font-weight:900!important}.aceSquadWarnings{display:flex;flex-wrap:wrap;gap:5px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.035);background:rgba(5,10,17,.48)}.aceSquadWarnings span{display:inline-flex;min-height:23px;align-items:center;padding:4px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.06);font-size:6px;font-weight:1000;letter-spacing:.06em}.aceSquadWarnings .warn{color:#e6b96c;border-color:rgba(226,172,74,.18);background:rgba(71,44,4,.13)}.aceSquadWarnings .danger{color:#ef8d95;border-color:rgba(230,91,105,.18);background:rgba(76,14,20,.12)}.aceSquadWarnings .good{color:#73dba4;border-color:rgba(79,210,140,.17);background:rgba(12,66,42,.12)}.aceSlotSuggestBtn{position:absolute;z-index:25;right:0;top:0;min-width:34px;min-height:22px;border:1px solid rgba(165,110,240,.16);border-radius:999px;background:rgba(8,11,17,.88);color:#a88ad1;font-size:5px;font-weight:1000;cursor:pointer}.aceSlotDropPreview{position:absolute;z-index:30;left:50%;bottom:-31px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;min-width:118px;justify-content:center;padding:5px 6px;border:1px solid rgba(155,100,232,.24);border-radius:8px;background:rgba(7,9,15,.96);box-shadow:0 8px 20px rgba(0,0,0,.32);pointer-events:none}.aceSlotDropPreview span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8d8795;font-size:5px}.aceSlotDropPreview b{color:#d2b5f4;font-size:7px}.aceSlotDropPreview i{font-style:normal;font-size:6px;font-weight:1000}.aceSlotDropPreview i.up{color:#66d89a}.aceSlotDropPreview i.down{color:#e37b84}
+/* pack QOL badge */
+.aceCinemaPlayerCard,.aceCinemaSummaryCard{position:relative!important}.acePackQOLBadge{position:absolute;z-index:70;left:50%;bottom:10px;transform:translateX(-50%);min-width:118px;padding:5px 7px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(4,7,12,.90);box-shadow:0 8px 18px rgba(0,0,0,.33);text-align:center;pointer-events:none}.acePackQOLBadge b{display:block;font-size:6px;letter-spacing:.08em}.acePackQOLBadge span{display:block;margin-top:2px;color:#8c8793;font-size:5px}.acePackQOLBadge.new b{color:#9e6bf1}.acePackQOLBadge.duplicate b{color:#e1b95f}
+/* cloud status */
+.aceCloudSavePill{position:fixed;z-index:4100;right:16px;bottom:18px;display:flex;align-items:center;gap:7px;min-height:34px;padding:7px 10px;border:1px solid rgba(92,205,143,.16);border-radius:999px;background:rgba(5,15,12,.90);color:#7fce9f;font-size:7px;font-weight:1000;letter-spacing:.07em;pointer-events:none;transition:.18s ease}.aceCloudSavePill i{width:7px;height:7px;border-radius:50%;background:#62d994;box-shadow:0 0 10px rgba(98,217,148,.45)}.aceCloudSavePill.saving{color:#d6b65e;border-color:rgba(220,178,71,.18)}.aceCloudSavePill.saving i{background:#e0b84e;animation:aceCloudPulse .8s ease-in-out infinite}.aceCloudSavePill.saved{color:#78dda3}.aceCloudSavePill.error{color:#e98791;border-color:rgba(230,91,105,.2)}.aceCloudSavePill.error i{background:#e76e79}@keyframes aceCloudPulse{50%{opacity:.3}}
+/* improved reconnect */
+.mpReconnectBanner{min-height:44px!important;padding:10px 16px!important;font-size:10px!important;font-weight:900!important;box-shadow:0 16px 42px rgba(0,0,0,.50)!important}.mpReconnectBanner.reconnecting{border-color:rgba(228,181,72,.34)!important;background:rgba(24,17,5,.97)!important}.mpReconnectBanner.offline{border-color:rgba(236,93,103,.31)!important;background:rgba(31,8,11,.97)!important}
+/* tour */
+.aceTourSheet{width:min(470px,calc(100vw - 28px))}.aceTourProgress{display:flex;gap:5px;margin:14px 0}.aceTourProgress i{width:24px;height:3px;border-radius:3px;background:#292432}.aceTourProgress i.on{background:#9f62e8}.aceTourSheet h2{font-size:27px}.aceTourSheet p{color:#8995a4;font-size:11px;line-height:1.55}
+@media(max-width:760px){.aceQOLModal{padding:10px}.aceQOLSheet{padding:18px 14px;width:min(400px,calc(100vw - 18px));border-radius:18px}.aceQOLSheet h2{font-size:23px}.aceClubTopActions{display:grid!important;grid-template-columns:1fr 1fr!important}.aceClubTopActions button{min-height:44px!important}.aceAutoBuildMode{max-width:none!important;min-height:40px!important}.aceSquadWarnings{padding:7px 8px}.aceSlotSuggestBtn{min-width:38px;min-height:26px;font-size:6px}.aceSlotDropPreview{bottom:-27px;min-width:96px}.aceCloudSavePill{right:12px;bottom:91px;min-height:31px;font-size:6.5px}.aceCardContextMenu{width:min(230px,calc(100vw - 20px))}.aceCompareHeads{gap:6px}.aceCompareHeads>div{grid-template-columns:48px 1fr}.aceCompareHeads img{width:48px;height:63px}.aceCompareRow{grid-template-columns:1.15fr .7fr .7fr;padding:0 7px}.aceCompareRow span{font-size:7px}.aceDuplicateRow{grid-template-columns:42px 1fr auto;padding:6px}.aceSuggestRow{grid-template-columns:46px 1fr auto;padding:6px}.acePackQOLBadge{bottom:7px;min-width:108px}}
+</style>
+
+
+<script id="ace-b21-18-version-marker">
+window.ACE_PROJECT_BUILD="B21.18";
+window.ACE_QOL_PASS="COMPLETE_MOBILE_PC";
+window.ACE_DUPLICATE_TOOLS="FILTER_REVIEW_BULK_SELL";
+window.ACE_CARD_COMPARE="TWO_CARD_SIDE_BY_SIDE";
+window.ACE_SQUAD_ASSIST="BEST_POSITION_PREVIEW_WARNINGS_UNDO";
+window.ACE_CARD_FLAGS="CLOUD_FAVOURITE_LOCK_VIEWED";
+window.ACE_AUTO_BUILD="MULTI_STYLE_LOCK_PRESERVING";
+window.ACE_CARD_CONTEXT="RIGHT_CLICK_LONG_PRESS";
+window.ACE_CLOUD_STATUS="VISIBLE_SAVE_SYNC_STATE";
+window.ACE_RECONNECT_UI="ENHANCED";
+window.ACE_FIRST_USE_HELP="ONE_TIME_QOL_TOUR";
+window.ACE_QUICK_SELL_UI="CENTERED_PROJECT_ACE_MODAL";
 window.ACE_OUT_OF_POSITION_UI="ASSIGNED_ROLE_OVR";
-window.ACE_SIM_MATCH_UI="CENTERED_AGREEMENT_MODAL";
-window.ACE_UT_HEADER_MODEL="SINGLE_PROFILE_SINGLE_WALLET";
 window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
-window.ACE_PACK_CARD_RENDERER="CANONICAL_MASTER_CARD";
 </script>
 
 </body>
