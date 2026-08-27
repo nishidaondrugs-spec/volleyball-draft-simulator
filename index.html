@@ -7928,12 +7928,13 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
           </div>
           <div class="utPack gold" data-ut-pack="gold">
             <div class="vdsPackTier">GOLD</div>
+            <div class="utPackGiftBadge" id="utGoldGiftBadge" hidden>🎁 FREE x5</div>
             <div class="utPackIcon">ACE</div>
             <div class="utPackName">Gold Pack</div>
             <div class="vdsPackMeta"><span>3 PLAYERS</span><span>ELITE HUNT</span></div>
             <div class="utPackOdds">3 cards · Featured guaranteed Gold+ · 0.5% Ace</div>
-            <div class="utPackCost">2,500 <span>COINS</span></div>
-            <button class="btn secondary utOpenBtn">OPEN PACK</button>
+            <div class="utPackCost" id="utGoldPackCost">2,500 <span>COINS</span></div>
+            <button class="btn secondary utOpenBtn" id="utGoldPackOpenBtn">OPEN PACK</button>
           </div>
         </div>
       </div>
@@ -17320,7 +17321,7 @@ async function vdsEnsureProfile(user){
 
   let {data,error}=await client
     .from("vds_profiles")
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .eq("id",user.id)
     .maybeSingle();
 
@@ -17335,7 +17336,7 @@ async function vdsEnsureProfile(user){
         display_name:String(google.displayName||"Manager").slice(0,40),
         avatar_url:google.avatar||null
       },{onConflict:"id"})
-      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
       .single();
 
     if(upsert.error){
@@ -17346,6 +17347,7 @@ async function vdsEnsureProfile(user){
   }
 
   vdsAccountProfile=data;
+  setTimeout(()=>window.aceRenderFreeGoldGift?.(),0);
   return data;
 }
 
@@ -17422,6 +17424,73 @@ function vdsSyncUltimateWalletFromProfile(){
   if(label)label.textContent=host?"HOST WALLET · UNLIMITED":"SUPABASE WALLET";
   document.querySelector(".vdsUTWalletCloud")?.classList.toggle("host-wallet",host);
 }
+
+let vdsWalletHardSyncBusy=false;
+let vdsWalletLastHardSyncAt=0;
+
+async function vdsForceWalletSyncFromServer({rerender=false,quiet=true}={}){
+  if(!vdsHasPermanentAccount?.() || !vdsAccountSession?.user?.id)return vdsAccountProfile;
+  if(vdsWalletHardSyncBusy)return vdsAccountProfile;
+
+  const now=Date.now();
+  if(quiet && now-vdsWalletLastHardSyncAt<900)return vdsAccountProfile;
+
+  const client=ensureMultiplayerClient?.();
+  if(!client)return vdsAccountProfile;
+
+  vdsWalletHardSyncBusy=true;
+  try{
+    const {data,error}=await client
+      .from("vds_profiles")
+      .select("coins,total_coins_earned,xp,manager_level,free_gold_packs,matches_played,wins,losses,elo,win_streak,best_streak,updated_at")
+      .eq("id",vdsAccountSession.user.id)
+      .single();
+
+    if(error)throw error;
+    if(!data)return vdsAccountProfile;
+
+    const before=Number(vdsAccountProfile?.coins||0);
+    vdsAccountProfile={
+      ...(vdsAccountProfile||{}),
+      ...data,
+      coins:Math.max(0,Number(data.coins||0)),
+      free_gold_packs:Math.max(0,Math.floor(Number(data.free_gold_packs||0)))
+    };
+    vdsWalletLastHardSyncAt=Date.now();
+
+    if(typeof ultimateTeamState==="object" && ultimateTeamState){
+      ultimateTeamState.coins=Number(vdsAccountProfile.coins||0);
+    }
+
+    vdsUpdateAccountUI?.();
+    vdsRefreshFreeGoldPackUI?.();
+    window.aceRenderFreeGoldGift?.();
+
+    const ultimateActive=document.getElementById("ultimate")?.classList.contains("active");
+    if(rerender && ultimateActive){
+      if(typeof vdsRenderUltimateHubHome==="function")vdsRenderUltimateHubHome();
+      if(vdsUltimateHubActive==="packs" && typeof vdsRenderPackStoreShowcase==="function"){
+        vdsRenderPackStoreShowcase();
+      }
+    }
+
+    const after=Number(vdsAccountProfile.coins||0);
+    if(before!==after){
+      console.info(`ACE wallet synced from server: ${before} → ${after}`);
+    }
+    return vdsAccountProfile;
+  }catch(error){
+    console.warn("ACE wallet hard sync failed",error);
+    return vdsAccountProfile;
+  }finally{
+    vdsWalletHardSyncBusy=false;
+  }
+}
+
+function vdsScheduleWalletVerification(delay=280,{rerender=true}={}){
+  window.setTimeout(()=>vdsForceWalletSyncFromServer({rerender,quiet:false}),Math.max(0,Number(delay)||0));
+}
+
 
 function vdsRenderDailyProgress(){
   const d=vdsDailyProgressCache||{
@@ -17664,6 +17733,7 @@ async function vdsRecordCompletedOnlineMatch(){
       liveState.vdsProgressionResult=result;
       vdsRenderPostMatchProgression(result);
       await vdsRefreshAccountProgression({loadPanels:true});
+      vdsScheduleWalletVerification(220,{rerender:true});
     }
     return result;
   }catch(error){
@@ -17706,6 +17776,7 @@ async function vdsApplySignedInSession(session,{resumeRoom=true}={}){
     if(typeof vdsSyncUltimateTeamCloud==="function")await vdsSyncUltimateTeamCloud({allowLegacyImport:true});
   }catch(error){console.warn("Ultimate Team account sync on sign-in failed",error);}
   setTimeout(()=>vdsRefreshAccountProgression({loadPanels:true}),60);
+  setTimeout(()=>vdsForceWalletSyncFromServer({rerender:true,quiet:false}),240);
   vdsHideAccountGate();
   vdsSetAuthStatus("Signed in.","ok");
   aceMaybeShowFirstLoginOnboarding();
@@ -17780,7 +17851,7 @@ async function vdsSaveProfile(){
     .from("vds_profiles")
     .update({display_name:display,username})
     .eq("id",vdsAccountSession.user.id)
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .single();
 
   if(error){
@@ -17795,6 +17866,7 @@ async function vdsSaveProfile(){
 
   vdsAccountProfile=data;
   vdsUpdateAccountUI();
+  setTimeout(()=>window.aceRenderFreeGoldGift?.(),0);
   if(status){status.textContent="Profile saved ✓";status.className="vdsAccountProfileStatus ok";}
 }
 
@@ -21838,6 +21910,40 @@ function utPickPlayer(rarity){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
+
+function vdsFreeGoldPackCount(){
+  return Math.max(0,Math.floor(Number(vdsAccountProfile?.free_gold_packs||0)));
+}
+
+function vdsHasFreeGoldPack(packId){
+  return String(packId||"").toLowerCase()==="gold" && vdsFreeGoldPackCount()>0;
+}
+
+function vdsRefreshFreeGoldPackUI(){
+  const free=vdsFreeGoldPackCount();
+
+  const badge=document.getElementById("utGoldGiftBadge");
+  const cost=document.getElementById("utGoldPackCost");
+  const btn=document.getElementById("utGoldPackOpenBtn");
+
+  if(badge){
+    badge.hidden=free<=0;
+    badge.textContent=free>0?`🎁 FREE x${free}`:"";
+  }
+  if(cost){
+    cost.innerHTML=free>0
+      ? `<b class="utFreePackWord">FREE</b> <span>${free} LEFT</span>`
+      : `2,500 <span>COINS</span>`;
+  }
+  if(btn){
+    btn.textContent=free>0?"OPEN FREE PACK":"OPEN PACK";
+  }
+
+  if(vdsUltimateHubActive==="packs" && document.getElementById("vdsUTPackShowcase")){
+    vdsRenderPackStoreShowcase?.();
+  }
+}
+
 async function openUltimatePack(packId){
   const pack=UT_PACKS[packId];
   if(!pack)return;
@@ -21856,7 +21962,8 @@ async function openUltimatePack(packId){
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
-  if(!isHostWallet && currentCoins<pack.cost){
+  const usingFreeGoldPack=vdsHasFreeGoldPack(packId);
+  if(!usingFreeGoldPack && !isHostWallet && currentCoins<pack.cost){
     alert(`Not enough ACE coins. ${pack.cost.toLocaleString()} coins required.`);
     return;
   }
@@ -21866,7 +21973,11 @@ async function openUltimatePack(packId){
     packEl?.querySelector(".utOpenBtn"),
     document.getElementById("vdsUTPackHeroOpen")
   ].filter(Boolean);
-  openButtons.forEach(btn=>{btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent="OPENING 3 CARDS…";});
+  openButtons.forEach(btn=>{
+    btn.disabled=true;
+    btn.dataset.oldText=btn.textContent;
+    btn.textContent=usingFreeGoldPack?"OPENING FREE GOLD PACK…":"OPENING 3 CARDS…";
+  });
 
   let committed=false;
 
@@ -21880,12 +21991,29 @@ async function openUltimatePack(packId){
     if(entries.length!==3)throw new Error(`SERVER_PACK_CARD_COUNT_${entries.length}_OF_3`);
 
     const newBalance=Number(data?.coin_balance);
-    if(Number.isFinite(newBalance) && !vdsAccountProfile?.is_host_account){
+    const freeRemaining=Number(data?.free_gold_packs_remaining);
+    const usedFreePack=data?.used_free_pack===true;
+
+    if(Number.isFinite(newBalance)){
       vdsAccountProfile={...(vdsAccountProfile||{}),coins:newBalance};
       ultimateTeamState.coins=newBalance;
-      vdsUpdateAccountUI();
-    }else if(vdsAccountProfile?.is_host_account){
+    }
+    if(Number.isFinite(freeRemaining)){
+      vdsAccountProfile={...(vdsAccountProfile||{}),free_gold_packs:Math.max(0,Math.floor(freeRemaining))};
+    }
+
+    if(vdsAccountProfile?.is_host_account && !Number.isFinite(newBalance)){
       vdsSyncUltimateWalletFromProfile();
+    }else{
+      vdsUpdateAccountUI();
+    }
+
+    vdsRefreshFreeGoldPackUI();
+    window.aceRenderFreeGoldGift?.();
+    vdsScheduleWalletVerification(240,{rerender:true});
+
+    if(usedFreePack){
+      console.info(`Project ACE gift pack used. ${vdsFreeGoldPackCount()} free Gold Pack(s) remaining.`);
     }
 
     // All three cards were committed atomically on Supabase. Pull the club
@@ -21936,9 +22064,15 @@ async function openUltimatePack(packId){
   }finally{
     openButtons.forEach(btn=>{
       btn.disabled=false;
-      btn.textContent=btn.dataset.oldText||"OPEN PACK";
+      if(packId==="gold" && vdsHasFreeGoldPack(packId)){
+        btn.textContent="OPEN FREE PACK";
+      }else{
+        btn.textContent=btn.dataset.oldText||"OPEN PACK";
+      }
       delete btn.dataset.oldText;
     });
+    vdsRefreshFreeGoldPackUI();
+    window.aceRenderFreeGoldGift?.();
     if(vdsUltimateHubActive==="packs")vdsRenderPackStoreShowcase?.();
   }
 }
@@ -23428,6 +23562,7 @@ function goPage(id){
     renderUltimateTeam();
     vdsUltimateViewDirty=false;
     vdsRefreshAccountProgression({loadPanels:true});
+    vdsScheduleWalletVerification(140,{rerender:true});
   }
 
   if(id==="lineup" && mpHasPersistentRoom()){
@@ -25869,7 +26004,9 @@ const VDS_PACK_STORE_UI={
 };
 
 function vdsPackStoreWalletText(){
-  return vdsAccountProfile?.is_host_account?'∞':Number(vdsAccountProfile?.coins||0).toLocaleString();
+  const coins=vdsAccountProfile?.is_host_account?'∞':Number(vdsAccountProfile?.coins||0).toLocaleString();
+  const free=vdsFreeGoldPackCount();
+  return free>0?`${coins} · 🎁 ${free} FREE GOLD`:coins;
 }
 
 function vdsPackStoreOddsHTML(pack){
@@ -25889,6 +26026,8 @@ function vdsRenderPackStoreShowcase(){
   const pack=VDS_PACK_STORE_UI[vdsPackStoreSelection]||VDS_PACK_STORE_UI.gold;
   const selection=vdsPackStoreSelection;
   const isGold=selection==='gold';
+  const freeGold=vdsFreeGoldPackCount();
+  const useFreeGold=isGold && freeGold>0;
   showcase.dataset.pack=selection;
   showcase.style.setProperty('--pack-glow',pack.glow);
   showcase.innerHTML=`
@@ -25931,7 +26070,7 @@ function vdsRenderPackStoreShowcase(){
             <div class="acePackHeroWord"><small>THE ACE PROJECT</small><b>${pack.tier}</b><span>PLAYER PACK</span></div>
             <div class="acePackSeal">♠</div>
           </div>
-          ${isGold?'<div class="acePackFeaturedTag">FEATURED · RARE GOLD HUNT</div>':''}
+          ${isGold?`<div class="acePackFeaturedTag">${useFreeGold?`🎁 FOUNDER GIFT · ${freeGold} FREE LEFT`:'FEATURED · RARE GOLD HUNT'}</div>`:''}
         </div>
 
         <div class="acePackInfo">
@@ -25950,10 +26089,15 @@ function vdsRenderPackStoreShowcase(){
             <div class="acePackOddsGrid">${vdsPackStoreOddsHTML(pack)}</div>
           </div>
 
-          <div class="acePackCheckout">
-            <div><small>OPEN FOR</small><b>${pack.cost.toLocaleString()} ◉</b></div>
+          <div class="acePackCheckout ${useFreeGold?'gift':''}">
+            <div>
+              <small>${useFreeGold?'YOUR GIFT':'OPEN FOR'}</small>
+              <b>${useFreeGold?`FREE · ${freeGold} LEFT`:`${pack.cost.toLocaleString()} ◉`}</b>
+            </div>
             <button class="acePackOpen ${selection}" id="vdsUTPackHeroOpen" type="button">
-              <span>♠</span><b>OPEN ${pack.tier} PACK</b><small>ADD ${pack.players} CARD${pack.players===1?'':'S'} TO THE CLUB</small>
+              <span>${useFreeGold?'🎁':'♠'}</span>
+              <b>${useFreeGold?'OPEN FREE GOLD PACK':`OPEN ${pack.tier} PACK`}</b>
+              <small>${useFreeGold?'NO COINS CHARGED':`ADD ${pack.players} CARD${pack.players===1?'':'S'} TO THE CLUB`}</small>
             </button>
           </div>
           <div class="acePackOddsNote">Bronze 1–59 · Silver 60–74 · Gold 75–84 · Rare Gold 85–89 · Elite 90–95 · Ace 96–99</div>
@@ -27160,6 +27304,7 @@ async function aceUTPersistAiRewards(reward){
     if(typeof vdsUpdateAccountUI==="function")vdsUpdateAccountUI();
     if(typeof vdsRenderDailyProgress==="function")vdsRenderDailyProgress();
     if(typeof renderUltimateTeam==="function")renderUltimateTeam();
+    vdsScheduleWalletVerification(220,{rerender:true});
     aceUTLeagueState.cloudMatchId=null;
     return {persisted:true,data};
   }catch(error){
@@ -31715,12 +31860,1080 @@ window.aceRuntimeHealth=function(){
 </style>
 
 
-<script id="ace-b21-8-version-marker">
-window.ACE_PROJECT_BUILD="B21.8";
+
+<style id="ace-b21-9-readability-navigation">
+/* =========================================================
+   B21.9 — READABILITY + NAVIGATION PASS
+   Important information is readable at a glance on phone + PC.
+   We keep compact secondary metadata, but remove 5–8px UI text
+   from primary controls and navigation.
+   ========================================================= */
+
+:root{
+  --ace-ui-text:12px;
+  --ace-ui-small:10px;
+  --ace-ui-tiny:8px;
+  --ace-touch:42px;
+}
+
+/* ---------- GLOBAL DESKTOP READABILITY ---------- */
+.vdsGlobalHeader{
+  min-height:70px!important;
+  padding-left:20px!important;
+  padding-right:20px!important;
+}
+.vdsBrandLogo{
+  width:44px!important;
+  height:44px!important;
+}
+.vdsBrand b{
+  font-size:15px!important;
+}
+.vdsBrand small{
+  font-size:8px!important;
+  letter-spacing:.13em!important;
+}
+.vdsMainNav{
+  gap:4px!important;
+}
+.vdsMainNav .tab,
+.vdsMainNav .navDropBtn{
+  min-height:44px!important;
+  height:44px!important;
+  padding:0 15px!important;
+  font-size:10px!important;
+  letter-spacing:.075em!important;
+}
+.vdsMainNav .navDropMenu{
+  min-width:290px!important;
+}
+.vdsMenuKicker{
+  font-size:8px!important;
+}
+.vdsMainNav .navDropItem{
+  min-height:52px!important;
+  padding:11px 12px!important;
+}
+.vdsMainNav .navDropIcon{
+  width:34px!important;
+  height:34px!important;
+  font-size:10px!important;
+}
+.vdsMainNav .navDropItem b{
+  font-size:11px!important;
+}
+.vdsMainNav .navDropItem small{
+  font-size:9px!important;
+  line-height:1.35!important;
+}
+
+.btn{
+  min-height:42px;
+  padding:10px 15px!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+}
+.miniBtn{
+  min-height:36px!important;
+  padding:8px 10px!important;
+  font-size:9px!important;
+}
+label{
+  font-size:13px!important;
+  line-height:1.3!important;
+}
+select,input{
+  min-height:42px;
+  font-size:13px!important;
+}
+.small{
+  font-size:13px!important;
+  line-height:1.45!important;
+}
+.badge,.pill{
+  font-size:11px!important;
+}
+table{
+  font-size:13px!important;
+}
+th{
+  font-size:10px!important;
+}
+.card h2{
+  font-size:23px;
+}
+.card h3{
+  font-size:18px;
+}
+
+/* ---------- HOME / PLAY: PRIMARY INFORMATION ---------- */
+.homeKicker,
+.gameHeroKicker{
+  font-size:9px!important;
+}
+.homeTagline{
+  font-size:17px!important;
+  line-height:1.45!important;
+}
+.gameHero p,
+.gameHero .small{
+  font-size:11px!important;
+  line-height:1.5!important;
+}
+.gamePlayBtn,
+.gameHero .btn{
+  min-height:48px!important;
+  font-size:11px!important;
+}
+
+/* ---------- ULTIMATE TEAM HOME ---------- */
+#ultimate .vdsUTHeaderStage6B h2{
+  font-size:28px!important;
+}
+#ultimate .vdsUTHeaderStage6B p{
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+#ultimate .vdsUTHubTab{
+  min-height:42px!important;
+  font-size:9px!important;
+}
+.aceUTHomeBrand span{
+  font-size:9px!important;
+}
+.aceUTHomeBrand b{
+  font-size:15px!important;
+}
+.aceUTHomeManager{
+  font-size:9px!important;
+}
+.aceUTHomeCopy>p{
+  font-size:12px!important;
+  line-height:1.55!important;
+}
+.aceUTHomeMainActions button{
+  min-height:72px!important;
+}
+.aceUTHomeMainActions button b{
+  font-size:12px!important;
+}
+.aceUTHomeMainActions button small{
+  margin-top:5px!important;
+  font-size:9px!important;
+  line-height:1.25!important;
+  letter-spacing:.045em!important;
+}
+.aceUTHomeStats span{
+  font-size:8px!important;
+}
+.aceUTHomeStats b{
+  font-size:18px!important;
+}
+.aceUTHomeSquadLabel span{
+  font-size:8px!important;
+}
+.aceUTHomeSquadLabel b{
+  font-size:10px!important;
+}
+.aceUTFeaturedPack small{
+  font-size:8px!important;
+}
+.aceUTFeaturedPack strong{
+  font-size:18px!important;
+}
+.aceUTFeaturedPack em{
+  font-size:9px!important;
+  line-height:1.3!important;
+}
+
+/* ---------- UT SQUAD / CLUB CONTROLS ---------- */
+#ultimate .vdsUTLineupHelp{
+  font-size:9px!important;
+  line-height:1.45!important;
+}
+#ultimate .vdsUTSmallPill,
+#ultimate #utSquadRating{
+  font-size:9px!important;
+}
+.aceSquadFooter>div>span{
+  font-size:9px!important;
+}
+.aceSquadFooter>div>small{
+  font-size:8px!important;
+  line-height:1.35!important;
+}
+.aceSquadPlayBtn b{
+  font-size:11px!important;
+}
+.aceSquadPlayBtn small{
+  font-size:8px!important;
+}
+.aceClubTitle>span{
+  font-size:8px!important;
+}
+.aceClubTitle p{
+  font-size:10px!important;
+  line-height:1.4!important;
+}
+.aceClubTopActions button{
+  min-height:42px!important;
+  font-size:9px!important;
+}
+.aceClubSearch input{
+  font-size:12px!important;
+}
+.aceClubFilters button{
+  min-height:38px!important;
+  font-size:9px!important;
+}
+.aceClubControls select{
+  min-height:42px!important;
+  font-size:10px!important;
+}
+.aceClubCardFlags span{
+  font-size:7px!important;
+}
+.aceClubCardActions button{
+  min-height:38px!important;
+  font-size:8px!important;
+}
+
+/* ---------- PLAYER PAGE ---------- */
+#players .vdsPlayersHeroStats span{
+  font-size:8px!important;
+}
+#players .vdsPlayerSearchWrap input{
+  font-size:12px!important;
+}
+#players .vdsFilter{
+  min-height:38px!important;
+  font-size:9px!important;
+}
+#players .vdsPlayerSort{
+  font-size:10px!important;
+}
+#players .vdsPlayerStatusRow>div:first-child{
+  font-size:9px!important;
+  line-height:1.45!important;
+}
+#players .playerSetStatus{
+  font-size:8px!important;
+}
+#players .playerSetActions .miniBtn{
+  font-size:8px!important;
+}
+.vdsQuietAction{
+  min-height:38px!important;
+  font-size:8px!important;
+}
+.vdsPlayerManagePanel>summary span{
+  font-size:8px!important;
+}
+.vdsPlayerManagePanel>summary b{
+  font-size:11px!important;
+}
+
+/* ---------- LIVE MATCH ---------- */
+.aceLiveCommandBar .liveControls .btn{
+  min-height:44px!important;
+  font-size:10px!important;
+}
+.aceNarrationPanel .commentaryLine{
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.aceNarrationHead>div:first-child b{
+  font-size:13px!important;
+}
+.aceManagementDetails>summary,
+.aceTechnicalDetails>summary{
+  font-size:9px!important;
+}
+.fatigueTitle,
+.fatigueChip{
+  font-size:9px!important;
+}
+.courtFatigue{
+  font-size:10px!important;
+}
+
+/* ---------- PACK STORE / PACK FLOW ---------- */
+.acePackStore,
+.vdsPackPanel{
+  font-size:12px;
+}
+.aceRevealStatus{
+  font-size:9px!important;
+  line-height:1.4!important;
+}
+.aceRevealAddSquad b{
+  font-size:10px!important;
+}
+.aceRevealAddSquad small{
+  font-size:8px!important;
+}
+.aceRevealSendClub{
+  font-size:9px!important;
+}
+
+/* Real card text: preserve card design, but stop key labels being microscopic. */
+.fifaMainPosLabel{
+  font-size:9px!important;
+}
+.fifaPos{
+  font-size:9px!important;
+}
+.fifaServeType{
+  font-size:8px!important;
+}
+.vdsCardPlaystyleLabel,
+.aceCinemaPlayerCard .vdsCardPlaystyleLabel,
+.aceCinemaSummaryCard .vdsCardPlaystyleLabel{
+  font-size:6.2px!important;
+}
+.vdsCardPlaystyleEmoji,
+.aceCinemaPlayerCard .vdsCardPlaystyleEmoji,
+.aceCinemaSummaryCard .vdsCardPlaystyleEmoji{
+  font-size:9px!important;
+}
+.aceCinemaPlayerCard .vdsCardPlaystyle,
+.aceCinemaSummaryCard .vdsCardPlaystyle{
+  min-height:23px!important;
+  height:23px!important;
+}
+
+/* ---------- MOBILE QUICK NAV ---------- */
+.aceMobileQuickNav,
+.aceMobileMoreSheet{
+  display:none;
+}
+
+@media(max-width:760px){
+  :root{
+    --ace-touch:46px;
+  }
+
+  body{
+    padding-bottom:72px!important;
+  }
+
+  /* Keep brand/account header clean; navigation moves to a thumb bar. */
+  .vdsGlobalHeader{
+    min-height:58px!important;
+    padding:0 10px!important;
+    border-radius:0 0 12px 12px!important;
+  }
+  .vdsBrandLogo{
+    width:36px!important;
+    height:36px!important;
+  }
+  .vdsBrand b{
+    font-size:13px!important;
+  }
+  .vdsGlobalHeader .vdsMainNav{
+    display:none!important;
+  }
+  #vdsAccountChip{
+    max-width:150px!important;
+  }
+  #vdsAccountChip .vdsAccountIdentity b{
+    font-size:10px!important;
+  }
+  #vdsAccountChip .vdsAccountIdentity small{
+    font-size:7px!important;
+  }
+  #vdsAccountOpenBtn{
+    min-height:34px!important;
+    font-size:8px!important;
+  }
+
+  .aceMobileQuickNav{
+    position:fixed;
+    z-index:3200;
+    left:8px;
+    right:8px;
+    bottom:max(8px,env(safe-area-inset-bottom));
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:4px;
+    min-height:58px;
+    padding:6px;
+    border:1px solid rgba(177,138,234,.17);
+    border-radius:16px;
+    background:rgba(6,8,14,.96);
+    box-shadow:0 12px 38px rgba(0,0,0,.52);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  .aceMobileQuickNav button{
+    position:relative;
+    min-width:0;
+    min-height:46px;
+    border:0;
+    border-radius:11px;
+    background:transparent;
+    color:#777486;
+    padding:4px 2px 3px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:.02em;
+  }
+  .aceMobileQuickNav button .aceMobIcon{
+    font-size:16px;
+    line-height:1;
+  }
+  .aceMobileQuickNav button.active{
+    color:#fff;
+    background:linear-gradient(180deg,rgba(143,82,238,.20),rgba(87,45,158,.13));
+    box-shadow:inset 0 0 0 1px rgba(177,123,255,.15);
+  }
+  .aceMobileMoreSheet{
+    position:fixed;
+    z-index:3199;
+    left:10px;
+    right:10px;
+    bottom:76px;
+    display:none;
+    padding:8px;
+    border:1px solid rgba(177,138,234,.18);
+    border-radius:15px;
+    background:rgba(7,9,15,.985);
+    box-shadow:0 16px 42px rgba(0,0,0,.48);
+  }
+  .aceMobileMoreSheet.show{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  .aceMobileMoreSheet button{
+    min-height:48px;
+    padding:8px 10px;
+    border:1px solid rgba(177,138,234,.10);
+    border-radius:10px;
+    background:#0b0e16;
+    color:#e8e4ef;
+    font-size:10px;
+    font-weight:900;
+    text-align:left;
+  }
+  .aceMobileMoreSheet button small{
+    display:block;
+    margin-top:3px;
+    color:#817b8e;
+    font-size:8px;
+    font-weight:700;
+  }
+
+  /* General phone controls: large enough to read and tap. */
+  .btn{
+    min-height:46px!important;
+    font-size:11px!important;
+  }
+  .miniBtn{
+    min-height:40px!important;
+    font-size:9px!important;
+  }
+  label{
+    font-size:12px!important;
+  }
+  select,input{
+    min-height:44px!important;
+    font-size:16px!important; /* prevents iOS input zoom too */
+  }
+
+  /* Home / UT copy */
+  .homeTagline{
+    font-size:14px!important;
+  }
+  #ultimate .vdsUTHeaderStage6B p{
+    font-size:10px!important;
+  }
+  .aceUTHomeCopy>p{
+    font-size:11px!important;
+  }
+  .aceUTHomeMainActions{
+    grid-template-columns:1fr!important;
+  }
+  .aceUTHomeMainActions button,
+  .aceUTHomePrimary,
+  .aceUTHomeSecondary,
+  .aceUTHomeGhost{
+    grid-row:auto!important;
+    min-height:62px!important;
+    padding-left:48px!important;
+  }
+  .aceUTHomeMainActions button b{
+    font-size:11px!important;
+  }
+  .aceUTHomeMainActions button small{
+    font-size:8.5px!important;
+  }
+  .aceUTHomeStats span{
+    font-size:7px!important;
+  }
+  .aceUTHomeStats b{
+    font-size:17px!important;
+  }
+  .aceUTFeaturedPack small{
+    font-size:7px!important;
+  }
+  .aceUTFeaturedPack strong{
+    font-size:16px!important;
+  }
+  .aceUTFeaturedPack em{
+    font-size:8px!important;
+  }
+
+  /* Players filters/actions */
+  #players .vdsPlayersHeroStats span{
+    font-size:7px!important;
+  }
+  #players .vdsFilter{
+    min-height:40px!important;
+    font-size:9px!important;
+  }
+  #players .playerSetActions .miniBtn{
+    min-height:40px!important;
+    font-size:8px!important;
+  }
+  #players .vdsPlayerAdminActions .btn{
+    min-height:44px!important;
+    font-size:9px!important;
+  }
+  #players .vdsPlayerStatusRow>div:first-child{
+    font-size:8px!important;
+  }
+
+  /* Club / squad */
+  .aceClubFilters button{
+    min-height:40px!important;
+    font-size:9px!important;
+  }
+  .aceClubTopActions button{
+    min-height:44px!important;
+    font-size:9px!important;
+  }
+  .aceClubCardActions button{
+    min-height:42px!important;
+    font-size:9px!important;
+  }
+  #ultimate .vdsUTLineupHelp{
+    font-size:8px!important;
+  }
+  .aceSquadPlayBtn b{
+    font-size:10px!important;
+  }
+  .aceSquadPlayBtn small{
+    font-size:8px!important;
+  }
+
+  /* Match */
+  .aceLiveCommandBar{
+    bottom:72px!important; /* sit above quick nav */
+  }
+  .aceLiveCommandBar .liveControls .btn{
+    min-height:46px!important;
+    font-size:10px!important;
+  }
+  .aceNarrationPanel .commentaryLine{
+    font-size:11px!important;
+  }
+  .aceCourtColumn .phaseStep{
+    font-size:8px!important;
+  }
+  .aceManagementDetails>summary,
+  .aceTechnicalDetails>summary{
+    min-height:48px!important;
+    font-size:9px!important;
+  }
+
+  /* Pack end screen buttons and status */
+  .aceRevealAddSquad,
+  .aceRevealSendClub{
+    min-height:48px!important;
+  }
+  .aceRevealAddSquad b{
+    font-size:10px!important;
+  }
+  .aceRevealAddSquad small{
+    font-size:8px!important;
+  }
+  .aceRevealSendClub{
+    font-size:8px!important;
+  }
+
+  /* Card-detail sheet: text must be readable after tapping a card. */
+  .vdsCardShowcaseKicker{
+    font-size:8px!important;
+  }
+  .vdsCardShowcaseDesc{
+    display:block!important;
+    font-size:10px!important;
+    line-height:1.45!important;
+  }
+  .vdsCardShowcaseTier{
+    font-size:8px!important;
+  }
+  .vdsCardShowcasePanel h3{
+    font-size:10px!important;
+  }
+  .vdsCardShowcaseMetric span,
+  .vdsCardShowcaseRow span{
+    font-size:8px!important;
+  }
+  .vdsCardShowcaseMetric b{
+    font-size:17px!important;
+  }
+  .vdsCardShowcaseRow b{
+    font-size:14px!important;
+  }
+}
+
+/* Tablet compromise */
+@media(min-width:761px) and (max-width:1050px){
+  .vdsMainNav .tab,
+  .vdsMainNav .navDropBtn{
+    padding:0 10px!important;
+    font-size:9px!important;
+  }
+  .aceUTHomeMainActions button small{
+    font-size:8px!important;
+  }
+}
+</style>
+
+
+<nav class="aceMobileQuickNav aceMobileSpadeNav" id="aceMobileQuickNav" aria-label="Quick navigation">
+  <button type="button" data-ace-mobile-page="sim" class="aceMobSide">
+    <span class="aceMobIcon">▶</span><span>MATCH</span>
+  </button>
+  <button type="button" data-ace-mobile-page="players" class="aceMobSide">
+    <span class="aceMobIcon">♟</span><span>PLAYERS</span>
+  </button>
+
+  <button type="button" data-ace-mobile-page="home" class="aceMobileHomeFab" aria-label="Home">
+    <span class="aceMobileHomeCircle"><span class="aceHomeSpade">♠</span></span>
+    <span class="aceMobileHomeLabel">HOME</span>
+  </button>
+
+  <button type="button" data-ace-mobile-page="ultimate" class="aceMobSide aceMobUltimate">
+    <span class="aceMobIcon">◆</span><span>ULTIMATE</span>
+  </button>
+  <button type="button" id="aceMobileMoreBtn" class="aceMobSide">
+    <span class="aceMobIcon">•••</span><span>MORE</span>
+  </button>
+</nav>
+
+<div class="aceMobileMoreSheet" id="aceMobileMoreSheet" aria-label="More navigation">
+  <button type="button" data-ace-mobile-page="setup">SETUP<small>Managers and match settings</small></button>
+  <button type="button" data-ace-mobile-page="history">HISTORY<small>Previous results</small></button>
+  <button type="button" id="aceMobileHowTo">HOW TO PLAY<small>Replay the introduction</small></button>
+  <button type="button" id="aceMobileAccount">ACCOUNT<small>Profile and sign-in</small></button>
+</div>
+
+
+<script id="ace-b21-9-mobile-nav">
+(function(){
+  function qs(s){return document.querySelector(s);}
+  function qsa(s){return Array.from(document.querySelectorAll(s));}
+  function isMobile(){return window.matchMedia("(max-width:760px)").matches;}
+
+  function clickMainPage(page){
+    const direct=qs(`#mainNav .tab[data-page="${page}"]`);
+    if(direct){
+      direct.click();
+      if(page==="ultimate")window.setTimeout(()=>window.vdsForceWalletSyncFromServer?.({rerender:true,quiet:false}),180);
+      return true;
+    }
+    const nested=qs(`#mainNav .navDropItem[data-page="${page}"]`);
+    if(nested){
+      nested.click();
+      if(page==="ultimate")window.setTimeout(()=>window.vdsForceWalletSyncFromServer?.({rerender:true,quiet:false}),180);
+      return true;
+    }
+    return false;
+  }
+
+  function currentPage(){
+    return qs(".page.active")?.id || "home";
+  }
+
+  function syncMobileNav(){
+    const page=currentPage();
+    qsa("#aceMobileQuickNav [data-ace-mobile-page]").forEach(btn=>{
+      btn.classList.toggle("active",btn.dataset.aceMobilePage===page);
+    });
+    const morePages=["setup","history"];
+    qs("#aceMobileMoreBtn")?.classList.toggle("active",morePages.includes(page));
+  }
+
+  function closeMore(){
+    qs("#aceMobileMoreSheet")?.classList.remove("show");
+  }
+
+  document.addEventListener("click",function(e){
+    const pageBtn=e.target.closest("[data-ace-mobile-page]");
+    if(pageBtn && pageBtn.closest("#aceMobileQuickNav, #aceMobileMoreSheet")){
+      e.preventDefault();
+      clickMainPage(pageBtn.dataset.aceMobilePage);
+      closeMore();
+      window.setTimeout(syncMobileNav,0);
+      return;
+    }
+
+    if(e.target.closest("#aceMobileMoreBtn")){
+      e.preventDefault();
+      qs("#aceMobileMoreSheet")?.classList.toggle("show");
+      return;
+    }
+
+    if(e.target.closest("#aceMobileHowTo")){
+      e.preventDefault();
+      closeMore();
+      if(typeof window.aceOpenOnboarding==="function")window.aceOpenOnboarding(true);
+      else qs("#aceHowToPlayBtn")?.click();
+      return;
+    }
+
+    if(e.target.closest("#aceMobileAccount")){
+      e.preventDefault();
+      closeMore();
+      qs("#vdsAccountOpenBtn")?.click();
+      return;
+    }
+
+    if(isMobile() && !e.target.closest("#aceMobileMoreSheet")){
+      closeMore();
+    }
+  });
+
+  // Existing navigation can change page from many places; observe class changes.
+  const pages=qsa(".page");
+  const observer=new MutationObserver(syncMobileNav);
+  pages.forEach(page=>observer.observe(page,{attributes:true,attributeFilter:["class"]}));
+
+  window.addEventListener("resize",function(){
+    if(!isMobile())closeMore();
+    syncMobileNav();
+  });
+
+  window.addEventListener("load",syncMobileNav);
+  syncMobileNav();
+})();
+</script>
+
+
+
+<style id="ace-b21-10-free-pack-style">
+.utPackGiftBadge{
+  position:absolute;
+  z-index:6;
+  right:12px;
+  top:12px;
+  display:inline-flex;
+  align-items:center;
+  min-height:27px;
+  padding:5px 9px;
+  border:1px solid rgba(255,245,180,.52);
+  border-radius:999px;
+  background:rgba(27,19,3,.78);
+  color:#fff0a1;
+  box-shadow:0 6px 18px rgba(0,0,0,.20);
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.07em;
+}
+.utPackGiftBadge[hidden]{display:none!important}
+.utFreePackWord{
+  color:#fff4a6;
+  font-size:22px;
+  font-weight:1000;
+}
+.acePackCheckout.gift{
+  border-color:rgba(241,208,81,.28)!important;
+  background:linear-gradient(90deg,rgba(105,81,12,.18),rgba(30,24,6,.08))!important;
+}
+.acePackCheckout.gift>div>b{
+  color:#f4d45d!important;
+}
+.acePackCheckout.gift .acePackOpen{
+  background:linear-gradient(135deg,#d5aa2c,#f1d361)!important;
+  color:#171104!important;
+  box-shadow:0 12px 28px rgba(216,178,54,.24)!important;
+}
+.aceFreeGoldWalletBadge{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height:39px;
+  margin-left:6px;
+  padding:6px 9px;
+  border:1px solid rgba(232,199,82,.24);
+  border-radius:10px;
+  background:rgba(82,63,9,.14);
+}
+.aceFreeGoldWalletBadge[hidden]{display:none!important}
+.aceFreeGoldWalletBadge span{
+  color:#9e8740;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+.aceFreeGoldWalletBadge b{
+  margin-top:2px;
+  color:#f1d467;
+  font-size:8px;
+  font-weight:1000;
+}
+
+@media(max-width:760px){
+  .utPackGiftBadge{
+    right:9px;
+    top:9px;
+    min-height:25px;
+    padding:5px 8px;
+    font-size:8px;
+  }
+  .aceFreeGoldWalletBadge{
+    width:100%;
+    margin:5px 0 0!important;
+  }
+  .aceFreeGoldWalletBadge b{
+    font-size:9px!important;
+  }
+}
+</style>
+
+
+<script id="ace-b21-10-free-pack-ui">
+(function(){
+  function renderGiftBadge(){
+    const free=(typeof window.vdsFreeGoldPackCount==="function")
+      ? window.vdsFreeGoldPackCount()
+      : 0;
+    const wallet=document.querySelector(".vdsUTWallet");
+    if(wallet){
+      let badge=document.getElementById("aceFreeGoldWalletBadge");
+      if(!badge){
+        badge=document.createElement("div");
+        badge.id="aceFreeGoldWalletBadge";
+        badge.className="aceFreeGoldWalletBadge";
+        wallet.appendChild(badge);
+      }
+      badge.hidden=free<=0;
+      badge.innerHTML=free>0?`<span>🎁 GIFT</span><b>${free} FREE GOLD PACK${free===1?'':'S'}</b>`:"";
+    }
+    if(typeof window.vdsRefreshFreeGoldPackUI==="function")window.vdsRefreshFreeGoldPackUI();
+  }
+
+  window.addEventListener("load",()=>setTimeout(renderGiftBadge,250));
+  document.addEventListener("vds:profile-updated",renderGiftBadge);
+
+  const timer=setInterval(()=>{
+    if(typeof window.vdsFreeGoldPackCount==="function"){
+      renderGiftBadge();
+      clearInterval(timer);
+    }
+  },500);
+  setTimeout(()=>clearInterval(timer),15000);
+
+  window.aceRenderFreeGoldGift=renderGiftBadge;
+})();
+</script>
+
+
+
+<style id="ace-b21-11-spade-nav-style">
+@media(max-width:760px){
+  body{
+    padding-bottom:92px!important;
+  }
+
+  .aceMobileQuickNav.aceMobileSpadeNav{
+    left:10px!important;
+    right:10px!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    grid-template-columns:1fr 1fr 82px 1fr 1fr!important;
+    align-items:end!important;
+    gap:2px!important;
+    min-height:68px!important;
+    height:68px!important;
+    padding:7px 5px 6px!important;
+    overflow:visible!important;
+    border-radius:20px!important;
+    border:1px solid rgba(166,117,255,.20)!important;
+    background:
+      linear-gradient(180deg,rgba(13,15,24,.97),rgba(5,7,12,.985))!important;
+    box-shadow:
+      0 14px 42px rgba(0,0,0,.58),
+      inset 0 1px 0 rgba(255,255,255,.025)!important;
+  }
+
+  .aceMobileSpadeNav .aceMobSide{
+    min-height:52px!important;
+    height:52px!important;
+    padding:5px 1px 4px!important;
+    border-radius:12px!important;
+    color:#817d8d!important;
+    gap:4px!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+  }
+  .aceMobileSpadeNav .aceMobSide .aceMobIcon{
+    font-size:17px!important;
+  }
+  .aceMobileSpadeNav .aceMobSide.active{
+    color:#efe9ff!important;
+    background:linear-gradient(180deg,rgba(126,72,222,.20),rgba(75,38,140,.11))!important;
+    box-shadow:inset 0 0 0 1px rgba(176,121,255,.13)!important;
+  }
+
+  .aceMobileSpadeNav .aceMobUltimate{
+    color:#9585b4!important;
+  }
+  .aceMobileSpadeNav .aceMobUltimate.active{
+    color:#d9c2ff!important;
+  }
+
+  .aceMobileSpadeNav .aceMobileHomeFab{
+    position:relative!important;
+    z-index:3!important;
+    align-self:end!important;
+    min-height:76px!important;
+    height:76px!important;
+    margin-top:-25px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:#fff!important;
+    overflow:visible!important;
+    gap:0!important;
+  }
+
+  .aceMobileHomeCircle{
+    position:absolute;
+    left:50%;
+    top:-4px;
+    width:68px;
+    height:68px;
+    transform:translateX(-50%);
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    border:3px solid #11131c;
+    background:
+      radial-gradient(circle at 34% 24%,#b383ff 0 7%,#7738d5 28%,#44198e 65%,#1b0b38 100%);
+    box-shadow:
+      0 0 0 1px rgba(199,157,255,.42),
+      0 8px 22px rgba(88,35,180,.52),
+      0 0 28px rgba(131,73,237,.30),
+      inset 0 2px 2px rgba(255,255,255,.20);
+  }
+  .aceHomeSpade{
+    transform:translateY(-1px);
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:38px;
+    line-height:1;
+    color:#fff;
+    text-shadow:0 3px 7px rgba(0,0,0,.38);
+  }
+  .aceMobileHomeLabel{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    transform:translateX(-50%);
+    color:#cfc5dd;
+    font-size:7px;
+    font-weight:1000;
+    letter-spacing:.09em;
+  }
+
+  .aceMobileHomeFab.active .aceMobileHomeCircle{
+    background:
+      radial-gradient(circle at 34% 24%,#d0b2ff 0 8%,#9658f4 30%,#5a22b6 66%,#260b52 100%);
+    box-shadow:
+      0 0 0 1px rgba(226,203,255,.62),
+      0 8px 24px rgba(107,45,216,.58),
+      0 0 34px rgba(151,89,255,.43),
+      inset 0 2px 2px rgba(255,255,255,.24);
+  }
+  .aceMobileHomeFab.active .aceMobileHomeLabel{
+    color:#fff;
+  }
+
+  .aceMobileMoreSheet{
+    bottom:86px!important;
+    border-radius:17px!important;
+  }
+
+  /* Match command bar must clear the taller raised mobile nav. */
+  .aceLiveCommandBar{
+    bottom:88px!important;
+  }
+}
+
+@media(max-width:390px){
+  .aceMobileQuickNav.aceMobileSpadeNav{
+    grid-template-columns:1fr 1fr 74px 1fr 1fr!important;
+  }
+  .aceMobileHomeCircle{
+    width:64px;
+    height:64px;
+  }
+  .aceHomeSpade{
+    font-size:35px;
+  }
+  .aceMobileSpadeNav .aceMobSide{
+    font-size:6.8px!important;
+  }
+}
+</style>
+
+
+<script id="ace-b21-11-wallet-export">
+(function exposeWalletSync(){
+  try{
+    if(typeof vdsForceWalletSyncFromServer==="function")window.vdsForceWalletSyncFromServer=vdsForceWalletSyncFromServer;
+    if(typeof vdsScheduleWalletVerification==="function")window.vdsScheduleWalletVerification=vdsScheduleWalletVerification;
+  }catch(_){}
+})();
+</script>
+
+
+<script id="ace-b21-11-wallet-runtime">
+(function(){
+  let lastVisibilitySync=0;
+
+  function syncWallet(){
+    if(typeof window.vdsForceWalletSyncFromServer!=="function")return;
+    const now=Date.now();
+    if(now-lastVisibilitySync<1800)return;
+    lastVisibilitySync=now;
+    window.vdsForceWalletSyncFromServer({rerender:true,quiet:false});
+  }
+
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="visible")syncWallet();
+  });
+  window.addEventListener("focus",syncWallet);
+})();
+</script>
+
+
+<script id="ace-b21-11-version-marker">
+window.ACE_PROJECT_BUILD="B21.11";
+window.ACE_WALLET_SYNC="SERVER_VERIFIED_ON_REWARD_FOCUS_UT_ENTRY";
+window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
+window.ACE_FREE_GOLD_PACKS="LIVE_BACKEND_CREDITS";
 window.ACE_POSITION_OVR_MODEL="SPINNER_SYNC_2026_08_27";
 window.ACE_PACK_CARD_RENDERER="CANONICAL_MASTER_CARD";
-window.ACE_PACK_SUMMARY_SCALE="FULL_SIZE_NO_SQUEEZE";
-window.ACE_PACK_PLAYSTYLE_UI="BOXED";
 </script>
 
 </body>
