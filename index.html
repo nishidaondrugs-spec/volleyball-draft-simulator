@@ -15638,6 +15638,7 @@ async function pollPersistentMatchStart(){
 
     if((phase==="match"||phase==="results") && snapshot?.liveMatch){
       stopLineupServerPolling();
+      await window.aceShowPreMatchVSCurrent?.({mode:"online",guest:true});
       mpApplyPersistentSnapshot(row);
       return true;
     }
@@ -15817,8 +15818,13 @@ function renderLineupConfirmationState(){
   if(planBtn){
     const own=mpInMultiplayerRoom()?mpOwnedTeam():0;
     const ownReady=own?!!lineupConfirmState[`team${own}`]:(lineupConfirmState.team1&&lineupConfirmState.team2);
-    planBtn.disabled=!!ownReady || mpIsSpectator();
-    planBtn.title=ownReady?"Un-ready/edit your lineup before changing the locked opening plan":"Scout the opponent and set your opening game plan";
+    planBtn.disabled=mpIsSpectator();
+    planBtn.classList.toggle("is-locked",!!ownReady);
+    const main=planBtn.querySelector("b");
+    const sub=planBtn.querySelector("small");
+    if(main)main.textContent=ownReady?"🧠 EDIT LOCKED TACTICS":"🧠 SCOUT & GAME PLAN";
+    if(sub)sub.textContent=ownReady?"WITHDRAWS READY BEFORE EDITING":"OPTIONAL · SET YOUR OPENING TACTICS";
+    planBtn.title=ownReady?"Reopen your locked tactics. Your READY state will be withdrawn first.":"Scout the opponent and set your opening game plan";
   }
 
   if(hint){
@@ -15868,8 +15874,9 @@ async function maybeLaunchConfirmedSimulation(){
       }
     }
 
-    setTimeout(()=>{
+    setTimeout(async()=>{
       goPage("sim");
+      await window.aceShowPreMatchVSCurrent?.({mode:"online"});
       const started=beginLiveMatch();
       if(!started){
         lineupAutoStarting=false;
@@ -27610,7 +27617,8 @@ async function aceUTLaunchAiMatch(){
   aceUTCloseMatchFlow();
 
   goPage("sim");
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    await window.aceShowPreMatchVSCurrent?.({mode:"ai"});
     const started=beginLiveMatch();
     if(started===false){
       aceUTLeagueState.active=false;
@@ -30579,27 +30587,77 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     }));
     body.querySelector('.acePreMatchDone')?.addEventListener('click',async()=>{
       const done=body.querySelector('.acePreMatchDone');
-      if(done){done.disabled=true;done.textContent='LOCKING PLAN…';}
-
-      const saved=await savePrivateOpeningPlan(activeTeam,{quiet:false});
-      if(!saved){
-        if(done){done.disabled=false;done.textContent='LOCK TACTICS & READY';}
+      const online=typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom();
+      if(done){done.disabled=true;done.textContent=online?'LOCKING TACTICS + READY…':'SAVING PLAN…';}
+      const locked=online?await lockPrivatePlanAndReady(activeTeam):await savePrivateOpeningPlan(activeTeam,{quiet:false});
+      if(!locked){
+        if(done){done.disabled=false;done.textContent=online?'LOCK TACTICS & READY':'SAVE PLAN & RETURN';}
         return;
       }
-
       closeModal();
       const hint=document.getElementById('lineupConfirmHint');
-
-      // In online multiplayer, accepting the plan is the READY action.
-      // Existing 2/2 server confirmation then launches the simulation
-      // automatically the instant both managers have locked tactics.
-      if(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom()){
-        if(hint)hint.textContent='TACTICS LOCKED · READY · waiting for opponent…';
-        await confirmCurrentLineup();
-      }else{
-        if(hint)hint.textContent='Opening game plan saved.';
+      if(online){
+        if(hint)hint.textContent='TACTICS + STARTING SIX LOCKED · READY · waiting for opponent…';
+        if(!mpIsAuthority?.() && mpHasPersistentRoom?.())pollPersistentMatchStart?.();
+      }else if(hint){
+        hint.textContent='Opening game plan saved.';
       }
     });
+  }
+
+  async function lockPrivatePlanAndReady(n){
+    n=Number(n);
+    if(![1,2].includes(n))return false;
+    const check=typeof validateTeamLineup==="function"?validateTeamLineup(n):{ok:true};
+    if(!check.ok){
+      const hint=document.getElementById("lineupConfirmHint");
+      if(hint)hint.textContent=check.msg||"Choose all 6 starters before locking tactics.";
+      return false;
+    }
+    if(mpHasPersistentRoom?.()){
+      try{
+        const lineup=currentLineupSelection(`team${n}`);
+        const {data,error}=await mpClient.rpc("vds_lock_tactics_and_lineup",{
+          p_code:mpRoom,p_team:n,p_tactics:teamPlan(n),p_lineup:lineup
+        });
+        if(error)throw error;
+        const row=Array.isArray(data)?data[0]:data;
+        if(row && typeof applyLineupServerState==="function")applyLineupServerState(row);
+        lineupConfirmState[`team${n}`]=true;
+        renderLineupConfirmationState();
+        startLineupServerPolling?.();
+        await refreshLineupFromServer?.();
+        return true;
+      }catch(error){
+        console.error("Atomic tactics + READY lock failed",error);
+        const hint=document.getElementById("lineupConfirmHint");
+        const message=String(error?.message||error||"");
+        if(hint)hint.textContent=message.includes("INVALID_LINEUP")
+          ? "Your Starting Six changed while tactics were open. Check all 6 starters and try again."
+          : "Tactics could not be locked to the room. READY was not changed — tap Lock again.";
+        return false;
+      }
+    }
+    const saved=await savePrivateOpeningPlan(n,{quiet:false});
+    if(!saved)return false;
+    if(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom())await confirmCurrentLineup();
+    return true;
+  }
+
+  async function ensurePlanEditable(n){
+    n=Number(n);
+    if(!mpHasPersistentRoom?.() || !lineupConfirmState[`team${n}`])return true;
+    const hint=document.getElementById("lineupConfirmHint");
+    if(hint)hint.textContent="Reopening tactics · withdrawing READY…";
+    const ok=await unconfirmLineupOnServer(n);
+    if(!ok){
+      if(hint)hint.textContent="Could not withdraw READY. Reconnect and try Edit Tactics again.";
+      return false;
+    }
+    lineupConfirmState[`team${n}`]=false;
+    renderLineupConfirmationState();
+    if(hint)hint.textContent="READY withdrawn · edit tactics, then Lock Tactics & Ready again.";
+    return true;
   }
 
   let privateSaveTimer=null;
@@ -30656,6 +30714,9 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     activeTeam=teams.includes(Number(n))?Number(n):(teams[0]||1);
     const check=typeof validateTeamLineup==='function'?validateTeamLineup(activeTeam):{ok:true};
     if(!check.ok){alert('Choose your starting six before scouting the matchup.');return;}
+
+    const editable=await ensurePlanEditable(activeTeam);
+    if(!editable)return;
 
     // Persistent multiplayer retrieves ONLY this manager's plan.
     await loadMyPrivateOpeningPlan(activeTeam);
@@ -35101,20 +35162,738 @@ body.aceQuickSellOpen{overflow:hidden!important}
 </style>
 
 
-<script id="ace-b21-18-version-marker">
-window.ACE_PROJECT_BUILD="B21.18";
+
+<style id="ace-b21-19-tactics-lock-fix-style">
+.acePreMatchPlanBtn.is-locked{border-color:rgba(92,211,151,.30)!important;background:linear-gradient(135deg,rgba(20,105,69,.42),rgba(49,67,112,.45))!important;color:#c7f5dc!important}
+.acePreMatchPlanBtn.is-locked small{color:#8cc6a8!important}.acePreMatchDone:disabled{opacity:.62!important;cursor:wait!important}
+@media(max-width:760px){.acePreMatchDone{min-height:50px!important;font-size:9px!important}}
+</style>
+
+
+
+<div class="aceNotificationPanel" id="aceNotificationPanel" aria-hidden="true">
+  <div class="aceNotificationHead">
+    <div><small>THE ACE PROJECT</small><b>NOTIFICATIONS</b></div>
+    <button id="aceNotificationClear" type="button">CLEAR</button>
+  </div>
+  <div class="aceNotificationList" id="aceNotificationList"></div>
+</div>
+
+<div class="aceToastStack" id="aceToastStack" aria-live="polite"></div>
+<div class="aceRewardStage" id="aceRewardStage" aria-live="polite"></div>
+
+<div class="acePreMatchVS" id="acePreMatchVS" aria-hidden="true">
+  <div class="aceVSBackdropMark">♠</div>
+  <button class="aceVSSkip" id="aceVSSkip" type="button">SKIP</button>
+  <div class="aceVSShell">
+    <div class="aceVSKicker">THE ACE PROJECT · MATCH DAY</div>
+    <div class="aceVSTeams" id="aceVSTeams"></div>
+    <div class="aceVSStartLine"><span></span><b>MATCH READY</b><span></span></div>
+  </div>
+</div>
+
+
+<script id="ace-b21-20-player-capture-runtime">
+(function(){
+  const $=s=>document.querySelector(s);
+  const $$=s=>Array.from(document.querySelectorAll(s));
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
+  /* ======================================================
+     NOTIFICATION CENTRE
+     ====================================================== */
+  let aceNotifications=[];
+  let aceNotificationOpen=false;
+
+  function aceNotificationKey(){
+    return `ace_notifications_${String(vdsAccountSession?.user?.id||"device")}`;
+  }
+  function aceLoadNotifications(){
+    try{
+      const raw=safeStore.get(aceNotificationKey());
+      aceNotifications=raw?JSON.parse(raw):[];
+      if(!Array.isArray(aceNotifications))aceNotifications=[];
+    }catch(_){aceNotifications=[];}
+  }
+  function aceSaveNotifications(){
+    try{safeStore.set(aceNotificationKey(),JSON.stringify(aceNotifications.slice(0,30)));}catch(_){}
+  }
+  function aceNotificationIcon(type){
+    return {
+      reward:"◉",achievement:"★",pack:"🎁",success:"✓",
+      warning:"!",connection:"↻",info:"♠",sale:"◉"
+    }[type]||"♠";
+  }
+  function aceRenderNotificationBell(){
+    let bell=$("#aceNotificationBell");
+    if(!bell){
+      bell=document.createElement("button");
+      bell.id="aceNotificationBell";
+      bell.className="aceNotificationBell";
+      bell.type="button";
+      bell.setAttribute("aria-label","Notifications");
+      bell.innerHTML=`<span>♢</span><i id="aceNotificationBadge"></i>`;
+      const account=$("#vdsAccountChip");
+      const header=$(".vdsGlobalHeader");
+      if(account?.parentNode)account.parentNode.insertBefore(bell,account);
+      else header?.appendChild(bell);
+      bell.addEventListener("click",event=>{
+        event.stopPropagation();
+        aceNotificationOpen=!aceNotificationOpen;
+        const panel=$("#aceNotificationPanel");
+        panel?.classList.toggle("show",aceNotificationOpen);
+        panel?.setAttribute("aria-hidden",aceNotificationOpen?"false":"true");
+        if(aceNotificationOpen){
+          aceNotifications.forEach(n=>n.read=true);
+          aceSaveNotifications();
+          aceRenderNotifications();
+        }
+      });
+    }
+    const unread=aceNotifications.filter(n=>!n.read).length;
+    const badge=$("#aceNotificationBadge");
+    if(badge){
+      badge.textContent=unread>9?"9+":String(unread||"");
+      badge.hidden=!unread;
+    }
+  }
+  function aceRenderNotifications(){
+    const list=$("#aceNotificationList");
+    if(!list)return;
+    list.innerHTML=aceNotifications.length
+      ? aceNotifications.map(n=>`
+          <article class="aceNotificationItem ${n.type||"info"}">
+            <span>${aceNotificationIcon(n.type)}</span>
+            <div>
+              <b>${esc(n.title||"Project ACE")}</b>
+              <p>${esc(n.body||"")}</p>
+              <small>${new Date(n.time||Date.now()).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small>
+            </div>
+          </article>`).join("")
+      : `<div class="aceNotificationEmpty">You're all caught up.</div>`;
+    aceRenderNotificationBell();
+  }
+  function aceToast(notification){
+    const stack=$("#aceToastStack");
+    if(!stack)return;
+    const toast=document.createElement("div");
+    toast.className=`aceToast ${notification.type||"info"}`;
+    toast.innerHTML=`
+      <span>${aceNotificationIcon(notification.type)}</span>
+      <div><b>${esc(notification.title||"Project ACE")}</b><small>${esc(notification.body||"")}</small></div>`;
+    stack.prepend(toast);
+    requestAnimationFrame(()=>toast.classList.add("show"));
+    setTimeout(()=>{
+      toast.classList.remove("show");
+      setTimeout(()=>toast.remove(),220);
+    },notification.sticky?5200:3400);
+  }
+  function aceNotify({title="Project ACE",body="",type="info",sticky=false,silent=false}={}){
+    const n={
+      id:`${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+      title,body,type,sticky,time:Date.now(),read:false
+    };
+    aceNotifications.unshift(n);
+    aceNotifications=aceNotifications.slice(0,30);
+    aceSaveNotifications();
+    aceRenderNotifications();
+    if(!silent)aceToast(n);
+    return n;
+  }
+  window.aceNotify=aceNotify;
+
+  $("#aceNotificationClear")?.addEventListener("click",()=>{
+    aceNotifications=[];
+    aceSaveNotifications();
+    aceRenderNotifications();
+  });
+  document.addEventListener("click",event=>{
+    if(!aceNotificationOpen)return;
+    if(event.target.closest("#aceNotificationPanel,#aceNotificationBell"))return;
+    aceNotificationOpen=false;
+    $("#aceNotificationPanel")?.classList.remove("show");
+  });
+
+  aceLoadNotifications();
+  aceRenderNotifications();
+  setTimeout(aceRenderNotificationBell,50);
+
+  /* Existing Quick Sell feedback now goes through the proper centre. */
+  try{
+    aceUTQuickSellToast=function(message,type="ok"){
+      const isError=type==="error";
+      const isWorking=type==="working";
+      aceNotify({
+        title:isError?"QUICK SELL FAILED":isWorking?"QUICK SELL":"CARD SOLD",
+        body:String(message||""),
+        type:isError?"warning":isWorking?"info":"sale",
+        sticky:isError
+      });
+    };
+  }catch(_){}
+
+  /* ======================================================
+     REWARD ANIMATION
+     ====================================================== */
+  function aceRewardTarget(){
+    return $("#vdsUTCompactCoins")
+      || $("#utCoins")
+      || $("#vdsProfileCoins")
+      || $("#aceNotificationBell");
+  }
+  function aceRewardBurst({amount=0,kind="coins",label=""}={}){
+    const stage=$("#aceRewardStage");
+    if(!stage)return;
+
+    const burst=document.createElement("div");
+    burst.className=`aceRewardBurst ${kind}`;
+    const icon=kind==="pack"?"🎁":kind==="level"?"★":"◉";
+    const text=label || (
+      kind==="coins"?`+${Number(amount).toLocaleString()} ACE COINS`
+      :kind==="pack"?`+${Number(amount)} FREE GOLD PACK${Number(amount)===1?"":"S"}`
+      :`LEVEL ${Number(amount)}`
+    );
+    burst.innerHTML=`<span>${icon}</span><b>${esc(text)}</b>`;
+    stage.appendChild(burst);
+
+    for(let i=0;i<8;i++){
+      const p=document.createElement("i");
+      p.textContent=icon;
+      p.style.setProperty("--rx",`${Math.round((Math.random()-.5)*180)}px`);
+      p.style.setProperty("--ry",`${Math.round(-40-Math.random()*100)}px`);
+      burst.appendChild(p);
+    }
+
+    requestAnimationFrame(()=>burst.classList.add("play"));
+
+    const target=aceRewardTarget();
+    if(target && typeof burst.animate==="function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+      setTimeout(()=>{
+        const tr=target.getBoundingClientRect();
+        const br=burst.getBoundingClientRect();
+        const dx=(tr.left+tr.width/2)-(br.left+br.width/2);
+        const dy=(tr.top+tr.height/2)-(br.top+br.height/2);
+        burst.animate(
+          [
+            {transform:"translate(-50%,-50%) scale(1)",opacity:1},
+            {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.28)`,opacity:.12}
+          ],
+          {duration:650,easing:"cubic-bezier(.2,.75,.3,1)",fill:"forwards"}
+        );
+      },780);
+    }
+    setTimeout(()=>burst.remove(),1550);
+  }
+  window.aceRewardBurst=aceRewardBurst;
+
+  let rewardBaselineReady=false;
+  let lastCoins=0,lastFreePacks=0,lastLevel=1;
+  const baseAccountUI=vdsUpdateAccountUI;
+  vdsUpdateAccountUI=function(){
+    const result=baseAccountUI.apply(this,arguments);
+    const coins=Math.max(0,Number(vdsAccountProfile?.coins||0));
+    const free=Math.max(0,Number(vdsAccountProfile?.free_gold_packs||0));
+    const level=Math.max(1,Number(vdsAccountProfile?.manager_level||1));
+
+    if(!rewardBaselineReady){
+      lastCoins=coins;lastFreePacks=free;lastLevel=level;rewardBaselineReady=true;
+      return result;
+    }
+
+    if(!vdsAccountProfile?.is_host_account && coins>lastCoins){
+      const delta=coins-lastCoins;
+      aceRewardBurst({amount:delta,kind:"coins"});
+      aceNotify({title:`+${delta.toLocaleString()} ACE COINS`,body:"Your wallet has been updated.",type:"reward"});
+    }
+    if(free>lastFreePacks){
+      const delta=free-lastFreePacks;
+      aceRewardBurst({amount:delta,kind:"pack"});
+      aceNotify({title:`+${delta} FREE GOLD PACK${delta===1?"":"S"}`,body:"Your gift packs are ready in Ultimate Team.",type:"pack",sticky:true});
+    }
+    if(level>lastLevel){
+      aceRewardBurst({amount:level,kind:"level"});
+      aceNotify({title:`MANAGER LEVEL ${level}`,body:"New level reached.",type:"achievement",sticky:true});
+    }
+    lastCoins=coins;lastFreePacks=free;lastLevel=level;
+    return result;
+  };
+
+  let dailyBaseline=null;
+  const baseDailyRender=vdsRenderDailyProgress;
+  vdsRenderDailyProgress=function(){
+    const before=dailyBaseline;
+    const result=baseDailyRender.apply(this,arguments);
+    const d=vdsDailyProgressCache||{};
+    const now=[
+      d.first_win_rewarded,d.play_one_rewarded,
+      d.win_one_rewarded,d.play_three_rewarded
+    ].filter(Boolean).length;
+    if(before!==null && now>before){
+      aceNotify({
+        title:"DAILY MISSION COMPLETE",
+        body:`${now}/4 daily rewards completed.`,
+        type:"achievement"
+      });
+    }
+    dailyBaseline=now;
+    return result;
+  };
+
+  /* ======================================================
+     SQUAD IDENTITY
+     ====================================================== */
+  function aceSquadIdentity(cards){
+    const list=Array.isArray(cards)?cards.slice(0,6):[];
+    const entries=UT_LINEUP_SLOTS.map(slot=>{
+      const card=list[slot.dataIndex]||null;
+      const p=card?aceUltimateMasterPlayer(card):null;
+      return {slot,card,p};
+    });
+    const valid=entries.filter(x=>x.card&&x.p);
+    const avg=(vals)=>vals.length?Math.round(vals.reduce((a,b)=>a+Number(b||0),0)/vals.length):0;
+    const attack=avg(valid.map(x=>categoryRatings(x.p).attacking));
+    const defence=avg(valid.map(x=>categoryRatings(x.p).defense));
+    const setter=entries.find(x=>aceNormalizeVolleyballRole(x.slot.role)==="S");
+    const setting=setter?.p
+      ? Math.round(Number(setter.p.setting ?? (Number(setter.p.setTechnique||0)*.6+Number(setter.p.setCreativity||0)*.4)))
+      : 0;
+    const oop=valid.reduce((n,x)=>n+(aceUTCardIsOutOfPosition(x.card,x.slot.role)?1:0),0);
+    return {attack,defence,setting,oop,filled:valid.length};
+  }
+  function aceSquadIdentityHTML(cards,{compact=false}={}){
+    const s=aceSquadIdentity(cards);
+    return `<div class="aceSquadIdentityStrip ${compact?"compact":""}">
+      <div><span>ATTACK</span><b>${s.filled?s.attack:"—"}</b></div>
+      <div><span>DEFENCE</span><b>${s.filled?s.defence:"—"}</b></div>
+      <div><span>SETTING</span><b>${s.setting||"—"}</b></div>
+      <div class="${s.oop?"warning":""}"><span>POSITIONING</span><b>${s.oop?`${s.oop} OOP`:"IN POSITION"}</b></div>
+    </div>`;
+  }
+
+  function aceEnhanceSquadIdentity(){
+    const slots=(ultimateTeamState?.lineupSlots||Array(6).fill(null)).slice(0,6);
+    const cards=slots.map(uid=>uid?utCardByUid(uid):null);
+
+    const squadPage=$("#ultimate .vdsSquadCourt")?.parentElement;
+    if(squadPage && !$("#aceSquadIdentityMain")){
+      const wrap=document.createElement("div");
+      wrap.id="aceSquadIdentityMain";
+      wrap.innerHTML=aceSquadIdentityHTML(cards);
+      const warnings=$("#aceSquadWarnings");
+      if(warnings?.parentNode)warnings.parentNode.insertBefore(wrap,warnings.nextSibling);
+      else squadPage.insertBefore(wrap,squadPage.firstChild);
+    }else if($("#aceSquadIdentityMain")){
+      $("#aceSquadIdentityMain").innerHTML=aceSquadIdentityHTML(cards);
+    }
+  }
+
+  /* ======================================================
+     HOME: DYNAMIC CTA + ACTUAL CARD SPOTLIGHT
+     ====================================================== */
+  function aceHomeSpotlightCard(){
+    const cards=(ultimateTeamState?.cards||[]).filter(Boolean);
+    if(!cards.length)return null;
+    const fresh=cards.filter(c=>typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(c));
+    const selected=(fresh.length?fresh:cards)
+      .slice()
+      .sort((a,b)=>{
+        if(fresh.length){
+          return (Date.parse(b.pulledAt||"")||0)-(Date.parse(a.pulledAt||"")||0);
+        }
+        return Number(b.rating||0)-Number(a.rating||0);
+      })[0];
+    return {card:selected,player:aceUltimateMasterPlayer(selected),fresh:fresh.includes(selected)};
+  }
+
+  function aceNextHomeAction(){
+    const cards=vdsHubOwnedLineupCards();
+    const filled=cards.filter(Boolean).length;
+    const free=Math.max(0,Number(vdsAccountProfile?.free_gold_packs||0));
+    const unseen=(ultimateTeamState?.cards||[]).filter(c=>typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(c)).length;
+    const matches=Math.max(0,Number(vdsAccountProfile?.matches_played||0));
+    const d=vdsDailyProgressCache||{};
+    const done=[d.first_win_rewarded,d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded].filter(Boolean).length;
+
+    if(free>0)return {
+      icon:"🎁",title:"OPEN YOUR FREE GOLD PACK",
+      sub:`${free} FREE GOLD PACK${free===1?"":"S"} WAITING`,
+      action:"packs"
+    };
+    if(filled<6)return {
+      icon:"⬡",title:"BUILD YOUR STARTING SIX",
+      sub:`${filled}/6 STARTERS READY`,
+      action:"squad"
+    };
+    if(unseen>0)return {
+      icon:"★",title:`VIEW ${unseen} NEW CARD${unseen===1?"":"S"}`,
+      sub:"CHECK YOUR LATEST PULLS",
+      action:"club"
+    };
+    if(matches===0)return {
+      icon:"▶",title:"PLAY YOUR FIRST MATCH",
+      sub:"START YOUR ACE LEAGUE RUN",
+      action:"match"
+    };
+    if(done<4)return {
+      icon:"⚡",title:"PLAY YOUR NEXT MATCH",
+      sub:`${4-done} DAILY OBJECTIVE${4-done===1?"":"S"} STILL OPEN`,
+      action:"match"
+    };
+    return {
+      icon:"▶",title:"PLAY NEXT MATCH",
+      sub:"CLIMB THE ACE LEAGUE",
+      action:"match"
+    };
+  }
+
+  function aceEnhanceUltimateHome(){
+    const stage=$("#ultimate .aceUTHomeStage");
+    if(!stage)return;
+
+    const action=aceNextHomeAction();
+    const primary=stage.querySelector(".aceUTHomePrimary");
+    if(primary){
+      primary.innerHTML=`<span>${action.icon}</span><b>${esc(action.title)}</b><small>${esc(action.sub)}</small>`;
+      primary.onclick=()=>{
+        if(action.action==="match")aceUTOpenMatchFlow();
+        else vdsSwitchUltimateInstance(action.action);
+      };
+      primary.classList.toggle("gift",action.action==="packs"&&action.icon==="🎁");
+    }
+
+    const kicker=stage.querySelector(".aceUTHomeSectionKicker");
+    if(kicker)kicker.textContent="YOUR NEXT MOVE";
+    const title=stage.querySelector(".aceUTHomeCopy h1");
+    if(title)title.textContent=action.action==="packs"?"Your Pack Is Waiting.":action.action==="match"?"Take The Court.":"Build Your Six.";
+    const copy=stage.querySelector(".aceUTHomeCopy>p");
+    if(copy)copy.textContent="Open. Build. Compete. Every decision moves your club forward.";
+
+    const cards=vdsHubOwnedLineupCards();
+    let identity=stage.querySelector(".aceHomeIdentityMount");
+    if(!identity){
+      identity=document.createElement("div");
+      identity.className="aceHomeIdentityMount";
+      stage.querySelector(".aceUTHomeSquadLabel")?.insertAdjacentElement("afterend",identity);
+    }
+    if(identity)identity.innerHTML=aceSquadIdentityHTML(cards,{compact:true});
+
+    const spotlight=aceHomeSpotlightCard();
+    let mount=stage.querySelector(".aceHomeSpotlight");
+    if(!spotlight?.player){
+      mount?.remove();
+      return;
+    }
+    if(!mount){
+      mount=document.createElement("div");
+      mount.className="aceHomeSpotlight";
+      stage.querySelector(".aceUTHomeMainActions")?.insertAdjacentElement("afterend",mount);
+    }
+    const c=spotlight.card,p=spotlight.player;
+    const tier=String(c.rarity||cardTier(p)||"silver");
+    const label=UT_RARITY[tier]?.label||tier;
+    mount.innerHTML=`
+      <div class="aceHomeSpotlightCard">
+        <div class="fifaPlayerCard ${esc(tier)}">
+          ${vdsMasterPlayerCardHTML(p,{
+            role:c.position||p.position,
+            rating:Number(c.rating||mainPositionRating(p)),
+            tier,
+            tierLabel:String(label).toUpperCase(),
+            footer:spotlight.fresh?"LATEST PULL":"CLUB STAR"
+          })}
+        </div>
+      </div>
+      <div class="aceHomeSpotlightCopy">
+        <small>${spotlight.fresh?"LATEST PULL":"CLUB STAR"}</small>
+        <b>${esc(c.playerName||p.name)}</b>
+        <span>${Number(c.rating||mainPositionRating(p))} ${esc(c.position||p.position)} · ${String(label).toUpperCase()}</span>
+        <button type="button">VIEW CARD →</button>
+      </div>`;
+    mount.querySelector("button")?.addEventListener("click",()=>{
+      if(typeof aceMarkGroupViewed==="function")aceMarkGroupViewed(c);
+      openVdsCardShowcase(c.playerName||p.name);
+    });
+  }
+
+  const baseHomeRender=vdsRenderUltimateHubHome;
+  vdsRenderUltimateHubHome=function(){
+    const result=baseHomeRender.apply(this,arguments);
+    requestAnimationFrame(aceEnhanceUltimateHome);
+    return result;
+  };
+
+  const baseSquadRender=renderUltimateSquadVisual;
+  renderUltimateSquadVisual=function(){
+    const result=baseSquadRender.apply(this,arguments);
+    requestAnimationFrame(aceEnhanceSquadIdentity);
+    return result;
+  };
+
+  /* ======================================================
+     PRE-MATCH VS REVEAL
+     ====================================================== */
+  let aceVSResolver=null;
+  let aceVSKey="";
+  let aceVSTimer=0;
+
+  function aceMatchTeamData(teamNo){
+    const team=`team${teamNo}`;
+    const selects=$$(`select[data-team="${team}"]`);
+    const lineup=selects.map(sel=>({
+      name:sel.value,
+      role:sel.dataset.role||"OH"
+    })).filter(x=>x.name);
+    const entries=lineup.map(x=>{
+      const p=players.find(player=>player.name===x.name);
+      const role=roleRatingKey(x.role);
+      const rating=p?effectivePositionRating(p,role):0;
+      return {p,role:x.role,rating};
+    }).filter(x=>x.p);
+
+    const ovr=entries.length
+      ? Math.round(entries.reduce((sum,x)=>sum+Number(x.rating||0),0)/entries.length)
+      : 0;
+    const best=entries.slice().sort((a,b)=>Number(b.rating)-Number(a.rating))[0]||null;
+    return {
+      name:$("#team"+teamNo+"Name")?.value||`Team ${teamNo}`,
+      entries,ovr,best
+    };
+  }
+  function aceVSCardHTML(entry){
+    const p=entry?.p;
+    if(!p)return "";
+    return `<div class="aceVSCard">
+      ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:`<span>♠</span>`}
+      <b>${Math.round(Number(entry.rating||0))}</b>
+      <small>${esc(entry.role)}</small>
+    </div>`;
+  }
+  function aceFinishVS(){
+    clearTimeout(aceVSTimer);
+    const overlay=$("#acePreMatchVS");
+    overlay?.classList.remove("show");
+    overlay?.setAttribute("aria-hidden","true");
+    const resolve=aceVSResolver;
+    aceVSResolver=null;
+    aceVSKey="";
+    setTimeout(()=>resolve?.(),180);
+  }
+  $("#aceVSSkip")?.addEventListener("click",aceFinishVS);
+
+  async function aceShowPreMatchVSCurrent({mode="match"}={}){
+    const t1=aceMatchTeamData(1);
+    const t2=aceMatchTeamData(2);
+    if(t1.entries.length!==6||t2.entries.length!==6)return;
+
+    const key=`${mode}:${t1.name}:${t2.name}:${t1.entries.map(x=>x.p.name).join("|")}:${t2.entries.map(x=>x.p.name).join("|")}`;
+    if(key===aceVSKey)return;
+    aceVSKey=key;
+
+    if(aceVSResolver)aceFinishVS();
+
+    const ownRecord=`${Number(vdsAccountProfile?.wins||0)}-${Number(vdsAccountProfile?.losses||0)} RECORD`;
+    const online=mode==="online";
+    const ai=mode==="ai";
+    const body=$("#aceVSTeams");
+    if(!body)return;
+
+    body.innerHTML=`
+      <section class="aceVSTeam left">
+        <div class="aceVSTeamMeta"><small>${online?"HOME CLUB":"YOUR CLUB"}</small><h2>${esc(t1.name)}</h2><span>${t1.ovr} OVR · ${ownRecord}</span></div>
+        <div class="aceVSSix">${t1.entries.map(aceVSCardHTML).join("")}</div>
+        <div class="aceVSStar"><span>STAR PLAYER</span><b>${esc(t1.best?.p?.name||"—")}</b><strong>${t1.best?.rating||"—"}</strong></div>
+      </section>
+      <div class="aceVSVersus"><span>VS</span><small>${ai?"ACE LEAGUE AI":online?"RANKED ONLINE":"MATCH"}</small></div>
+      <section class="aceVSTeam right">
+        <div class="aceVSTeamMeta"><small>${ai?"AI OPPONENT":"AWAY CLUB"}</small><h2>${esc(t2.name)}</h2><span>${t2.ovr} OVR · ${ai?"ACE LEAGUE":"RANKED OPPONENT"}</span></div>
+        <div class="aceVSSix">${t2.entries.map(aceVSCardHTML).join("")}</div>
+        <div class="aceVSStar"><span>STAR PLAYER</span><b>${esc(t2.best?.p?.name||"—")}</b><strong>${t2.best?.rating||"—"}</strong></div>
+      </section>`;
+
+    const overlay=$("#acePreMatchVS");
+    overlay?.classList.add("show");
+    overlay?.setAttribute("aria-hidden","false");
+
+    return new Promise(resolve=>{
+      aceVSResolver=resolve;
+      aceVSTimer=setTimeout(aceFinishVS,2350);
+    });
+  }
+  window.aceShowPreMatchVSCurrent=aceShowPreMatchVSCurrent;
+
+  /* ======================================================
+     INITIAL / LATE RENDERS
+     ====================================================== */
+  requestAnimationFrame(()=>{
+    aceRenderNotificationBell();
+    if(vdsUltimateHubActive==="home")aceEnhanceUltimateHome();
+    if(vdsUltimateHubActive==="squad")aceEnhanceSquadIdentity();
+  });
+
+  window.addEventListener("resize",aceRenderNotificationBell);
+})();
+</script>
+
+
+<style id="ace-b21-20-player-capture-style">
+/* =========================================================
+   B21.20 — PLAYER CAPTURE / GAME FEEL
+   ========================================================= */
+
+/* Notification centre */
+.aceNotificationBell{
+  position:relative;flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;
+  border:1px solid rgba(167,117,236,.12);border-radius:12px;background:#090c13;color:#a68abd;
+  cursor:pointer;transition:.16s ease;
+}
+.aceNotificationBell:hover{border-color:rgba(169,113,246,.30);color:#d2b6f4;background:#0d1019}
+.aceNotificationBell>span{font-size:18px;transform:rotate(45deg)}
+.aceNotificationBell i{
+  position:absolute;right:-4px;top:-5px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;
+  border:2px solid #080a10;border-radius:999px;background:#8751d7;color:#fff;font-size:7px;font-style:normal;font-weight:1000;
+}
+.aceNotificationBell i[hidden]{display:none}
+.aceNotificationPanel{
+  position:fixed;z-index:36000;right:18px;top:70px;width:min(370px,calc(100vw - 24px));max-height:min(620px,calc(100dvh - 90px));
+  display:none;overflow:hidden;border:1px solid rgba(165,113,239,.16);border-radius:17px;
+  background:rgba(7,9,15,.985);box-shadow:0 26px 70px rgba(0,0,0,.58);backdrop-filter:blur(18px);
+}
+.aceNotificationPanel.show{display:block}
+.aceNotificationHead{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.045)}
+.aceNotificationHead small,.aceNotificationHead b{display:block}.aceNotificationHead small{color:#795e98;font-size:6px;font-weight:1000;letter-spacing:.14em}.aceNotificationHead b{margin-top:3px;font-size:11px}
+.aceNotificationHead button{min-height:30px;padding:0 8px;border:1px solid rgba(255,255,255,.06);border-radius:8px;background:#0b0e15;color:#746e7e;font-size:6px;font-weight:1000;cursor:pointer}
+.aceNotificationList{max-height:520px;overflow:auto;padding:7px}
+.aceNotificationItem{display:grid;grid-template-columns:34px 1fr;gap:9px;padding:10px;border-radius:11px;border-bottom:1px solid rgba(255,255,255,.035)}
+.aceNotificationItem>span{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#11131d;color:#9f70dc;font-size:13px}
+.aceNotificationItem.reward>span,.aceNotificationItem.sale>span{color:#e3c56b;background:rgba(91,69,9,.16)}
+.aceNotificationItem.achievement>span{color:#c592ff;background:rgba(91,43,151,.17)}
+.aceNotificationItem.warning>span{color:#ee8b94;background:rgba(101,19,27,.15)}
+.aceNotificationItem b{font-size:9px}.aceNotificationItem p{margin:4px 0 0;color:#7c8290;font-size:8px;line-height:1.35}.aceNotificationItem small{display:block;margin-top:5px;color:#4f5360;font-size:6px}
+.aceNotificationEmpty{padding:36px 15px;color:#65616e;text-align:center;font-size:9px}
+.aceToastStack{position:fixed;z-index:35500;right:18px;top:78px;width:min(330px,calc(100vw - 24px));display:grid;gap:7px;pointer-events:none}
+.aceToast{
+  display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:center;min-height:54px;padding:9px 11px;
+  transform:translateX(24px);opacity:0;border:1px solid rgba(156,103,229,.14);border-radius:12px;background:rgba(7,10,16,.96);
+  box-shadow:0 14px 35px rgba(0,0,0,.42);transition:.22s ease;
+}
+.aceToast.show{transform:translateX(0);opacity:1}.aceToast>span{width:31px;height:31px;display:grid;place-items:center;border-radius:9px;background:#11131d;color:#a36fde}
+.aceToast.reward>span,.aceToast.sale>span,.aceToast.pack>span{color:#e7c765;background:rgba(91,69,9,.18)}
+.aceToast b{display:block;font-size:8px}.aceToast small{display:block;margin-top:3px;color:#85818e;font-size:7px;line-height:1.3}
+
+/* Reward animation */
+.aceRewardStage{position:fixed;z-index:50000;inset:0;pointer-events:none;overflow:hidden}
+.aceRewardBurst{
+  position:absolute;left:50%;top:48%;transform:translate(-50%,-50%) scale(.72);opacity:0;
+  min-width:250px;text-align:center;filter:drop-shadow(0 14px 30px rgba(0,0,0,.48));
+}
+.aceRewardBurst>span{display:block;font-size:42px}.aceRewardBurst>b{display:block;margin-top:7px;color:#f1d170;font-size:20px;letter-spacing:.035em}
+.aceRewardBurst.pack>b{color:#f0d66f}.aceRewardBurst.level>b{color:#d2a8ff}
+.aceRewardBurst.play{animation:aceRewardPop .95s cubic-bezier(.16,.8,.25,1) forwards}
+.aceRewardBurst>i{
+  position:absolute;left:50%;top:42%;font-style:normal;font-size:14px;opacity:0;
+}
+.aceRewardBurst.play>i{animation:aceRewardParticle .75s ease-out forwards}
+.aceRewardBurst.play>i:nth-of-type(2){animation-delay:.04s}.aceRewardBurst.play>i:nth-of-type(3){animation-delay:.08s}
+.aceRewardBurst.play>i:nth-of-type(4){animation-delay:.12s}.aceRewardBurst.play>i:nth-of-type(5){animation-delay:.16s}
+.aceRewardBurst.play>i:nth-of-type(6){animation-delay:.2s}.aceRewardBurst.play>i:nth-of-type(7){animation-delay:.24s}.aceRewardBurst.play>i:nth-of-type(8){animation-delay:.28s}
+@keyframes aceRewardPop{0%{opacity:0;transform:translate(-50%,-42%) scale(.58)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes aceRewardParticle{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--rx)),calc(-50% + var(--ry))) rotate(180deg) scale(1.15)}}
+
+/* Dynamic Home + card spotlight */
+.aceUTHomePrimary.gift{
+  border-color:rgba(239,203,88,.34)!important;
+  background:radial-gradient(circle at 17% 24%,rgba(255,227,127,.17),transparent 25%),linear-gradient(135deg,#87671a,#4c3910)!important;
+  box-shadow:0 16px 35px rgba(125,91,20,.24)!important;
+}
+.aceHomeSpotlight{
+  position:relative;display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:13px;
+  max-width:400px;margin-top:15px;padding:9px 12px 9px 8px;border:1px solid rgba(177,126,244,.12);
+  border-radius:15px;background:linear-gradient(135deg,rgba(103,58,170,.09),rgba(9,12,20,.84));overflow:hidden;
+}
+.aceHomeSpotlight:after{content:"♠";position:absolute;right:-3px;bottom:-31px;color:rgba(158,99,238,.04);font-size:110px}
+.aceHomeSpotlightCard{position:relative;width:112px;height:138px;overflow:hidden}
+.aceHomeSpotlightCard>.fifaPlayerCard{
+  position:absolute!important;left:0!important;top:0!important;width:275px!important;min-width:275px!important;height:420px!important;min-height:420px!important;
+  transform:scale(.405)!important;transform-origin:top left!important;margin:0!important;
+}
+.aceHomeSpotlightCopy{position:relative;z-index:2;min-width:0}
+.aceHomeSpotlightCopy small{display:block;color:#8b6cac;font-size:6px;font-weight:1000;letter-spacing:.15em}
+.aceHomeSpotlightCopy b{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.aceHomeSpotlightCopy span{display:block;margin-top:5px;color:#817b8a;font-size:8px}
+.aceHomeSpotlightCopy button{margin-top:9px;min-height:31px;padding:0 9px;border:1px solid rgba(174,119,245,.15);border-radius:8px;background:#0b0e16;color:#ad8bd6;font-size:6px;font-weight:1000;cursor:pointer}
+.aceHomeSpotlightCopy button:hover{border-color:rgba(184,126,255,.32);color:#d3b6f7}
+
+.aceSquadIdentityStrip{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:100%;padding:7px;
+  border:1px solid rgba(255,255,255,.045);border-radius:11px;background:rgba(5,8,14,.42);
+}
+.aceSquadIdentityStrip>div{min-width:0;padding:5px 7px;border-left:1px solid rgba(255,255,255,.04)}
+.aceSquadIdentityStrip>div:first-child{border-left:0}
+.aceSquadIdentityStrip span{display:block;color:#656676;font-size:5.5px;font-weight:1000;letter-spacing:.11em}
+.aceSquadIdentityStrip b{display:block;margin-top:4px;color:#d8d4df;font-size:12px;white-space:nowrap}
+.aceSquadIdentityStrip .warning b{color:#e3ae5e}
+.aceSquadIdentityStrip.compact{margin:0 4px 2px}
+#aceSquadIdentityMain{margin:7px 0}
+
+/* Pre-match VS */
+.acePreMatchVS{
+  position:fixed;inset:0;z-index:60000;display:none;align-items:center;justify-content:center;overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(91,43,155,.22),transparent 36%),
+    linear-gradient(135deg,#05070c,#0b0912 48%,#05070c);
+}
+.acePreMatchVS.show{display:flex}
+.aceVSBackdropMark{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-family:Georgia,serif;font-size:min(72vw,850px);line-height:1;color:rgba(143,83,224,.035);pointer-events:none}
+.aceVSSkip{position:absolute;z-index:5;right:22px;top:20px;min-height:36px;padding:0 12px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(8,10,16,.78);color:#7f7889;font-size:7px;font-weight:1000;cursor:pointer}
+.aceVSShell{position:relative;z-index:3;width:min(1120px,calc(100vw - 34px));padding:22px}
+.aceVSKicker{text-align:center;color:#8d6bad;font-size:7px;font-weight:1000;letter-spacing:.22em}
+.aceVSTeams{display:grid;grid-template-columns:1fr 110px 1fr;gap:20px;align-items:center;margin-top:28px}
+.aceVSTeam{min-width:0;opacity:0}.acePreMatchVS.show .aceVSTeam.left{animation:aceVSTeamLeft .55s .08s cubic-bezier(.16,.82,.3,1) forwards}.acePreMatchVS.show .aceVSTeam.right{animation:aceVSTeamRight .55s .08s cubic-bezier(.16,.82,.3,1) forwards}
+.aceVSTeam.right{text-align:right}.aceVSTeamMeta small{color:#755d8e;font-size:6px;font-weight:1000;letter-spacing:.16em}.aceVSTeamMeta h2{margin:6px 0 0;font-size:clamp(25px,3vw,44px);line-height:.95}.aceVSTeamMeta span{display:block;margin-top:7px;color:#85818d;font-size:8px;font-weight:850}
+.aceVSSix{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:18px}.aceVSCard{position:relative;height:112px;overflow:hidden;border:1px solid rgba(171,125,234,.14);border-radius:11px;background:#10121b;box-shadow:0 12px 24px rgba(0,0,0,.26)}.aceVSCard img{width:100%;height:100%;object-fit:cover;object-position:center top}.aceVSCard>span{height:100%;display:grid;place-items:center;color:#9f72d9;font-size:24px}.aceVSCard b{position:absolute;left:5px;top:5px;padding:4px 5px;border-radius:6px;background:rgba(4,6,10,.84);font-size:9px}.aceVSCard small{position:absolute;right:5px;bottom:5px;padding:3px 4px;border-radius:5px;background:rgba(4,6,10,.84);color:#aba4b3;font-size:5px;font-weight:1000}
+.aceVSStar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin-top:9px;padding:8px 9px;border:1px solid rgba(255,255,255,.045);border-radius:9px;background:rgba(5,8,13,.45)}.aceVSStar span{color:#6d6179;font-size:5px;font-weight:1000;letter-spacing:.12em}.aceVSStar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}.aceVSStar strong{color:#caa7f2;font-size:13px}
+.aceVSVersus{text-align:center}.aceVSVersus span{display:block;color:#fff;font-size:54px;font-weight:1000;letter-spacing:-.06em;text-shadow:0 0 30px rgba(157,96,236,.25)}.aceVSVersus small{display:block;margin-top:3px;color:#705d82;font-size:5px;font-weight:1000;letter-spacing:.14em}
+.aceVSStartLine{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:28px}.aceVSStartLine span{width:90px;height:1px;background:linear-gradient(90deg,transparent,rgba(157,98,232,.36))}.aceVSStartLine span:last-child{transform:scaleX(-1)}.aceVSStartLine b{color:#a783cd;font-size:7px;letter-spacing:.18em}
+@keyframes aceVSTeamLeft{from{opacity:0;transform:translateX(-38px)}to{opacity:1;transform:none}}
+@keyframes aceVSTeamRight{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:none}}
+
+/* Desktop: let the spotlight enrich the left side without stealing the court. */
+@media(min-width:981px){
+  #ultimate .aceUTHomeCopy{align-self:center!important}
+  #ultimate .aceHomeSpotlight{max-width:430px}
+  #ultimate .aceSquadIdentityStrip.compact{margin-bottom:3px}
+}
+
+/* Mobile */
+@media(max-width:760px){
+  .aceNotificationBell{flex-basis:35px;width:35px;height:35px;border-radius:10px}
+  .aceNotificationPanel{right:8px;left:8px;top:61px;width:auto;max-height:calc(100dvh - 145px)}
+  .aceToastStack{left:9px;right:9px;top:62px;width:auto}
+  .aceRewardBurst{min-width:220px}.aceRewardBurst>span{font-size:37px}.aceRewardBurst>b{font-size:16px}
+  .aceHomeSpotlight{grid-template-columns:90px 1fr;max-width:none;margin-top:11px;padding:8px}
+  .aceHomeSpotlightCard{width:86px;height:108px}.aceHomeSpotlightCard>.fifaPlayerCard{transform:scale(.315)!important}
+  .aceHomeSpotlightCopy b{font-size:12px}.aceHomeSpotlightCopy span{font-size:7px}
+  .aceSquadIdentityStrip{gap:3px;padding:5px}.aceSquadIdentityStrip>div{padding:4px}.aceSquadIdentityStrip span{font-size:4.8px}.aceSquadIdentityStrip b{font-size:9px}
+  .aceVSShell{width:100%;padding:14px}.aceVSTeams{grid-template-columns:1fr;gap:10px;margin-top:17px}.aceVSVersus{order:2}.aceVSTeam.left{order:1}.aceVSTeam.right{order:3}.aceVSVersus span{font-size:31px}.aceVSTeams .aceVSTeam.right{text-align:left}
+  .aceVSSix{gap:4px;margin-top:10px}.aceVSCard{height:75px;border-radius:8px}.aceVSCard b{font-size:7px}.aceVSStar{margin-top:6px;padding:6px}.aceVSTeamMeta h2{font-size:22px}.aceVSTeamMeta span{font-size:7px}
+  .aceVSStartLine{margin-top:14px}.aceVSSkip{right:12px;top:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .aceRewardBurst.play,.aceRewardBurst.play>i,.acePreMatchVS.show .aceVSTeam{animation:none!important;opacity:1!important}
+}
+</style>
+
+
+<script id="ace-b21-20-version-marker">
+window.ACE_PROJECT_BUILD="B21.20";
+window.ACE_HOME_CAPTURE="DYNAMIC_CTA_CARD_SPOTLIGHT";
+window.ACE_REWARD_FEEDBACK="ANIMATED_WALLET_REWARDS";
+window.ACE_PREMATCH_PRESENTATION="SKIPPABLE_VS_REVEAL";
+window.ACE_SQUAD_IDENTITY="ATTACK_DEFENCE_SETTING_OOP";
+window.ACE_NOTIFICATION_CENTRE="PERSISTENT_TOAST_AND_INBOX";
+window.ACE_TACTICS_LOCK="ATOMIC_TACTICS_LINEUP_READY";
 window.ACE_QOL_PASS="COMPLETE_MOBILE_PC";
-window.ACE_DUPLICATE_TOOLS="FILTER_REVIEW_BULK_SELL";
-window.ACE_CARD_COMPARE="TWO_CARD_SIDE_BY_SIDE";
-window.ACE_SQUAD_ASSIST="BEST_POSITION_PREVIEW_WARNINGS_UNDO";
-window.ACE_CARD_FLAGS="CLOUD_FAVOURITE_LOCK_VIEWED";
-window.ACE_AUTO_BUILD="MULTI_STYLE_LOCK_PRESERVING";
-window.ACE_CARD_CONTEXT="RIGHT_CLICK_LONG_PRESS";
-window.ACE_CLOUD_STATUS="VISIBLE_SAVE_SYNC_STATE";
-window.ACE_RECONNECT_UI="ENHANCED";
-window.ACE_FIRST_USE_HELP="ONE_TIME_QOL_TOUR";
 window.ACE_QUICK_SELL_UI="CENTERED_PROJECT_ACE_MODAL";
-window.ACE_OUT_OF_POSITION_UI="ASSIGNED_ROLE_OVR";
 window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 
