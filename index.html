@@ -8948,22 +8948,31 @@ function overall(p){
 }
 
 function positionRatings(p){
-  // B2.58 — tested direct-attribute position engine.
+  // B21.7 — canonical role-weight engine shared with the follower spinner.
+  // SET is split into Set Technique / Set Creativity so secondary setting
+  // can matter differently by natural volleyball role.
   const v=(key)=>clamp(Number(p?.[key])||0,0,100);
+  const legacySet=v("setting");
   const a={
     creativity:v("creativity"), accuracy:v("accuracy"), hittingPower:v("hittingPower"),
     serveReceive:v("serveReceive"), positioning:v("positioning"), covering:v("covering"),
     workRate:v("workRate"), vertical:v("vertical"), speed:v("speed"),
     reactionTime:v("reactionTime"), service:v("service"), blocking:v("blocking"),
-    setting:v("setting"), mindset:v("mindset")
+    setTechnique:Number.isFinite(Number(p?.setTechnique))?v("setTechnique"):legacySet,
+    setCreativity:Number.isFinite(Number(p?.setCreativity))?v("setCreativity"):legacySet,
+    mindset:v("mindset")
   };
 
+  // 100% per position.
+  // OH gets meaningful emergency-setting value without making reception guaranteed.
+  // L gets 10% combined emergency setting (7 STQ / 3 SCR).
+  // S keeps setting as its defining trait (31% combined).
   const W={
-    OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:20,positioning:9,covering:5,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setting:2,mindset:4},
-    OP:{accuracy:19,hittingPower:19,creativity:4,serveReceive:4,positioning:4,covering:4,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:12,setting:2,mindset:5},
-    M:{accuracy:11,hittingPower:11,creativity:2,serveReceive:1,positioning:6,covering:3,workRate:4,vertical:14,speed:5,reactionTime:7,service:5,blocking:25,setting:1,mindset:5},
-    S:{accuracy:3,hittingPower:5,creativity:4,serveReceive:5,positioning:10,covering:3,workRate:4,vertical:5,speed:4,reactionTime:10,service:6,blocking:7,setting:30,mindset:4},
-    L:{accuracy:0,hittingPower:0,creativity:1,serveReceive:36,positioning:18,covering:12,workRate:5,vertical:1,speed:8,reactionTime:10,service:1,blocking:0,setting:4,mindset:4}
+    OH:{accuracy:14,hittingPower:10,creativity:5,serveReceive:15,positioning:8,covering:6,workRate:5,vertical:7,speed:5,reactionTime:5,service:5,blocking:5,setTechnique:4,setCreativity:2,mindset:4},
+    OP:{accuracy:16,hittingPower:17,creativity:4,serveReceive:1,positioning:6,covering:4,workRate:5,vertical:9,speed:4,reactionTime:5,service:7,blocking:12,setTechnique:1,setCreativity:1,mindset:8},
+    M:{accuracy:10,hittingPower:10,creativity:2,serveReceive:0,positioning:8,covering:3,workRate:5,vertical:15,speed:6,reactionTime:9,service:4,blocking:22,setTechnique:1,setCreativity:0,mindset:5},
+    S:{accuracy:3,hittingPower:4,creativity:4,serveReceive:1,positioning:12,covering:3,workRate:4,vertical:5,speed:5,reactionTime:11,service:6,blocking:7,setTechnique:19,setCreativity:12,mindset:4},
+    L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:26,positioning:15,covering:15,workRate:6,vertical:1,speed:7,reactionTime:12,service:0,blocking:0,setTechnique:7,setCreativity:3,mindset:6}
   };
 
   const calc=(weights)=>{
@@ -8974,7 +8983,6 @@ function positionRatings(p){
 
   return {OH:calc(W.OH),OP:calc(W.OP),M:calc(W.M),S:calc(W.S),L:calc(W.L)};
 }
-
 function mainPositionRating(p){
   const pos=String(p?.position||"OH").toUpperCase();
   const key=(pos==="OH1"||pos==="OH2")?"OH":(["OH","OP","M","S","L"].includes(pos)?pos:"OH");
@@ -27748,8 +27756,9 @@ Object.assign(window,{
   }catch(e){}
 
   // ----- Position engine -----
-  // Every old Setting weight is split exactly 60/40 into STQ/SCR.
-  // This prevents a blanket buff/nerf simply because the stat architecture changed.
+  // B21.7 role model: position OVR now uses the same STQ/SCR-aware
+  // weights as the follower spinner. Secondary setting is intentionally
+  // more valuable for OH and L; Setter remains setting-led.
   try{
     positionRatings = function(p){
       upgradePlayerSetting(p);
@@ -27763,11 +27772,11 @@ Object.assign(window,{
       };
 
       const W={
-        OH:{accuracy:15,hittingPower:11,creativity:5,serveReceive:20,positioning:9,covering:5,workRate:4,vertical:6,speed:5,reactionTime:5,service:5,blocking:4,setTechnique:1.2,setCreativity:.8,mindset:4},
-        OP:{accuracy:19,hittingPower:19,creativity:4,serveReceive:4,positioning:4,covering:4,workRate:4,vertical:8,speed:4,reactionTime:5,service:6,blocking:12,setTechnique:1.2,setCreativity:.8,mindset:5},
-        M:{accuracy:11,hittingPower:11,creativity:2,serveReceive:1,positioning:6,covering:3,workRate:4,vertical:14,speed:5,reactionTime:7,service:5,blocking:25,setTechnique:.6,setCreativity:.4,mindset:5},
-        S:{accuracy:3,hittingPower:5,creativity:4,serveReceive:5,positioning:10,covering:3,workRate:4,vertical:5,speed:4,reactionTime:10,service:6,blocking:7,setTechnique:18,setCreativity:12,mindset:4},
-        L:{accuracy:0,hittingPower:0,creativity:1,serveReceive:36,positioning:18,covering:12,workRate:5,vertical:1,speed:8,reactionTime:10,service:1,blocking:0,setTechnique:2.4,setCreativity:1.6,mindset:4}
+        OH:{accuracy:14,hittingPower:10,creativity:5,serveReceive:15,positioning:8,covering:6,workRate:5,vertical:7,speed:5,reactionTime:5,service:5,blocking:5,setTechnique:4,setCreativity:2,mindset:4},
+        OP:{accuracy:16,hittingPower:17,creativity:4,serveReceive:1,positioning:6,covering:4,workRate:5,vertical:9,speed:4,reactionTime:5,service:7,blocking:12,setTechnique:1,setCreativity:1,mindset:8},
+        M:{accuracy:10,hittingPower:10,creativity:2,serveReceive:0,positioning:8,covering:3,workRate:5,vertical:15,speed:6,reactionTime:9,service:4,blocking:22,setTechnique:1,setCreativity:0,mindset:5},
+        S:{accuracy:3,hittingPower:4,creativity:4,serveReceive:1,positioning:12,covering:3,workRate:4,vertical:5,speed:5,reactionTime:11,service:6,blocking:7,setTechnique:19,setCreativity:12,mindset:4},
+        L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:26,positioning:15,covering:15,workRate:6,vertical:1,speed:7,reactionTime:12,service:0,blocking:0,setTechnique:7,setCreativity:3,mindset:6}
       };
       const calc=(weights)=>{
         let score=0;
@@ -31311,6 +31320,93 @@ window.aceRuntimeHealth=function(){
   };
   window.aceUTLeagueReplay=aceUTLeagueReplay;
 })();
+</script>
+
+
+<style id="ace-b21-7-pack-card-fidelity">
+/* =========================================================
+   B21.7 — PACK CARD FIDELITY
+   Pack reveal uses the exact canonical Players / My Club card
+   silhouette instead of flattening it into a rounded rectangle.
+   ========================================================= */
+.aceCinemaPlayerCard .fifaPlayerCard,
+.aceCinemaSummaryCard .fifaPlayerCard{
+  border-radius:0!important;
+  clip-path:polygon(
+    9% 0,
+    38% 0,
+    43% 3%,
+    50% 0,
+    57% 3%,
+    62% 0,
+    91% 0,
+    97% 5%,
+    100% 12%,
+    100% 86%,
+    96% 93%,
+    88% 97%,
+    69% 100%,
+    31% 100%,
+    12% 97%,
+    4% 93%,
+    0 86%,
+    0 12%,
+    3% 5%
+  )!important;
+  -webkit-clip-path:polygon(
+    9% 0,
+    38% 0,
+    43% 3%,
+    50% 0,
+    57% 3%,
+    62% 0,
+    91% 0,
+    97% 5%,
+    100% 12%,
+    100% 86%,
+    96% 93%,
+    88% 97%,
+    69% 100%,
+    31% 100%,
+    12% 97%,
+    4% 93%,
+    0 86%,
+    0 12%,
+    3% 5%
+  )!important;
+  overflow:hidden!important;
+}
+
+/* Full reveal keeps the same portrait/card proportions as the live card. */
+.aceCinemaPlayerCard .fifaPlayerCard{
+  width:100%!important;
+  height:100%!important;
+  min-height:420px!important;
+  margin:0!important;
+}
+
+/* The small three-card summary is a scaled version of the same real card,
+   not a different rounded-card skin. */
+.aceCinemaSummaryCard{
+  overflow:visible!important;
+  border-radius:0!important;
+}
+.aceCinemaSummaryCard .fifaPlayerCard{
+  border-radius:0!important;
+}
+
+/* Do not let the cinema wrapper crop the canonical silhouette/glow. */
+.aceCinemaCardFront,
+.aceCinemaPlayerCard{
+  overflow:visible!important;
+}
+</style>
+
+
+<script id="ace-b21-7-version-marker">
+window.ACE_PROJECT_BUILD="B21.7";
+window.ACE_POSITION_OVR_MODEL="SPINNER_SYNC_2026_08_27";
+window.ACE_PACK_CARD_RENDERER="CANONICAL_MASTER_CARD";
 </script>
 
 </body>
