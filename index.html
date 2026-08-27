@@ -5670,6 +5670,410 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 <meta name="ace-build" content="B14.2 Tactics Fix + Clean Manager UI">
 <meta name="ace-build" content="B14.3 Tactics Runtime Fix">
 <meta name="ace-build" content="B14.4 Ran Card Art Tuning">
+<meta name="ace-build" content="B15.0 Pre-Match Coaching Room">
+
+<style id="ace-b15-prematch-coaching-style">
+/* =========================================================
+   B15.0 — PRE-MATCH COACHING ROOM
+   Detailed planning before READY; bigger readable manager UI.
+   ========================================================= */
+
+/* Existing live tactics modal: give it proper coaching-room space. */
+@media (min-width:761px){
+  #aceManagerModal .aceManagerSheet{
+    width:min(1480px,96vw)!important;
+    max-width:none!important;
+    max-height:91vh!important;
+  }
+  #aceManagerModal .aceManagerSheetHead{
+    padding:17px 20px 14px!important;
+  }
+  #aceManagerModal .aceManagerSheetTitle{
+    font-size:20px!important;
+  }
+  #aceManagerModal .aceManagerSheetBody{
+    padding:16px!important;
+  }
+  #aceManagerModal .aceTacticsGrid{
+    gap:14px!important;
+  }
+  #aceManagerModal .aceM2Section{
+    padding:13px!important;
+  }
+  #aceManagerModal .aceM2Field label{
+    font-size:6.7px!important;
+  }
+  #aceManagerModal .aceM2Field select{
+    min-height:42px!important;
+    font-size:8.5px!important;
+    padding:8px 10px!important;
+  }
+  #aceManagerModal .aceM2Explain{
+    font-size:7.2px!important;
+    line-height:1.55!important;
+  }
+  #aceManagerModal .aceM2Scout span,
+  #aceManagerModal .aceM2Summary span{
+    font-size:7px!important;
+  }
+  #aceManagerModal .aceM2Mentality button{
+    min-height:42px!important;
+    font-size:7.3px!important;
+  }
+}
+
+/* Add a genuine pre-match plan action beside READY. */
+#lineup .lineupConfirmCard{
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+}
+.acePreMatchPlanBtn{
+  min-width:190px;
+  min-height:44px;
+  border:1px solid rgba(174,118,255,.24)!important;
+  background:linear-gradient(135deg,rgba(87,47,137,.56),rgba(42,76,126,.50))!important;
+  color:#eadcff!important;
+}
+.acePreMatchPlanBtn b{
+  display:block;
+  font-size:8px;
+  letter-spacing:.07em;
+}
+.acePreMatchPlanBtn small{
+  display:block;
+  margin-top:2px;
+  color:#9faec4;
+  font-size:5.5px;
+  letter-spacing:.07em;
+}
+
+/* Pre-match modal */
+.acePreMatchModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:1705;
+  padding:22px;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,5,10,.80);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.acePreMatchModal.show{display:flex;}
+.acePreMatchSheet{
+  width:min(1500px,96vw);
+  max-height:92vh;
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(74,168,255,.07),transparent 31%),
+    #07131f;
+  box-shadow:0 28px 90px rgba(0,0,0,.62);
+}
+.acePreMatchHead{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:17px 20px 15px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(7,19,31,.97);
+}
+.acePreMatchHead span{
+  display:block;
+  color:#6c879e;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.19em;
+}
+.acePreMatchHead h2{
+  margin:3px 0 0;
+  color:#eef7ff;
+  font-size:22px;
+  letter-spacing:-.035em;
+}
+.acePreMatchClose{
+  width:42px;height:42px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:11px;
+  background:#0a1b2b;
+  color:#adc0d0;
+  font-size:20px;
+  cursor:pointer;
+}
+.acePreMatchBody{padding:16px;}
+.acePreMatchTopline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.acePreMatchTabs{
+  display:flex;
+  gap:5px;
+}
+.acePreMatchTabs button{
+  min-height:36px;
+  padding:0 13px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;
+  background:#091725;
+  color:#70889d;
+  font-size:7px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.acePreMatchTabs button.active{
+  color:#fff;
+  border-color:rgba(74,168,255,.25);
+  background:#153a59;
+}
+.acePreMatchHint{
+  color:#60798e;
+  font-size:6.5px;
+  line-height:1.5;
+}
+.acePreMatchLayout{
+  display:grid;
+  grid-template-columns:minmax(280px,.72fr) minmax(620px,1.55fr);
+  gap:12px;
+}
+.aceScoutPanel,.acePlanPanel{
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  background:rgba(3,12,21,.58);
+}
+.aceScoutPanel{padding:14px;}
+.acePanelKicker{
+  color:#765da0;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.17em;
+}
+.aceScoutPanel h3,.acePlanPanel h3{
+  margin:5px 0 10px;
+  color:#e9f4fc;
+  font-size:17px;
+}
+.aceScoutCards{
+  display:grid;
+  gap:7px;
+}
+.aceScoutCard{
+  padding:10px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:10px;
+  background:#071725;
+}
+.aceScoutCardTop{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+}
+.aceScoutCardTop b{
+  color:#e5f3fc;
+  font-size:9px;
+}
+.aceScoutBadge{
+  padding:4px 6px;
+  border-radius:999px;
+  background:rgba(83,149,201,.10);
+  color:#88b9db;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.07em;
+}
+.aceScoutDesc{
+  margin-top:5px;
+  color:#7790a5;
+  font-size:6.7px;
+  line-height:1.5;
+}
+.aceScoutPrivacy{
+  margin-top:10px;
+  padding:9px 10px;
+  border:1px dashed rgba(255,255,255,.07);
+  border-radius:9px;
+  color:#61798d;
+  font-size:6.2px;
+  line-height:1.5;
+}
+.aceScoutPrivacy b{color:#96b7cf;}
+
+.acePlanPanel{padding:14px;}
+.acePrePlanSummary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-bottom:10px;
+}
+.acePrePlanSummary span{
+  padding:5px 7px;
+  border:1px solid rgba(74,168,255,.12);
+  border-radius:7px;
+  background:rgba(22,80,121,.09);
+  color:#a9cae2;
+  font-size:6.3px;
+  font-weight:900;
+}
+.acePrePlanSections{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.acePrePlanSection{
+  padding:11px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:11px;
+  background:rgba(255,255,255,.018);
+}
+.acePrePlanSectionHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:8px;
+}
+.acePrePlanSectionHead b{
+  color:#dbeaf5;
+  font-size:7.5px;
+  letter-spacing:.10em;
+}
+.acePrePlanSectionHead span{
+  color:#536e84;
+  font-size:5.5px;
+  font-weight:900;
+}
+.acePrePlanFields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.acePrePlanField label{
+  display:block;
+  margin:0 0 4px;
+  color:#698399;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+.acePrePlanField select{
+  width:100%;
+  min-height:41px;
+  padding:8px 9px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:8px;
+  background:#071522;
+  color:#dfedf7;
+  font-size:8px;
+  font-weight:850;
+}
+.acePrePlanTradeoff{
+  margin-top:7px;
+  color:#71899c;
+  font-size:6.4px;
+  line-height:1.5;
+}
+.acePreMentality{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+.acePreMentality button{
+  min-height:40px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:8px;
+  background:#071522;
+  color:#72899d;
+  font-size:7px;
+  font-weight:950;
+  cursor:pointer;
+}
+.acePreMentality button.active{
+  color:#fff;
+  border-color:rgba(74,168,255,.28);
+  background:#123a59;
+}
+.acePreMatchFooter{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.acePreMatchFooter p{
+  margin:0;
+  max-width:760px;
+  color:#657d91;
+  font-size:6.5px;
+  line-height:1.5;
+}
+.acePreMatchFooter p b{color:#a0c6df;}
+.acePreMatchDone{
+  min-width:195px;
+  min-height:46px;
+  border:0;
+  border-radius:10px;
+  background:linear-gradient(135deg,#237fca,#55aff3);
+  color:#fff;
+  font-size:8px;
+  font-weight:1000;
+  cursor:pointer;
+}
+
+@media(max-width:760px){
+  #lineup .lineupConfirmCard{
+    grid-template-columns:1fr!important;
+  }
+  .acePreMatchPlanBtn,.lineupConfirmBtn{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .acePreMatchModal{
+    align-items:flex-end;
+    padding:0;
+  }
+  .acePreMatchSheet{
+    width:100%;
+    max-height:94dvh;
+    border-radius:18px 18px 0 0;
+    border-bottom:0;
+  }
+  .acePreMatchHead{padding:13px;}
+  .acePreMatchHead h2{font-size:19px;}
+  .acePreMatchBody{padding:10px;}
+  .acePreMatchTopline{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .acePreMatchLayout{
+    grid-template-columns:1fr;
+  }
+  .acePrePlanSections{
+    grid-template-columns:1fr;
+  }
+  .acePrePlanFields{
+    grid-template-columns:1fr 1fr;
+  }
+  .acePreMatchFooter{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .acePreMatchDone{width:100%;}
+}
+@media(max-width:390px){
+  .acePrePlanFields{grid-template-columns:1fr;}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -14247,6 +14651,12 @@ async function maybeLaunchConfirmedSimulation(){
 
 async function confirmCurrentLineup(){
   if(mpIsSpectator())return;
+  try{
+    if(typeof window.aceBroadcastPreMatchTactics==="function"){
+      const ownTeam=mpInMultiplayerRoom()?mpOwnedTeam():0;
+      if(ownTeam)await window.aceBroadcastPreMatchTactics(ownTeam);
+    }
+  }catch(e){console.warn("Pre-match tactics sync",e);}
 
   // Stage 4C.8: persistent room membership is authoritative even if the
   // private Realtime websocket is currently reconnecting.
@@ -15196,6 +15606,7 @@ function mpPersistentSnapshot(){
     draftPoolState:JSON.parse(JSON.stringify(draftPoolState||{})),
     miniDraftState:hasMini?JSON.parse(JSON.stringify(hasMini)):null,
     lineupConfirmState:hasLineupConfirm?JSON.parse(JSON.stringify(hasLineupConfirm)):null,
+    preMatchTactics:(window.acePreMatchTactics?JSON.parse(JSON.stringify(window.acePreMatchTactics)):null),
     liveMatch:liveState?multiplayerMatchSnapshot():null
   };
 }
@@ -15267,6 +15678,11 @@ function mpApplyPersistentSnapshot(row){
           refreshMiniDraftFromServer();
         },50);
       }
+    }
+
+    if(snapshot.preMatchTactics && typeof snapshot.preMatchTactics==="object"){
+      window.acePreMatchTactics=JSON.parse(JSON.stringify(snapshot.preMatchTactics));
+      try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
     }
 
     if(snapshot.lineupConfirmState && typeof lineupConfirmState!=="undefined"){
@@ -15456,6 +15872,7 @@ async function mpSendSnapshot(){
     draftPoolState,
     miniDraftState:(typeof miniDraftState!=="undefined"?miniDraftState:null),
     lineupConfirmState:(typeof lineupConfirmState!=="undefined"?lineupConfirmState:null),
+    preMatchTactics:(window.acePreMatchTactics?JSON.parse(JSON.stringify(window.acePreMatchTactics)):null),
     phase:mpPersistentPhase("snapshot")
   });
 }
@@ -16759,6 +17176,10 @@ async function connectMultiplayer(role,code,options={}){
           rebuildAllMiniDraftPersonalPools();
         }
       }
+      if(payload.preMatchTactics && typeof payload.preMatchTactics==="object"){
+        window.acePreMatchTactics=JSON.parse(JSON.stringify(payload.preMatchTactics));
+        try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
+      }
       if(payload.lineupConfirmState && typeof lineupConfirmState!=="undefined"){
         if(mpRoomBacked){
           refreshLineupFromServer();
@@ -16797,6 +17218,15 @@ async function connectMultiplayer(role,code,options={}){
 
       const status=document.getElementById("miniDraftStatus");
       if(status)status.textContent="Mini Draft started · your choices generate instantly on this device.";
+    })
+    .on("broadcast",{event:"prematch_tactics"},({payload})=>{
+      if(!payload)return;
+      const teamNo=Number(payload.teamNo||0);
+      if(![1,2].includes(teamNo)||!payload.tactics)return;
+      window.acePreMatchTactics=window.acePreMatchTactics||{};
+      window.acePreMatchTactics[teamNo]=JSON.parse(JSON.stringify(payload.tactics));
+      try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
+      if(mpIsAuthority())mpSchedulePersistentSave("prematch_tactics",120);
     })
     .on("broadcast",{event:"lineup_confirm_request"},async({payload})=>{
       if(mpRoomBacked)return; // Stage 4C.7 uses Supabase directly.
@@ -27326,6 +27756,392 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     e.stopImmediatePropagation();
     openTactics();
   },true);
+})();
+</script>
+
+
+<script id="ace-b15-prematch-coaching-script">
+(function(){
+  'use strict';
+  if(window.ACE_B15_PREMATCH_COACHING)return;
+  window.ACE_B15_PREMATCH_COACHING=true;
+
+  const BASE_PLAN={
+    serveZone:'balanced',
+    serveTarget:'none',
+    distribution:'balanced',
+    tempo:'normal',
+    blockFocus:'read',
+    blockAngle:'neutral',
+    defence:'balanced',
+    mentality:'balanced'
+  };
+
+  const MAPS={
+    serveZone:{
+      balanced:'Balanced',zone1:'Zone 1',zone5:'Zone 5',zone6:'Zone 6',
+      seam16:'Seam 1/6',seam56:'Seam 5/6'
+    },
+    distribution:{
+      balanced:'Balanced',left_pin:'Left Pin Heavy',opposite:'Opposite Heavy',
+      middle:'Middle Heavy',spread:'Spread Offence',hot_hitter:'Primary Hitter Heavy'
+    },
+    tempo:{fast:'Fast Tempo',normal:'Normal Tempo',high_safe:'High / Safe'},
+    blockFocus:{
+      balanced:'Balanced',read:'Read Block',left_pin:'Load Left Pin',
+      right_pin:'Load Right Pin',middle:'Commit Middle'
+    },
+    blockAngle:{neutral:'Neutral Hands',line:'Take Line',cross:'Take Cross',funnel:'Funnel Inside'},
+    defence:{balanced:'Balanced Base',line:'Protect Line',cross:'Protect Cross',tips:'Protect Tips',deep:'Protect Deep'},
+    mentality:{safe:'Safe',balanced:'Balanced',aggressive:'Aggressive'}
+  };
+
+  const TRADE={
+    serving:'Precise zone/player targeting is a coaching instruction, not perfect placement. Better servers execute it more accurately and targeting carries a small extra error cost.',
+    offence:'Distribution changes who the setter looks for. Fast tempo stresses the block but demands more from Set Technique; High / Safe is steadier but easier to organise against.',
+    block:'Loading a lane improves help there but exposes another attacker. Taking away one angle deliberately concedes more of the opposite angle.',
+    defence:'Protecting a lane makes those balls easier to defend but leaves slightly more space elsewhere.'
+  };
+
+  window.acePreMatchTactics=window.acePreMatchTactics||{};
+
+  function clone(v){return JSON.parse(JSON.stringify(v));}
+  function teamPlan(n){
+    return {...BASE_PLAN,...(window.acePreMatchTactics?.[n]||{})};
+  }
+  function savePlan(n,p){
+    window.acePreMatchTactics=window.acePreMatchTactics||{};
+    window.acePreMatchTactics[n]={...BASE_PLAN,...p};
+  }
+
+  function teamFromLineup(n){
+    try{
+      const arr=getDraft(`team${n}`);
+      return Array.isArray(arr)?arr.filter(Boolean):[];
+    }catch(e){return [];}
+  }
+
+  function opponentOf(n){return teamFromLineup(n===1?2:1);}
+  function ownName(n){
+    return document.getElementById(`team${n}Name`)?.value || `Team ${n}`;
+  }
+
+  function passComposite(p){
+    try{return managerReceiveComposite(p);}catch(e){
+      return Number(p?.serveReceive||0)*.62+Number(p?.positioning||0)*.23+Number(p?.reactionTime||0)*.15;
+    }
+  }
+  function threatComposite(p){
+    try{return managerAttackThreat(p);}catch(e){
+      return Number(p?.accuracy||0)*.36+Number(p?.power||0)*.34+Number(p?.vertical||0)*.16+Number(p?.attackCreativity||0)*.14;
+    }
+  }
+  function wordBand(v,type){
+    if(type==='pass')return v>=86?'ELITE RECEIVE':v>=77?'STRONG RECEIVE':v>=68?'AVERAGE RECEIVE':'VULNERABLE RECEIVE';
+    return v>=90?'ACE THREAT':v>=82?'MAJOR THREAT':v>=73?'SOLID THREAT':'SECONDARY THREAT';
+  }
+  function setterProfile(team){
+    const s=team.find(p=>p.assignedRole==='S'||p.position==='S');
+    if(!s)return {name:'—',profile:'No designated setter found'};
+    const stq=Number(s.setTechnique||s.setting||0),scr=Number(s.setCreativity||s.setting||0);
+    let profile='Standard distribution';
+    if(stq>=88&&scr>=86)profile='Elite tempo + creative distribution';
+    else if(stq>=86)profile='Fast-tempo capable';
+    else if(scr>=86)profile='Highly creative / deceptive';
+    else if(stq<68)profile='Can be stressed by broken passing';
+    return {name:s.name,profile};
+  }
+  function serveThreat(team){
+    const p=[...team].sort((a,b)=>Number(b.service||0)-Number(a.service||0))[0];
+    if(!p)return {name:'—',profile:'—'};
+    const v=Number(p.service||0);
+    return {name:p.name,profile:v>=90?'Elite serving threat':v>=80?'Strong serving threat':v>=70?'Solid server':'Manageable serve pressure'};
+  }
+
+  function scout(n){
+    const opp=opponentOf(n);
+    const receivers=opp.filter(p=>['OH','OH1','OH2','L'].includes(p.assignedRole||p.position));
+    const weak=[...receivers].sort((a,b)=>passComposite(a)-passComposite(b))[0]||opp[0];
+    const star=[...opp].filter(p=>(p.assignedRole||p.position)!=='L').sort((a,b)=>threatComposite(b)-threatComposite(a))[0]||opp[0];
+    return {
+      weak,
+      weakBand:weak?wordBand(passComposite(weak),'pass'):'—',
+      star,
+      starBand:star?wordBand(threatComposite(star),'attack'):'—',
+      setter:setterProfile(opp),
+      server:serveThreat(opp)
+    };
+  }
+
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function opts(map,value){
+    return Object.entries(map).map(([k,v])=>`<option value="${esc(k)}" ${k===value?'selected':''}>${esc(v)}</option>`).join('');
+  }
+  function targetOptions(n,value){
+    const opp=opponentOf(n);
+    const candidates=opp.filter(p=>['OH','OH1','OH2','L'].includes(p.assignedRole||p.position));
+    const rows=[['none','No Specific Receiver'],['weakest','Weakest Passer'],['star','Main Attacker']];
+    candidates.forEach(p=>rows.push([p.id!=null?`id:${p.id}`:`name:${p.name}`,`${p.name} · ${p.assignedRole||p.position||''}`]));
+    return rows.map(([k,v])=>`<option value="${esc(k)}" ${k===value?'selected':''}>${esc(v)}</option>`).join('');
+  }
+  function targetLabel(n,value){
+    if(value==='none')return 'No specific receiver';
+    if(value==='weakest')return 'Weakest passer';
+    if(value==='star')return 'Main attacker';
+    const opp=opponentOf(n);
+    const p=opp.find(x=>
+      value.startsWith('id:')?String(x.id)===value.slice(3):
+      value.startsWith('name:')?String(x.name)===value.slice(5):false
+    );
+    return p?.name||'Named receiver';
+  }
+
+  let activeTeam=1;
+
+  function allowedTeams(){
+    if(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom()){
+      const n=Number(mpOwnedTeam?.()||0);
+      return [1,2].includes(n)?[n]:[];
+    }
+    if(window.aceUTLeagueState?.active)return [1];
+    return [1,2];
+  }
+
+  function ensureModal(){
+    let modal=document.getElementById('acePreMatchModal');
+    if(modal)return modal;
+    modal=document.createElement('div');
+    modal.id='acePreMatchModal';
+    modal.className='acePreMatchModal';
+    modal.setAttribute('aria-hidden','true');
+    modal.innerHTML=`
+      <section class="acePreMatchSheet" role="dialog" aria-modal="true" aria-labelledby="acePreMatchTitle">
+        <div class="acePreMatchHead">
+          <div><span>COACHING ROOM · BEFORE READY</span><h2 id="acePreMatchTitle">Scout & Set Game Plan</h2></div>
+          <button class="acePreMatchClose" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="acePreMatchBody"></div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.acePreMatchClose')?.addEventListener('click',closeModal);
+    modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeModal();});
+    return modal;
+  }
+
+  function closeModal(){
+    const modal=document.getElementById('acePreMatchModal');
+    if(!modal)return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+
+  function render(){
+    const modal=ensureModal(),body=modal.querySelector('.acePreMatchBody');
+    const teams=allowedTeams();
+    if(!teams.length){
+      body.innerHTML='<div class="acePreMatchHint">Spectators can view the match but cannot set a manager game plan.</div>';
+      return;
+    }
+    if(!teams.includes(activeTeam))activeTeam=teams[0];
+
+    const t=teamPlan(activeTeam);
+    const s=scout(activeTeam);
+    const tabHTML=teams.length>1
+      ? `<div class="acePreMatchTabs">${teams.map(n=>`<button type="button" data-pre-team="${n}" class="${n===activeTeam?'active':''}">${esc(ownName(n))}</button>`).join('')}</div>`
+      : `<div class="acePreMatchTabs"><button type="button" class="active">${esc(ownName(activeTeam))}</button></div>`;
+
+    body.innerHTML=`
+      <div class="acePreMatchTopline">
+        ${tabHTML}
+        <div class="acePreMatchHint">Your plan is optional. Defaults are already valid; adjust only what you want to coach.</div>
+      </div>
+
+      <div class="acePreMatchLayout">
+        <aside class="aceScoutPanel">
+          <span class="acePanelKicker">OPPONENT SCOUTING</span>
+          <h3>${esc(ownName(activeTeam===1?2:1))}</h3>
+          <div class="aceScoutCards">
+            <div class="aceScoutCard">
+              <div class="aceScoutCardTop"><b>${esc(s.weak?.name||'—')}</b><span class="aceScoutBadge">${esc(s.weakBand)}</span></div>
+              <div class="aceScoutDesc">Most attractive reception target in the selected starting six.</div>
+            </div>
+            <div class="aceScoutCard">
+              <div class="aceScoutCardTop"><b>${esc(s.star?.name||'—')}</b><span class="aceScoutBadge">${esc(s.starBand)}</span></div>
+              <div class="aceScoutDesc">Highest current attacking threat from the opponent lineup.</div>
+            </div>
+            <div class="aceScoutCard">
+              <div class="aceScoutCardTop"><b>${esc(s.setter.name)}</b><span class="aceScoutBadge">SETTER PROFILE</span></div>
+              <div class="aceScoutDesc">${esc(s.setter.profile)}</div>
+            </div>
+            <div class="aceScoutCard">
+              <div class="aceScoutCardTop"><b>${esc(s.server.name)}</b><span class="aceScoutBadge">SERVE THREAT</span></div>
+              <div class="aceScoutDesc">${esc(s.server.profile)}</div>
+            </div>
+          </div>
+          <div class="aceScoutPrivacy"><b>Scouting limit:</b> you see useful volleyball tendencies and broad strengths — not hidden error percentages, engine formulas or the opponent manager's selected tactics.</div>
+        </aside>
+
+        <main class="acePlanPanel">
+          <span class="acePanelKicker">YOUR OPENING PLAN</span>
+          <h3>${esc(ownName(activeTeam))}</h3>
+
+          <div class="acePrePlanSummary">
+            <span>SERVE · ${esc(MAPS.serveZone[t.serveZone])} → ${esc(targetLabel(activeTeam,t.serveTarget))}</span>
+            <span>OFFENCE · ${esc(MAPS.distribution[t.distribution])} · ${esc(MAPS.tempo[t.tempo])}</span>
+            <span>BLOCK · ${esc(MAPS.blockFocus[t.blockFocus])} · ${esc(MAPS.blockAngle[t.blockAngle])}</span>
+            <span>DEFENCE · ${esc(MAPS.defence[t.defence])}</span>
+            <span>MENTALITY · ${esc(MAPS.mentality[t.mentality])}</span>
+          </div>
+
+          <div class="acePrePlanSections">
+            <section class="acePrePlanSection">
+              <div class="acePrePlanSectionHead"><b>SERVING</b><span>WHERE + WHO</span></div>
+              <div class="acePrePlanFields">
+                <div class="acePrePlanField"><label>TARGET ZONE</label><select data-pre-key="serveZone">${opts(MAPS.serveZone,t.serveZone)}</select></div>
+                <div class="acePrePlanField"><label>TARGET RECEIVER</label><select data-pre-key="serveTarget">${targetOptions(activeTeam,t.serveTarget)}</select></div>
+              </div>
+              <div class="acePrePlanTradeoff">${esc(TRADE.serving)}</div>
+            </section>
+
+            <section class="acePrePlanSection">
+              <div class="acePrePlanSectionHead"><b>OFFENCE</b><span>DISTRIBUTION + TEMPO</span></div>
+              <div class="acePrePlanFields">
+                <div class="acePrePlanField"><label>SET DISTRIBUTION</label><select data-pre-key="distribution">${opts(MAPS.distribution,t.distribution)}</select></div>
+                <div class="acePrePlanField"><label>TEMPO</label><select data-pre-key="tempo">${opts(MAPS.tempo,t.tempo)}</select></div>
+              </div>
+              <div class="acePrePlanTradeoff">${esc(TRADE.offence)}</div>
+            </section>
+
+            <section class="acePrePlanSection">
+              <div class="acePrePlanSectionHead"><b>BLOCKING</b><span>LOAD + HANDS</span></div>
+              <div class="acePrePlanFields">
+                <div class="acePrePlanField"><label>BLOCK FOCUS</label><select data-pre-key="blockFocus">${opts(MAPS.blockFocus,t.blockFocus)}</select></div>
+                <div class="acePrePlanField"><label>TAKE AWAY</label><select data-pre-key="blockAngle">${opts(MAPS.blockAngle,t.blockAngle)}</select></div>
+              </div>
+              <div class="acePrePlanTradeoff">${esc(TRADE.block)}</div>
+            </section>
+
+            <section class="acePrePlanSection">
+              <div class="acePrePlanSectionHead"><b>FLOOR DEFENCE</b><span>BASE POSITION</span></div>
+              <div class="acePrePlanFields">
+                <div class="acePrePlanField"><label>DEFENSIVE PRIORITY</label><select data-pre-key="defence">${opts(MAPS.defence,t.defence)}</select></div>
+              </div>
+              <div class="acePrePlanTradeoff">${esc(TRADE.defence)}</div>
+            </section>
+          </div>
+
+          <section class="acePrePlanSection" style="margin-top:8px">
+            <div class="acePrePlanSectionHead"><b>MENTALITY</b><span>RISK / CONTROL</span></div>
+            <div class="acePreMentality">
+              ${['safe','balanced','aggressive'].map(v=>`<button type="button" data-pre-mentality="${v}" class="${t.mentality===v?'active':''}">${esc(MAPS.mentality[v])}</button>`).join('')}
+            </div>
+          </section>
+
+          <div class="acePreMatchFooter">
+            <p><b>Manager intent ≠ automatic success.</b> You choose the volleyball idea; Service, Set Technique, Blocking, Positioning and the rest of the player's attributes determine how well the team actually executes it.</p>
+            <button class="acePreMatchDone" type="button">SAVE PLAN & RETURN TO READY</button>
+          </div>
+        </main>
+      </div>`;
+
+    body.querySelectorAll('[data-pre-team]').forEach(btn=>btn.addEventListener('click',()=>{
+      activeTeam=Number(btn.dataset.preTeam||1);render();
+    }));
+    body.querySelectorAll('select[data-pre-key]').forEach(sel=>sel.addEventListener('change',()=>{
+      const p=teamPlan(activeTeam);
+      p[sel.dataset.preKey]=sel.value;
+      savePlan(activeTeam,p);
+      broadcast(activeTeam);
+      render();
+    }));
+    body.querySelectorAll('[data-pre-mentality]').forEach(btn=>btn.addEventListener('click',()=>{
+      const p=teamPlan(activeTeam);
+      p.mentality=btn.dataset.preMentality;
+      savePlan(activeTeam,p);
+      broadcast(activeTeam);
+      render();
+    }));
+    body.querySelector('.acePreMatchDone')?.addEventListener('click',()=>{
+      broadcast(activeTeam);closeModal();
+      const hint=document.getElementById('lineupConfirmHint');
+      if(hint)hint.textContent='Opening game plan saved · confirm your lineup when ready.';
+    });
+  }
+
+  async function broadcast(n){
+    try{
+      if(!mpInMultiplayerRoom?.())return;
+      if(Number(mpOwnedTeam?.()||0)!==Number(n))return;
+      if(!mpIsConnected?.())return;
+      await mpSend('prematch_tactics',{teamNo:n,tactics:teamPlan(n)});
+    }catch(e){console.warn('Pre-match tactics broadcast',e);}
+  }
+  window.aceBroadcastPreMatchTactics=broadcast;
+
+  function open(n){
+    const teams=allowedTeams();
+    activeTeam=teams.includes(Number(n))?Number(n):(teams[0]||1);
+    const check=typeof validateTeamLineup==='function'?validateTeamLineup(activeTeam):{ok:true};
+    if(!check.ok){alert('Choose your starting six before scouting the matchup.');return;}
+    render();
+    const modal=ensureModal();
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  window.aceOpenPreMatchCoach=open;
+  window.aceRefreshPreMatchCoachUI=function(){
+    const modal=document.getElementById('acePreMatchModal');
+    if(modal?.classList.contains('show'))render();
+  };
+
+  function ensureButton(){
+    const card=document.getElementById('lineupConfirmCard');
+    const confirm=document.getElementById('confirmLineupBtn');
+    if(!card||!confirm||document.getElementById('acePreMatchPlanBtn'))return;
+    const btn=document.createElement('button');
+    btn.id='acePreMatchPlanBtn';
+    btn.type='button';
+    btn.className='btn acePreMatchPlanBtn';
+    btn.innerHTML='<b>🧠 SCOUT & GAME PLAN</b><small>OPTIONAL · SET YOUR OPENING TACTICS</small>';
+    btn.addEventListener('click',()=>{
+      const n=mpInMultiplayerRoom?.()?Number(mpOwnedTeam?.()||1):1;
+      open(n);
+    });
+    confirm.before(btn);
+  }
+
+  // Inject pre-match plans into the live state immediately after B13/B14 match
+  // initialisation. AI League still gets its own derived AI plan.
+  if(typeof window.beginLiveMatch==='function' && !window.beginLiveMatch.__aceB15PreMatch){
+    const base=window.beginLiveMatch;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      if(result===false||!window.liveState)return result;
+      if(window.acePreMatchTactics?.[1])liveState.managerTactics1={...defaultManagerTactics(),...clone(window.acePreMatchTactics[1])};
+      if(window.acePreMatchTactics?.[2] && !window.aceUTLeagueState?.active)liveState.managerTactics2={...defaultManagerTactics(),...clone(window.acePreMatchTactics[2])};
+      if(window.aceUTLeagueState?.active && typeof deriveAiManagerTactics==='function'){
+        liveState.managerTactics2=deriveAiManagerTactics(liveState.b,liveState.a);
+      }
+      try{window.renderManagerTacticsUI?.();}catch(e){}
+      return result;
+    };
+    wrapped.__aceB15PreMatch=true;
+    window.beginLiveMatch=wrapped;
+  }
+
+  // Keep the plan button available whenever the lineup page is rebuilt.
+  function boot(){
+    ensureModal();ensureButton();
+    const lineup=document.getElementById('lineup');
+    if(lineup){
+      new MutationObserver(()=>requestAnimationFrame(ensureButton)).observe(lineup,{childList:true,subtree:true});
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,30),{once:true});
+  else setTimeout(boot,30);
 })();
 </script>
 
