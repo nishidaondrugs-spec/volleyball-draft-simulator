@@ -6074,6 +6074,483 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
+<meta name="ace-build" content="B15.1 Pre-Match Coaching Visible Fix">
+
+<style id="ace-b15-1-visible-ready-fix">
+#lineup .lineupConfirmCard{
+  position:relative!important;
+  grid-template-columns:minmax(0,1fr) minmax(185px,220px) minmax(185px,220px)!important;
+  border-color:rgba(119,155,255,.20)!important;
+}
+#lineup .lineupConfirmCard::before{
+  content:"PRE-MATCH COACHING";
+  position:absolute;
+  right:16px;
+  top:11px;
+  color:#7d64a8;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+#lineup #acePreMatchPlanBtn{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+@media(max-width:760px){
+  #lineup .lineupConfirmCard{
+    grid-template-columns:1fr!important;
+  }
+  #lineup .lineupConfirmCard::before{
+    position:static;
+    grid-column:1;
+    grid-row:1;
+    margin-bottom:-9px;
+  }
+}
+</style>
+
+<meta name="ace-build" content="B16.0 Private Tactics + 2/2 Ready + Mutual Sim Sync">
+
+<style id="ace-b16-private-multiplayer-style">
+/* B16.0 — private tactics + 2/2 ready + mutual Sim Match */
+#liveMatchCard .aceTacticsGrid.acePrivateTacticsGrid{
+  grid-template-columns:1fr!important;
+}
+#simMatchBtn{
+  border-color:rgba(188,135,255,.18)!important;
+  color:#d5b5fa!important;
+}
+.aceSimConsentModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:1805;
+  padding:18px;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,5,10,.78);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.aceSimConsentModal.show{display:flex;}
+.aceSimConsentSheet{
+  width:min(470px,94vw);
+  padding:18px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:17px;
+  background:#071522;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+}
+.aceSimConsentSheet>span{
+  color:#765ba2;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+.aceSimConsentSheet h3{
+  margin:6px 0 8px;
+  color:#eef6fc;
+  font-size:21px;
+}
+.aceSimConsentSheet p{
+  margin:0;
+  color:#8298aa;
+  font-size:9px;
+  line-height:1.55;
+}
+.aceSimConsentState{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin:13px 0;
+}
+.aceSimConsentState div{
+  padding:9px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:9px;
+  background:#091826;
+  color:#738a9d;
+  font-size:7px;
+  font-weight:900;
+}
+.aceSimConsentState div.ready{
+  color:#8ee3b5;
+  border-color:rgba(78,207,147,.20);
+}
+.aceSimConsentActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.aceSimConsentActions button{
+  min-height:43px;
+  border-radius:9px;
+  font-size:7px;
+  font-weight:1000;
+}
+.aceSimConsentActions .accept{
+  border:0;
+  background:linear-gradient(135deg,#2b8fdb,#55b6f5);
+  color:#fff;
+}
+.aceSimConsentActions .decline{
+  border:1px solid rgba(255,255,255,.08);
+  background:#0a1a29;
+  color:#94aabd;
+}
+@media(max-width:760px){
+  .aceSimConsentModal{align-items:flex-end;padding:0;}
+  .aceSimConsentSheet{width:100%;border-radius:18px 18px 0 0;}
+}
+</style>
+
+<meta name="ace-build" content="B17.0 Starter Club v2">
+
+<style id="ace-b17-starter-v2-style">
+.vdsCaptainCard.gold{
+  border-color:rgba(238,202,87,.46)!important;
+  background:
+    radial-gradient(circle at 70% 20%,rgba(255,224,117,.16),transparent 28%),
+    linear-gradient(160deg,#705515,#2e2a18 54%,#132230)!important;
+  box-shadow:0 30px 70px rgba(0,0,0,.38),0 0 28px rgba(221,177,50,.10)!important;
+}
+.vdsCaptainCard.gold:hover{
+  border-color:rgba(255,222,104,.78)!important;
+  box-shadow:0 35px 85px rgba(0,0,0,.45),0 0 34px rgba(231,190,61,.18)!important;
+}
+.vdsCaptainCard.gold .vdsCaptainRating{color:#ffe184;}
+.vdsCaptainCard.gold .vdsCaptainRole{
+  color:#f7dc79;
+  border-color:rgba(241,204,83,.24);
+}
+.vdsStarterMiniCard.silver{
+  border-color:rgba(205,220,231,.44)!important;
+  background:linear-gradient(155deg,#647481,#314552 56%,#172832)!important;
+}
+.vdsStarterMiniCard.silver .vdsStarterMiniRating{
+  color:#eef6fa;
+}
+</style>
+
+<meta name="ace-build" content="B18.0 Welcome Gold Pack">
+
+<style id="ace-b18-welcome-pack-style">
+.vdsWelcomePackOffer,.vdsWelcomeReveal{
+  width:min(980px,96vw);
+  text-align:center;
+}
+.vdsWelcomePackOffer h2,.vdsWelcomeReveal h2{
+  margin:8px 0 0;
+  font-size:clamp(34px,5vw,58px);
+  line-height:.96;
+  letter-spacing:-.05em;
+}
+.vdsWelcomePackOffer>p,.vdsWelcomeReveal>p{
+  max-width:610px;
+  margin:10px auto 0;
+  color:#7890a3;
+  font-size:9px;
+  line-height:1.6;
+}
+.vdsWelcomePackVisual{
+  position:relative;
+  width:230px;
+  height:300px;
+  margin:24px auto 12px;
+  display:grid;
+  place-items:center;
+}
+.vdsWelcomePackGlow{
+  position:absolute;
+  inset:8%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(244,199,65,.27),rgba(95,64,17,.08) 48%,transparent 70%);
+  filter:blur(12px);
+}
+.vdsWelcomePackBox{
+  position:relative;
+  width:168px;
+  height:240px;
+  padding:20px 14px;
+  border:2px solid #e8c653;
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 70% 22%,rgba(255,230,119,.24),transparent 27%),
+    linear-gradient(150deg,#5b4919,#142b3c 48%,#071622 100%);
+  box-shadow:0 24px 55px rgba(0,0,0,.42),0 0 34px rgba(230,190,57,.17),inset 0 0 0 1px rgba(255,238,163,.22);
+  transform:rotate(-2deg);
+}
+.vdsWelcomePackBox small{
+  color:#8299a9;font-size:5px;font-weight:1000;letter-spacing:.18em;
+}
+.vdsWelcomePackBox b{
+  margin-top:14px;color:#f7dd79;font-size:16px;letter-spacing:.11em;
+}
+.vdsWelcomePackBox strong{
+  margin-top:2px;color:#fff;font-size:25px;line-height:.9;letter-spacing:-.04em;
+}
+.vdsWelcomePackBox span{
+  margin-top:18px;padding:6px 8px;border:1px solid rgba(255,255,255,.10);border-radius:999px;
+  color:#c4d1d8;font-size:6px;font-weight:900;letter-spacing:.10em;
+}
+.vdsWelcomePackBox i{
+  margin-top:8px;color:#e4c65d;font-size:5px;font-style:normal;font-weight:1000;letter-spacing:.10em;
+}
+.vdsWelcomePackGuarantee{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:7px;
+}
+.vdsWelcomePackGuarantee span{
+  padding:7px 9px;border:1px solid rgba(255,255,255,.065);border-radius:999px;
+  background:rgba(255,255,255,.025);color:#7c93a5;font-size:6.3px;font-weight:900;
+}
+.vdsWelcomePackGuarantee span:first-child{
+  color:#efd372;border-color:rgba(234,197,70,.16);
+}
+.vdsWelcomePackGuarantee b{color:#fff;}
+.vdsWelcomePackStatus{
+  min-height:18px;margin-top:9px;color:#738b9e;font-size:7px;
+}
+.vdsWelcomeCardRow{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(180px,260px));
+  justify-content:center;
+  gap:15px;
+  margin:26px auto 0;
+}
+.vdsWelcomeRevealCard{
+  position:relative;
+  aspect-ratio:.67;
+  overflow:hidden;
+  border-radius:19px;
+  border:2px solid #cfdbe3;
+  background:linear-gradient(155deg,#61717d,#304653 56%,#142632);
+  opacity:0;
+  transform:translateY(36px) scale(.88) rotateY(18deg);
+  transition:opacity .34s ease,transform .52s cubic-bezier(.2,.82,.2,1),box-shadow .52s ease;
+  box-shadow:0 22px 50px rgba(0,0,0,.38);
+}
+.vdsWelcomeRevealCard.gold{
+  border-color:#ebcb58;
+  background:linear-gradient(150deg,#6f5816,#233644 58%,#0b1b27);
+}
+.vdsWelcomeRevealCard.revealed{
+  opacity:1;
+  transform:none;
+}
+.vdsWelcomeRevealCard.gold.revealed{
+  box-shadow:0 25px 60px rgba(0,0,0,.42),0 0 34px rgba(235,199,74,.18);
+}
+.vdsWelcomeRevealCard img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.74;
+}
+.vdsWelcomeRevealShade{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(2,8,13,.02) 30%,rgba(2,8,13,.18) 55%,rgba(2,8,13,.97) 100%);
+}
+.vdsWelcomeRevealRating{
+  position:absolute;z-index:3;top:13px;left:13px;color:#f3f7f9;font-size:35px;font-weight:1000;line-height:.85;
+}
+.vdsWelcomeRevealCard.gold .vdsWelcomeRevealRating{color:#ffe17b;}
+.vdsWelcomeRevealRating small{
+  display:block;margin-top:6px;font-size:7px;letter-spacing:.10em;
+}
+.vdsWelcomeRevealTier{
+  position:absolute;z-index:3;top:14px;right:12px;padding:5px 7px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(3,12,20,.72);
+  color:#dce6eb;font-size:5.5px;font-weight:1000;letter-spacing:.11em;
+}
+.vdsWelcomeRevealCard.gold .vdsWelcomeRevealTier{color:#f3d46a;}
+.vdsWelcomeRevealName{
+  position:absolute;z-index:3;left:10px;right:10px;bottom:17px;
+  color:#fff;font-size:15px;font-weight:1000;text-align:center;text-shadow:0 3px 10px #000;
+}
+.vdsWelcomeRevealStatus{
+  min-height:18px;margin-top:13px;color:#879cad;font-size:7px;font-weight:900;letter-spacing:.08em;
+}
+@media(max-width:700px){
+  .vdsWelcomePackVisual{width:190px;height:250px;margin-top:15px;}
+  .vdsWelcomePackBox{width:145px;height:205px;}
+  .vdsWelcomeCardRow{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:18px;}
+  .vdsWelcomeRevealCard{border-radius:13px;}
+  .vdsWelcomeRevealRating{font-size:25px;top:8px;left:8px;}
+  .vdsWelcomeRevealTier{top:8px;right:6px;padding:4px;font-size:4.5px;}
+  .vdsWelcomeRevealName{left:5px;right:5px;bottom:10px;font-size:9px;}
+}
+</style>
+
+<meta name="ace-build" content="B19.0 Automatic Online Matchmaking">
+
+<style id="ace-b19-auto-matchmaking-style">
+.aceUTOnlineModeTag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-bottom:6px;
+  padding:5px 8px;
+  border:1px solid rgba(116,184,255,.16);
+  border-radius:999px;
+  background:rgba(30,91,145,.10);
+  color:#83bdf0;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.13em;
+}
+.aceUTQueuePanel{
+  width:min(720px,100%);
+  margin:0 auto;
+  padding:22px;
+  text-align:center;
+}
+.aceUTQueueSpinner{
+  width:78px;
+  height:78px;
+  margin:5px auto 18px;
+  position:relative;
+  border-radius:50%;
+  border:1px solid rgba(130,194,255,.13);
+  background:radial-gradient(circle,rgba(66,145,218,.13),transparent 64%);
+}
+.aceUTQueueSpinner:before,
+.aceUTQueueSpinner:after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+}
+.aceUTQueueSpinner:before{
+  inset:8px;
+  border:2px solid transparent;
+  border-top-color:#5cb4ef;
+  border-right-color:rgba(92,180,239,.28);
+  animation:aceUTQueueSpin 1.15s linear infinite;
+}
+.aceUTQueueSpinner:after{
+  inset:27px;
+  background:#7dc8f5;
+  box-shadow:0 0 20px rgba(92,180,239,.45);
+}
+@keyframes aceUTQueueSpin{to{transform:rotate(360deg)}}
+.aceUTQueuePanel h2{
+  margin:0;
+  font-size:clamp(34px,5vw,55px);
+  line-height:.94;
+  letter-spacing:-.055em;
+}
+.aceUTQueuePanel>p{
+  max-width:520px;
+  margin:10px auto 0;
+  color:#788fa3;
+  font-size:8.5px;
+  line-height:1.55;
+}
+.aceUTQueueStats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin:18px auto 0;
+}
+.aceUTQueueStats>div{
+  padding:10px 7px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:10px;
+  background:#081725;
+}
+.aceUTQueueStats span,.aceUTQueueStats b{
+  display:block;
+}
+.aceUTQueueStats span{
+  color:#60798d;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.aceUTQueueStats b{
+  margin-top:4px;
+  color:#dbeaf4;
+  font-size:13px;
+}
+.aceUTQueueHint{
+  margin-top:10px;
+  color:#617b90;
+  font-size:6px;
+  line-height:1.5;
+}
+.aceUTQueueActions{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:7px;
+  margin-top:16px;
+}
+.aceUTQueueActions button{
+  min-height:45px;
+  border-radius:10px;
+  font-size:7px;
+  font-weight:1000;
+}
+.aceUTQueueAi{
+  border:1px solid rgba(176,126,245,.17);
+  background:rgba(117,66,189,.10);
+  color:#c9a9ee;
+}
+.aceUTQueueCancel{
+  border:1px solid rgba(255,255,255,.07);
+  background:#091724;
+  color:#7d93a5;
+}
+.aceUTMatchedPulse{
+  width:85px;height:85px;
+  display:grid;place-items:center;
+  margin:4px auto 18px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(75,207,153,.28),rgba(28,94,68,.10) 54%,transparent 70%);
+  color:#8fe6bd;
+  font-size:31px;
+  animation:aceUTMatchedPulse 1.2s ease-in-out infinite;
+}
+@keyframes aceUTMatchedPulse{50%{transform:scale(1.08);filter:brightness(1.12)}}
+.aceUTOnlineVersus{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:13px;
+  align-items:center;
+  margin:18px 0 0;
+}
+.aceUTOnlineVersusTeam{
+  min-width:0;
+  padding:13px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:11px;
+  background:#081724;
+}
+.aceUTOnlineVersusTeam span,.aceUTOnlineVersusTeam b,.aceUTOnlineVersusTeam small{
+  display:block;
+}
+.aceUTOnlineVersusTeam span{
+  color:#678095;font-size:5.5px;font-weight:1000;letter-spacing:.11em;
+}
+.aceUTOnlineVersusTeam b{
+  margin-top:4px;color:#edf6fb;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.aceUTOnlineVersusTeam small{
+  margin-top:4px;color:#8198a9;font-size:6px;
+}
+.aceUTOnlineVersusVs{
+  color:#587389;font-size:8px;font-weight:1000;letter-spacing:.12em;
+}
+@media(max-width:620px){
+  .aceUTQueuePanel{padding:14px 4px;}
+  .aceUTQueueStats{grid-template-columns:1fr 1fr;}
+  .aceUTQueueActions{grid-template-columns:1fr;}
+  .aceUTOnlineVersus{grid-template-columns:1fr;}
+  .aceUTOnlineVersusVs{padding:0;}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -6403,8 +6880,12 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
         <div class="lineupManagerConfirm" id="lineupConfirmState1"><span>TEAM 1</span><b>EDITING</b></div>
         <div class="lineupManagerConfirm" id="lineupConfirmState2"><span>TEAM 2</span><b>EDITING</b></div>
       </div>
+      <button class="btn acePreMatchPlanBtn" id="acePreMatchPlanBtn" type="button">
+        <b>🧠 SCOUT &amp; GAME PLAN</b>
+        <small>OPTIONAL · SET YOUR OPENING TACTICS</small>
+      </button>
       <button class="btn success lineupConfirmBtn" id="confirmLineupBtn" type="button">✓ Confirm My Lineup</button>
-      <div class="small lineupConfirmHint" id="lineupConfirmHint">Choose your final six before confirming.</div>
+      <div class="small lineupConfirmHint" id="lineupConfirmHint">Scout the opponent, set your opening plan, then confirm when ready.</div>
     </div>
   </div>
 </section>
@@ -6446,6 +6927,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
             <button class="btn primary" id="nextRallyBtn">▶ Next Rally</button>
             <button class="btn secondary" id="autoPlayBtn">⏩ Auto Play Set</button>
             <button class="btn secondary" id="skipSetBtn" title="Instantly simulate the remaining rallies in this set">⏭ Skip to End of Set</button>
+            <button class="btn secondary hidden" id="simMatchBtn" type="button" title="Both managers must agree to simulate the rest of a multiplayer match">⏭ Sim Match</button>
             <button class="btn primary hidden" id="nextPhaseBtn">Next Phase ▶</button>
             <button class="btn secondary hidden" id="nextSetBtn">Next Set</button>
           </div>
@@ -13011,8 +13493,15 @@ function addCommentary(text){
 
 function multiplayerMatchSnapshot(){
   if(!liveState)return null;
+  const publicLiveState=JSON.parse(JSON.stringify(liveState));
+
+  // Tactical plans are private manager data. The non-authority client only
+  // needs the public match state; their own plan is kept locally/server-side.
+  delete publicLiveState.managerTactics1;
+  delete publicLiveState.managerTactics2;
+
   return {
-    liveState:JSON.parse(JSON.stringify(liveState)),
+    liveState:publicLiveState,
     rosters:mpRosterSnapshot(),
     team1Name:document.getElementById("team1Name")?.value||"Team 1",
     team2Name:document.getElementById("team2Name")?.value||"Team 2",
@@ -13024,7 +13513,17 @@ function applyRemoteMatchSnapshot(snapshot){
   if(!snapshot?.liveState)return;
   mpApplyingRemote=true;
   try{
+    const ownTeam=mpOwnedTeam();
+    const ownPlan=(ownTeam&&window.aceLiveOwnTactics)
+      ? JSON.parse(JSON.stringify(window.aceLiveOwnTactics))
+      : (ownTeam&&window.acePreMatchTactics?.[ownTeam]
+          ? JSON.parse(JSON.stringify(window.acePreMatchTactics[ownTeam]))
+          : null);
+
     liveState=JSON.parse(JSON.stringify(snapshot.liveState));
+    if(ownTeam&&ownPlan){
+      liveState[`managerTactics${ownTeam}`]={...defaultManagerTactics(),...ownPlan};
+    }
     if(snapshot.team1Name!==undefined)document.getElementById("team1Name").value=snapshot.team1Name;
     if(snapshot.team2Name!==undefined)document.getElementById("team2Name").value=snapshot.team2Name;
     if(snapshot.animationSpeed!==undefined){
@@ -13036,6 +13535,7 @@ function applyRemoteMatchSnapshot(snapshot){
     document.getElementById("resultsCard").classList.toggle("hidden",!liveState.matchFinished);
     renderLiveCourtPlayers();
     updateLiveUI();
+    try{window.aceStartSimToEndPolling?.();}catch(e){}
 
     if(liveState.matchFinished){
       finishLiveMatch({remote:true,autoFocus:true});
@@ -13048,9 +13548,21 @@ function applyRemoteMatchSnapshot(snapshot){
 function applyMultiplayerMatchControls(){
   const speedEl=document.getElementById("animationSpeed");
 
+  const skipBtn=document.getElementById("skipSetBtn");
+  const simMatchBtn=document.getElementById("simMatchBtn");
+
   if(!mpInMultiplayerRoom()){
+    if(skipBtn)skipBtn.style.display="";
+    if(simMatchBtn)simMatchBtn.classList.add("hidden");
     if(speedEl){speedEl.disabled=false;speedEl.title="";}
     return;
+  }
+
+  // No unilateral fast-forward in real multiplayer.
+  if(skipBtn)skipBtn.style.display="none";
+  if(simMatchBtn){
+    simMatchBtn.classList.remove("hidden");
+    simMatchBtn.disabled=mpIsSpectator()||!!liveState?.matchFinished;
   }
 
   const locked=!mpIsAuthority();
@@ -14590,7 +15102,7 @@ function renderLineupConfirmationState(){
     if(!el)return;
     const confirmed=!!lineupConfirmState[`team${teamNo}`];
     el.classList.toggle("confirmed",confirmed);
-    el.querySelector("b").textContent=confirmed?"CONFIRMED ✓":"EDITING";
+    el.querySelector("b").textContent=confirmed?"READY ✓":"NOT READY";
   });
 
   const btn=document.getElementById("confirmLineupBtn");
@@ -14605,16 +15117,28 @@ function renderLineupConfirmationState(){
         ? !!lineupConfirmState[`team${teamNo}`]
         : (lineupConfirmState.team1&&lineupConfirmState.team2);
       btn.disabled=localConfirmed;
-      btn.textContent=localConfirmed?"✓ Lineup Confirmed":"✓ Confirm My Lineup";
+      btn.textContent=localConfirmed?"✓ READY":"✓ READY";
     }
   }
+  const planBtn=document.getElementById("acePreMatchPlanBtn");
+  if(planBtn){
+    const own=mpInMultiplayerRoom()?mpOwnedTeam():0;
+    const ownReady=own?!!lineupConfirmState[`team${own}`]:(lineupConfirmState.team1&&lineupConfirmState.team2);
+    planBtn.disabled=!!ownReady || mpIsSpectator();
+    planBtn.title=ownReady?"Un-ready/edit your lineup before changing the locked opening plan":"Scout the opponent and set your opening game plan";
+  }
+
   if(hint){
+    const readyCount=(lineupConfirmState.team1?1:0)+(lineupConfirmState.team2?1:0);
     if(lineupConfirmState.team1&&lineupConfirmState.team2){
-      hint.textContent=mpInMultiplayerRoom()&&!mpIsAuthority()?"Both lineups confirmed · match controller is starting the simulation…":"Both lineups confirmed · loading simulation…";
+      hint.textContent=mpInMultiplayerRoom()&&!mpIsAuthority()
+        ?"2/2 READY · match controller is loading both locked game plans…"
+        :"2/2 READY · loading the match…";
     }else if(mpInMultiplayerRoom()){
-      hint.textContent=`Waiting for ${lineupConfirmState.team1?"Team 2":"Team 1"}${!lineupConfirmState.team1&&!lineupConfirmState.team2?" and Team 2":""} to confirm.`;
+      const waiting=!lineupConfirmState.team1?"Team 1":"Team 2";
+      hint.textContent=`${readyCount}/2 READY · waiting for ${waiting}.`;
     }else{
-      hint.textContent="Confirm both teams to enter the simulation.";
+      hint.textContent=`${readyCount}/2 READY · both teams must be ready to enter the simulation.`;
     }
   }
 }
@@ -14623,30 +15147,61 @@ async function maybeLaunchConfirmedSimulation(){
   if(lineupAutoStarting)return;
   if(!lineupConfirmState.team1||!lineupConfirmState.team2)return;
 
-  // Host controls simulation in multiplayer.
+  // Only the current authority initialises the authoritative simulation.
   if(mpInMultiplayerRoom() && !mpIsAuthority())return;
 
   lineupAutoStarting=true;
   renderLineupConfirmationState();
 
-  setTimeout(()=>{
-    goPage("sim");
+  try{
+    // Persistent multiplayer: fetch both LOCKED plans privately from Supabase.
+    // This RPC is authority-only and refuses to return them before 2/2 READY.
+    if(mpHasPersistentRoom()){
+      const {data,error}=await mpClient.rpc("vds_get_match_start_bundle",{p_code:mpRoom});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row)throw new Error("MATCH_START_BUNDLE_EMPTY");
 
-    const started=beginLiveMatch();
-    if(!started){
-      // Allow the managers to correct a lineup and confirm again.
-      lineupAutoStarting=false;
-      if(mpIsConnected() && mpRoomBacked){
-        goPage("lineup");
-        refreshLineupFromServer();
-      }else{
-        lineupConfirmState.team1=false;
-        lineupConfirmState.team2=false;
-        goPage("lineup");
-        renderLineupConfirmationState();
+      if(Array.isArray(row.team1_lineup)&&row.team1_lineup.length===6)applyLineupValues(1,row.team1_lineup);
+      if(Array.isArray(row.team2_lineup)&&row.team2_lineup.length===6)applyLineupValues(2,row.team2_lineup);
+
+      window.acePreMatchTactics=window.acePreMatchTactics||{};
+      window.acePreMatchTactics[1]=row.team1_tactics||{};
+      window.acePreMatchTactics[2]=row.team2_tactics||{};
+
+      // Fresh match = fresh mutual-sim vote.
+      try{await mpClient.rpc("vds_reset_sim_to_end_state",{p_code:mpRoom});}catch(e){
+        console.warn("Sim-to-end state reset",e);
       }
     }
-  },300);
+
+    setTimeout(()=>{
+      goPage("sim");
+      const started=beginLiveMatch();
+      if(!started){
+        lineupAutoStarting=false;
+        if(mpIsConnected() && mpRoomBacked){
+          goPage("lineup");
+          refreshLineupFromServer();
+        }else{
+          lineupConfirmState.team1=false;
+          lineupConfirmState.team2=false;
+          goPage("lineup");
+          renderLineupConfirmationState();
+        }
+      }else{
+        try{window.aceStartPrivateLiveTacticsPolling?.();}catch(e){}
+        try{window.aceStartSimToEndPolling?.();}catch(e){}
+      }
+    },300);
+  }catch(error){
+    console.error("Could not load locked multiplayer game plans",error);
+    lineupAutoStarting=false;
+    renderLineupConfirmationState();
+    const hint=document.getElementById("lineupConfirmHint");
+    if(hint)hint.textContent="Both players are READY, but the locked game plans could not be loaded. Retrying…";
+    setTimeout(()=>refreshLineupFromServer(),700);
+  }
 }
 
 async function confirmCurrentLineup(){
@@ -15606,7 +16161,6 @@ function mpPersistentSnapshot(){
     draftPoolState:JSON.parse(JSON.stringify(draftPoolState||{})),
     miniDraftState:hasMini?JSON.parse(JSON.stringify(hasMini)):null,
     lineupConfirmState:hasLineupConfirm?JSON.parse(JSON.stringify(hasLineupConfirm)):null,
-    preMatchTactics:(window.acePreMatchTactics?JSON.parse(JSON.stringify(window.acePreMatchTactics)):null),
     liveMatch:liveState?multiplayerMatchSnapshot():null
   };
 }
@@ -15678,11 +16232,6 @@ function mpApplyPersistentSnapshot(row){
           refreshMiniDraftFromServer();
         },50);
       }
-    }
-
-    if(snapshot.preMatchTactics && typeof snapshot.preMatchTactics==="object"){
-      window.acePreMatchTactics=JSON.parse(JSON.stringify(snapshot.preMatchTactics));
-      try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
     }
 
     if(snapshot.lineupConfirmState && typeof lineupConfirmState!=="undefined"){
@@ -15872,7 +16421,6 @@ async function mpSendSnapshot(){
     draftPoolState,
     miniDraftState:(typeof miniDraftState!=="undefined"?miniDraftState:null),
     lineupConfirmState:(typeof lineupConfirmState!=="undefined"?lineupConfirmState:null),
-    preMatchTactics:(window.acePreMatchTactics?JSON.parse(JSON.stringify(window.acePreMatchTactics)):null),
     phase:mpPersistentPhase("snapshot")
   });
 }
@@ -16000,7 +16548,7 @@ async function vdsEnsureProfile(user){
 
   let {data,error}=await client
     .from("vds_profiles")
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
     .eq("id",user.id)
     .maybeSingle();
 
@@ -16015,7 +16563,7 @@ async function vdsEnsureProfile(user){
         display_name:String(google.displayName||"Manager").slice(0,40),
         avatar_url:google.avatar||null
       },{onConflict:"id"})
-      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
       .single();
 
     if(upsert.error){
@@ -16460,7 +17008,7 @@ async function vdsSaveProfile(){
     .from("vds_profiles")
     .update({display_name:display,username})
     .eq("id",vdsAccountSession.user.id)
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,is_host_account,onboarding_complete,created_at,updated_at")
     .single();
 
   if(error){
@@ -17116,10 +17664,22 @@ async function connectMultiplayer(role,code,options={}){
     else await leaveMultiplayer();
   }
 
-  const managerName=(document.getElementById("mpName").value||mpResumeRecord()?.managerName||"Manager").trim();
+  const managerName=(options.managerName||document.getElementById("mpName").value||mpResumeRecord()?.managerName||"Manager").trim();
 
   try{
-    await claimPersistentMultiplayerRoom(role,code,managerName);
+    if(options.claimedRoom?.room_id){
+      // Automatic matchmaking already created the room and permanent
+      // membership atomically on Supabase. Attach this browser to that
+      // verified assignment instead of trying to create/join it again.
+      const row=options.claimedRoom;
+      mpRoomId=row.room_id;
+      mpRoom=String(row.room_code||code||"").trim().toUpperCase();
+      mpRole=row.room_role;
+      mpTeam=row.room_team==null?null:Number(row.room_team);
+      mpRoomBacked=true;
+    }else{
+      await claimPersistentMultiplayerRoom(role,code,managerName);
+    }
     mpRememberRoom(managerName);
     await mpRefreshAuthority({allowTakeover:false});
     mpStartAuthorityWatch();
@@ -17176,10 +17736,6 @@ async function connectMultiplayer(role,code,options={}){
           rebuildAllMiniDraftPersonalPools();
         }
       }
-      if(payload.preMatchTactics && typeof payload.preMatchTactics==="object"){
-        window.acePreMatchTactics=JSON.parse(JSON.stringify(payload.preMatchTactics));
-        try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
-      }
       if(payload.lineupConfirmState && typeof lineupConfirmState!=="undefined"){
         if(mpRoomBacked){
           refreshLineupFromServer();
@@ -17218,15 +17774,6 @@ async function connectMultiplayer(role,code,options={}){
 
       const status=document.getElementById("miniDraftStatus");
       if(status)status.textContent="Mini Draft started · your choices generate instantly on this device.";
-    })
-    .on("broadcast",{event:"prematch_tactics"},({payload})=>{
-      if(!payload)return;
-      const teamNo=Number(payload.teamNo||0);
-      if(![1,2].includes(teamNo)||!payload.tactics)return;
-      window.acePreMatchTactics=window.acePreMatchTactics||{};
-      window.acePreMatchTactics[teamNo]=JSON.parse(JSON.stringify(payload.tactics));
-      try{window.aceRefreshPreMatchCoachUI?.();}catch(e){}
-      if(mpIsAuthority())mpSchedulePersistentSave("prematch_tactics",120);
     })
     .on("broadcast",{event:"lineup_confirm_request"},async({payload})=>{
       if(mpRoomBacked)return; // Stage 4C.7 uses Supabase directly.
@@ -17492,7 +18039,7 @@ async function connectMultiplayer(role,code,options={}){
         }
 
         updateMultiplayerUI();
-        mpConnectionBanner(options.resume?"RECONNECTED":"PRIVATE ROOM CONNECTED","online",true);
+        mpConnectionBanner(options.resume?"RECONNECTED":(options.bannerText||"PRIVATE ROOM CONNECTED"),"online",true);
 
         if(mpIsAuthority()){
           mpSchedulePersistentSave(mpPersistentPhase(),80);
@@ -17576,6 +18123,7 @@ async function leaveMultiplayer(){
   postMatchActionInFlight=false;
   postMatchProcessedRound=0;
   mpForgetRoom();
+  window.aceUTOnlineMatchActive=false;
   mpConnectionBanner("ROOM LEFT","offline",true);
 
   document.body.classList.remove("multiplayerGuest");
@@ -19592,9 +20140,10 @@ function vdsCloudUTPlayerById(id){
   return p?.ultimateTeamPool===true?p:null;
 }
 
-function vdsStarterCardObject(player,{rarity="bronze",captain=false}={}){
+function vdsStarterCardObject(player,{rarity="bronze",captain=false,ratingOverride=null}={}){
   if(!player)return null;
-  const rating=Math.round(mainPositionRating(player));
+  const naturalRating=Math.round(mainPositionRating(player));
+  const rating=Number.isFinite(Number(ratingOverride))?Math.round(Number(ratingOverride)):naturalRating;
   const master=overall(player);
   return {
     id:`starter_${player.cloudId}`,
@@ -19641,25 +20190,48 @@ async function vdsFetchStarterClubState(){
 }
 
 function vdsHydrateStarterClubCards(state=vdsStarterClubState){
-  if(!state?.completed || !Array.isArray(state.bronze_player_ids))return false;
+  if(!state?.completed)return false;
   if(!Array.isArray(players)||!players.length)return false;
 
+  const version=Number(state.starter_version||1);
   const starterCards=[];
-  state.bronze_player_ids.forEach(id=>{
-    const p=vdsCloudUTPlayerById(id);
-    const card=vdsStarterCardObject(p,{rarity:"bronze",captain:false});
-    if(card)starterCards.push(card);
-  });
-  const captainPlayer=vdsCloudUTPlayerById(state.chosen_captain_id);
-  const captain=vdsStarterCardObject(captainPlayer,{rarity:"silver",captain:true});
-  if(captain)starterCards.push(captain);
 
-  if(starterCards.length<8)return false;
+  if(version>=2){
+    const silverIds=Array.isArray(state.silver_player_ids)?state.silver_player_ids:[];
+    silverIds.forEach(id=>{
+      const p=vdsCloudUTPlayerById(id);
+      if(!p)return;
+      // Starter Club v2 guarantees a Silver foundation. The current UT pool has
+      // no natural Silver Libero, so the selected starter L is visually capped at
+      // the top of Silver while normal pack cards retain their true rarity.
+      const visualRating=Math.min(74,Math.round(mainPositionRating(p)));
+      const card=vdsStarterCardObject(p,{rarity:"silver",captain:false,ratingOverride:visualRating});
+      if(card)starterCards.push(card);
+    });
+
+    const captainPlayer=vdsCloudUTPlayerById(state.chosen_captain_id);
+    const captain=vdsStarterCardObject(captainPlayer,{rarity:"gold",captain:true});
+    if(captain)starterCards.push(captain);
+
+    if(starterCards.length<7)return false;
+  }else{
+    const bronzeIds=Array.isArray(state.bronze_player_ids)?state.bronze_player_ids:[];
+    bronzeIds.forEach(id=>{
+      const p=vdsCloudUTPlayerById(id);
+      const card=vdsStarterCardObject(p,{rarity:"bronze",captain:false});
+      if(card)starterCards.push(card);
+    });
+    const captainPlayer=vdsCloudUTPlayerById(state.chosen_captain_id);
+    const captain=vdsStarterCardObject(captainPlayer,{rarity:"silver",captain:true});
+    if(captain)starterCards.push(captain);
+    if(starterCards.length<8)return false;
+  }
 
   const current=Array.isArray(ultimateTeamState.cards)?ultimateTeamState.cards:[];
   const starterIds=new Set(starterCards.map(c=>c.id));
   const nonStarter=current.filter(c=>!starterIds.has(c.id));
   ultimateTeamState.cards=[...starterCards,...nonStarter];
+
   if(!Array.isArray(ultimateTeamState.lineupSlots) || !ultimateTeamState.lineupSlots.some(Boolean)){
     ultimateTeamState.lineupSlots=utAutoBuildSlots();
     ultimateTeamState.lineupMode="serving";
@@ -19675,8 +20247,11 @@ function vdsUTEntryFanPlayers(state){
     .filter(p=>p?.ultimateTeamPool===true);
   if(owned.length>=3)return owned.slice(0,3);
 
-  if(state?.bronze_player_ids?.length){
-    const starter=state.bronze_player_ids.map(vdsCloudUTPlayerById).filter(Boolean);
+  const entryStarterIds=(Number(state?.starter_version||1)>=2 && state?.silver_player_ids?.length)
+    ? state.silver_player_ids
+    : state?.bronze_player_ids;
+  if(entryStarterIds?.length){
+    const starter=entryStarterIds.map(vdsCloudUTPlayerById).filter(Boolean);
     if(starter.length>=3)return starter.slice(0,3);
   }
 
@@ -19740,15 +20315,18 @@ async function vdsShowStarterIntro(state){
   overlay.classList.add("show");
   document.body.classList.add("aceUTModalOpen");
   overlay.setAttribute("aria-hidden","false");
+
+  const v2=Number(state?.starter_version||1)>=2;
   stage.innerHTML=`<div class="vdsStarterIntro">
     <div class="vdsStarterV">V</div>
     <small>WELCOME TO THE ACE PROJECT</small>
     <h1>YOUR CLUB<br>STARTS NOW.</h1>
-    <p>You will receive a balanced seven-player Bronze foundation, then choose one Silver captain to lead your first roster.</p>
+    <p>${v2
+      ?"You will receive six Silver starter cards, then choose one standard Gold captain to lead your first club."
+      :"You will receive a balanced seven-player Bronze foundation, then choose one Silver captain to lead your first roster."}</p>
     <div class="vdsStarterRewardRow">
-      <span>7 × BRONZE STARTERS</span>
-      <span>1 × SILVER CAPTAIN</span>
-      <span>1,000 ◉ STARTING COINS</span>
+      ${v2?'<span>6 × SILVER STARTERS</span><span>1 × GOLD CAPTAIN</span><span>FREE WELCOME GOLD PACK</span><span>1,000 ◉ STARTING COINS</span>'
+          :'<span>7 × BRONZE STARTERS</span><span>1 × SILVER CAPTAIN</span><span>1,000 ◉ STARTING COINS</span>'}
     </div>
     <button class="vdsStarterPrimary" id="vdsBuildStarterClub" type="button">BUILD MY CLUB</button>
   </div>`;
@@ -19762,8 +20340,12 @@ async function vdsRevealStarterBronzes(state){
   const stage=document.getElementById("vdsStarterStage");
   if(!stage)return;
 
-  const bronze=(state.bronze_player_ids||[]).map(vdsCloudUTPlayerById).filter(Boolean);
-  if(bronze.length!==7){
+  const v2=Number(state?.starter_version||1)>=2;
+  const ids=v2?(state.silver_player_ids||[]):(state.bronze_player_ids||[]);
+  const foundation=ids.map(vdsCloudUTPlayerById).filter(Boolean);
+  const expected=v2?6:7;
+
+  if(foundation.length!==expected){
     stage.innerHTML='<div class="vdsStarterIntro"><h1>STARTER CLUB UNAVAILABLE</h1><p>The player database did not finish loading. Re-enter Ultimate Team and try again.</p></div>';
     vdsStarterFlowBusy=false;
     return;
@@ -19771,9 +20353,11 @@ async function vdsRevealStarterBronzes(state){
 
   stage.innerHTML=`<div class="vdsStarterRoster">
     <span class="vdsStarterSectionKicker">YOUR FOUNDATION</span>
-    <h2>SEVEN PLAYERS. ONE BEGINNING.</h2>
-    <p>A position-balanced Bronze roster so your club is playable from day one.</p>
-    <div class="vdsStarterCardGrid">${bronze.map((p,i)=>vdsStarterMiniCardHTML(p,{index:i})).join("")}</div>
+    <h2>${v2?"SIX SILVERS. ONE BEGINNING.":"SEVEN PLAYERS. ONE BEGINNING."}</h2>
+    <p>${v2
+      ?"A position-ready Silver foundation so your club can play immediately."
+      :"A position-balanced Bronze roster so your club is playable from day one."}</p>
+    <div class="vdsStarterCardGrid">${foundation.map((p,i)=>vdsStarterMiniCardHTML(p,{silver:v2,index:i})).join("")}</div>
     <div class="vdsStarterRevealStatus" id="vdsStarterRevealStatus">OPENING STARTER CLUB…</div>
     <button class="vdsStarterPrimary hidden" id="vdsChooseCaptainNext" type="button">CHOOSE YOUR CAPTAIN →</button>
   </div>`;
@@ -19782,13 +20366,13 @@ async function vdsRevealStarterBronzes(state){
   for(let i=0;i<cards.length;i++){
     await vdsWait(155);
     cards[i].classList.add("revealed");
-    const p=bronze[i];
+    const p=foundation[i];
     const status=document.getElementById("vdsStarterRevealStatus");
     if(status)status.textContent=`${p.position||"PLAYER"} · ${p.name}`;
   }
   await vdsWait(260);
   const status=document.getElementById("vdsStarterRevealStatus");
-  if(status)status.textContent="BRONZE FOUNDATION COMPLETE · 7 / 7";
+  if(status)status.textContent=`${v2?"SILVER":"BRONZE"} FOUNDATION COMPLETE · ${expected} / ${expected}`;
   const next=document.getElementById("vdsChooseCaptainNext");
   if(next){
     next.classList.remove("hidden");
@@ -19807,17 +20391,18 @@ function vdsShowCaptainChoice(state){
     return;
   }
 
+  const v2=Number(state?.starter_version||1)>=2;
   stage.innerHTML=`<div class="vdsCaptainChoice">
     <span class="vdsStarterSectionKicker">ONE PLAYER WILL LEAD THEM</span>
-    <h2>CHOOSE YOUR SILVER CAPTAIN.</h2>
-    <p>This choice is permanent for your starter club.</p>
+    <h2>CHOOSE YOUR ${v2?"GOLD":"SILVER"} CAPTAIN.</h2>
+    <p>${v2?"Choose one standard Gold captain (75–84). ":""}This choice is permanent for your starter club.</p>
     <div class="vdsCaptainGrid">
-      ${candidates.map((p,i)=>`<button class="vdsCaptainCard" type="button" data-captain-id="${p.cloudId}">
+      ${candidates.map((p,i)=>`<button class="vdsCaptainCard ${v2?"gold":""}" type="button" data-captain-id="${p.cloudId}">
         ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:""}
         <div class="vdsCaptainShade"></div>
         <div class="vdsCaptainRole">${roles[i]}</div>
         <div class="vdsCaptainRating">${mainPositionRating(p)}<small>${esc(p.position||"-")}</small></div>
-        <div class="vdsCaptainBottom"><b>${esc(p.name)}</b><span>SILVER · SELECT CAPTAIN</span></div>
+        <div class="vdsCaptainBottom"><b>${esc(p.name)}</b><span>${v2?"GOLD":"SILVER"} · SELECT CAPTAIN</span></div>
       </button>`).join("")}
     </div>
     <div class="vdsCaptainPickStatus" id="vdsCaptainPickStatus">Choose one card to continue.</div>
@@ -19843,7 +20428,11 @@ async function vdsChooseStarterCaptain(playerId){
     vdsStarterClubState=data;
     vdsHydrateStarterClubCards(data);
     await vdsRefreshAccountProgression({loadPanels:false});
-    vdsShowStarterComplete(data);
+    if(Number(data?.starter_version||1)>=2){
+      vdsShowWelcomeGoldPackOffer(data);
+    }else{
+      vdsShowStarterComplete(data);
+    }
   }catch(error){
     console.error("Starter captain claim failed",error);
     if(status)status.textContent="Could not save your captain. Tap a card to try again.";
@@ -19853,19 +20442,153 @@ async function vdsChooseStarterCaptain(playerId){
   }
 }
 
+
+function vdsShowWelcomeGoldPackOffer(state){
+  const overlay=document.getElementById("vdsStarterOverlay");
+  const stage=document.getElementById("vdsStarterStage");
+  if(!stage)return;
+
+  if(overlay){
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+    document.body.classList.add("aceUTModalOpen");
+  }
+
+  const captain=vdsCloudUTPlayerById(state?.chosen_captain_id);
+  stage.innerHTML=`<div class="vdsWelcomePackOffer">
+    <span class="vdsStarterSectionKicker">YOUR FIRST PACK IS ON US</span>
+    <h2>WELCOME GOLD PACK.</h2>
+    <p>Your starter club is built${captain?` around ${esc(captain.name)}`:""}. Open one free, one-time pack before entering Ultimate Team.</p>
+    <div class="vdsWelcomePackVisual">
+      <div class="vdsWelcomePackGlow"></div>
+      <div class="vdsWelcomePackBox">
+        <small>THE ACE PROJECT</small>
+        <b>WELCOME</b>
+        <strong>GOLD PACK</strong>
+        <span>3 PLAYER CARDS</span>
+        <i>FREE · ONE PER ACCOUNT</i>
+      </div>
+    </div>
+    <div class="vdsWelcomePackGuarantee">
+      <span><b>1×</b> STANDARD GOLD · 75–84</span>
+      <span><b>2×</b> SILVER · 60–74</span>
+      <span>NO ELITE / ACE</span>
+    </div>
+    <button class="vdsStarterPrimary vdsWelcomeOpenBtn" id="vdsOpenWelcomeGoldPack" type="button">OPEN FREE PACK</button>
+    <div class="vdsWelcomePackStatus" id="vdsWelcomePackStatus">Guaranteed Gold + 2 Silvers · no coins required.</div>
+  </div>`;
+
+  document.getElementById("vdsOpenWelcomeGoldPack")?.addEventListener("click",()=>vdsClaimAndRevealWelcomeGoldPack(state),{once:true});
+}
+
+async function vdsClaimAndRevealWelcomeGoldPack(state){
+  if(vdsStarterFlowBusy)return;
+  vdsStarterFlowBusy=true;
+
+  const btn=document.getElementById("vdsOpenWelcomeGoldPack");
+  const status=document.getElementById("vdsWelcomePackStatus");
+  if(btn){btn.disabled=true;btn.textContent="OPENING…";}
+  if(status)status.textContent="Saving all three cards to your ACE account…";
+
+  try{
+    const client=ensureMultiplayerClient();
+    const {data,error}=await client.rpc("vds_claim_ut_welcome_pack");
+    if(error)throw error;
+
+    const rows=Array.isArray(data?.cards)?data.cards:[];
+    if(rows.length!==3)throw new Error("WELCOME_PACK_CARDS_MISSING");
+
+    // Cards are already safely committed on Supabase before any reveal starts.
+    const cards=rows.map(row=>vdsCloudUTCardObject(row,{
+      rarity:row?.rarity,
+      rating:row?.rating
+    })).filter(Boolean);
+
+    if(cards.length!==3){
+      await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      throw new Error("WELCOME_PACK_PLAYER_DATA_NOT_READY");
+    }
+
+    vdsAccountProfile={...(vdsAccountProfile||{}),welcome_pack_claimed:true,onboarding_complete:true};
+    await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+    vdsUpdateAccountUI();
+
+    await vdsRevealWelcomeGoldCards(cards,state);
+  }catch(error){
+    console.error("Welcome Gold Pack failed",error);
+    if(status)status.textContent="Your Welcome Pack could not open yet. Tap to try again — you will never be charged.";
+    if(btn){btn.disabled=false;btn.textContent="TRY AGAIN";}
+    // Rebind after an error because the original listener used {once:true}.
+    btn?.addEventListener("click",()=>vdsClaimAndRevealWelcomeGoldPack(state),{once:true});
+  }finally{
+    vdsStarterFlowBusy=false;
+  }
+}
+
+async function vdsRevealWelcomeGoldCards(cards,state){
+  const stage=document.getElementById("vdsStarterStage");
+  if(!stage)return;
+
+  // Server guarantees exactly one standard Gold and two Silvers.
+  const ordered=[...cards].sort((a,b)=>{
+    const rank={gold:2,silver:1};
+    return (rank[b.rarity]||0)-(rank[a.rarity]||0);
+  });
+
+  stage.innerHTML=`<div class="vdsWelcomeReveal">
+    <span class="vdsStarterSectionKicker">WELCOME GOLD PACK</span>
+    <h2>THREE NEW PLAYERS.</h2>
+    <p>All three cards are already saved to your club.</p>
+    <div class="vdsWelcomeCardRow">
+      ${ordered.map((card,i)=>{
+        const p=vdsCloudUTPlayerById(card.playerId);
+        const rare=card.rarity==="gold"?"gold":"silver";
+        return `<div class="vdsWelcomeRevealCard ${rare}" data-welcome-card="${i}">
+          ${p?.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:""}
+          <div class="vdsWelcomeRevealShade"></div>
+          <div class="vdsWelcomeRevealRating">${Math.round(card.rating)}<small>${esc(card.position||p?.position||"-")}</small></div>
+          <div class="vdsWelcomeRevealTier">${rare==="gold"?"GOLD":"SILVER"}</div>
+          <div class="vdsWelcomeRevealName">${esc(card.playerName||p?.name||"Player")}</div>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="vdsWelcomeRevealStatus" id="vdsWelcomeRevealStatus">REVEALING…</div>
+    <button class="vdsStarterPrimary hidden" id="vdsWelcomeContinue" type="button">CONTINUE TO MY CLUB →</button>
+  </div>`;
+
+  const cardEls=[...stage.querySelectorAll("[data-welcome-card]")];
+  for(let i=0;i<cardEls.length;i++){
+    await vdsWait(i===0?300:420);
+    cardEls[i].classList.add("revealed");
+    const card=ordered[i];
+    const s=document.getElementById("vdsWelcomeRevealStatus");
+    if(s)s.textContent=`${card.rarity==="gold"?"GOLD":"SILVER"} · ${card.playerName}`;
+  }
+
+  await vdsWait(450);
+  const s=document.getElementById("vdsWelcomeRevealStatus");
+  if(s)s.textContent="WELCOME PACK COMPLETE · 3 / 3 SAVED";
+  const next=document.getElementById("vdsWelcomeContinue");
+  if(next){
+    next.classList.remove("hidden");
+    next.addEventListener("click",()=>vdsShowStarterComplete(state),{once:true});
+  }
+}
+
 function vdsShowStarterComplete(state){
   const stage=document.getElementById("vdsStarterStage");
   if(!stage)return;
+  const v2=Number(state?.starter_version||1)>=2;
   const captain=vdsCloudUTPlayerById(state.chosen_captain_id);
   stage.innerHTML=`<div class="vdsStarterComplete">
     <div class="vdsStarterCompleteIcon">✓</div>
     <span class="vdsStarterSectionKicker">STARTER CLUB COMPLETE</span>
     <h2>YOUR CLUB IS READY.</h2>
-    <p>${captain?`${esc(captain.name)} will lead your first ACE PROJECT Ultimate Team.`:"Your starter captain is locked in."}</p>
+    <p>${captain?`${esc(captain.name)} will lead your first ACE PROJECT Ultimate Team.`:"Your starter captain is locked in."}${v2?" Your free Welcome Gold Pack has also been added to the club.":""}</p>
     <div class="vdsStarterCompleteStats">
-      <div><span>STARTER CARDS</span><b>8</b></div>
-      <div><span>ACCOUNT COINS</span><b>1,000 ◉</b></div>
-      <div><span>CAPTAIN</span><b>${captain?esc(captain.name):"SILVER"}</b></div>
+      <div><span>STARTING COLLECTION</span><b>${v2?10:8}</b></div>
+      <div><span>STARTING COINS</span><b>1,000 ◉</b></div>
+      <div><span>CAPTAIN</span><b>${captain?esc(captain.name):(v2?"GOLD":"SILVER")}</b></div>
     </div>
     <button class="vdsStarterPrimary" id="vdsEnterCompletedClub" type="button">ENTER ULTIMATE TEAM</button>
   </div>`;
@@ -19909,6 +20632,16 @@ async function vdsEnterUltimateTeam(){
 
   if(state?.completed){
     vdsHydrateStarterClubCards(state);
+
+    // Starter Club v2 includes one free Welcome Gold Pack. If the captain was
+    // chosen but the pack reveal was not completed yet, resume that onboarding
+    // step instead of silently entering the club.
+    if(Number(state?.starter_version||1)>=2 && vdsAccountProfile?.welcome_pack_claimed!==true){
+      await vdsRunUTEntryCinematic({first:false,state});
+      await vdsShowWelcomeGoldPackOffer(state);
+      return;
+    }
+
     await vdsRunUTEntryCinematic({first:false,state});
     vdsUltimateEntryBypass=true;
     goPage("ultimate");
@@ -26612,7 +27345,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     const base=getDraft;
     const wrapped=function(team){
       const result=base.apply(this,arguments);
-      if(window.aceUTLeagueState?.active)return result.map(aceUTCompetitivePlayer);
+      if(window.aceUTLeagueState?.active || window.aceUTOnlineMatchActive)return result.map(aceUTCompetitivePlayer);
       return result;
     };
     wrapped.__aceB13Wrapped=true;
@@ -27581,11 +28314,18 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     if(!panel){panel=document.createElement('section');panel.className='aceTacticsPanel';body.prepend(panel);}
     const ai=!!window.aceUTLeagueState?.active;
 
+    const multiplayer=typeof mpInMultiplayerRoom==="function" && mpInMultiplayerRoom();
+    const ownTeam=multiplayer?Number(mpOwnedTeam?.()||0):0;
+    const panels=multiplayer
+      ? ([1,2].includes(ownTeam)
+          ? teamManagerPanel(ownTeam,false)
+          : `<div class="aceTacticsTeam aceM2Panel"><div class="aceM2Footer">Spectators cannot view private manager plans.</div></div>`)
+      : `${teamManagerPanel(1,false)}${teamManagerPanel(2,ai)}`;
+
     panel.innerHTML=`
-      <div class="aceTacticsTop"><span>MANAGER 2.0 · VOLLEYBALL GAME PLAN</span><small>Changes apply from the next rally.</small></div>
-      <div class="aceTacticsGrid">
-        ${teamManagerPanel(1,false)}
-        ${teamManagerPanel(2,ai)}
+      <div class="aceTacticsTop"><span>MANAGER 2.0 · VOLLEYBALL GAME PLAN</span><small>${multiplayer?"Your plan is private · changes sync for the next rally.":"Changes apply from the next rally."}</small></div>
+      <div class="aceTacticsGrid ${multiplayer?"acePrivateTacticsGrid":""}">
+        ${panels}
       </div>
       <div class="aceM2Footer"><strong>No flat tactical rating boosts.</strong> You are changing serve location, setter distribution, offensive tempo, blocking responsibilities and defensive base. A good call can be countered by another good call.</div>`;
 
@@ -27595,6 +28335,10 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
         const key=n===2?'managerTactics2':'managerTactics1';
         const current=managerTacticsForTeam(n);
         liveState[key]=migrateOld({...current,[sel.dataset.m2Key]:sel.value});
+        if(typeof mpInMultiplayerRoom==="function" && mpInMultiplayerRoom()){
+          window.aceLiveOwnTactics=JSON.parse(JSON.stringify(liveState[key]));
+          window.aceSavePrivateLiveTactics?.(n,liveState[key]);
+        }
         renderManagerTacticsUI();
         const status=document.getElementById('rallyStatus');
         if(status)status.textContent=`${n===1?liveState.name1:liveState.name2} game plan updated — applies next rally.`;
@@ -27606,6 +28350,10 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
         const n=Number(btn.dataset.m2Team||1);
         const key=n===2?'managerTactics2':'managerTactics1';
         liveState[key]=migrateOld({...managerTacticsForTeam(n),mentality:btn.dataset.m2Mentality});
+        if(typeof mpInMultiplayerRoom==="function" && mpInMultiplayerRoom()){
+          window.aceLiveOwnTactics=JSON.parse(JSON.stringify(liveState[key]));
+          window.aceSavePrivateLiveTactics?.(n,liveState[key]);
+        }
         renderManagerTacticsUI();
       });
     });
@@ -28053,39 +28801,85 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       const p=teamPlan(activeTeam);
       p[sel.dataset.preKey]=sel.value;
       savePlan(activeTeam,p);
-      broadcast(activeTeam);
+      window.aceLiveOwnTactics={...BASE_PLAN,...p};
+      schedulePrivateOpeningSave(activeTeam);
       render();
     }));
     body.querySelectorAll('[data-pre-mentality]').forEach(btn=>btn.addEventListener('click',()=>{
       const p=teamPlan(activeTeam);
       p.mentality=btn.dataset.preMentality;
       savePlan(activeTeam,p);
-      broadcast(activeTeam);
+      window.aceLiveOwnTactics={...BASE_PLAN,...p};
+      schedulePrivateOpeningSave(activeTeam);
       render();
     }));
-    body.querySelector('.acePreMatchDone')?.addEventListener('click',()=>{
-      broadcast(activeTeam);closeModal();
+    body.querySelector('.acePreMatchDone')?.addEventListener('click',async()=>{
+      await savePrivateOpeningPlan(activeTeam,{quiet:false});
+      closeModal();
       const hint=document.getElementById('lineupConfirmHint');
       if(hint)hint.textContent='Opening game plan saved · confirm your lineup when ready.';
     });
   }
 
-  async function broadcast(n){
-    try{
-      if(!mpInMultiplayerRoom?.())return;
-      if(Number(mpOwnedTeam?.()||0)!==Number(n))return;
-      if(!mpIsConnected?.())return;
-      await mpSend('prematch_tactics',{teamNo:n,tactics:teamPlan(n)});
-    }catch(e){console.warn('Pre-match tactics broadcast',e);}
-  }
-  window.aceBroadcastPreMatchTactics=broadcast;
+  let privateSaveTimer=null;
 
-  function open(n){
+  async function savePrivateOpeningPlan(n,{quiet=false}={}){
+    try{
+      if(!mpHasPersistentRoom?.())return true;
+      if(Number(mpOwnedTeam?.()||0)!==Number(n))return false;
+      const {data,error}=await mpClient.rpc("vds_save_private_game_plan",{
+        p_code:mpRoom,
+        p_team:Number(n),
+        p_tactics:teamPlan(n)
+      });
+      if(error)throw error;
+      return true;
+    }catch(e){
+      if(!quiet){
+        const hint=document.getElementById("lineupConfirmHint");
+        if(hint)hint.textContent="Game plan could not be saved to the room yet.";
+      }
+      console.warn("Private opening-plan save",e);
+      return false;
+    }
+  }
+
+  function schedulePrivateOpeningSave(n){
+    clearTimeout(privateSaveTimer);
+    privateSaveTimer=setTimeout(()=>savePrivateOpeningPlan(n,{quiet:true}),180);
+  }
+
+  async function loadMyPrivateOpeningPlan(n){
+    try{
+      if(!mpHasPersistentRoom?.())return false;
+      if(Number(mpOwnedTeam?.()||0)!==Number(n))return false;
+      const {data,error}=await mpClient.rpc("vds_get_my_private_game_plan",{p_code:mpRoom});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(row?.tactics && typeof row.tactics==="object"){
+        savePlan(n,row.tactics);
+        window.aceLiveOwnTactics={...BASE_PLAN,...row.tactics};
+        return true;
+      }
+    }catch(e){console.warn("Private opening-plan load",e);}
+    return false;
+  }
+
+  // Kept under the old hook name because confirmCurrentLineup already awaits it.
+  window.aceBroadcastPreMatchTactics=async function(n){
+    return savePrivateOpeningPlan(n,{quiet:false});
+  };
+
+  async function open(n){
     const teams=allowedTeams();
     activeTeam=teams.includes(Number(n))?Number(n):(teams[0]||1);
     const check=typeof validateTeamLineup==='function'?validateTeamLineup(activeTeam):{ok:true};
     if(!check.ok){alert('Choose your starting six before scouting the matchup.');return;}
+
+    // Persistent multiplayer retrieves ONLY this manager's plan.
+    await loadMyPrivateOpeningPlan(activeTeam);
     render();
+
     const modal=ensureModal();
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
@@ -28100,17 +28894,30 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   function ensureButton(){
     const card=document.getElementById('lineupConfirmCard');
     const confirm=document.getElementById('confirmLineupBtn');
-    if(!card||!confirm||document.getElementById('acePreMatchPlanBtn'))return;
-    const btn=document.createElement('button');
-    btn.id='acePreMatchPlanBtn';
-    btn.type='button';
-    btn.className='btn acePreMatchPlanBtn';
-    btn.innerHTML='<b>🧠 SCOUT & GAME PLAN</b><small>OPTIONAL · SET YOUR OPENING TACTICS</small>';
-    btn.addEventListener('click',()=>{
-      const n=mpInMultiplayerRoom?.()?Number(mpOwnedTeam?.()||1):1;
-      open(n);
-    });
-    confirm.before(btn);
+    if(!card||!confirm)return;
+
+    let btn=document.getElementById('acePreMatchPlanBtn');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='acePreMatchPlanBtn';
+      btn.type='button';
+      btn.className='btn acePreMatchPlanBtn';
+      btn.innerHTML='<b>🧠 SCOUT & GAME PLAN</b><small>OPTIONAL · SET YOUR OPENING TACTICS</small>';
+      confirm.before(btn);
+    }
+
+    if(btn.dataset.acePreMatchBound!=='1'){
+      btn.dataset.acePreMatchBound='1';
+      btn.addEventListener('click',()=>{
+        let n=1;
+        try{
+          n=(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom())
+            ? Number((typeof mpOwnedTeam==='function' && mpOwnedTeam())||1)
+            : 1;
+        }catch(e){n=1;}
+        open(n);
+      });
+    }
   }
 
   // Inject pre-match plans into the live state immediately after B13/B14 match
@@ -28135,6 +28942,22 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   // Keep the plan button available whenever the lineup page is rebuilt.
   function boot(){
     ensureModal();ensureButton();
+
+    // Delegated fallback for multiplayer/lineup rebuilds.
+    document.addEventListener('click',e=>{
+      const btn=e.target?.closest?.('#acePreMatchPlanBtn');
+      if(!btn || btn.dataset.aceDelegatedHandled==='1')return;
+      // If the direct binding survived, it already handles the click.
+      if(btn.dataset.acePreMatchBound==='1')return;
+      let n=1;
+      try{
+        n=(typeof mpInMultiplayerRoom==='function' && mpInMultiplayerRoom())
+          ? Number((typeof mpOwnedTeam==='function' && mpOwnedTeam())||1)
+          : 1;
+      }catch(err){n=1;}
+      open(n);
+    });
+
     const lineup=document.getElementById('lineup');
     if(lineup){
       new MutationObserver(()=>requestAnimationFrame(ensureButton)).observe(lineup,{childList:true,subtree:true});
@@ -28142,6 +28965,707 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,30),{once:true});
   else setTimeout(boot,30);
+})();
+</script>
+
+
+<script id="ace-b16-private-multiplayer-script">
+(function(){
+  'use strict';
+  if(window.ACE_B16_PRIVATE_MULTIPLAYER)return;
+  window.ACE_B16_PRIVATE_MULTIPLAYER=true;
+
+  let livePlanPollTimer=null;
+  let livePlanVersion1=-1;
+  let livePlanVersion2=-1;
+  let livePlanSaveTimer=null;
+
+  let simPollTimer=null;
+  let simState={request_team:null,team1_vote:null,team2_vote:null,approved:false,last_result:null,last_actor_team:null,state_version:0};
+  let simSeenVersion=-1;
+  let simExecuting=false;
+
+  function row(data){return Array.isArray(data)?data[0]:data;}
+
+  // ---------------------------------------------------------------
+  // PRIVATE LIVE TACTICS
+  // ---------------------------------------------------------------
+  window.aceSavePrivateLiveTactics=function(teamNo,tactics){
+    if(!mpHasPersistentRoom?.() || Number(mpOwnedTeam?.()||0)!==Number(teamNo))return;
+    clearTimeout(livePlanSaveTimer);
+    livePlanSaveTimer=setTimeout(async()=>{
+      try{
+        const {data,error}=await mpClient.rpc("vds_save_live_game_plan",{
+          p_code:mpRoom,
+          p_team:Number(teamNo),
+          p_tactics:tactics||{}
+        });
+        if(error)throw error;
+        const r=row(data);
+        if(r?.tactics)window.aceLiveOwnTactics=JSON.parse(JSON.stringify(r.tactics));
+      }catch(e){
+        console.warn("Private live tactics save",e);
+        const status=document.getElementById("rallyStatus");
+        if(status)status.textContent="Tactic change could not sync yet.";
+      }
+    },120);
+  };
+
+  async function authorityRefreshLivePlans(){
+    if(!mpHasPersistentRoom?.() || !mpIsAuthority?.() || !window.liveState || liveState.matchFinished)return;
+    try{
+      const {data,error}=await mpClient.rpc("vds_get_authority_live_game_plans",{p_code:mpRoom});
+      if(error)throw error;
+      const r=row(data);
+      if(!r)return;
+
+      const v1=Number(r.team1_version||0),v2=Number(r.team2_version||0);
+      if(v1!==livePlanVersion1){
+        livePlanVersion1=v1;
+        liveState.managerTactics1={...defaultManagerTactics(),...(r.team1_tactics||{})};
+        if(Number(mpOwnedTeam?.()||0)===1)window.aceLiveOwnTactics=JSON.parse(JSON.stringify(liveState.managerTactics1));
+      }
+      if(v2!==livePlanVersion2){
+        livePlanVersion2=v2;
+        liveState.managerTactics2={...defaultManagerTactics(),...(r.team2_tactics||{})};
+        if(Number(mpOwnedTeam?.()||0)===2)window.aceLiveOwnTactics=JSON.parse(JSON.stringify(liveState.managerTactics2));
+      }
+    }catch(e){
+      // Authority may briefly lose its lease during reconnect; polling will recover.
+      if(!String(e?.message||"").includes("AUTHORITY_REQUIRED"))console.warn("Authority live-tactics poll",e);
+    }
+  }
+
+  window.aceStartPrivateLiveTacticsPolling=function(){
+    if(!mpHasPersistentRoom?.())return;
+    clearInterval(livePlanPollTimer);
+    if(mpIsAuthority?.()){
+      authorityRefreshLivePlans();
+      livePlanPollTimer=setInterval(authorityRefreshLivePlans,500);
+    }
+  };
+
+  // ---------------------------------------------------------------
+  // MUTUAL SIM TO END
+  // ---------------------------------------------------------------
+  function ensureSimModal(){
+    let modal=document.getElementById("aceSimConsentModal");
+    if(modal)return modal;
+    modal=document.createElement("div");
+    modal.id="aceSimConsentModal";
+    modal.className="aceSimConsentModal";
+    modal.innerHTML=`
+      <section class="aceSimConsentSheet" role="dialog" aria-modal="true" aria-labelledby="aceSimConsentTitle">
+        <span>MULTIPLAYER AGREEMENT</span>
+        <h3 id="aceSimConsentTitle">Simulate the Rest of the Match?</h3>
+        <p>The current score, rotations, fatigue, substitutions and active tactics will be used. The match only fast-forwards if both managers agree.</p>
+        <div class="aceSimConsentState">
+          <div id="aceSimVote1">TEAM 1 · WAITING</div>
+          <div id="aceSimVote2">TEAM 2 · WAITING</div>
+        </div>
+        <div class="aceSimConsentActions">
+          <button class="accept" id="aceSimAcceptBtn" type="button">ACCEPT SIM</button>
+          <button class="decline" id="aceSimDeclineBtn" type="button">KEEP PLAYING</button>
+        </div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.querySelector("#aceSimAcceptBtn").addEventListener("click",()=>submitSimAction("accept"));
+    modal.querySelector("#aceSimDeclineBtn").addEventListener("click",()=>submitSimAction("decline"));
+    return modal;
+  }
+
+  function closeSimModal(){
+    document.getElementById("aceSimConsentModal")?.classList.remove("show");
+  }
+
+  function myTeam(){return Number(mpOwnedTeam?.()||0);}
+
+  function renderSimState(){
+    const btn=document.getElementById("simMatchBtn");
+    if(!btn)return;
+
+    if(!mpInMultiplayerRoom?.()){
+      btn.classList.add("hidden");
+      closeSimModal();
+      return;
+    }
+    btn.classList.remove("hidden");
+
+    const mine=myTeam();
+    const request=Number(simState.request_team||0);
+    const myVote=mine===1?simState.team1_vote:simState.team2_vote;
+    const oppVote=mine===1?simState.team2_vote:simState.team1_vote;
+
+    if(simState.approved){
+      btn.textContent="✓ 2/2 · SIMULATING";
+      btn.disabled=true;
+      return;
+    }
+
+    if(!request){
+      btn.textContent="⏭ Sim Match";
+      btn.disabled=mpIsSpectator?.()||!!liveState?.matchFinished;
+      closeSimModal();
+      return;
+    }
+
+    if(request===mine){
+      btn.textContent=oppVote===true?"✓ 2/2 · SIMULATING":"⏳ Sim · Waiting";
+      btn.disabled=false;
+      btn.title="Waiting for the other manager. Click to cancel the request.";
+    }else{
+      btn.textContent="✓ Accept Sim?";
+      btn.disabled=false;
+      btn.title="The other manager wants to simulate the rest of the match.";
+    }
+
+    const modal=ensureSimModal();
+    const v1=modal.querySelector("#aceSimVote1"),v2=modal.querySelector("#aceSimVote2");
+    if(v1){v1.textContent=`TEAM 1 · ${simState.team1_vote===true?"ACCEPTED":"WAITING"}`;v1.classList.toggle("ready",simState.team1_vote===true);}
+    if(v2){v2.textContent=`TEAM 2 · ${simState.team2_vote===true?"ACCEPTED":"WAITING"}`;v2.classList.toggle("ready",simState.team2_vote===true);}
+
+    // Automatically surface a new opponent request once.
+    if(request && request!==mine && Number(simState.state_version||0)!==simSeenVersion){
+      simSeenVersion=Number(simState.state_version||0);
+      modal.classList.add("show");
+    }
+  }
+
+  async function submitSimAction(action){
+    if(!mpHasPersistentRoom?.()||mpIsSpectator?.())return;
+    try{
+      const {data,error}=await mpClient.rpc("vds_submit_sim_to_end_action",{p_code:mpRoom,p_action:action});
+      if(error)throw error;
+      simState={...simState,...(row(data)||{})};
+      if(action==="decline"||action==="cancel")closeSimModal();
+      renderSimState();
+      if(simState.approved)await maybeExecuteApprovedSim();
+    }catch(e){
+      console.warn("Sim-to-end action",e);
+      const status=document.getElementById("rallyStatus");
+      if(status)status.textContent="Could not update Sim Match agreement.";
+    }
+  }
+
+  async function refreshSimState(){
+    if(!mpHasPersistentRoom?.()||!window.liveState||liveState.matchFinished)return;
+    try{
+      const {data,error}=await mpClient.rpc("vds_get_sim_to_end_state",{p_code:mpRoom});
+      if(error)throw error;
+      simState={...simState,...(row(data)||{})};
+      renderSimState();
+      if(simState.approved)await maybeExecuteApprovedSim();
+    }catch(e){
+      console.warn("Sim-to-end poll",e);
+    }
+  }
+
+  async function authoritySimulateRestOfMatch(){
+    if(simExecuting||!mpIsAuthority?.()||!liveState||liveState.matchFinished)return;
+    simExecuting=true;
+    skipSetInProgress=true;
+    clearInterval(liveTimer);
+    if(phaseAdvanceResolver)phaseAdvanceResolver();
+
+    const status=document.getElementById("rallyStatus");
+    if(status)status.textContent="⏭ 2/2 agreed · simulating rest of match…";
+
+    try{
+      let guard=0;
+      while(liveState && !liveState.matchFinished && guard<1400){
+        if(liveState.setFinished){
+          nextLiveSet();
+          await authorityRefreshLivePlans();
+          continue;
+        }
+        await authorityRefreshLivePlans();
+        await playLiveRally();
+        guard++;
+        if(guard%20===0){
+          if(status)status.textContent=`⏭ Simulating match… Set ${liveState.setNo} · ${liveState.p1}–${liveState.p2}`;
+          await new Promise(r=>setTimeout(r,0));
+        }
+      }
+      if(guard>=1400 && liveState&&!liveState.matchFinished)throw new Error("Sim safety limit reached.");
+
+      resetCourtAfterRally();
+      renderLiveCourtPlayers();
+      updateLiveUI();
+      if(liveState)await mpSend("match_state",{snapshot:multiplayerMatchSnapshot()});
+      try{await mpClient.rpc("vds_reset_sim_to_end_state",{p_code:mpRoom});}catch(e){}
+    }catch(e){
+      console.error("Mutual Sim Match error",e);
+      if(status)status.textContent=`Sim Match error: ${e.message}`;
+    }finally{
+      skipSetInProgress=false;
+      simExecuting=false;
+      if(liveState)liveState.animating=false;
+      applyMultiplayerMatchControls();
+    }
+  }
+
+  async function maybeExecuteApprovedSim(){
+    if(!simState.approved||simExecuting)return;
+    closeSimModal();
+    if(mpIsAuthority?.()){
+      await authoritySimulateRestOfMatch();
+    }else{
+      const status=document.getElementById("rallyStatus");
+      if(status)status.textContent="2/2 agreed · match controller is simulating the result…";
+    }
+  }
+
+  window.aceStartSimToEndPolling=function(){
+    if(!mpHasPersistentRoom?.())return;
+    clearInterval(simPollTimer);
+    refreshSimState();
+    simPollTimer=setInterval(()=>{
+      const active=document.querySelector(".page.active")?.id;
+      if(active==="sim"&&liveState&&!liveState.matchFinished)refreshSimState();
+    },650);
+  };
+
+  document.addEventListener("click",e=>{
+    const btn=e.target?.closest?.("#simMatchBtn");
+    if(!btn)return;
+    e.preventDefault();
+
+    if(!mpInMultiplayerRoom?.())return;
+    const mine=myTeam();
+    const request=Number(simState.request_team||0);
+
+    if(!request){
+      submitSimAction("request");
+    }else if(request===mine){
+      if(confirm("Cancel your Sim Match request?"))submitSimAction("cancel");
+    }else{
+      ensureSimModal().classList.add("show");
+      renderSimState();
+    }
+  });
+
+  // When a match is already live after reconnect, restore the polling loops.
+  setTimeout(()=>{
+    if(mpHasPersistentRoom?.()&&window.liveState&&!liveState.matchFinished){
+      window.aceStartPrivateLiveTacticsPolling();
+      window.aceStartSimToEndPolling();
+    }
+  },600);
+})();
+</script>
+
+
+<script id="ace-b19-auto-matchmaking-script">
+(function(){
+  'use strict';
+  if(window.ACE_B19_AUTO_MATCHMAKING)return;
+  window.ACE_B19_AUTO_MATCHMAKING=true;
+
+  const legacyAiReady=aceUTRenderReady;
+  const legacyClose=aceUTCloseMatchFlow;
+
+  const mm={
+    active:false,
+    token:0,
+    benchRefs:[],
+    last:null,
+    entering:false,
+    cancelRequested:false
+  };
+
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  function prepareUTStateFromValidation(validation){
+    const cards=validation.cards;
+    aceUTLeagueState.userCards=cards;
+    aceUTLeagueState.userPlayers=validation.masters;
+    aceUTLeagueState.userRolePlayers=aceUTLeagueUserRolePlayers(cards);
+    aceUTLeagueState.userBench=aceUTLeagueOwnedBench(cards);
+    aceUTLeagueState.userOvr=aceUTLeagueOvr(cards);
+    aceUTLeagueState.userChem=aceUTLeagueChem(cards);
+    aceUTLeagueState.opponent=null;
+  }
+
+  function matchmakingBenchRefs(validation){
+    const usedNames=new Set((validation?.cards||[]).map(c=>String(c?.playerName||"")).filter(Boolean));
+    const refs=[];
+    const seenPlayers=new Set(usedNames);
+    for(const card of utBestUniqueCards()){
+      const name=String(card?.playerName||"");
+      if(!name||seenPlayers.has(name))continue;
+      const ref=utCardUid(card);
+      if(!ref)continue;
+      refs.push(String(ref));
+      seenPlayers.add(name);
+      if(refs.length>=2)break;
+    }
+    return refs;
+  }
+
+  function queueBody(){
+    return aceUTMatchBody();
+  }
+
+  function renderSearching(state={}){
+    const body=queueBody();
+    if(!body)return;
+    const sec=Math.max(0,Number(state.queued_seconds||0));
+    const eloWindow=Number(state.elo_window||100);
+    const ovrWindow=Number(state.ovr_window||5);
+
+    body.innerHTML=`
+      <div class="aceUTQueuePanel">
+        <div class="aceUTOnlineModeTag">🌐 RANKED ONLINE · AUTOMATIC MATCHMAKING</div>
+        <div class="aceUTQueueSpinner"></div>
+        <h2>FINDING A<br>MANAGER…</h2>
+        <p>Supabase is looking for another online ACE manager. ELO is the main match factor, with squad strength used as protection rather than a hard bracket.</p>
+
+        <div class="aceUTQueueStats">
+          <div><span>YOUR ELO</span><b>${Number(vdsAccountProfile?.elo||state.elo||1000)}</b></div>
+          <div><span>SQUAD OVR</span><b>${Number(state.squad_ovr||aceUTLeagueState.userOvr||0)}</b></div>
+          <div><span>SEARCH</span><b>${sec}s</b></div>
+          <div><span>RANGE</span><b>±${eloWindow}</b></div>
+        </div>
+
+        <div class="aceUTQueueHint">
+          Preferred squad range: ±${ovrWindow} OVR · the search widens gradually while you wait.<br>
+          New managers are prioritised against other new managers during their first five online matches.
+        </div>
+
+        <div class="aceUTQueueActions">
+          <button class="aceUTQueueAi" type="button" onclick="aceUTMatchmakingPlayAI()">🤖 PLAY AI INSTEAD</button>
+          <button class="aceUTQueueCancel" type="button" onclick="aceUTCancelOnlineMatchmaking()">CANCEL SEARCH</button>
+        </div>
+      </div>`;
+  }
+
+  function renderMatchFound(state){
+    const body=queueBody();
+    if(!body)return;
+    body.innerHTML=`
+      <div class="aceUTQueuePanel">
+        <div class="aceUTOnlineModeTag">🌐 RANKED ONLINE</div>
+        <div class="aceUTMatchedPulse">✓</div>
+        <h2>OPPONENT<br>FOUND.</h2>
+        <p>The server has locked this pairing. Connecting both clubs to the same authoritative multiplayer room…</p>
+
+        <div class="aceUTOnlineVersus">
+          <div class="aceUTOnlineVersusTeam">
+            <span>YOUR CLUB</span>
+            <b>${esc(state.own_club_name||aceUTLeagueClubName())}</b>
+            <small>${Number(state.own_elo||vdsAccountProfile?.elo||1000)} ELO · ${Number(state.own_squad_ovr||aceUTLeagueState.userOvr||0)} OVR</small>
+          </div>
+          <div class="aceUTOnlineVersusVs">VS</div>
+          <div class="aceUTOnlineVersusTeam">
+            <span>OPPONENT</span>
+            <b>${esc(state.opponent_club_name||"ACE MANAGER")}</b>
+            <small>${Number(state.opponent_elo||1000)} ELO · ${Number(state.opponent_squad_ovr||0)} OVR</small>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderQueueError(error){
+    const body=queueBody();
+    if(!body)return;
+    const msg=String(error?.message||error||"ONLINE_MATCHMAKING_FAILED")
+      .replace(/^.*?(ULTIMATE_TEAM_[A-Z_]+|PROFILE_REQUIRED|AUTH_REQUIRED).*$/,"$1");
+    body.innerHTML=`
+      <div class="aceUTMatchIntro">
+        <span class="aceUTMatchEyebrow">ONLINE MATCHMAKING</span>
+        <h2>SEARCH<br>INTERRUPTED.</h2>
+        <p>Your squad was not placed into a match. Nothing was charged or changed.</p>
+        <div class="aceUTMatchError">${esc(msg)}</div>
+        <div class="aceUTMatchActionRow">
+          <button class="aceUTMatchPrimary" type="button" onclick="aceUTStartOnlineMatchmaking()">TRY AGAIN</button>
+          <button class="aceUTMatchSecondary" type="button" onclick="aceUTMatchmakingPlayAI()">PLAY AI</button>
+          <button class="aceUTMatchSecondary" type="button" onclick="aceUTCloseMatchFlow()">CLOSE</button>
+        </div>
+      </div>`;
+  }
+
+  async function poll(token){
+    if(!mm.active||token!==mm.token)return;
+    try{
+      const client=ensureMultiplayerClient();
+      const {data,error}=await client.rpc("vds_join_ut_matchmaking",{
+        p_bench_slots:mm.benchRefs
+      });
+      if(error)throw error;
+      if(!mm.active||token!==mm.token)return;
+
+      mm.last=data||{};
+      if(data?.status==="matched"){
+        mm.active=false;
+        renderMatchFound(data);
+        await delay(850);
+        if(token!==mm.token)return;
+        await enterMatchedRoom(data);
+        return;
+      }
+
+      if(data?.status!=="searching"){
+        throw new Error(`MATCHMAKING_${String(data?.status||"UNKNOWN").toUpperCase()}`);
+      }
+
+      renderSearching(data);
+      setTimeout(()=>poll(token),1150);
+    }catch(error){
+      console.error("ACE online matchmaking poll failed",error);
+      mm.active=false;
+      renderQueueError(error);
+    }
+  }
+
+  async function start(){
+    if(mm.active||mm.entering)return;
+
+    const validation=aceUTValidateStartingSix();
+    if(!validation.ok){
+      aceUTOpenOverlay();
+      const body=queueBody();
+      body.innerHTML=`
+        <div class="aceUTMatchIntro">
+          <span class="aceUTMatchEyebrow">ONLINE MATCH</span>
+          <h2>STARTING SIX<br>INCOMPLETE.</h2>
+          <p>${esc(validation.msg)}</p>
+          <div class="aceUTMatchActionRow">
+            <button class="aceUTMatchPrimary" type="button" onclick="aceUTLeagueManageSquad()">MANAGE SQUAD</button>
+            <button class="aceUTMatchSecondary" type="button" onclick="aceUTCloseMatchFlow()">CLOSE</button>
+          </div>
+        </div>`;
+      return;
+    }
+
+    if(!vdsHasPermanentAccount()){
+      vdsShowAccountGate("Sign in with Google before entering Online Matchmaking.");
+      return;
+    }
+
+    if(typeof mpInMultiplayerRoom==="function"&&mpInMultiplayerRoom()){
+      aceUTOpenOverlay();
+      const body=queueBody();
+      body.innerHTML=`
+        <div class="aceUTMatchIntro">
+          <span class="aceUTMatchEyebrow">ONLINE MATCH</span>
+          <h2>MATCH ALREADY<br>ACTIVE.</h2>
+          <p>Finish or leave your current multiplayer room before searching for another opponent.</p>
+          <div class="aceUTMatchActionRow"><button class="aceUTMatchSecondary" type="button" onclick="aceUTCloseMatchFlow()">CLOSE</button></div>
+        </div>`;
+      return;
+    }
+
+    prepareUTStateFromValidation(validation);
+    mm.benchRefs=matchmakingBenchRefs(validation);
+    mm.active=true;
+    mm.cancelRequested=false;
+    mm.entering=false;
+    mm.token++;
+    const token=mm.token;
+
+    aceUTOpenOverlay();
+    renderSearching({
+      queued_seconds:0,
+      elo:vdsAccountProfile?.elo||1000,
+      squad_ovr:aceUTLeagueState.userOvr,
+      elo_window:100,
+      ovr_window:5
+    });
+
+    // The server matchmaker reads the saved cloud Starting Six. Flush the
+    // current client arrangement first so a recent drag/swap cannot be stale.
+    const saved=await vdsSaveUTSquadCloudNow();
+    if(!saved){
+      mm.active=false;
+      renderQueueError(new Error("ULTIMATE_TEAM_SQUAD_SYNC_FAILED"));
+      return;
+    }
+
+    poll(token);
+  }
+
+  async function cancel({close=true}={}){
+    const token=++mm.token;
+    const wasActive=mm.active;
+    mm.active=false;
+    mm.cancelRequested=true;
+
+    if(wasActive){
+      try{
+        const client=ensureMultiplayerClient();
+        const {data,error}=await client.rpc("vds_cancel_ut_matchmaking");
+        if(error)throw error;
+
+        // A match may have been committed in the same instant the user tapped
+        // Cancel. Once paired, do not silently abandon the other manager.
+        if(data?.status==="matched"){
+          mm.last=data;
+          mm.cancelRequested=false;
+          renderMatchFound(data);
+          await delay(500);
+          if(token===mm.token)await enterMatchedRoom(data);
+          return false;
+        }
+      }catch(e){
+        console.warn("ACE matchmaking cancel failed",e);
+      }
+    }
+
+    if(close)legacyClose();
+    return true;
+  }
+
+  async function playAI(){
+    await cancel({close:false});
+    aceUTOpenOverlay();
+    legacyAiReady();
+  }
+
+  async function enterMatchedRoom(state){
+    if(mm.entering)return;
+    mm.entering=true;
+
+    try{
+      // The queue RPC has already created both memberships and assigned the
+      // roles. connectMultiplayer only attaches Realtime to that verified room.
+      const ok=await connectMultiplayer(state.room_role,state.room_code,{
+        claimedRoom:state,
+        managerName:state.own_club_name||aceUTLeagueClubName(),
+        bannerText:"ONLINE MATCH CONNECTED"
+      });
+      if(!ok)throw new Error("ONLINE_ROOM_CONNECTION_FAILED");
+
+      window.aceUTOnlineMatchActive=true;
+      aceUTLeagueState.active=false;
+      aceUTLeagueState.rewarded=false;
+      aceUTLeagueState.cloudMatchId=null;
+
+      const t1Line=Array.isArray(state.team1_lineup)?state.team1_lineup.filter(Boolean):[];
+      const t2Line=Array.isArray(state.team2_lineup)?state.team2_lineup.filter(Boolean):[];
+      const t1Roster=Array.isArray(state.team1_roster)?state.team1_roster.filter(Boolean):t1Line;
+      const t2Roster=Array.isArray(state.team2_roster)?state.team2_roster.filter(Boolean):t2Line;
+
+      if(t1Line.length!==6||t2Line.length!==6){
+        throw new Error("ONLINE_LINEUP_SYNC_INVALID");
+      }
+
+      auctionState.team1=[...new Set(t1Roster)].slice(0,8);
+      auctionState.team2=[...new Set(t2Roster)].slice(0,8);
+      draftDefaults.team1=[...t1Line];
+      draftDefaults.team2=[...t2Line];
+
+      const n1=document.getElementById("team1Name");
+      const n2=document.getElementById("team2Name");
+      if(n1)n1.value=state.team1_club_name||"Team 1";
+      if(n2)n2.value=state.team2_club_name||"Team 2";
+
+      const format=document.getElementById("format");
+      if(format)format.value="3";
+      if(typeof gameSetup==="object"&&gameSetup)gameSetup.format=3;
+
+      // Do not carry a previous room's opponent plan into a new automatic
+      // match. Each manager starts Balanced and saves privately for this room.
+      window.acePreMatchTactics={};
+      window.aceLiveOwnTactics=null;
+
+      resetLineupConfirmations();
+      renderRosters();
+      applyLineupValues(1,t1Line);
+      applyLineupValues(2,t2Line);
+      applyMultiplayerLineupLocks();
+
+      legacyClose();
+      goPage("lineup");
+
+      await refreshLineupFromServer();
+      renderLineupConfirmationState();
+
+      // Put the player straight into the intended pre-match experience:
+      // scout -> set private game plan -> READY.
+      setTimeout(()=>{
+        const own=Number(mpOwnedTeam?.()||0);
+        if([1,2].includes(own))window.aceOpenPreMatchCoach?.(own);
+      },650);
+    }catch(error){
+      console.error("ACE matched-room entry failed",error);
+      mm.entering=false;
+      aceUTOpenOverlay();
+      const body=queueBody();
+      body.innerHTML=`
+        <div class="aceUTMatchIntro">
+          <span class="aceUTMatchEyebrow">OPPONENT FOUND</span>
+          <h2>RECONNECT<br>REQUIRED.</h2>
+          <p>The server pairing is saved, but this browser did not finish attaching to the live room.</p>
+          <div class="aceUTMatchError">${esc(error.message||"ONLINE_ROOM_CONNECTION_FAILED")}</div>
+          <div class="aceUTMatchActionRow">
+            <button class="aceUTMatchPrimary" type="button" onclick="aceUTReconnectMatchedRoom()">RECONNECT</button>
+            <button class="aceUTMatchSecondary" type="button" onclick="aceUTCloseMatchFlow()">CLOSE</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  async function reconnectMatched(){
+    try{
+      const client=ensureMultiplayerClient();
+      const {data,error}=await client.rpc("vds_get_ut_matchmaking_status");
+      if(error)throw error;
+      if(data?.status!=="matched")throw new Error("MATCHMAKING_ROOM_NOT_FOUND");
+      mm.last=data;
+      mm.entering=false;
+      renderMatchFound(data);
+      await delay(350);
+      await enterMatchedRoom(data);
+    }catch(e){renderQueueError(e);}
+  }
+
+  // Main UT PLAY MATCH is now automatic online matchmaking.
+  aceUTOpenMatchFlow=function(){
+    start();
+  };
+
+  // Closing while searching performs a real queue cancellation.
+  aceUTCloseMatchFlow=function(){
+    if(mm.active){
+      cancel({close:true});
+      return;
+    }
+    legacyClose();
+  };
+
+  // AI League remains available as a fallback/secondary mode.
+  window.aceUTStartOnlineMatchmaking=start;
+  window.aceUTCancelOnlineMatchmaking=()=>cancel({close:true});
+  window.aceUTMatchmakingPlayAI=playAI;
+  window.aceUTReconnectMatchedRoom=reconnectMatched;
+  window.aceUTOpenMatchFlow=aceUTOpenMatchFlow;
+  window.aceUTCloseMatchFlow=aceUTCloseMatchFlow;
+
+  // AI post-match "PLAY AGAIN" must stay AI rather than jumping into the new
+  // default online queue.
+  aceUTLeagueReplay=function(){
+    aceUTLeagueState.active=false;
+    aceUTLeagueState.rewarded=false;
+    aceUTRestoreMatchContext();
+    goPage("ultimate");
+    setTimeout(()=>{
+      vdsSwitchUltimateInstance("squad");
+      setTimeout(()=>{
+        aceUTOpenOverlay();
+        legacyAiReady();
+      },90);
+    },70);
+  };
+  window.aceUTLeagueReplay=aceUTLeagueReplay;
+
+  // Escape is treated as Cancel Search when queueing.
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"&&mm.active){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancel({close:true});
+    }
+  },true);
 })();
 </script>
 
