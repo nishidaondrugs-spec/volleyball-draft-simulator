@@ -5512,6 +5512,162 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
+
+<style id="ace-b14-1-mobile-polish">
+/* B14.1 — mobile sign-in polish + card proportion fix */
+@media (max-width:760px){
+  .vdsAccountGate{
+    background:
+      radial-gradient(circle at 50% -5%,rgba(73,154,244,.16),transparent 42%),
+      linear-gradient(180deg,#070a12 0%,#05070d 52%,#05070d 100%)!important;
+  }
+  .vdsSignInVisual{
+    height:clamp(300px,38dvh,360px)!important;
+    min-height:300px!important;
+    max-height:360px!important;
+  }
+  .vdsSignInCopy{
+    margin-top:-18px!important;
+    padding:18px 13px max(18px,env(safe-area-inset-bottom))!important;
+    border-top-left-radius:22px!important;
+    border-top-right-radius:22px!important;
+    background:linear-gradient(180deg,rgba(5,7,13,.90) 0%,#05070d 28px)!important;
+    box-shadow:0 -12px 32px rgba(0,0,0,.28)!important;
+  }
+  .vdsSignInBrand{
+    left:14px!important;
+    top:calc(-1 * clamp(300px,38dvh,360px) + max(14px,env(safe-area-inset-top)))!important;
+  }
+  .vdsSignInHeadline{
+    font-size:clamp(36px,10.2vw,44px)!important;
+    letter-spacing:-.05em!important;
+  }
+  .vdsSignInIntro{
+    font-size:10.5px!important;
+    line-height:1.48!important;
+  }
+  .vdsSignInAuthBox{
+    position:relative!important;
+    margin-top:14px!important;
+    padding:10px!important;
+    border-radius:16px!important;
+    border:1px solid rgba(123,178,255,.14)!important;
+    background:linear-gradient(180deg,rgba(11,18,29,.98),rgba(8,13,23,.98))!important;
+    box-shadow:0 16px 36px rgba(0,0,0,.34)!important;
+  }
+  .vdsSignInAuthBox::before{
+    content:"SIGN IN TO START";
+    display:block;
+    margin:0 2px 8px!important;
+    color:#7dbdff;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.22em;
+  }
+  .vdsSignInAuthBox .vdsGoogleButton{
+    min-height:56px!important;
+    padding:0 16px!important;
+    display:grid!important;
+    grid-template-columns:24px 1fr auto!important;
+    align-items:center!important;
+    gap:12px!important;
+    border-radius:14px!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.14)!important;
+  }
+  .vdsSignInAuthBox .vdsGoogleButton span:last-child{
+    text-align:left!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .vdsSignInAuthBox .vdsGoogleButton::after{
+    content:"→";
+    color:#5b6979;
+    font-size:18px;
+    line-height:1;
+    font-weight:900;
+  }
+  .vdsSignInAuthMeta{
+    font-size:6.4px!important;
+    padding:9px 4px 0!important;
+  }
+  .vdsAuthStatus{
+    font-size:9px!important;
+    margin-top:8px!important;
+  }
+  .vdsSignInTrust{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-top:10px!important;
+  }
+  .vdsSignInTrust span{
+    justify-content:center!important;
+    text-align:center!important;
+    min-height:29px!important;
+    padding:6px 4px!important;
+    border-radius:11px!important;
+    font-size:5.8px!important;
+    line-height:1.2!important;
+  }
+
+  #home .gameHeroVisual{
+    min-height:380px!important;
+    height:380px!important;
+  }
+  #home .heroCardCarousel{
+    inset:10px 0 16px!important;
+  }
+  #home .heroCardStage{
+    transform:none!important;
+  }
+  #home .heroCardStage .heroCarouselPlayerCard,
+  #home .heroCardStage .fifaPlayerCard,
+  #players .vdsPlayerCardWithPoolAction>.fifaPlayerCard,
+  #miniDraftCards .fifaPlayerCard,
+  #miniPickReveal .fifaPlayerCard,
+  #utRevealCard .fifaPlayerCard,
+  .vdsAuthCarouselSlide .vdsAuthDbCard{
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:255 / 420!important;
+    --art-scale:1.08;
+    --art-y:4px;
+  }
+  #home .heroCardStage .heroCarouselPlayerCard,
+  #home .heroCardStage .fifaPlayerCard{
+    width:min(74vw,255px)!important;
+  }
+  #home .heroCardStage .fifaPhoto,
+  #players .vdsPlayerCardWithPoolAction>.fifaPlayerCard .fifaPhoto,
+  #miniDraftCards .fifaPlayerCard .fifaPhoto,
+  #miniPickReveal .fifaPlayerCard .fifaPhoto,
+  #utRevealCard .fifaPlayerCard .fifaPhoto,
+  .vdsAuthCarouselSlide .vdsAuthDbCard .fifaPhoto{
+    width:128%!important;
+    height:288px!important;
+    margin:-60px -14% -34px!important;
+  }
+  #home .heroCardNav{
+    top:47%!important;
+  }
+}
+@media (max-width:430px){
+  .vdsSignInTrust{
+    grid-template-columns:1fr 1fr 1fr!important;
+  }
+  #home .gameHeroVisual{
+    min-height:364px!important;
+    height:364px!important;
+  }
+  #home .heroCardStage .heroCarouselPlayerCard,
+  #home .heroCardStage .fifaPlayerCard{
+    width:min(78vw,248px)!important;
+  }
+}
+</style>
+
+<meta name="ace-build" content="B14.2 Tactics Fix + Clean Manager UI">
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -26275,6 +26431,9 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     requestAnimationFrame(()=>modal.querySelector('select,button:not(.aceManagerSheetClose)')?.focus());
   }
 
+  window.aceOpenManagerPanel=openManagerPanel;
+  window.aceCloseManagerModal=closeManagerModal;
+
   function ensureManagerQuickBar(){
     const card=document.getElementById('liveMatchCard');
     const command=card?.querySelector('.aceLiveCommandBar');
@@ -26971,7 +27130,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     const card=document.getElementById('liveMatchCard');
     const body=card?.querySelector('.aceManagementBody');
     if(!card||!body||!window.liveState)return;
-    let panel=body.querySelector('.aceTacticsPanel');
+    let panel=document.querySelector('#aceManagerModal .aceTacticsPanel') || body.querySelector('.aceTacticsPanel');
     if(!panel){panel=document.createElement('section');panel.className='aceTacticsPanel';body.prepend(panel);}
     const ai=!!window.aceUTLeagueState?.active;
 
@@ -27022,6 +27181,72 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 
   // Existing B13 match-start wrapper calls defaultManagerTactics / deriveAiManagerTactics
   // at runtime, so replacing those functions here upgrades new matches automatically.
+})();
+</script>
+
+
+<style id="ace-b14-2-manager-cleanup">
+/* B14.2 — Manager controls are owned by the quick bar.
+   Remove the redundant legacy management accordion below commentary. */
+#liveMatchCard .aceManagementDetails{
+  display:none!important;
+}
+
+/* Keep technical rally details available as a separate optional diagnostic panel. */
+#liveMatchCard .aceTechnicalDetails{
+  margin-top:8px!important;
+}
+
+/* Tactics should always look interactive. */
+#liveMatchCard .aceManagerQuickBtn[data-kind="tactics"]{
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+#liveMatchCard .aceManagerQuickBtn[data-kind="tactics"]:not(:disabled){
+  border-color:rgba(180,122,255,.20)!important;
+  background:rgba(74,38,112,.13)!important;
+}
+</style>
+
+<script id="ace-b14-2-tactics-button-fix">
+(function(){
+  'use strict';
+  if(window.ACE_B14_2_TACTICS_FIX)return;
+  window.ACE_B14_2_TACTICS_FIX=true;
+
+  function openTactics(){
+    if(!window.liveState)return;
+    try{
+      // Always build the current Manager 2.0 state immediately before opening.
+      window.renderManagerTacticsUI?.();
+      window.aceOpenManagerPanel?.('tactics');
+    }catch(err){
+      console.error('ACE tactics open failed',err);
+      const status=document.getElementById('rallyStatus');
+      if(status)status.textContent='Unable to open tactics — please try again.';
+    }
+  }
+
+  // Capture-phase delegation makes the button reliable even if the live command
+  // bar is rebuilt after starting a new set/match.
+  document.addEventListener('click',function(e){
+    const btn=e.target?.closest?.('#liveMatchCard .aceManagerQuickBtn[data-kind="tactics"]');
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openTactics();
+  },true);
+
+  // Keyboard activation remains explicit for accessibility.
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter' && e.key!==' ')return;
+    const btn=e.target?.closest?.('#liveMatchCard .aceManagerQuickBtn[data-kind="tactics"]');
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openTactics();
+  },true);
 })();
 </script>
 
