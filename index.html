@@ -37770,6 +37770,476 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- /ACE B21.23 — PURPLE 3D COURTS -->
 
+
+<!-- ACE B21.24 — MOBILE PACK ACTIONS FIX -->
+<style id="ace-b21-24-mobile-pack-actions-fix">
+/* =========================================================
+   B21.24
+   Mobile pack-reveal/footer fix:
+   - keeps Send to Club / Open Another above bottom navigation
+   - gives reveal screens safe-area padding
+   - makes action row sticky and scroll-safe
+   ========================================================= */
+
+@media(max-width:760px){
+  /* Reserve real space for the fixed mobile bottom nav + iPhone safe area. */
+  #ultimate .utRevealOverlay,
+  #ultimate .acePackRevealOverlay,
+  #ultimate .vdsUTPackReveal,
+  #ultimate .packRevealOverlay,
+  body .utRevealOverlay,
+  body .packRevealOverlay{
+    padding-bottom:calc(104px + env(safe-area-inset-bottom))!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Let long reveal content scroll instead of hiding the footer behind nav. */
+  #ultimate .utRevealOverlay,
+  #ultimate .acePackRevealOverlay,
+  #ultimate .vdsUTPackReveal,
+  #ultimate .packRevealOverlay{
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+
+  /* Final pack action area stays reachable and sits above the mobile nav. */
+  #ultimate .aceRevealFooter,
+  #ultimate .utRevealFooter,
+  #ultimate .packRevealFooter,
+  #ultimate .vdsUTRevealFooter,
+  .utRevealOverlay .aceRevealFooter,
+  .packRevealOverlay .aceRevealFooter{
+    position:sticky!important;
+    left:0!important;
+    right:0!important;
+    bottom:calc(76px + env(safe-area-inset-bottom))!important;
+    z-index:450!important;
+    margin-top:10px!important;
+    padding:10px!important;
+    border-radius:14px!important;
+    border:1px solid rgba(178,133,236,.12)!important;
+    background:rgba(7,9,15,.97)!important;
+    box-shadow:0 -12px 34px rgba(0,0,0,.42)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+
+  #ultimate .aceRevealActions,
+  #ultimate .utRevealActions,
+  #ultimate .packRevealActions,
+  .utRevealOverlay .aceRevealActions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:7px!important;
+    width:100%!important;
+    align-items:stretch!important;
+  }
+
+  #ultimate .aceRevealAddSquad,
+  #ultimate .aceRevealSendClub,
+  #ultimate .aceRevealOpenAnother,
+  #ultimate .utRevealOpenAnother,
+  #ultimate .packRevealOpenAnother,
+  #ultimate .packAgainBtn,
+  #ultimate .sendToClubBtn,
+  #ultimate .openAnotherPackBtn,
+  .utRevealOverlay .aceRevealAddSquad,
+  .utRevealOverlay .aceRevealSendClub{
+    width:100%!important;
+    min-width:0!important;
+    min-height:48px!important;
+    margin:0!important;
+    border-radius:11px!important;
+    touch-action:manipulation!important;
+  }
+
+  /* Any separate Open Another / Done row gets the same bottom clearance. */
+  #ultimate .utRevealControls,
+  #ultimate .packRevealControls,
+  #ultimate .revealBottomActions,
+  .utRevealOverlay .utRevealControls,
+  .packRevealOverlay .packRevealControls{
+    position:sticky!important;
+    bottom:calc(76px + env(safe-area-inset-bottom))!important;
+    z-index:451!important;
+    padding:9px!important;
+    margin-top:8px!important;
+    background:rgba(7,9,15,.97)!important;
+    border-top:1px solid rgba(178,133,236,.10)!important;
+  }
+
+  /* If reveal cards are tall, keep the last card/actions scrollable into view. */
+  #ultimate .utRevealStage,
+  #ultimate .packRevealStage,
+  #ultimate .aceRevealStage,
+  .utRevealOverlay .utRevealStage{
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding-bottom:18px!important;
+  }
+
+  /* Reduce action-footer footprint on narrow phones without shrinking tap targets. */
+  @media(max-width:420px){
+    #ultimate .aceRevealActions,
+    #ultimate .utRevealActions,
+    #ultimate .packRevealActions,
+    .utRevealOverlay .aceRevealActions{
+      grid-template-columns:1fr!important;
+    }
+
+    #ultimate .aceRevealFooter,
+    #ultimate .utRevealFooter,
+    #ultimate .packRevealFooter,
+    #ultimate .vdsUTRevealFooter,
+    .utRevealOverlay .aceRevealFooter{
+      bottom:calc(72px + env(safe-area-inset-bottom))!important;
+      padding:8px!important;
+    }
+  }
+}
+</style>
+
+<script id="ace-b21-24-build-tag">
+(function(){
+  try{
+    window.ACE_PROJECT_BUILD='B21.24';
+    window.ACE_MOBILE_PACK_ACTIONS_FIX=true;
+  }catch(e){}
+})();
+</script>
+<!-- /ACE B21.24 — MOBILE PACK ACTIONS FIX -->
+
+
+<!-- ACE B21.25 — CORRECT PURPLE VOLLEYBALL COURTS -->
+<style id="ace-b21-25-correct-purple-courts">
+/* =========================================================
+   B21.25
+   Hard replacement of both UT courts using explicit SVG court
+   geometry so older orange pseudo-elements / extra guide lines
+   cannot bleed through.
+   ========================================================= */
+
+/* ---------------- FULL SQUAD COURT ---------------- */
+#ultimate .vdsUTCourt.vdsUTCourtEnhanced{
+  position:relative!important;
+  height:560px!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  border:1px solid rgba(171,126,232,.12)!important;
+  background:
+    radial-gradient(circle at 50% 82%,rgba(93,48,151,.20),transparent 38%),
+    radial-gradient(circle at 50% 8%,rgba(110,73,169,.10),transparent 28%),
+    linear-gradient(180deg,#08131f 0%,#070b12 70%,#05080d 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 28px 66px rgba(0,0,0,.29)!important;
+}
+
+/* Kill EVERY legacy court drawing layer that caused the orange court / bad lines. */
+#ultimate .vdsUTCourtEnhanced::before,
+#ultimate .vdsUTCourtEnhanced::after{
+  content:none!important;
+  display:none!important;
+}
+#ultimate .vdsUTCourtEnhanced .vdsUTNet,
+#ultimate .vdsUTCourtEnhanced .vdsUTAttackLine,
+#ultimate .vdsUTCourtEnhanced .vdsUTNetPerspective,
+#ultimate .vdsUTCourtEnhanced .vdsUTStadiumBackdrop,
+#ultimate .vdsUTCourtEnhanced .vdsUTLightBeams,
+#ultimate .vdsUTCourtEnhanced .vdsUTOpponentGhosts{
+  display:none!important;
+}
+
+/* Real SVG court */
+#ultimate .ace25CourtSvg{
+  position:absolute;
+  inset:18px 28px 20px;
+  width:calc(100% - 56px);
+  height:calc(100% - 38px);
+  z-index:0;
+  pointer-events:none;
+  overflow:visible;
+  filter:drop-shadow(0 28px 34px rgba(0,0,0,.24));
+}
+#ultimate .ace25CourtSvg .ace25Floor{
+  stroke:rgba(244,234,255,.76);
+  stroke-width:3;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25CourtSvg .ace25AttackLine{
+  stroke:rgba(242,231,255,.52);
+  stroke-width:2;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25CourtSvg .ace25NetLine{
+  stroke:rgba(250,247,255,.95);
+  stroke-width:4;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25CourtSvg .ace25NetMesh{
+  stroke:rgba(249,245,255,.16);
+  stroke-width:1;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25CourtSvg .ace25Post{
+  stroke:rgba(250,247,255,.76);
+  stroke-width:3;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25CourtSvg .ace25NearGlow{
+  fill:rgba(151,93,229,.11);
+}
+#ultimate .ace25CourtSvg .ace25FarShade{
+  fill:rgba(7,8,16,.13);
+}
+
+/* Keep all interactive things above the new SVG. */
+#ultimate .vdsUTCourtAura{z-index:1!important}
+#ultimate .vdsUTOpponentHint{
+  display:block!important;
+  z-index:2!important;
+  top:31px!important;
+  color:rgba(194,174,221,.39)!important;
+}
+#ultimate .vdsUTCourtLabel{z-index:2!important}
+#ultimate .vdsUTChemLayer{z-index:3!important}
+#ultimate .vdsUTSquadSlots{z-index:4!important}
+
+/* Front row is now on OUR side of the net, not opponent territory. */
+#ultimate .vdsSquadSlot{
+  width:136px!important;
+}
+#ultimate .vdsSquadSlot:nth-child(1){left:31%!important;top:47%!important}
+#ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:44%!important}
+#ultimate .vdsSquadSlot:nth-child(3){left:69%!important;top:47%!important}
+#ultimate .vdsSquadSlot:nth-child(4){left:28%!important;top:73%!important}
+#ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:70%!important}
+#ultimate .vdsSquadSlot:nth-child(6){left:72%!important;top:73%!important}
+
+/* 3D depth: front row is slightly farther away than back row. */
+#ultimate .vdsSquadSlot:nth-child(-n+3){
+  transform:translate(-50%,-50%) scale(.94)!important;
+}
+#ultimate .vdsSquadSlot:nth-child(n+4){
+  transform:translate(-50%,-50%) scale(1.035)!important;
+}
+
+#ultimate .vdsSquadMiniCard{
+  border-color:rgba(210,178,249,.23)!important;
+  box-shadow:
+    0 23px 36px rgba(0,0,0,.35),
+    0 11px 20px rgba(83,42,132,.15)!important;
+}
+#ultimate .vdsSquadSpot{
+  background:
+    radial-gradient(circle,rgba(178,126,245,.27),rgba(112,66,173,.10) 45%,transparent 73%)!important;
+  box-shadow:0 13px 24px rgba(0,0,0,.22)!important;
+}
+
+/* ---------------- UT HOME SQUAD PREVIEW ---------------- */
+#ultimate .aceUTSquadPreview{
+  position:relative!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 50% 74%,rgba(94,49,153,.16),transparent 39%),
+    linear-gradient(180deg,#0b0f18 0%,#070911 100%)!important;
+}
+
+/* Completely hide the old preview trapezoid and its pseudo lines. */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt{
+  display:none!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt::before,
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewCourt::after{
+  content:none!important;
+  display:none!important;
+}
+
+#ultimate .ace25PreviewCourtSvg{
+  position:absolute;
+  inset:20px 26px 10px;
+  width:calc(100% - 52px);
+  height:calc(100% - 30px);
+  z-index:1;
+  pointer-events:none;
+  overflow:visible;
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.20));
+}
+#ultimate .ace25PreviewCourtSvg .ace25Floor{
+  stroke:rgba(244,234,255,.66);
+  stroke-width:2;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25PreviewCourtSvg .ace25AttackLine{
+  stroke:rgba(242,231,255,.43);
+  stroke-width:1.5;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25PreviewCourtSvg .ace25NetLine{
+  stroke:rgba(250,247,255,.90);
+  stroke-width:3;
+  vector-effect:non-scaling-stroke;
+}
+#ultimate .ace25PreviewCourtSvg .ace25NetMesh{
+  stroke:rgba(249,245,255,.13);
+  stroke-width:.8;
+  vector-effect:non-scaling-stroke;
+}
+
+/* Preview cards sit on our side of the net as well. */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayers{
+  z-index:3!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(1){left:33%!important;top:47%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(2){left:50%!important;top:43%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(3){left:67%!important;top:47%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(4){left:25%!important;top:72%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(5){left:50%!important;top:69%!important}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(6){left:75%!important;top:72%!important}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3){
+  transform:translate(-50%,-50%) scale(.94)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+  transform:translate(-50%,-50%) scale(1.035)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:hover{
+  transform:translate(-50%,-50%) scale(1.06)!important;
+}
+
+@media(max-width:760px){
+  #ultimate .vdsUTCourt.vdsUTCourtEnhanced{
+    height:475px!important;
+  }
+  #ultimate .ace25CourtSvg{
+    inset:14px 12px 18px;
+    width:calc(100% - 24px);
+    height:calc(100% - 32px);
+  }
+  #ultimate .vdsSquadSlot{
+    width:108px!important;
+  }
+  #ultimate .vdsSquadSlot:nth-child(-n+3),
+  #ultimate .vdsSquadSlot:nth-child(n+4),
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3),
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+    transform:translate(-50%,-50%) scale(1)!important;
+  }
+}
+</style>
+
+<script id="ace-b21-25-correct-purple-courts-runtime">
+(function(){
+  "use strict";
+
+  function fullCourtSvg(){
+    return `
+      <svg class="ace25CourtSvg" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ace25FullGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#76509a"/>
+            <stop offset="42%" stop-color="#5b3a7d"/>
+            <stop offset="72%" stop-color="#432b62"/>
+            <stop offset="100%" stop-color="#2b1d47"/>
+          </linearGradient>
+          <linearGradient id="ace25FullNear" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(174,111,255,0)"/>
+            <stop offset="100%" stop-color="rgba(174,111,255,.14)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Only true volleyball markings: boundary, 2 x 3m attack lines, centre/net. -->
+        <polygon class="ace25Floor" points="280,18 720,18 960,580 40,580"
+                 fill="url(#ace25FullGrad)"/>
+
+        <!-- subtle opponent-side depth -->
+        <polygon class="ace25FarShade" points="280,18 720,18 820,250 180,250"/>
+
+        <!-- opponent 3m line (foreshortened) -->
+        <line class="ace25AttackLine" x1="218" y1="165" x2="782" y2="165"/>
+
+        <!-- centre line / net -->
+        <line class="ace25NetLine" x1="181" y1="250" x2="819" y2="250"/>
+        <line class="ace25NetMesh" x1="181" y1="243" x2="819" y2="243"/>
+        <line class="ace25NetMesh" x1="181" y1="257" x2="819" y2="257"/>
+        <line class="ace25Post" x1="181" y1="233" x2="181" y2="268"/>
+        <line class="ace25Post" x1="819" y1="233" x2="819" y2="268"/>
+
+        <!-- our 3m attack line -->
+        <line class="ace25AttackLine" x1="135" y1="355" x2="865" y2="355"/>
+
+        <!-- near-side depth glow only, NOT another court line -->
+        <polygon class="ace25NearGlow" points="135,355 865,355 960,580 40,580"/>
+      </svg>`;
+  }
+
+  function previewCourtSvg(){
+    return `
+      <svg class="ace25PreviewCourtSvg" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ace25PreviewGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#744b99"/>
+            <stop offset="48%" stop-color="#563778"/>
+            <stop offset="100%" stop-color="#2d2048"/>
+          </linearGradient>
+        </defs>
+
+        <polygon class="ace25Floor" points="300,20 700,20 960,480 40,480"
+                 fill="url(#ace25PreviewGrad)"/>
+
+        <!-- exactly two attack lines + centre/net; no vertical middle line -->
+        <line class="ace25AttackLine" x1="235" y1="135" x2="765" y2="135"/>
+        <line class="ace25NetLine" x1="190" y1="215" x2="810" y2="215"/>
+        <line class="ace25NetMesh" x1="190" y1="208" x2="810" y2="208"/>
+        <line class="ace25NetMesh" x1="190" y1="222" x2="810" y2="222"/>
+        <line class="ace25AttackLine" x1="132" y1="320" x2="868" y2="320"/>
+      </svg>`;
+  }
+
+  function ensureFullCourt(){
+    const court=document.querySelector("#ultimate .vdsUTCourt.vdsUTCourtEnhanced");
+    if(!court || court.querySelector(":scope > .ace25CourtSvg"))return;
+    court.insertAdjacentHTML("afterbegin",fullCourtSvg());
+  }
+
+  function ensurePreviewCourt(){
+    const preview=document.querySelector("#ultimate .aceUTSquadPreview");
+    if(!preview || preview.querySelector(":scope > .ace25PreviewCourtSvg"))return;
+    preview.insertAdjacentHTML("afterbegin",previewCourtSvg());
+  }
+
+  function apply(){
+    ensureFullCourt();
+    ensurePreviewCourt();
+    try{
+      window.ACE_PROJECT_BUILD="B21.25";
+      window.ACE_CORRECT_PURPLE_VOLLEYBALL_COURTS=true;
+    }catch(e){}
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",apply,{once:true});
+  }else{
+    apply();
+  }
+
+  let queued=false;
+  const observer=new MutationObserver(function(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      apply();
+    });
+  });
+
+  if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- /ACE B21.25 — CORRECT PURPLE VOLLEYBALL COURTS -->
+
 </body>
 </html>
 
