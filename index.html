@@ -38240,6 +38240,270 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- /ACE B21.25 — CORRECT PURPLE VOLLEYBALL COURTS -->
 
+
+<!-- ACE B21.26 — HALF COURT HOME PREVIEW -->
+<style id="ace-b21-26-half-court-home-preview">
+/* =========================================================
+   B21.26
+   UT HOME: show OUR half only.
+   One net + one 3m line + baseline.
+   Larger players, cleaner composition, less empty space.
+   ========================================================= */
+
+#ultimate .aceUTSquadPreview{
+  min-height:350px!important;
+  border-radius:20px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(179,132,239,.12)!important;
+  background:
+    radial-gradient(circle at 50% 75%,rgba(112,60,181,.16),transparent 39%),
+    linear-gradient(180deg,#0b1019 0%,#070910 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 18px 42px rgba(0,0,0,.20)!important;
+}
+
+/* Disable previous full-preview SVG; B21.26 draws only our half. */
+#ultimate .aceUTSquadPreview > .ace25PreviewCourtSvg{
+  display:none!important;
+}
+
+#ultimate .ace26HalfCourtSvg{
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:9%;
+  bottom:5%;
+  width:90%;
+  height:86%;
+  z-index:1;
+  pointer-events:none;
+  overflow:visible;
+  filter:drop-shadow(0 18px 26px rgba(0,0,0,.24));
+}
+
+#ultimate .ace26HalfCourtSvg .ace26Floor{
+  stroke:rgba(242,232,255,.72);
+  stroke-width:2.2;
+  vector-effect:non-scaling-stroke;
+}
+
+#ultimate .ace26HalfCourtSvg .ace26Attack{
+  stroke:rgba(241,230,255,.42);
+  stroke-width:1.8;
+  vector-effect:non-scaling-stroke;
+}
+
+#ultimate .ace26HalfCourtSvg .ace26Net{
+  stroke:rgba(250,247,255,.94);
+  stroke-width:3.3;
+  vector-effect:non-scaling-stroke;
+}
+
+#ultimate .ace26HalfCourtSvg .ace26Mesh{
+  stroke:rgba(250,247,255,.14);
+  stroke-width:.8;
+  vector-effect:non-scaling-stroke;
+}
+
+#ultimate .ace26HalfCourtSvg .ace26Glow{
+  fill:rgba(158,96,237,.09);
+}
+
+/* cards become the main focus */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayers{
+  position:absolute!important;
+  inset:0!important;
+  z-index:3!important;
+}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{
+  width:76px!important;
+  height:108px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(208,176,249,.20)!important;
+  background:#111420!important;
+  box-shadow:
+    0 18px 30px rgba(0,0,0,.34),
+    0 8px 18px rgba(87,44,139,.13)!important;
+  overflow:hidden!important;
+  transform:translate(-50%,-50%)!important;
+}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center top!important;
+}
+
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer b{
+  left:6px!important;
+  top:6px!important;
+  padding:4px 6px!important;
+  border-radius:8px!important;
+  background:rgba(5,7,12,.84)!important;
+  font-size:10px!important;
+}
+
+/* True volleyball layout on OUR side:
+   front row close to net, back row behind the 3m line. */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(1){
+  left:34%!important;
+  top:37%!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(2){
+  left:50%!important;
+  top:33%!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(3){
+  left:66%!important;
+  top:37%!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(4){
+  left:27%!important;
+  top:72%!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(5){
+  left:50%!important;
+  top:68%!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(6){
+  left:73%!important;
+  top:72%!important;
+}
+
+/* 3D depth without looking gimmicky */
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3){
+  transform:translate(-50%,-50%) scale(.96)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+  transform:translate(-50%,-50%) scale(1.04)!important;
+}
+#ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:hover{
+  transform:translate(-50%,-50%) scale(1.07)!important;
+  border-color:rgba(219,190,255,.42)!important;
+  box-shadow:
+    0 22px 36px rgba(0,0,0,.38),
+    0 0 20px rgba(144,79,225,.12)!important;
+  z-index:12!important;
+}
+
+/* Give the preview less dead air and stronger hierarchy. */
+#ultimate .aceUTHomeVisual{
+  align-self:stretch!important;
+}
+#ultimate .aceUTHomeVisual .aceUTSquadPreview{
+  flex:1 1 auto!important;
+}
+
+/* Slightly reduce left headline dominance so the right preview has equal weight. */
+#ultimate .aceUTHomeCopy h1{
+  font-size:clamp(36px,3.2vw,54px)!important;
+  line-height:.95!important;
+}
+#ultimate .aceUTHomeCopy>p{
+  max-width:390px!important;
+}
+
+/* Recent pull card should not compete with primary CTA */
+#ultimate .aceUTLatestPull{
+  opacity:.92!important;
+}
+
+@media(max-width:760px){
+  #ultimate .aceUTSquadPreview{
+    min-height:315px!important;
+  }
+
+  #ultimate .ace26HalfCourtSvg{
+    left:2%;
+    right:2%;
+    width:96%;
+  }
+
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer{
+    width:62px!important;
+    height:88px!important;
+    border-radius:12px!important;
+  }
+
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(-n+3),
+  #ultimate .aceUTSquadPreview .vdsUTHubPreviewPlayer:nth-child(n+4){
+    transform:translate(-50%,-50%) scale(1)!important;
+  }
+}
+</style>
+
+<script id="ace-b21-26-half-court-home-preview-runtime">
+(function(){
+  "use strict";
+
+  function halfCourtSvg(){
+    return `
+      <svg class="ace26HalfCourtSvg" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ace26HalfGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#77509b"/>
+            <stop offset="48%" stop-color="#573879"/>
+            <stop offset="100%" stop-color="#2c1f47"/>
+          </linearGradient>
+        </defs>
+
+        <!-- OUR half only: net at the top, baseline at the bottom -->
+        <polygon class="ace26Floor"
+                 points="285,55 715,55 955,460 45,460"
+                 fill="url(#ace26HalfGrad)"/>
+
+        <!-- net -->
+        <line class="ace26Net" x1="285" y1="55" x2="715" y2="55"/>
+        <line class="ace26Mesh" x1="287" y1="65" x2="713" y2="65"/>
+        <line class="ace26Mesh" x1="291" y1="75" x2="709" y2="75"/>
+
+        <!-- single 3 metre attack line -->
+        <line class="ace26Attack" x1="207" y1="195" x2="793" y2="195"/>
+
+        <!-- subtle near-zone lighting, not a court marking -->
+        <polygon class="ace26Glow"
+                 points="207,195 793,195 955,460 45,460"/>
+      </svg>`;
+  }
+
+  function ensure(){
+    const preview=document.querySelector("#ultimate .aceUTSquadPreview");
+    if(!preview)return;
+
+    if(!preview.querySelector(":scope > .ace26HalfCourtSvg")){
+      preview.insertAdjacentHTML("afterbegin",halfCourtSvg());
+    }
+
+    try{
+      window.ACE_PROJECT_BUILD="B21.26";
+      window.ACE_HOME_HALF_COURT_PREVIEW=true;
+    }catch(e){}
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",ensure,{once:true});
+  }else{
+    ensure();
+  }
+
+  let queued=false;
+  const observer=new MutationObserver(function(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      ensure();
+    });
+  });
+
+  if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<!-- /ACE B21.26 — HALF COURT HOME PREVIEW -->
+
 </body>
 </html>
 
