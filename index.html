@@ -4964,6 +4964,286 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 </style>
 
 <meta name="ace-build" content="B13.0 Manager Tactics + Ace Balance">
+<meta name="ace-build" content="B13.1 Match Controls + Fatigue + Subs">
+
+<style id="ace-b13-1-match-control-ux">
+/* =========================================================
+   B13.1 — MATCH CONTROL UX
+   Visible manager rail + live condition feedback + quick subs
+   ========================================================= */
+
+#liveMatchCard.aceLiveUx .aceLiveCommandBar{
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:7px 10px!important;
+}
+.aceControlRailTitle{
+  flex:0 0 100%;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:16px;
+  color:#5f7890;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+.aceControlRailTitle::before{
+  content:"";
+  width:5px;height:5px;border-radius:50%;
+  background:#4aa8ff;
+  box-shadow:0 0 8px rgba(74,168,255,.55);
+}
+.aceManagerQuickBar{
+  flex:0 0 100%;
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto repeat(4,minmax(92px,1fr));
+  gap:5px;
+  align-items:center;
+  padding-top:7px;
+  border-top:1px solid rgba(255,255,255,.055);
+}
+.aceManagerQuickLabel{
+  padding:0 7px 0 2px;
+  color:#70879c;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.15em;
+  white-space:nowrap;
+}
+.aceManagerQuickBtn{
+  min-height:34px!important;
+  padding:6px 9px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:8px!important;
+  background:#091827!important;
+  color:#9eb4c7!important;
+  font-size:7px!important;
+  font-weight:1000!important;
+  letter-spacing:.06em!important;
+}
+.aceManagerQuickBtn:hover{
+  color:#fff!important;
+  border-color:rgba(74,168,255,.22)!important;
+  background:#0d2033!important;
+}
+.aceManagerQuickBtn[data-kind="tactics"]{color:#c5a6ec!important;}
+.aceManagerQuickBtn[data-kind="subs"]{color:#8ec9ff!important;}
+.aceManagerQuickBtn[data-kind="timeout"]{color:#e9c77f!important;}
+.aceManagerQuickBtn[data-kind="condition"]{color:#86d9b2!important;}
+
+/* Old B13 tactics button is replaced by the clear manager rail. */
+#liveMatchCard #aceTacticsBtn{display:none!important;}
+
+/* Existing collapsed Match Management remains as a fallback/reference,
+   but the day-to-day controls are now above the court. */
+.aceManagementDetails>summary span{opacity:.72;}
+
+/* Focused manager sheet. */
+.aceManagerModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:1305;
+  padding:22px;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,5,10,.74);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.aceManagerModal.show{display:flex;}
+.aceManagerSheet{
+  width:min(820px,94vw);
+  max-height:82vh;
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  background:#071421;
+  box-shadow:0 26px 80px rgba(0,0,0,.55);
+}
+.aceManagerSheetHead{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 14px 11px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(7,20,33,.98);
+}
+.aceManagerSheetKicker{
+  display:block;
+  color:#657f96;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.17em;
+}
+.aceManagerSheetTitle{
+  display:block;
+  margin-top:3px;
+  color:#eef7ff;
+  font-size:15px;
+  font-weight:950;
+}
+.aceManagerSheetClose{
+  width:38px;height:38px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  background:#0b1b2b;
+  color:#a8bdd0;
+  font-size:19px;
+  cursor:pointer;
+}
+.aceManagerSheetBody{padding:11px;}
+
+/* Tactics panel should feel native when moved into the manager sheet. */
+.aceManagerModal .aceTacticsPanel{
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+}
+
+/* Substitutions — clear OUT -> IN flow instead of one cramped row. */
+.aceManagerModal .substitutionPanel{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin:0!important;
+}
+.aceManagerModal .substitutionTeam{
+  min-width:0;
+  padding:12px!important;
+  border:1px solid rgba(255,255,255,.065)!important;
+  border-radius:12px!important;
+  background:rgba(4,15,25,.74)!important;
+}
+.aceManagerModal .substitutionControls{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr)!important;
+  gap:7px!important;
+  align-items:end!important;
+}
+.aceSubPick{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.aceSubPick label{
+  color:#667f95;
+  font-size:5.8px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+.aceManagerModal .substitutionControls select{
+  width:100%!important;
+  min-width:0!important;
+  min-height:42px!important;
+}
+.aceManagerModal .subArrow{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#54728d;
+}
+.aceManagerModal .subActionBtn{
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-height:42px!important;
+  margin-top:2px;
+}
+.aceManagerModal .subBenchInfo{
+  margin-top:8px!important;
+  line-height:1.6!important;
+}
+
+/* Timeout popup: large, obvious calls. */
+.aceManagerModal .timeoutPanel{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+  margin:0!important;
+}
+.aceManagerModal .timeoutPanel .rotationBadge{
+  grid-column:auto!important;
+  justify-content:center!important;
+  min-height:34px;
+}
+.aceManagerModal .timeoutPanel .timeoutBtn{
+  min-height:46px!important;
+}
+
+/* Condition now visibly changes even by tenths of a percent. */
+.aceConditionValue{
+  min-width:35px;
+  font-variant-numeric:tabular-nums;
+}
+.aceConditionTrack>i{
+  transition:width .18s linear!important;
+}
+
+@media(max-width:760px){
+  #liveMatchCard.aceLiveUx .aceLiveCommandBar{
+    display:block!important;
+    padding:7px!important;
+  }
+  .aceControlRailTitle{
+    margin:0 1px 5px;
+  }
+  .aceManagerQuickBar{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:5px;
+    margin-top:6px;
+    padding-top:6px;
+  }
+  .aceManagerQuickLabel{
+    grid-column:1/-1;
+    padding:0 1px 1px;
+  }
+  .aceManagerQuickBtn{
+    min-width:0!important;
+    min-height:42px!important;
+    padding:5px 3px!important;
+    font-size:6.4px!important;
+    letter-spacing:.025em!important;
+  }
+  .aceManagerModal{
+    align-items:flex-end;
+    padding:0;
+  }
+  .aceManagerSheet{
+    width:100%;
+    max-height:82%;
+    border-radius:18px 18px 0 0;
+    border-bottom:0;
+  }
+  .aceManagerSheetBody{padding:9px;}
+  .aceManagerModal .substitutionPanel{
+    grid-template-columns:1fr!important;
+  }
+  .aceManagerModal .substitutionControls{
+    grid-template-columns:1fr 26px 1fr!important;
+  }
+  .aceManagerModal .timeoutPanel{
+    grid-template-columns:1fr!important;
+  }
+  .aceManagerModal .timeoutPanel .rotationBadge{
+    grid-column:1!important;
+  }
+}
+
+@media(max-width:390px){
+  .aceManagerQuickBtn{
+    font-size:5.9px!important;
+  }
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -11625,6 +11905,7 @@ function substitutionLineup(teamNo){
 
 function canControlSubstitutionTeam(teamNo){
   if(!liveState || liveState.matchFinished || liveState.setFinished || liveState.animating)return false;
+  if(window.aceUTLeagueState?.active)return Number(teamNo)===1;
   if(!mpInMultiplayerRoom())return true;
   if(mpIsSpectator())return false;
   return mpOwnedTeam()===Number(teamNo);
@@ -12340,6 +12621,7 @@ async function playLiveRally(){
     applyServeFatigue(serveAttempt?.player,serveType);
     applyRallyFatigue(servingTeam,rallyEvt);
     applyRallyFatigue(receivingTeam,rallyEvt);
+    try{window.aceRefreshConditionUi?.();}catch(e){}
     advanceMindsetState(servingTeam);
     advanceMindsetState(receivingTeam);
 
@@ -24920,8 +25202,11 @@ Object.assign(window,{
   function currentStarterCondition(team){
     const starters=(Array.isArray(team)?team:[]).slice(0,6).filter(Boolean);
     if(!starters.length)return {avg:100,low:100,lowName:'—'};
-    const rows=starters.map(p=>({name:p.name||'Player',value:Math.round(typeof playerCondition==='function'?playerCondition(p):100)}));
-    const avg=Math.round(rows.reduce((a,r)=>a+r.value,0)/rows.length);
+    const rows=starters.map(p=>({
+      name:p.name||'Player',
+      value:Number(typeof playerCondition==='function'?playerCondition(p):100)
+    }));
+    const avg=rows.reduce((a,r)=>a+r.value,0)/rows.length;
     const lowest=rows.reduce((a,b)=>b.value<a.value?b:a,rows[0]);
     return {avg,low:lowest.value,lowName:lowest.name};
   }
@@ -25008,17 +25293,20 @@ Object.assign(window,{
     const n1=document.getElementById('aceConditionName1'),n2=document.getElementById('aceConditionName2');
     const v1=document.getElementById('aceConditionValue1'),v2=document.getElementById('aceConditionValue2');
     const f1=document.getElementById('aceConditionFill1'),f2=document.getElementById('aceConditionFill2');
+    const fmtCondition=(v)=>v>=99.95?'100%':`${v.toFixed(1)}%`;
     if(n1)n1.textContent=liveState.name1||'Team 1'; if(n2)n2.textContent=liveState.name2||'Team 2';
-    if(v1)v1.textContent=a.avg+'%'; if(v2)v2.textContent=b.avg+'%';
+    if(v1)v1.textContent=fmtCondition(a.avg); if(v2)v2.textContent=fmtCondition(b.avg);
     if(f1)f1.style.width=Math.max(4,a.avg)+'%'; if(f2)f2.style.width=Math.max(4,b.avg)+'%';
     const side1=n1?.closest('.aceConditionSide'),side2=n2?.closest('.aceConditionSide');
-    if(side1)side1.title=`Average ${a.avg}% · Lowest starter: ${a.lowName} ${a.low}%`;
-    if(side2)side2.title=`Average ${b.avg}% · Lowest starter: ${b.lowName} ${b.low}%`;
+    if(side1)side1.title=`Average ${fmtCondition(a.avg)} · Lowest starter: ${a.lowName} ${Math.round(a.low)}%`;
+    if(side2)side2.title=`Average ${fmtCondition(b.avg)} · Lowest starter: ${b.lowName} ${Math.round(b.low)}%`;
     const ribbon=document.getElementById('aceConditionRibbon');
     if(ribbon)ribbon.dataset.alert=String(Math.min(a.low,b.low)<55);
     const mobile=document.getElementById('aceConditionMobileBtn');
     if(mobile)mobile.textContent=`Condition ${Math.min(a.avg,b.avg)}%`;
   }
+
+  window.aceRefreshConditionUi=updateConditionUi;
 
   function commentaryPreview(line){
     const temp=document.createElement('div');
@@ -25475,6 +25763,244 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     wrapped.__aceB13Wrapped=true;
     window.beginLiveMatch=wrapped;
   }
+})();
+</script>
+
+
+<script id="ace-b13-1-match-control-script">
+(function(){
+  'use strict';
+  if(window.ACE_B13_1_MATCH_CONTROLS)return;
+  window.ACE_B13_1_MATCH_CONTROLS=true;
+
+  let movedNode=null;
+  let movedParent=null;
+  let movedNext=null;
+
+  function enhanceSubstitutionPanel(){
+    const panel=document.getElementById('substitutionPanel');
+    if(!panel)return;
+    [1,2].forEach(teamNo=>{
+      const controls=panel.querySelector(`#substitutionTeam${teamNo} .substitutionControls`);
+      const outSel=document.getElementById(`subOut${teamNo}`);
+      const inSel=document.getElementById(`subIn${teamNo}`);
+      const arrow=controls?.querySelector('.subArrow');
+      const btn=document.getElementById(`makeSub${teamNo}Btn`);
+      if(!controls||!outSel||!inSel||!btn||controls.dataset.aceEnhanced==='1')return;
+
+      const outWrap=document.createElement('div');
+      outWrap.className='aceSubPick';
+      const outLabel=document.createElement('label');
+      outLabel.textContent='PLAYER OUT';
+      outLabel.htmlFor=outSel.id;
+      outSel.before(outWrap);
+      outWrap.append(outLabel,outSel);
+
+      const inWrap=document.createElement('div');
+      inWrap.className='aceSubPick';
+      const inLabel=document.createElement('label');
+      inLabel.textContent='PLAYER IN';
+      inLabel.htmlFor=inSel.id;
+      if(arrow)arrow.after(inWrap); else controls.appendChild(inWrap);
+      inWrap.append(inLabel,inSel);
+
+      controls.appendChild(btn);
+      controls.dataset.aceEnhanced='1';
+    });
+  }
+
+  function ensureManagerModal(){
+    let modal=document.getElementById('aceManagerModal');
+    if(modal)return modal;
+    modal=document.createElement('div');
+    modal.id='aceManagerModal';
+    modal.className='aceManagerModal';
+    modal.setAttribute('aria-hidden','true');
+    modal.innerHTML=`
+      <section class="aceManagerSheet" role="dialog" aria-modal="true" aria-labelledby="aceManagerSheetTitle">
+        <div class="aceManagerSheetHead">
+          <div><span class="aceManagerSheetKicker">MATCH CONTROL</span><b class="aceManagerSheetTitle" id="aceManagerSheetTitle">Manager Controls</b></div>
+          <button class="aceManagerSheetClose" type="button" aria-label="Close manager controls">×</button>
+        </div>
+        <div class="aceManagerSheetBody"></div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.aceManagerSheetClose')?.addEventListener('click',closeManagerModal);
+    modal.addEventListener('click',e=>{if(e.target===modal)closeManagerModal();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeManagerModal();});
+    return modal;
+  }
+
+  function restoreMovedNode(){
+    if(!movedNode||!movedParent)return;
+    try{
+      if(movedNext && movedNext.parentNode===movedParent)movedParent.insertBefore(movedNode,movedNext);
+      else movedParent.appendChild(movedNode);
+    }catch(e){}
+    movedNode=movedParent=movedNext=null;
+  }
+
+  function closeManagerModal(){
+    const modal=document.getElementById('aceManagerModal');
+    if(!modal)return;
+    restoreMovedNode();
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+
+  function panelFor(kind){
+    const card=document.getElementById('liveMatchCard');
+    if(!card)return null;
+    if(kind==='tactics'){
+      try{window.renderManagerTacticsUI?.();}catch(e){}
+      return card.querySelector('.aceTacticsPanel');
+    }
+    if(kind==='subs'){
+      try{window.renderSubstitutionPanel?.();}catch(e){}
+      enhanceSubstitutionPanel();
+      return document.getElementById('substitutionPanel');
+    }
+    if(kind==='timeout')return card.querySelector('.timeoutPanel');
+    return null;
+  }
+
+  function openManagerPanel(kind){
+    if(kind==='condition'){
+      document.getElementById('aceConditionRibbon')?.click();
+      return;
+    }
+    closeManagerModal();
+    const modal=ensureManagerModal();
+    const body=modal.querySelector('.aceManagerSheetBody');
+    const title=modal.querySelector('.aceManagerSheetTitle');
+    const panel=panelFor(kind);
+    if(!panel)return;
+
+    const names={tactics:'Manager Tactics',subs:'Make a Substitution',timeout:'Call Timeout'};
+    if(title)title.textContent=names[kind]||'Manager Controls';
+
+    movedNode=panel;
+    movedParent=panel.parentNode;
+    movedNext=panel.nextSibling;
+    body.replaceChildren();
+    body.appendChild(panel);
+
+    // AI League: manager controls only apply to the human team.
+    if(kind==='subs' && window.aceUTLeagueState?.active){
+      const aiTeam=document.getElementById('substitutionTeam2');
+      if(aiTeam)aiTeam.style.display='none';
+    }else if(kind==='subs'){
+      const aiTeam=document.getElementById('substitutionTeam2');
+      if(aiTeam)aiTeam.style.display='';
+    }
+
+    if(kind==='timeout' && window.aceUTLeagueState?.active){
+      const t2=document.getElementById('timeout2Btn');
+      const rb2=document.getElementById('rotationBadge2');
+      if(t2)t2.style.display='none';
+      if(rb2)rb2.style.display='none';
+    }else if(kind==='timeout'){
+      const t2=document.getElementById('timeout2Btn');
+      const rb2=document.getElementById('rotationBadge2');
+      if(t2)t2.style.display='';
+      if(rb2)rb2.style.display='';
+    }
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    requestAnimationFrame(()=>modal.querySelector('select,button:not(.aceManagerSheetClose)')?.focus());
+  }
+
+  function ensureManagerQuickBar(){
+    const card=document.getElementById('liveMatchCard');
+    const command=card?.querySelector('.aceLiveCommandBar');
+    if(!card||!command)return;
+
+    if(!command.querySelector('.aceControlRailTitle')){
+      const label=document.createElement('div');
+      label.className='aceControlRailTitle';
+      label.textContent='MATCH CONTROLS';
+      command.prepend(label);
+    }
+
+    let bar=command.querySelector('.aceManagerQuickBar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.className='aceManagerQuickBar';
+      bar.innerHTML=`
+        <span class="aceManagerQuickLabel">MANAGER</span>
+        <button type="button" class="btn aceManagerQuickBtn" data-kind="tactics">🧠 TACTICS</button>
+        <button type="button" class="btn aceManagerQuickBtn" data-kind="subs">⇄ SUBS</button>
+        <button type="button" class="btn aceManagerQuickBtn" data-kind="timeout">⏱ TIMEOUT</button>
+        <button type="button" class="btn aceManagerQuickBtn" data-kind="condition">◔ CONDITION</button>`;
+      command.appendChild(bar);
+      bar.querySelectorAll('[data-kind]').forEach(btn=>{
+        btn.addEventListener('click',()=>openManagerPanel(btn.dataset.kind));
+      });
+    }
+    enhanceSubstitutionPanel();
+  }
+
+  function updateQuickBarState(){
+    ensureManagerQuickBar();
+    const bar=document.querySelector('#liveMatchCard .aceManagerQuickBar');
+    if(!bar||!window.liveState)return;
+
+    const subs=bar.querySelector('[data-kind="subs"]');
+    const timeout=bar.querySelector('[data-kind="timeout"]');
+    const condition=bar.querySelector('[data-kind="condition"]');
+
+    if(subs){
+      const bench=(liveState.bench1||[]).length;
+      subs.textContent=`⇄ SUBS${bench?` (${bench})`:''}`;
+      subs.disabled=!!liveState.animating||!!liveState.setFinished||!bench;
+    }
+    if(timeout){
+      const n=Number(liveState.timeouts1??0);
+      timeout.textContent=`⏱ TIMEOUT (${n})`;
+      timeout.disabled=!!liveState.animating||!!liveState.setFinished||n<=0;
+    }
+    if(condition){
+      const team=(liveState.a||[]).slice(0,6);
+      const vals=team.map(p=>Number(typeof playerCondition==='function'?playerCondition(p):100));
+      const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:100;
+      condition.textContent=`◔ CONDITION ${avg>=99.95?'100':avg.toFixed(1)}%`;
+    }
+  }
+
+  function install(){
+    ensureManagerModal();
+    ensureManagerQuickBar();
+    updateQuickBarState();
+
+    // Piggyback the canonical live refresh so button counts/status stay current.
+    try{
+      if(typeof updateLiveUI==='function' && !updateLiveUI.__aceB131ControlsWrapped){
+        const base=updateLiveUI;
+        const wrapped=function(){
+          const r=base.apply(this,arguments);
+          try{updateQuickBarState();}catch(e){}
+          return r;
+        };
+        wrapped.__aceB131ControlsWrapped=true;
+        updateLiveUI=wrapped;
+      }
+    }catch(e){}
+
+    const card=document.getElementById('liveMatchCard');
+    if(card){
+      const observer=new MutationObserver(()=>requestAnimationFrame(()=>{
+        ensureManagerQuickBar();
+        enhanceSubstitutionPanel();
+      }));
+      observer.observe(card,{childList:true,subtree:true});
+    }
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,25),{once:true});
+  else setTimeout(install,25);
 })();
 </script>
 
