@@ -6639,7 +6639,108 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 
 <meta name="ace-build-prev" content="B20.5 Deep Audit Hardened">
 <meta name="ace-build-prev" content="B20.6 Guest Commentary + Navigation Guard Fix">
-<meta name="ace-build" content="B20.7 Disconnect Timeout Recovery">
+<meta name="ace-build-prev" content="B20.7 Disconnect Timeout Recovery">
+<meta name="ace-build" content="B20.8 UI + Runtime Optimised">
+
+<style id="ace-b20-8-ui-runtime-optimisations">
+/* =========================================================
+   B20.8 — UX + runtime audit improvements
+   Larger interaction targets, denser mobile management,
+   without changing the established visual identity.
+   ========================================================= */
+
+/* Home secondary quick links were visually fine but had ~11px hit areas. */
+.gameQuickLinks button{
+  min-height:34px!important;
+  padding:9px 2px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* Live primary controls need to feel like controls, not small labels. */
+#liveMatchCard .aceLiveCommandBar button{
+  min-height:40px;
+}
+#liveMatchCard .aceManagerQuickBtn{
+  min-height:40px!important;
+}
+#liveMatchCard .liveViewBtn{
+  min-height:34px!important;
+  padding:7px 12px!important;
+}
+#liveMatchCard .aceConditionRibbon{
+  min-height:38px!important;
+}
+
+/* Give results/post-match decisions a stronger single-decision hierarchy. */
+#resultsCard .postMatchChoiceBtn{
+  min-height:56px;
+}
+#resultsCard .postMatchChoiceName{
+  line-height:1.2;
+}
+
+/* Phone: manager controls become a 2x2 control deck instead of four tall rows. */
+@media(max-width:760px){
+  .gameQuickLinks{
+    gap:6px!important;
+  }
+  .gameQuickLinks button{
+    min-height:44px!important;
+    padding:10px 6px!important;
+  }
+
+  #liveMatchCard .aceLiveCommandBar button{
+    min-height:46px!important;
+    padding-top:9px!important;
+    padding-bottom:9px!important;
+  }
+
+  #liveMatchCard .aceManagerQuickBar{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #liveMatchCard .aceManagerQuickBtn{
+    min-width:0!important;
+    width:100%!important;
+    min-height:46px!important;
+    padding:8px 7px!important;
+    margin:0!important;
+  }
+
+  #liveMatchCard .liveViewSwitch{
+    gap:7px!important;
+  }
+  #liveMatchCard .liveViewBtn{
+    min-height:44px!important;
+    min-width:94px!important;
+    padding:9px 14px!important;
+  }
+
+  #liveMatchCard .aceConditionRibbon{
+    min-height:44px!important;
+  }
+
+  #liveMatchCard .aceTechnicalDetails>summary,
+  #liveMatchCard .acePlaybackDetails>summary{
+    min-height:44px!important;
+  }
+
+  #resultsCard .postMatchChoiceBtn{
+    min-height:64px!important;
+  }
+}
+
+/* Very small phones: preserve two-column manager deck but shorten labels cleanly. */
+@media(max-width:390px){
+  #liveMatchCard .aceManagerQuickBtn{
+    font-size:6.5px!important;
+  }
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -13359,8 +13460,24 @@ function canControlSubstitutionTeam(teamNo){
   return mpOwnedTeam()===Number(teamNo);
 }
 
+let aceSubstitutionRenderKey="";
+
 function renderSubstitutionPanel(){
   if(!liveState)return;
+
+  const subKey=[
+    liveState.name1,liveState.name2,
+    Number(liveState.subsUsed1||0),Number(liveState.subsUsed2||0),
+    liveState.animating?1:0,liveState.setFinished?1:0,liveState.matchFinished?1:0,
+    JSON.stringify(liveState.pendingSub1||null),JSON.stringify(liveState.pendingSub2||null),
+    ...[1,2].flatMap(teamNo=>[
+      ...substitutionLineup(teamNo).map(p=>`${teamNo}o:${p.name}:${p.assignedRole||""}:${Math.round(playerCondition(p))}`),
+      ...substitutionBench(teamNo).map(p=>`${teamNo}i:${p.name}:${Math.round(playerCondition(p))}`)
+    ])
+  ].join("|");
+
+  if(subKey===aceSubstitutionRenderKey)return;
+  aceSubstitutionRenderKey=subKey;
 
   [1,2].forEach(teamNo=>{
     const lineup=substitutionLineup(teamNo);
@@ -13573,10 +13690,16 @@ function updateLiveUI(){
   document.getElementById("nextSetBtn").classList.toggle("hidden",!s.setFinished || s.matchFinished);
 }
 
+let aceCommentaryRenderKey="";
+
 function renderLiveCommentary(){
   const box=document.getElementById("commentaryBox");
   if(!box||!liveState)return;
   const feed=Array.isArray(liveState.commentary)?liveState.commentary:[];
+  const key=feed.join("\u241e");
+  if(box.dataset.aceCommentaryKey===key)return;
+  box.dataset.aceCommentaryKey=key;
+  aceCommentaryRenderKey=key;
   box.innerHTML=feed.length
     ? feed.map(x=>`<div class="commentaryLine">${x}</div>`).join("")
     : '<div class="aceNarrationEmpty">Start the next rally and live commentary will appear here.</div>';
@@ -13943,8 +14066,15 @@ function fatigueSummaryHtml(team){
   }).join("");
 }
 
+let aceFatigueRenderKey="";
+
 function renderFatiguePanel(){
   if(!liveState)return;
+  const visibleKey=[...(liveState.a||[]),...(liveState.b||[])]
+    .map(p=>`${p.name}:${Math.round(playerCondition(p))}`)
+    .join("|");
+  if(visibleKey===aceFatigueRenderKey)return;
+  aceFatigueRenderKey=visibleKey;
   const p1=document.getElementById("fatigueTeam1");
   const p2=document.getElementById("fatigueTeam2");
   if(p1)p1.innerHTML=fatigueSummaryHtml(liveState.a);
@@ -13998,6 +14128,12 @@ function beginLiveMatch(){
   const formatEl=document.getElementById("format");
   const best=Number(formatEl?.value||gameSetup?.format||3);
   const need=Math.ceil(best/2);
+
+  aceCommentaryRenderKey="";
+  aceFatigueRenderKey="";
+  aceSubstitutionRenderKey="";
+  const commentaryBox=document.getElementById("commentaryBox");
+  if(commentaryBox)delete commentaryBox.dataset.aceCommentaryKey;
 
   liveState={
     a,b,best,need,
@@ -30295,7 +30431,10 @@ window.aceRuntimeHealth=function(){
     commentaryDOM:document.querySelectorAll("#commentaryBox .commentaryLine").length,
     reconnectAttempts:typeof mpReconnectAttempts!=="undefined"?mpReconnectAttempts:0,
     opponentMissingMs:typeof mpOpponentMissingSince!=="undefined"&&mpOpponentMissingSince?Date.now()-mpOpponentMissingSince:0,
-    deadRoomRelease:typeof mpDeadRoomReleaseInFlight!=="undefined"?mpDeadRoomReleaseInFlight:false
+    deadRoomRelease:typeof mpDeadRoomReleaseInFlight!=="undefined"?mpDeadRoomReleaseInFlight:false,
+    commentaryCached:!!document.getElementById("commentaryBox")?.dataset?.aceCommentaryKey,
+    fatigueCache:typeof aceFatigueRenderKey!=="undefined"?aceFatigueRenderKey.length:0,
+    substitutionCache:typeof aceSubstitutionRenderKey!=="undefined"?aceSubstitutionRenderKey.length:0
   };
 };
 </script>
