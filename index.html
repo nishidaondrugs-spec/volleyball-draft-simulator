@@ -5244,6 +5244,274 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 
+<meta name="ace-build" content="B13.2 Queued Subs + Tactics Clarity">
+
+<style id="ace-b13-2-queued-subs-tactics-style">
+/* B13.2 — queued substitutions + readable manager tactics */
+
+.acePendingSub{
+  display:inline-block;
+  margin-top:5px;
+  padding:4px 6px;
+  border:1px solid rgba(90,174,238,.18);
+  border-radius:6px;
+  background:rgba(34,113,173,.08);
+  color:#8bc9f6;
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+
+.aceTacticsNow{
+  margin:0 0 10px;
+  padding:10px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:12px;
+  background:rgba(4,14,24,.64);
+}
+.aceTacticsNowHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.aceTacticsNowHead b{
+  color:#eaf5ff;
+  font-size:8px;
+  letter-spacing:.09em;
+}
+.aceTacticsNowHead span{
+  color:#718aa0;
+  font-size:5.8px;
+  font-weight:900;
+  letter-spacing:.11em;
+}
+.aceTacticsPlanLine{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+.aceTacticsPlanChip{
+  padding:5px 7px;
+  border:1px solid rgba(90,174,238,.13);
+  border-radius:999px;
+  background:rgba(22,83,126,.10);
+  color:#a9cce7;
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.045em;
+}
+.aceTacticsExplainer{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:9px;
+}
+.aceTacticsExplainRow{
+  min-width:0;
+  padding:7px 8px;
+  border-radius:8px;
+  background:rgba(255,255,255,.025);
+}
+.aceTacticsExplainRow b{
+  display:block;
+  margin-bottom:3px;
+  color:#7895ad;
+  font-size:5.7px;
+  letter-spacing:.1em;
+}
+.aceTacticsExplainRow span{
+  color:#aabccc;
+  font-size:6.5px;
+  line-height:1.45;
+}
+.aceTacticsNextNote{
+  margin-top:7px;
+  color:#677f94;
+  font-size:6px;
+  line-height:1.45;
+}
+.aceTacticsNextNote strong{color:#90bfe2;}
+
+.aceManagerQuickBtn[data-kind="subs"]:not(:disabled){
+  border-color:rgba(72,159,225,.15)!important;
+}
+
+@media(max-width:760px){
+  .aceTacticsExplainer{grid-template-columns:1fr;}
+  .aceTacticsNow{padding:8px;}
+}
+</style>
+
+<meta name="ace-build" content="B14.0 Manager 2.0 Volleyball Tactics">
+
+<style id="ace-b14-manager2-style">
+/* =========================================================
+   B14.0 — MANAGER 2.0
+   Technical volleyball game-plan UI
+   ========================================================= */
+
+.aceM2Panel{
+  display:grid;
+  gap:10px;
+}
+.aceM2Scout{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:8px 9px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:10px;
+  background:rgba(2,10,18,.44);
+}
+.aceM2Scout span{
+  padding:4px 7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  color:#8fa9bd;
+  font-size:6px;
+  font-weight:900;
+}
+.aceM2Scout b{color:#d8eaff;}
+
+.aceM2GamePlan{
+  padding:9px;
+  border:1px solid rgba(108,169,220,.10);
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(10,31,48,.46),rgba(4,14,24,.42));
+}
+.aceM2GamePlanHead{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  margin-bottom:7px;
+}
+.aceM2GamePlanHead b{
+  color:#eef7ff;
+  font-size:8px;
+  letter-spacing:.09em;
+}
+.aceM2GamePlanHead span{
+  color:#647e94;
+  font-size:5.6px;
+  font-weight:900;
+  letter-spacing:.10em;
+}
+.aceM2Summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+.aceM2Summary span{
+  padding:5px 7px;
+  border:1px solid rgba(74,168,255,.12);
+  border-radius:7px;
+  background:rgba(25,91,139,.08);
+  color:#a9cce7;
+  font-size:6px;
+  font-weight:900;
+}
+
+.aceM2Sections{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.aceM2Section{
+  min-width:0;
+  padding:9px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:11px;
+  background:rgba(3,12,21,.52);
+}
+.aceM2SectionTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:7px;
+}
+.aceM2SectionTitle b{
+  color:#dbeaff;
+  font-size:7px;
+  letter-spacing:.11em;
+}
+.aceM2SectionTitle span{
+  color:#526b82;
+  font-size:5.4px;
+  font-weight:900;
+}
+.aceM2Fields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.aceM2Field{min-width:0;}
+.aceM2Field label{
+  display:block;
+  margin:0 0 4px;
+  color:#6d879d;
+  font-size:5.6px;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+.aceM2Field select{
+  width:100%;
+  min-width:0;
+  min-height:34px;
+  padding:6px 7px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:7px;
+  background:#071522;
+  color:#dceaf5;
+  font-size:7px;
+  font-weight:850;
+}
+.aceM2Explain{
+  margin-top:7px;
+  color:#7f96a9;
+  font-size:6px;
+  line-height:1.48;
+}
+.aceM2Explain strong{color:#aac8de;}
+.aceM2Mentality{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+}
+.aceM2Mentality button{
+  min-height:35px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:8px;
+  background:#071522;
+  color:#7890a4;
+  font-size:6.4px;
+  font-weight:950;
+  cursor:pointer;
+}
+.aceM2Mentality button.active{
+  border-color:rgba(74,168,255,.28);
+  background:#10304a;
+  color:#edf8ff;
+}
+.aceM2Footer{
+  color:#657e92;
+  font-size:6px;
+  line-height:1.5;
+}
+.aceM2Footer strong{color:#9cc4df;}
+
+@media(max-width:760px){
+  .aceM2Sections{grid-template-columns:1fr;}
+  .aceM2Fields{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:390px){
+  .aceM2Fields{grid-template-columns:1fr;}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -10734,7 +11002,7 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
 
   const outOfSystem=!!passQuality?.outOfSystem;
   const grade=Number(passQuality?.grade??2);
-  const managerPlan=managerTacticsForTeam(team).attack;
+  const managerPlan=managerTacticsForTeam(team).distribution;
   const managerStar=managerStarAttacker(team);
 
   const isOH=p=>["OH","OH1","OH2"].includes(p.assignedRole);
@@ -10780,13 +11048,16 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
 
     let score=attackBase-likelyBlock*.20;
 
-    // B13.0 Manager attack plan. Strong tactical choices change distribution,
-    // not the player's underlying card stats. Feeding one star becomes more
-    // predictable; spreading the offence makes the block read more difficult.
-    if(managerPlan==="feed_star" && managerStar?.name===p.name)score+=12;
-    if(managerPlan==="spread")score+=Math.max(0,82-attackBase)*.035;
-    if(managerPlan==="quick_middle" && p.assignedRole==="M" && grade>=2 && !outOfSystem)score+=13;
-    if(managerPlan==="quick_middle" && p.assignedRole!=="M" && grade>=2 && !outOfSystem)score-=2;
+    // B14.0 Manager 2.0 — volleyball distribution.
+    // These are setter instructions, not hidden player-stat boosts.
+    if(managerPlan==="hot_hitter" && managerStar?.name===p.name)score+=11;
+    if(managerPlan==="spread")score+=Math.max(0,84-attackBase)*.045;
+    if(managerPlan==="left_pin" && ["OH","OH1","OH2"].includes(p.assignedRole))score+=9;
+    if(managerPlan==="left_pin" && p.assignedRole==="OP")score-=2;
+    if(managerPlan==="opposite" && p.assignedRole==="OP")score+=11;
+    if(managerPlan==="opposite" && ["OH","OH1","OH2"].includes(p.assignedRole))score-=2;
+    if(managerPlan==="middle" && p.assignedRole==="M" && grade>=2 && !outOfSystem)score+=13;
+    if(managerPlan==="middle" && p.assignedRole!=="M" && grade>=2 && !outOfSystem)score-=2;
 
     // Row-aware distribution.
     if(z?.back){
@@ -10845,9 +11116,11 @@ function setterChooseAttacker(team,defendingTeam,rotation,defRotation,passQualit
   // normal in-system -> best option max ~50%
   // poor/OOS -> best pin can rise to ~60%
   const cap=(outOfSystem||grade<=1)?0.60:
-    managerPlan==="feed_star"?0.56:
-    managerPlan==="spread"?0.38:
-    managerPlan==="quick_middle"?0.50:0.46;
+    managerPlan==="hot_hitter"?0.55:
+    managerPlan==="spread"?0.37:
+    managerPlan==="left_pin"?0.52:
+    managerPlan==="opposite"?0.53:
+    managerPlan==="middle"?0.50:0.46;
 
   let total=weighted.reduce((s,x)=>s+x.weight,0);
   if(weighted.length>1 && total>0){
@@ -10985,10 +11258,11 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   const isMiddle=attacker?.assignedRole==="M";
   const isBackRow=!!context.backRow;
   const outOfSystem=!!context.outOfSystem;
-  const blockPlan=managerTacticsForTeam(defendingTeam).block;
+  const blockPlan=managerTacticsForTeam(defendingTeam).blockFocus;
   const attackRoster=managerOpponentTeam(defendingTeam);
   const attackStar=managerStarAttacker(attackRoster);
-  const attackPlan=managerTacticsForTeam(attackRoster).attack;
+  const attackPlan=managerTacticsForTeam(attackRoster).distribution;
+  const attackTempo=managerTacticsForTeam(attackRoster).tempo;
   let tacticalBlockQuality=0;
 
   // Faster tempo on good passes; OOS is the slowest and most predictable.
@@ -11012,26 +11286,37 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   // Back-row attacks give blockers a little more time to organize.
   if(isBackRow) closePenalty-=4;
 
-  // Manager blocking scheme. Overcommitting to one threat has a real cost: it
-  // improves the read against that target but leaves the rest of the offence cleaner.
-  if(blockPlan==="stop_star"){
-    if(attackStar?.name===attacker?.name){closePenalty-=14;tacticalBlockQuality+=13;}
-    else{closePenalty+=2;tacticalBlockQuality-=1;}
-  }else if(blockPlan==="read_setter"){
-    if(setterIQ<88){closePenalty-=4;tacticalBlockQuality+=2;}
-    else closePenalty+=1;
-  }else if(blockPlan==="commit_middle"){
-    if(isMiddle){closePenalty-=10;tacticalBlockQuality+=6;}
+  // B14.0 technical blocking scheme.
+  // "Load" means helpers shade toward that lane; the cost is weaker closure elsewhere.
+  const isLeftPin=["OH","OH1","OH2"].includes(attacker?.assignedRole);
+  const isRightPin=attacker?.assignedRole==="OP";
+
+  if(blockPlan==="left_pin"){
+    if(isLeftPin){closePenalty-=10;tacticalBlockQuality+=8;}
     else{closePenalty+=4;tacticalBlockQuality-=3;}
+  }else if(blockPlan==="right_pin"){
+    if(isRightPin){closePenalty-=10;tacticalBlockQuality+=8;}
+    else{closePenalty+=4;tacticalBlockQuality-=3;}
+  }else if(blockPlan==="middle"){
+    if(isMiddle){closePenalty-=11;tacticalBlockQuality+=8;}
+    else{closePenalty+=5;tacticalBlockQuality-=4;}
+  }else if(blockPlan==="read"){
+    if(setterIQ<88){closePenalty-=4;tacticalBlockQuality+=2;}
+    else if(setterIQ>=94)closePenalty+=2;
   }
 
-  // A manager who repeatedly feeds the star makes that pattern easier to load up on.
-  if(attackPlan==="feed_star" && attackStar?.name===attacker?.name){
-    closePenalty-=1;
-    tacticalBlockQuality+=1;
+  // Offensive distribution can make the block more or less predictable.
+  if(attackPlan==="hot_hitter" && attackStar?.name===attacker?.name){
+    closePenalty-=2;
+    tacticalBlockQuality+=2;
   }
-  // A genuinely spread offence delays helper blockers, especially with a good setter.
   if(attackPlan==="spread" && setterIQ>=70)closePenalty+=4;
+
+  // Tempo is a genuine tactical trade-off:
+  // fast offence is harder to close but demands better execution;
+  // high/safe balls give the defence more time to organise.
+  if(attackTempo==="fast" && passGrade>=2 && !outOfSystem)closePenalty+=6;
+  if(attackTempo==="high_safe")closePenalty-=5;
 
   const helpers=blockers.slice(1).filter(p=>{
     const close=matchStat(p,"speed")*.40+p.workRate*.25+matchStat(p,"reactionTime")*.15+p.positioning*.20;
@@ -11903,8 +12188,23 @@ function substitutionLineup(teamNo){
   return teamNo===1?liveState.a:liveState.b;
 }
 
+function substitutionUsage(teamNo){
+  if(!liveState)return {used:0,left:2,pending:null};
+  const n=Number(teamNo)===2?2:1;
+  const usedKey=`subsUsed${n}`;
+  const pendingKey=`pendingSub${n}`;
+  if(!Number.isFinite(Number(liveState[usedKey])))liveState[usedKey]=0;
+  liveState[usedKey]=Math.max(0,Math.min(2,Number(liveState[usedKey]||0)));
+  return {
+    used:liveState[usedKey],
+    left:Math.max(0,2-liveState[usedKey]),
+    pending:liveState[pendingKey]||null
+  };
+}
+
 function canControlSubstitutionTeam(teamNo){
-  if(!liveState || liveState.matchFinished || liveState.setFinished || liveState.animating)return false;
+  if(!liveState || liveState.matchFinished)return false;
+  if(substitutionUsage(teamNo).left<=0)return false;
   if(window.aceUTLeagueState?.active)return Number(teamNo)===1;
   if(!mpInMultiplayerRoom())return true;
   if(mpIsSpectator())return false;
@@ -11944,52 +12244,97 @@ function renderSubstitutionPanel(){
     if([...outSel.options].some(o=>o.value===previousOut))outSel.value=previousOut;
     if([...inSel.options].some(o=>o.value===previousIn))inSel.value=previousIn;
 
+    const subState=substitutionUsage(teamNo);
     const allowed=canControlSubstitutionTeam(teamNo) && bench.length>0;
     outSel.disabled=!allowed;
     inSel.disabled=!allowed;
     btn.disabled=!allowed;
+    btn.textContent=subState.pending
+      ? "Update Queued Sub"
+      : (liveState.animating||liveState.setFinished?"Queue for Next Point":"Make Sub");
     btn.title=!allowed
-      ? (liveState.animating?"Wait until the rally finishes":
-         liveState.setFinished?"Start the next set before substituting":
+      ? (subState.left<=0?"Both substitutions have been used":
          mpIsSpectator()?"Spectators cannot make substitutions":
          mpInMultiplayerRoom()&&mpOwnedTeam()!==teamNo?"Controlled by the other manager":"No substitute available")
-      : "Swap the selected bench player into this exact court role";
+      : (liveState.animating||liveState.setFinished
+          ?"Queue this substitution — it will take effect before the next serve"
+          :"Make this substitution before the next rally");
 
     if(info){
+      const pending=subState.pending
+        ? `<br><span class="acePendingSub">QUEUED: <b>${esc(subState.pending.outName)}</b> → <b>${esc(subState.pending.inName)}</b> · NEXT POINT</span>`
+        : "";
       info.innerHTML=bench.length
-        ? `BENCH: ${bench.map(p=>`<span>${esc(p.name)} <b>${Math.round(playerCondition(p))}%</b></span>`).join(" · ")}`
-        : "BENCH EMPTY";
+        ? `<b>${subState.left} OF 2 SUBS LEFT</b> · BENCH: ${bench.map(p=>`<span>${esc(p.name)} <b>${Math.round(playerCondition(p))}%</b></span>`).join(" · ")}${pending}`
+        : `<b>${subState.left} OF 2 SUBS LEFT</b> · BENCH EMPTY${pending}`;
     }
   });
 }
 
-function applySubstitution(teamNo,outName,inName,{remoteRequest=false}={}){
+function applySubstitution(teamNo,outName,inName,{remoteRequest=false,forceNow=false}={}){
   if(!liveState)return {ok:false,msg:"No live match."};
-  if(liveState.animating)return {ok:false,msg:"Wait until the current rally finishes."};
-  if(liveState.setFinished||liveState.matchFinished)return {ok:false,msg:"Substitutions are unavailable while the set is finished."};
+  if(liveState.matchFinished)return {ok:false,msg:"The match is already finished."};
 
-  const lineup=substitutionLineup(teamNo);
-  const bench=substitutionBench(teamNo);
+  const n=Number(teamNo)===2?2:1;
+  const usedKey=`subsUsed${n}`;
+  const pendingKey=`pendingSub${n}`;
+  const subState=substitutionUsage(n);
+  if(subState.left<=0)return {ok:false,msg:"No substitutions remaining — each team may make only 2 per match."};
+
+  const lineup=substitutionLineup(n);
+  const bench=substitutionBench(n);
   const outIdx=lineup.findIndex(p=>p.name===outName);
   const inIdx=bench.findIndex(p=>p.name===inName);
 
   if(outIdx<0)return {ok:false,msg:"The selected on-court player was not found."};
   if(inIdx<0)return {ok:false,msg:"The selected substitute is not on the bench."};
 
+  // During an active rally (or at a completed-set screen), managers can still
+  // make the decision. It is stored and becomes effective before the next serve.
+  if(!forceNow && (liveState.animating || liveState.setFinished)){
+    liveState[pendingKey]={outName,inName,queuedAt:Date.now()};
+    addCommentary(`🔄 SUB QUEUED — ${n===1?liveState.name1:liveState.name2}: ${inName} will replace ${outName} before the next point.`);
+    renderSubstitutionPanel();
+    try{window.aceUpdateManagerQuickBar?.();}catch(e){}
+    return {ok:true,queued:true,outgoing:outName,incoming:inName};
+  }
+
   const outgoing=lineup[outIdx];
   const incoming=bench[inIdx];
   const role=outgoing.assignedRole;
 
-  // Incoming player inherits the exact volleyball slot. Outgoing player joins bench.
+  // Incoming player inherits the exact volleyball role/rotation slot.
   lineup[outIdx]={...incoming,assignedRole:role};
   bench[inIdx]={...outgoing};
+  liveState[usedKey]=Math.min(2,Number(liveState[usedKey]||0)+1);
+  liveState[pendingKey]=null;
 
-  addCommentary(`🔄 ${teamNo===1?liveState.name1:liveState.name2}: ${incoming.name} enters for ${outgoing.name} at ${role}.`);
+  addCommentary(`🔄 SUBSTITUTION ${liveState[usedKey]}/2 — ${n===1?liveState.name1:liveState.name2}: ${incoming.name} enters for ${outgoing.name} at ${role}.`);
 
   renderLiveCourtPlayers();
   updateLiveUI();
+  try{window.aceUpdateManagerQuickBar?.();}catch(e){}
 
-  return {ok:true,outgoing:outgoing.name,incoming:incoming.name,role};
+  return {ok:true,queued:false,outgoing:outgoing.name,incoming:incoming.name,role,used:liveState[usedKey]};
+}
+
+function applyPendingSubstitutions(){
+  if(!liveState || liveState.animating || liveState.matchFinished)return [];
+  const results=[];
+  [1,2].forEach(teamNo=>{
+    const key=`pendingSub${teamNo}`;
+    const pending=liveState[key];
+    if(!pending)return;
+    // Keep a set-break queue until nextLiveSet flips setFinished back to false.
+    if(liveState.setFinished)return;
+    const result=applySubstitution(teamNo,pending.outName,pending.inName,{forceNow:true});
+    if(!result.ok){
+      liveState[key]=null;
+      addCommentary(`⚠️ Queued substitution cancelled for ${teamNo===1?liveState.name1:liveState.name2}: ${result.msg}`);
+    }
+    results.push(result);
+  });
+  return results;
 }
 
 async function requestSubstitution(teamNo){
@@ -12010,17 +12355,23 @@ async function requestSubstitution(teamNo){
     if(mpIsAuthority()){
       const result=applySubstitution(teamNo,outName,inName);
       if(!result.ok){alert(result.msg);return;}
+      const status=document.getElementById("rallyStatus");
+      if(status&&result.queued)status.textContent="Substitution queued — effective before the next serve.";
       await mpSend("match_state",{snapshot:multiplayerMatchSnapshot()});
     }else{
       await mpSend("sub_request",{teamNo,outName,inName,requesterId:mpIdentityUserId});
       const status=document.getElementById("rallyStatus");
-      if(status)status.textContent="Substitution sent to match controller…";
+      if(status)status.textContent="Substitution request sent — it will queue if the rally is active.";
     }
     return;
   }
 
   const result=applySubstitution(teamNo,outName,inName);
   if(!result.ok)alert(result.msg);
+  else if(result.queued){
+    const status=document.getElementById("rallyStatus");
+    if(status)status.textContent="Substitution queued — effective before the next serve.";
+  }
 }
 
 function updateLiveUI(){
@@ -12479,7 +12830,7 @@ function beginLiveMatch(){
   try{
     renderLiveCourtPlayers();
     addCommentary(`Set 1 begins. ${liveState.server===1?liveState.name1:liveState.name2} serves first.`);
-    addCommentary(`🔄 Both managers have two bench players available for live substitutions between rallies.`);
+    addCommentary(`🔄 Each team may make 2 substitutions per match. A sub chosen during a rally is queued and takes effect before the next serve.`);
     updateLiveUI();
     applyMultiplayerMatchControls();
     if(mpIsAuthority() && mpInMultiplayerRoom()){
@@ -12654,6 +13005,16 @@ async function playLiveRally(){
     document.getElementById("rallyStatus").textContent=`Rally engine error: ${err.message}`;
   }finally{
     s.animating=false;
+
+    // A manager may make a substitution while the rally animation is running.
+    // Once the point is fully complete, execute it before the next serve.
+    if(!s.matchFinished && !s.setFinished){
+      try{applyPendingSubstitutions();}catch(subErr){console.warn("Queued substitution",subErr);}
+    }else if(s.matchFinished){
+      s.pendingSub1=null;
+      s.pendingSub2=null;
+    }
+
     if(!phaseAdvanceResolver){
       const status=document.getElementById("rallyStatus");
       if(status && !status.textContent.startsWith("Rally engine error")){
@@ -12680,6 +13041,7 @@ function nextLiveSet(){
   s.server=Math.random()<.5?1:2;
   recoverTeamCondition(s.a,7,"set break");
   recoverTeamCondition(s.b,7,"set break");
+  try{applyPendingSubstitutions();}catch(subErr){console.warn("Set-break queued substitution",subErr);}
   addCommentary(`Set ${s.setNo} begins. Both teams recovered condition during the set break.`);
   renderLiveCourtPlayers();
   document.getElementById("nextSetBtn").classList.add("hidden");
@@ -25954,8 +26316,14 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 
     if(subs){
       const bench=(liveState.bench1||[]).length;
-      subs.textContent=`⇄ SUBS${bench?` (${bench})`:''}`;
-      subs.disabled=!!liveState.animating||!!liveState.setFinished||!bench;
+      const state=typeof substitutionUsage==="function"?substitutionUsage(1):{left:2,pending:null};
+      subs.textContent=state.pending
+        ? `⇄ SUBS · QUEUED`
+        : `⇄ SUBS · ${state.left} LEFT`;
+      subs.disabled=!!liveState.matchFinished||!bench||state.left<=0;
+      subs.title=state.pending
+        ? `${state.pending.inName} for ${state.pending.outName} is queued for the next point`
+        : `${state.left} of 2 substitutions remaining`;
     }
     if(timeout){
       const n=Number(liveState.timeouts1??0);
@@ -25969,6 +26337,8 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
       condition.textContent=`◔ CONDITION ${avg>=99.95?'100':avg.toFixed(1)}%`;
     }
   }
+
+  window.aceUpdateManagerQuickBar=updateQuickBarState;
 
   function install(){
     ensureManagerModal();
@@ -26001,6 +26371,657 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,25),{once:true});
   else setTimeout(install,25);
+})();
+</script>
+
+
+<script id="ace-b13-2-tactics-clarity-script">
+(function(){
+  'use strict';
+  if(window.ACE_B13_2_TACTICS_CLARITY)return;
+  window.ACE_B13_2_TACTICS_CLARITY=true;
+
+  const LABELS={
+    serve:{
+      balanced:'Balanced',
+      weakest:'Weakest Passer',
+      star:'Target Star',
+      avoid_libero:'Avoid Libero'
+    },
+    attack:{
+      balanced:'Balanced',
+      feed_star:'Feed Star',
+      spread:'Spread Offence',
+      quick_middle:'Quick Middle'
+    },
+    block:{
+      balanced:'Balanced',
+      stop_star:'Stop Star',
+      read_setter:'Read Setter',
+      commit_middle:'Commit Middle'
+    },
+    risk:{
+      balanced:'Balanced',
+      safe:'Safe',
+      aggressive:'Aggressive'
+    }
+  };
+
+  const DESC={
+    serve:{
+      balanced:'Serve targets are spread normally.',
+      weakest:'Hunts the lowest receive composite. Great for breaking passing shape.',
+      star:'Makes the main attacker pass more often, adding workload and fatigue.',
+      avoid_libero:'Pushes serves away from the libero and toward other receivers.'
+    },
+    attack:{
+      balanced:'Setter follows normal matchup logic and keeps a natural distribution.',
+      feed_star:'Star gets a strong selection bias, but the block becomes slightly more prepared for them.',
+      spread:'Caps the top option more aggressively and uses more attackers; good setters make the block close later.',
+      quick_middle:'Actively feeds the middle on good passes. Poor passes naturally shut this plan down.'
+    },
+    block:{
+      balanced:'Normal read-and-close block with no tactical overcommit.',
+      stop_star:'Loads the block toward the opponent star. Strong there, slightly softer elsewhere.',
+      read_setter:'Prioritises setter cues instead of one hitter. Less effective against truly elite setters.',
+      commit_middle:'Jumps harder with the middle, but pin attackers get cleaner looks if you guess wrong.'
+    },
+    risk:{
+      balanced:'Normal pressure and normal error tolerance.',
+      safe:'More controlled serving and attacking: fewer errors, but less pressure and kill quality.',
+      aggressive:'More jump-topspin/attack pressure, but serve and attack error risk both rise.'
+    }
+  };
+
+  function escText(s){
+    return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function renderTacticSummary(){
+    const panel=document.querySelector('#liveMatchCard .aceTacticsPanel');
+    if(!panel||!window.liveState||typeof managerTacticsForTeam!=='function')return;
+
+    panel.querySelectorAll('.aceTacticsNow').forEach(x=>x.remove());
+
+    const grid=panel.querySelector('.aceTacticsGrid');
+    if(!grid)return;
+
+    [1,2].forEach(teamNo=>{
+      const teamCard=grid.children[teamNo-1];
+      if(!teamCard)return;
+      const t=managerTacticsForTeam(teamNo);
+      const ai=!!window.aceUTLeagueState?.active && teamNo===2;
+      const box=document.createElement('div');
+      box.className='aceTacticsNow';
+      box.innerHTML=`
+        <div class="aceTacticsNowHead">
+          <b>${ai?'AI ACTIVE PLAN':'ACTIVE PLAN'}</b>
+          <span>${liveState.animating?'CHANGES APPLY NEXT RALLY':'IN EFFECT NEXT RALLY'}</span>
+        </div>
+        <div class="aceTacticsPlanLine">
+          <span class="aceTacticsPlanChip">SERVE · ${escText(LABELS.serve[t.serve]||t.serve)}</span>
+          <span class="aceTacticsPlanChip">ATTACK · ${escText(LABELS.attack[t.attack]||t.attack)}</span>
+          <span class="aceTacticsPlanChip">BLOCK · ${escText(LABELS.block[t.block]||t.block)}</span>
+          <span class="aceTacticsPlanChip">RISK · ${escText(LABELS.risk[t.risk]||t.risk)}</span>
+        </div>
+        <div class="aceTacticsExplainer">
+          <div class="aceTacticsExplainRow"><b>SERVE TARGET</b><span>${escText(DESC.serve[t.serve]||'')}</span></div>
+          <div class="aceTacticsExplainRow"><b>ATTACK PLAN</b><span>${escText(DESC.attack[t.attack]||'')}</span></div>
+          <div class="aceTacticsExplainRow"><b>BLOCK PLAN</b><span>${escText(DESC.block[t.block]||'')}</span></div>
+          <div class="aceTacticsExplainRow"><b>RISK</b><span>${escText(DESC.risk[t.risk]||'')}</span></div>
+        </div>
+        ${teamNo===1?'<div class="aceTacticsNextNote"><strong>Tip:</strong> this is tactical behaviour, not a flat rating boost. The same plan can help or hurt depending on the opponent.</div>':''}`;
+      teamCard.prepend(box);
+    });
+  }
+
+  if(typeof window.renderManagerTacticsUI==='function' && !window.renderManagerTacticsUI.__aceB132Wrapped){
+    const base=window.renderManagerTacticsUI;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      try{renderTacticSummary();}catch(e){}
+      return result;
+    };
+    wrapped.__aceB132Wrapped=true;
+    window.renderManagerTacticsUI=wrapped;
+  }
+
+  document.addEventListener('change',e=>{
+    if(e.target?.matches?.('#liveMatchCard select[data-manager-tactic]')){
+      requestAnimationFrame(renderTacticSummary);
+    }
+  });
+
+  window.aceRenderTacticSummary=renderTacticSummary;
+})();
+</script>
+
+
+<script id="ace-b14-manager2-script">
+(function(){
+  'use strict';
+  if(window.ACE_B14_MANAGER2)return;
+  window.ACE_B14_MANAGER2=true;
+
+  const NEW_DEFAULTS={
+    serveZone:'balanced',
+    serveTarget:'none',
+    distribution:'balanced',
+    tempo:'normal',
+    blockFocus:'read',
+    blockAngle:'neutral',
+    defence:'balanced',
+    mentality:'balanced'
+  };
+
+  const LABELS={
+    serveZone:{
+      balanced:'Balanced',
+      zone1:'Zone 1',
+      zone5:'Zone 5',
+      zone6:'Zone 6',
+      seam16:'Seam 1/6',
+      seam56:'Seam 5/6'
+    },
+    distribution:{
+      balanced:'Balanced',
+      left_pin:'Left Pin Heavy',
+      opposite:'Opposite Heavy',
+      middle:'Middle Heavy',
+      spread:'Spread Offence',
+      hot_hitter:'Primary Hitter Heavy'
+    },
+    tempo:{
+      fast:'Fast Tempo',
+      normal:'Normal Tempo',
+      high_safe:'High / Safe'
+    },
+    blockFocus:{
+      balanced:'Balanced',
+      read:'Read Block',
+      left_pin:'Load Left Pin',
+      right_pin:'Load Right Pin',
+      middle:'Commit Middle'
+    },
+    blockAngle:{
+      neutral:'Neutral Hands',
+      line:'Take Line',
+      cross:'Take Cross',
+      funnel:'Funnel Inside'
+    },
+    defence:{
+      balanced:'Balanced Base',
+      line:'Protect Line',
+      cross:'Protect Cross',
+      tips:'Protect Tips',
+      deep:'Protect Deep'
+    },
+    mentality:{
+      safe:'Safe',
+      balanced:'Balanced',
+      aggressive:'Aggressive'
+    }
+  };
+
+  const EXPLAIN={
+    serveZone:{
+      balanced:'No fixed landing lane.',
+      zone1:'Drive the serve toward right-back.',
+      zone5:'Work left-back and the outside passing lane.',
+      zone6:'Challenge middle-back depth and seams.',
+      seam16:'Attack the hesitation between Zones 1 and 6.',
+      seam56:'Attack the hesitation between Zones 5 and 6.'
+    },
+    distribution:{
+      balanced:'Setter follows normal matchup reads.',
+      left_pin:'More balls to the Zone 4 / outside lane.',
+      opposite:'Increase right-side / opposite usage.',
+      middle:'Use the middle aggressively whenever the pass allows it.',
+      spread:'Keep the block moving by flattening the distribution.',
+      hot_hitter:'Lean on the team’s strongest attacking option; more predictable if overused.'
+    },
+    tempo:{
+      fast:'Harder for blockers to close, but execution is more demanding.',
+      normal:'Normal setter rhythm and normal blocking window.',
+      high_safe:'Safer high-ball offence, but gives the block more time to organise.'
+    },
+    blockFocus:{
+      balanced:'No lane is deliberately overloaded.',
+      read:'Blockers read setter cues and react.',
+      left_pin:'Shade help toward the opponent outside / Zone 4 lane.',
+      right_pin:'Shade help toward the opponent opposite / Zone 2 lane.',
+      middle:'Commit harder to the quick; pins become more exposed.'
+    },
+    blockAngle:{
+      neutral:'Hands stay neutral to the hitter.',
+      line:'Take away the sideline and concede more cross-court.',
+      cross:'Take away the main cross-court lane and concede more line.',
+      funnel:'Close hard angles and channel more playable balls toward the middle of the court.'
+    },
+    defence:{
+      balanced:'Normal defensive base.',
+      line:'Defenders give extra responsibility to the line lane.',
+      cross:'Defenders load the cross-court lane.',
+      tips:'Defenders creep in for short shots and tips.',
+      deep:'Defenders sit deeper for hard-driven and deep shots.'
+    }
+  };
+
+  function migrateOld(t){
+    t={...(t||{})};
+    const n={...NEW_DEFAULTS,...t};
+
+    if(!t.serveTarget && t.serve){
+      n.serveTarget=t.serve==='weakest'?'weakest':t.serve==='star'?'star':t.serve==='avoid_libero'?'none':'none';
+    }
+    if(!t.distribution && t.attack){
+      n.distribution=t.attack==='feed_star'?'hot_hitter':t.attack==='spread'?'spread':t.attack==='quick_middle'?'middle':'balanced';
+    }
+    if(!t.blockFocus && t.block){
+      n.blockFocus=t.block==='read_setter'?'read':t.block==='commit_middle'?'middle':t.block==='stop_star'?'balanced':'balanced';
+    }
+    if(!t.mentality && t.risk)n.mentality=t.risk;
+
+    // Compatibility aliases consumed by earlier B13 wrappers.
+    n.risk=n.mentality;
+    n.attack=n.distribution==='hot_hitter'?'feed_star':
+             n.distribution==='spread'?'spread':
+             n.distribution==='middle'?'quick_middle':'balanced';
+    n.block='balanced';
+    n.serve=n.serveTarget==='weakest'?'weakest':
+            n.serveTarget==='star'?'star':'balanced';
+    return n;
+  }
+
+  window.defaultManagerTactics=function(){
+    return migrateOld({});
+  };
+
+  window.managerTacticsForTeam=function(teamOrNo){
+    if(!window.liveState)return defaultManagerTactics();
+    const n=typeof teamOrNo==='number'?teamOrNo:managerTeamNo(teamOrNo);
+    const key=n===2?'managerTactics2':'managerTactics1';
+    return migrateOld(liveState[key]);
+  };
+
+  function targetKey(p){
+    if(!p)return '';
+    return p.id!=null?`id:${p.id}`:`name:${p.name}`;
+  }
+  function targetMatches(value,p){
+    if(!value||!p)return false;
+    if(value.startsWith('id:'))return String(p.id)===value.slice(3);
+    if(value.startsWith('name:'))return String(p.name)===value.slice(5);
+    return false;
+  }
+
+  function rotationForTeam(team){
+    const n=managerTeamNo(team);
+    return n===2?Number(liveState?.rotation2||1):Number(liveState?.rotation1||1);
+  }
+  function zoneTargets(zone){
+    return zone==='zone1'?[1]:
+           zone==='zone5'?[5]:
+           zone==='zone6'?[6]:
+           zone==='seam16'?[1,6]:
+           zone==='seam56'?[5,6]:[];
+  }
+
+  // ----------------------------------------------------------------
+  // SERVING: target a court zone AND optionally a named receiver.
+  // ----------------------------------------------------------------
+  window.managerChooseServeReceiver=function(pool,receivingTeam,servingTeam){
+    const candidates=(Array.isArray(pool)?pool:[]).filter(Boolean);
+    if(!candidates.length)return receivingTeam?.[0]||null;
+    const t=managerTacticsForTeam(servingTeam);
+    const star=managerStarAttacker(receivingTeam);
+    const rot=rotationForTeam(receivingTeam);
+    const zTargets=zoneTargets(t.serveZone);
+
+    return weightedPick(candidates,p=>{
+      let w=1;
+
+      if(t.serveTarget==='weakest'){
+        const pass=managerReceiveComposite(p);
+        w*=Math.max(1,Math.pow(clamp(108-pass,5,58),1.18));
+      }else if(t.serveTarget==='star'){
+        w*=p===star?4.2:1;
+      }else if(targetMatches(t.serveTarget,p)){
+        w*=5.5;
+      }
+
+      if(zTargets.length){
+        const current=Number(zoneForPlayer(receivingTeam,rot,p)?.zone)||6;
+        const d=Math.min(...zTargets.map(z=>zoneDistance(current,z)));
+        w*=d===0?2.5:d===1?1.55:.72;
+      }
+
+      return Math.max(.15,w);
+    });
+  };
+
+  // Targeted serving is more precise, not free: small extra service risk.
+  if(typeof serveErrorProbability==='function' && !serveErrorProbability.__aceB14Manager2){
+    const base=serveErrorProbability;
+    const wrapped=function(server,serveType){
+      let p=base.apply(this,arguments);
+      const t=managerTacticsForTeam(managerPlayerTeamNo(server));
+      let precision=1;
+      if(t.serveZone!=='balanced')precision*=1.055;
+      if(t.serveTarget!=='none')precision*=1.035;
+      return clamp(p*precision,.009,.15);
+    };
+    wrapped.__aceB14Manager2=true;
+    window.serveErrorProbability=wrapped;
+  }
+
+  // Narration tells you the actual serving instruction being attempted.
+  if(typeof passQualityText==='function' && !passQualityText.__aceB14Manager2){
+    const base=passQualityText;
+    const wrapped=function(pq,passer,server){
+      const text=base.apply(this,arguments);
+      const t=managerTacticsForTeam(managerPlayerTeamNo(server));
+      const zone=LABELS.serveZone[t.serveZone]||'';
+      let target='';
+      if(t.serveTarget==='weakest')target='weakest passer';
+      else if(t.serveTarget==='star')target='star attacker';
+      else if(t.serveTarget!=='none')target=passer?.name||'receiver';
+      if(t.serveZone==='balanced' && !target)return text;
+      const call=[t.serveZone!=='balanced'?zone:null,target].filter(Boolean).join(' → ');
+      return `<span class="setGrade">SERVE CALL ${call}</span> ${text}`;
+    };
+    wrapped.__aceB14Manager2=true;
+    window.passQualityText=wrapped;
+  }
+
+  // ----------------------------------------------------------------
+  // OFFENSIVE TEMPO: fast offence is harder to close, but execution
+  // has a modest setter-skill-dependent cost. High/safe is steadier.
+  // ----------------------------------------------------------------
+  if(typeof calculateSetQuality==='function' && !calculateSetQuality.__aceB14Manager2){
+    const base=calculateSetQuality;
+    const wrapped=function(setter,passQuality){
+      const result=base.apply(this,arguments);
+      const t=managerTacticsForTeam(managerPlayerTeamNo(setter));
+      if(!result || result.error)return result;
+
+      if(t.tempo==='fast' && Number(passQuality?.grade||0)>=2){
+        const stq=matchStat(setter,'setTechnique');
+        const risk=clamp(.018 + Math.max(0,84-stq)*.0032, .015, .105);
+        if(Math.random()<risk){
+          result.modifier=Math.max(.62,Number(result.modifier||.9)-.08);
+          result.grade=Math.max(1,Number(result.grade||2)-1);
+          result.label='Rushed Set';
+          result.tempoNote='fast';
+        }
+      }else if(t.tempo==='high_safe'){
+        result.modifier=Math.min(1.09,Number(result.modifier||.9)+.025);
+        result.tempoNote='high_safe';
+      }
+      return result;
+    };
+    wrapped.__aceB14Manager2=true;
+    window.calculateSetQuality=wrapped;
+  }
+
+  // ----------------------------------------------------------------
+  // BLOCK ANGLE: take away line/cross or funnel inside.
+  // This modifies the hitter's ability to evade the formed block.
+  // ----------------------------------------------------------------
+  if(typeof chooseAttackShot==='function' && !chooseAttackShot.__aceB14Manager2){
+    const base=chooseAttackShot;
+    const wrapped=function(attacker,blocker,context){
+      const info=base.apply(this,arguments);
+      if(!info||!blocker)return info;
+      const t=managerTacticsForTeam(managerPlayerTeamNo(blocker));
+      const id=info.shot?.id||'';
+      const line=['line','deep_corner'].includes(id);
+      const cross=['cross','cut'].includes(id);
+
+      if(t.blockAngle==='line'){
+        if(line)info.blockEvasion-=8;
+        if(cross)info.blockEvasion+=4;
+      }else if(t.blockAngle==='cross'){
+        if(cross)info.blockEvasion-=8;
+        if(line)info.blockEvasion+=4;
+      }else if(t.blockAngle==='funnel'){
+        if(['cross','line','cut'].includes(id))info.blockEvasion-=3;
+        if(['seam','roll','tip'].includes(id))info.blockEvasion+=2;
+      }
+      return info;
+    };
+    wrapped.__aceB14Manager2=true;
+    window.chooseAttackShot=wrapped;
+  }
+
+  // ----------------------------------------------------------------
+  // FLOOR DEFENCE: give a lane more defenders while conceding another.
+  // Negative penalty = easier dig in that protected area.
+  // ----------------------------------------------------------------
+  if(typeof shotDigDifficulty==='function' && !shotDigDifficulty.__aceB14Manager2){
+    const base=shotDigDifficulty;
+    const wrapped=function(attacker,shotInfo,defender,defRot,defendingTeam){
+      let p=base.apply(this,arguments);
+      const t=managerTacticsForTeam(defendingTeam);
+      const target=gameplayShotTarget(attacker,shotInfo);
+      const family=String(target?.family||'');
+      const depth=String(target?.depth||'');
+
+      if(t.defence==='line'){
+        if(family==='line'||family==='corner'||family==='pipe_line')p-=8;
+        if(family==='cross'||family==='pipe_cross'||family==='sharp_cross')p+=4;
+      }else if(t.defence==='cross'){
+        if(family==='cross'||family==='pipe_cross'||family==='sharp_cross')p-=8;
+        if(family==='line'||family==='corner'||family==='pipe_line')p+=4;
+      }else if(t.defence==='tips'){
+        if(depth==='short')p-=9;
+        if(depth==='deep'||depth==='very_deep')p+=4;
+      }else if(t.defence==='deep'){
+        if(depth==='deep'||depth==='very_deep')p-=7;
+        if(depth==='short')p+=6;
+      }
+      return clamp(p,-16,38);
+    };
+    wrapped.__aceB14Manager2=true;
+    window.shotDigDifficulty=wrapped;
+  }
+
+  // ----------------------------------------------------------------
+  // AI MANAGER 2.0
+  // ----------------------------------------------------------------
+  window.deriveAiManagerTactics=function(team,opponent){
+    const rec=(opponent||[]).filter(p=>['OH1','OH2','L'].includes(p.assignedRole));
+    const weak=rec.slice().sort((a,b)=>managerReceiveComposite(a)-managerReceiveComposite(b))[0]||null;
+    const star=managerStarAttacker(opponent);
+    const setter=(team||[]).find(p=>p.assignedRole==='S');
+    const middle=(team||[]).find(p=>p.assignedRole==='M');
+    const opp=(team||[]).find(p=>p.assignedRole==='OP');
+    const avgServe=(team||[]).reduce((s,p)=>s+Number(p.service||0),0)/Math.max(1,(team||[]).length);
+
+    let distribution='balanced';
+    if(setter && Number(setter.setCreativity||0)>84)distribution='spread';
+    if(setter && middle && Number(setter.setTechnique||0)>84 && managerAttackThreat(middle)>74)distribution='middle';
+    if(opp && managerAttackThreat(opp)>86)distribution='opposite';
+
+    const starRole=star?.assignedRole||'';
+    const blockFocus=starRole==='OP'?'right_pin':
+                     starRole==='M'?'middle':
+                     ['OH','OH1','OH2'].includes(starRole)?'left_pin':'read';
+
+    return migrateOld({
+      serveZone:'balanced',
+      serveTarget:weak?targetKey(weak):'none',
+      distribution,
+      tempo:setter && Number(setter.setTechnique||0)>87?'fast':'normal',
+      blockFocus,
+      blockAngle:'cross',
+      defence:'cross',
+      mentality:avgServe>83?'aggressive':avgServe<64?'safe':'balanced'
+    });
+  };
+
+  // ----------------------------------------------------------------
+  // UI
+  // ----------------------------------------------------------------
+  function esc2(v){
+    return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function optionList(map,value){
+    return Object.entries(map).map(([v,n])=>`<option value="${esc2(v)}" ${v===value?'selected':''}>${esc2(n)}</option>`).join('');
+  }
+  function receiverOptions(teamNo,value){
+    const opp=teamNo===1?liveState?.b:liveState?.a;
+    const rot=teamNo===1?Number(liveState?.rotation2||1):Number(liveState?.rotation1||1);
+    const rec=receptionCandidates(opp||[],rot);
+    const basic=[
+      ['none','No Specific Receiver'],
+      ['weakest','Weakest Passer'],
+      ['star','Main Attacker']
+    ];
+    const playerOpts=rec.map(p=>[targetKey(p),`${p.name} · ${p.assignedRole}`]);
+    return [...basic,...playerOpts].map(([v,n])=>`<option value="${esc2(v)}" ${v===value?'selected':''}>${esc2(n)}</option>`).join('');
+  }
+  function field(teamNo,key,label,options,disabled=false){
+    const t=managerTacticsForTeam(teamNo);
+    return `<div class="aceM2Field"><label>${esc2(label)}</label><select data-m2-team="${teamNo}" data-m2-key="${esc2(key)}" ${disabled?'disabled':''}>${options(t[key])}</select></div>`;
+  }
+
+  function scoutLine(teamNo){
+    const opp=teamNo===1?liveState?.b:liveState?.a;
+    const rec=receptionCandidates(opp||[],teamNo===1?liveState?.rotation2:liveState?.rotation1);
+    const weak=rec.slice().sort((a,b)=>managerReceiveComposite(a)-managerReceiveComposite(b))[0];
+    const star=managerStarAttacker(opp||[]);
+    return `<div class="aceM2Scout">
+      <span>SCOUT · WEAKEST PASSER <b>${esc2(weak?.name||'—')} ${weak?Math.round(managerReceiveComposite(weak)):''}</b></span>
+      <span>MAIN THREAT <b>${esc2(star?.name||'—')} ${star?Math.round(managerAttackThreat(star)):''}</b></span>
+    </div>`;
+  }
+
+  function planSummary(t){
+    let targetLabel=t.serveTarget==='none'?'No target':
+      t.serveTarget==='weakest'?'Weakest passer':
+      t.serveTarget==='star'?'Main attacker':'Named receiver';
+    return `<div class="aceM2GamePlan">
+      <div class="aceM2GamePlanHead"><b>ACTIVE GAME PLAN</b><span>${liveState?.animating?'APPLIES NEXT RALLY':'LIVE'}</span></div>
+      <div class="aceM2Summary">
+        <span>SERVE · ${esc2(LABELS.serveZone[t.serveZone])} → ${esc2(targetLabel)}</span>
+        <span>OFFENCE · ${esc2(LABELS.distribution[t.distribution])} · ${esc2(LABELS.tempo[t.tempo])}</span>
+        <span>BLOCK · ${esc2(LABELS.blockFocus[t.blockFocus])} · ${esc2(LABELS.blockAngle[t.blockAngle])}</span>
+        <span>DEFENCE · ${esc2(LABELS.defence[t.defence])}</span>
+        <span>MENTALITY · ${esc2(LABELS.mentality[t.mentality])}</span>
+      </div>
+    </div>`;
+  }
+
+  function teamManagerPanel(teamNo,disabled=false){
+    const t=managerTacticsForTeam(teamNo);
+    const teamName=teamNo===1?liveState?.name1:liveState?.name2;
+    return `<div class="aceTacticsTeam aceM2Panel">
+      <div class="aceTacticsTeamHead"><b>${esc2(teamName||`Team ${teamNo}`)}</b><span>${disabled?'AI MANAGER':`MANAGER ${teamNo}`}</span></div>
+      ${scoutLine(teamNo)}
+      ${planSummary(t)}
+      <div class="aceM2Sections">
+        <section class="aceM2Section">
+          <div class="aceM2SectionTitle"><b>SERVING</b><span>WHERE + WHO</span></div>
+          <div class="aceM2Fields">
+            ${field(teamNo,'serveZone','TARGET ZONE',v=>optionList(LABELS.serveZone,v),disabled)}
+            ${field(teamNo,'serveTarget','TARGET RECEIVER',v=>receiverOptions(teamNo,v),disabled)}
+          </div>
+          <div class="aceM2Explain"><strong>${esc2(LABELS.serveZone[t.serveZone])}:</strong> ${esc2(EXPLAIN.serveZone[t.serveZone])} Precise targeting carries a small extra serve-error cost.</div>
+        </section>
+
+        <section class="aceM2Section">
+          <div class="aceM2SectionTitle"><b>OFFENCE</b><span>DISTRIBUTION + TEMPO</span></div>
+          <div class="aceM2Fields">
+            ${field(teamNo,'distribution','SET DISTRIBUTION',v=>optionList(LABELS.distribution,v),disabled)}
+            ${field(teamNo,'tempo','TEMPO',v=>optionList(LABELS.tempo,v),disabled)}
+          </div>
+          <div class="aceM2Explain"><strong>${esc2(LABELS.distribution[t.distribution])}:</strong> ${esc2(EXPLAIN.distribution[t.distribution])}<br><strong>${esc2(LABELS.tempo[t.tempo])}:</strong> ${esc2(EXPLAIN.tempo[t.tempo])}</div>
+        </section>
+
+        <section class="aceM2Section">
+          <div class="aceM2SectionTitle"><b>BLOCKING</b><span>LOAD + HANDS</span></div>
+          <div class="aceM2Fields">
+            ${field(teamNo,'blockFocus','BLOCK FOCUS',v=>optionList(LABELS.blockFocus,v),disabled)}
+            ${field(teamNo,'blockAngle','TAKE AWAY',v=>optionList(LABELS.blockAngle,v),disabled)}
+          </div>
+          <div class="aceM2Explain"><strong>${esc2(LABELS.blockFocus[t.blockFocus])}:</strong> ${esc2(EXPLAIN.blockFocus[t.blockFocus])}<br><strong>${esc2(LABELS.blockAngle[t.blockAngle])}:</strong> ${esc2(EXPLAIN.blockAngle[t.blockAngle])}</div>
+        </section>
+
+        <section class="aceM2Section">
+          <div class="aceM2SectionTitle"><b>FLOOR DEFENCE</b><span>BASE POSITION</span></div>
+          <div class="aceM2Fields">
+            ${field(teamNo,'defence','DEFENSIVE PRIORITY',v=>optionList(LABELS.defence,v),disabled)}
+          </div>
+          <div class="aceM2Explain"><strong>${esc2(LABELS.defence[t.defence])}:</strong> ${esc2(EXPLAIN.defence[t.defence])} Protecting one lane deliberately concedes a little space elsewhere.</div>
+        </section>
+      </div>
+
+      <section class="aceM2Section">
+        <div class="aceM2SectionTitle"><b>MENTALITY</b><span>RISK / CONTROL</span></div>
+        <div class="aceM2Mentality">
+          ${['safe','balanced','aggressive'].map(v=>`<button type="button" data-m2-team="${teamNo}" data-m2-mentality="${v}" class="${t.mentality===v?'active':''}" ${disabled?'disabled':''}>${esc2(LABELS.mentality[v])}</button>`).join('')}
+        </div>
+        <div class="aceM2Explain">${t.mentality==='safe'?'Lower service/attack error risk, with less pressure.':t.mentality==='aggressive'?'More service and attack pressure, with more errors.':'Normal pressure and normal error tolerance.'}</div>
+      </section>
+    </div>`;
+  }
+
+  window.renderManagerTacticsUI=function(){
+    const card=document.getElementById('liveMatchCard');
+    const body=card?.querySelector('.aceManagementBody');
+    if(!card||!body||!window.liveState)return;
+    let panel=body.querySelector('.aceTacticsPanel');
+    if(!panel){panel=document.createElement('section');panel.className='aceTacticsPanel';body.prepend(panel);}
+    const ai=!!window.aceUTLeagueState?.active;
+
+    panel.innerHTML=`
+      <div class="aceTacticsTop"><span>MANAGER 2.0 · VOLLEYBALL GAME PLAN</span><small>Changes apply from the next rally.</small></div>
+      <div class="aceTacticsGrid">
+        ${teamManagerPanel(1,false)}
+        ${teamManagerPanel(2,ai)}
+      </div>
+      <div class="aceM2Footer"><strong>No flat tactical rating boosts.</strong> You are changing serve location, setter distribution, offensive tempo, blocking responsibilities and defensive base. A good call can be countered by another good call.</div>`;
+
+    panel.querySelectorAll('select[data-m2-key]').forEach(sel=>{
+      sel.addEventListener('change',()=>{
+        const n=Number(sel.dataset.m2Team||1);
+        const key=n===2?'managerTactics2':'managerTactics1';
+        const current=managerTacticsForTeam(n);
+        liveState[key]=migrateOld({...current,[sel.dataset.m2Key]:sel.value});
+        renderManagerTacticsUI();
+        const status=document.getElementById('rallyStatus');
+        if(status)status.textContent=`${n===1?liveState.name1:liveState.name2} game plan updated — applies next rally.`;
+      });
+    });
+
+    panel.querySelectorAll('button[data-m2-mentality]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const n=Number(btn.dataset.m2Team||1);
+        const key=n===2?'managerTactics2':'managerTactics1';
+        liveState[key]=migrateOld({...managerTacticsForTeam(n),mentality:btn.dataset.m2Mentality});
+        renderManagerTacticsUI();
+      });
+    });
+  };
+
+  // Refresh AI plan at the start of each set so it can react to the opponent.
+  if(typeof nextLiveSet==='function' && !nextLiveSet.__aceB14Manager2){
+    const base=nextLiveSet;
+    const wrapped=function(){
+      const r=base.apply(this,arguments);
+      if(window.liveState && window.aceUTLeagueState?.active){
+        liveState.managerTactics2=deriveAiManagerTactics(liveState.b,liveState.a);
+        setTimeout(()=>{try{renderManagerTacticsUI();}catch(e){}},0);
+      }
+      return r;
+    };
+    wrapped.__aceB14Manager2=true;
+    window.nextLiveSet=wrapped;
+  }
+
+  // Existing B13 match-start wrapper calls defaultManagerTactics / deriveAiManagerTactics
+  // at runtime, so replacing those functions here upgrades new matches automatically.
 })();
 </script>
 
