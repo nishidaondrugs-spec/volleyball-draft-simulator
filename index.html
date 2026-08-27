@@ -36757,6 +36757,776 @@ window.ACE_MOBILE_NAV="RAISED_SPADE_HOME";
 </script>
 <!-- ACE_B21_21_COMPLETE_CAPTIVATION_END -->
 
+
+<!-- ACE B21.22 — VISUAL COHESION / PURPLE COURT -->
+<style id="ace-b21-22-visual-cohesion">
+/* =========================================================
+   B21.22 VISUAL COHESION
+   - main Home hierarchy rebuilt
+   - duplicate hero branding removed
+   - dynamic CTA visible on main Home
+   - first-session journey visible on main Home
+   - hero carousel reduced and rebalanced
+   - full Squad court changed from orange to clean ACE purple
+   - squad chemistry clutter reduced without removing mechanics
+   ========================================================= */
+
+:root{
+  --ace22-purple:#9b5cff;
+  --ace22-purple-soft:#c69aff;
+  --ace22-purple-deep:#3a215f;
+  --ace22-line:rgba(213,184,255,.24);
+  --ace22-panel:#090c14;
+  --ace22-muted:#929cac;
+}
+
+/* ---------------- MAIN HOME ---------------- */
+#home .gameHome{
+  max-width:1320px!important;
+}
+
+#home .gameHero{
+  min-height:535px!important;
+  grid-template-columns:minmax(0,.88fr) minmax(460px,1.12fr)!important;
+  border:1px solid rgba(167,112,255,.14)!important;
+  border-radius:22px!important;
+  background:
+    radial-gradient(circle at 76% 34%,rgba(139,79,224,.17),transparent 31%),
+    radial-gradient(circle at 96% 0%,rgba(72,112,208,.09),transparent 27%),
+    linear-gradient(135deg,#08101b 0%,#080b14 53%,#090a12 100%)!important;
+  box-shadow:0 25px 70px rgba(0,0,0,.30)!important;
+}
+
+/* Kill the duplicated logo + ACE ULTIMATE TEAM box in the hero.
+   The nav already carries the brand. */
+#home .gameAceIdentity{
+  display:none!important;
+}
+
+#home .gameHeroCopy{
+  justify-content:center!important;
+  padding:48px 28px 46px 48px!important;
+}
+
+#home .gameEyebrow{
+  margin:0 0 17px!important;
+  color:#aa7aff!important;
+  font-size:9px!important;
+  letter-spacing:.22em!important;
+}
+
+#home .gameHero h1{
+  max-width:630px!important;
+  margin:0!important;
+  font-size:clamp(49px,4.65vw,72px)!important;
+  line-height:.91!important;
+  letter-spacing:-.047em!important;
+  text-wrap:balance;
+}
+
+#home .gameHero h1 span{
+  color:transparent!important;
+  background:linear-gradient(135deg,#9b5cff 0%,#c486ff 82%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+}
+
+#home .gameHeroCopy>p{
+  max-width:520px!important;
+  margin:19px 0 18px!important;
+  color:#9aa4b3!important;
+  font-size:12px!important;
+  line-height:1.62!important;
+}
+
+/* first-session path */
+#home .ace22MainJourney{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:max-content;
+  max-width:100%;
+  margin:0 0 20px;
+  padding:8px 9px;
+  border:1px solid rgba(173,123,255,.11);
+  border-radius:12px;
+  background:rgba(8,10,18,.58);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+#home .ace22MainJourney::-webkit-scrollbar{display:none}
+#home .ace22JourneyStep{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:#667082;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:2px 3px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+#home .ace22JourneyStep i{
+  display:grid;
+  place-items:center;
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  background:#0d111b;
+  color:#717b89;
+  font-size:7px;
+  font-style:normal;
+  font-weight:1000;
+}
+#home .ace22JourneyStep span{
+  font-size:6.5px;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+#home .ace22JourneyStep.current{color:#d9c1ff}
+#home .ace22JourneyStep.current i{
+  color:#fff;
+  border-color:rgba(183,129,255,.48);
+  background:linear-gradient(135deg,#7240c5,#9c58ea);
+  box-shadow:0 0 16px rgba(151,84,232,.26);
+}
+#home .ace22JourneyStep.done{color:#829b8c}
+#home .ace22JourneyStep.done i{
+  color:#9be9b4;
+  border-color:rgba(88,211,132,.22);
+  background:rgba(28,92,51,.27);
+}
+#home .ace22JourneyArrow{
+  color:#3c4350;
+  font-size:8px;
+}
+
+#home .gamePrimaryActions{
+  gap:9px!important;
+  margin-top:0!important;
+  align-items:stretch!important;
+}
+
+#home .gamePlayBtn{
+  min-width:300px!important;
+  min-height:68px!important;
+  border-radius:13px!important;
+  background:
+    linear-gradient(135deg,#7541d2 0%,#9d59ef 100%)!important;
+  box-shadow:0 14px 32px rgba(123,65,214,.23)!important;
+}
+#home .gamePlayBtn:hover{
+  transform:translateY(-2px)!important;
+  background:linear-gradient(135deg,#8150df,#aa68f5)!important;
+  box-shadow:0 18px 38px rgba(123,65,214,.31)!important;
+}
+#home .gamePlayBtn b{
+  font-size:12px!important;
+  letter-spacing:.07em!important;
+}
+#home .gamePlayBtn small{
+  font-size:7px!important;
+  opacity:.84;
+}
+#home .gamePlayMark{
+  border-color:rgba(255,255,255,.34)!important;
+  background:rgba(255,255,255,.07)!important;
+}
+
+#home .gameSecondaryBtn{
+  min-width:170px!important;
+  min-height:68px!important;
+  border-radius:13px!important;
+  background:#0c1320!important;
+  border-color:rgba(151,116,209,.19)!important;
+}
+#home .gameSecondaryBtn:hover{
+  background:#111927!important;
+  border-color:rgba(177,132,246,.32)!important;
+}
+
+#home .gameQuickLinks{
+  margin-top:19px!important;
+  gap:19px!important;
+}
+#home .gameQuickLinks button{
+  color:#6f7c8f!important;
+  font-size:7px!important;
+}
+#home .gameQuickLinks button:hover{
+  color:#bd9aef!important;
+}
+
+/* ---------------- HOME HERO CAROUSEL ---------------- */
+#home .gameHeroVisual{
+  min-height:535px!important;
+  height:535px!important;
+  contain:layout paint!important;
+}
+
+#home .homeAtmosphere{
+  opacity:.63!important;
+}
+#home .homeBgPlayer{
+  opacity:.15!important;
+  filter:saturate(.72) contrast(1.03)!important;
+}
+
+#home .gameHeroVisual::before{
+  width:500px!important;
+  height:500px!important;
+  right:-70px!important;
+  top:12px!important;
+  background:radial-gradient(circle,rgba(132,75,222,.19),rgba(96,69,161,.05) 47%,transparent 69%)!important;
+}
+
+#home .heroCardCarousel{
+  inset:22px 8px 22px!important;
+}
+
+#home #heroCardStage{
+  min-height:390px!important;
+}
+
+/* Slightly taller, materially smaller centre card: the card no longer eats
+   the entire right side of the screen. */
+#home #heroCardStage .heroCarouselPlayerCard{
+  width:235px!important;
+  height:365px!important;
+  min-width:235px!important;
+  min-height:365px!important;
+  max-width:235px!important;
+  max-height:365px!important;
+  border-radius:20px!important;
+  box-shadow:0 24px 52px rgba(0,0,0,.42)!important;
+}
+
+#home #heroCardStage .heroCarouselPlayerCard.isCenter{
+  box-shadow:
+    0 30px 64px rgba(0,0,0,.46),
+    0 0 28px rgba(145,84,230,.16)!important;
+}
+
+/* take some visual weight off the cards behind */
+#home #heroCardStage .heroCarouselPlayerCard:not(.isCenter){
+  opacity:.56!important;
+  filter:saturate(.72) brightness(.72)!important;
+}
+
+/* Carousel navigation should look like part of the game, not floating dev controls. */
+#home .heroCardNav{
+  width:38px!important;
+  height:38px!important;
+  border-color:rgba(190,151,247,.16)!important;
+  background:rgba(7,10,18,.68)!important;
+  color:#c8a6f5!important;
+  backdrop-filter:none!important;
+}
+
+/* ---------------- LOWER HOME ---------------- */
+#home .gameHomeLower{
+  gap:8px!important;
+  margin-top:9px!important;
+  background:transparent!important;
+}
+#home .featureTile,
+#home .homeStatusPanel{
+  min-height:155px!important;
+  border:1px solid rgba(154,112,212,.09)!important;
+  border-radius:14px!important;
+  background:#08111e!important;
+  padding:18px!important;
+}
+#home .featureTile:hover{
+  background:#0b1524!important;
+  border-color:rgba(174,128,235,.17)!important;
+}
+#home .featureTitle{
+  margin-top:8px!important;
+  font-size:23px!important;
+}
+#home .featureArrow{
+  right:17px!important;
+  top:14px!important;
+  color:#9b65df!important;
+}
+#home .featureFaces{
+  right:18px!important;
+  bottom:16px!important;
+}
+#home .miniFace{
+  width:51px!important;
+  height:51px!important;
+  border-color:#08111e!important;
+}
+#home .featureCardStack{
+  right:26px!important;
+  bottom:15px!important;
+  transform:scale(.84);
+  transform-origin:right bottom;
+}
+
+/* ---------------- FULL CLUB SQUAD COURT ---------------- */
+#ultimate .vdsSquadPanel{
+  border-color:rgba(166,121,225,.11)!important;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(112,70,168,.05),transparent 24%),
+    #080c14!important;
+}
+
+/* remove stadium/decorative noise: the players and court are the hero */
+#ultimate .vdsUTStadiumBackdrop,
+#ultimate .vdsUTLightBeams,
+#ultimate .vdsUTOpponentGhosts{
+  display:none!important;
+}
+
+#ultimate .vdsUTCourtEnhanced{
+  height:515px!important;
+  margin-top:13px!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(175,127,237,.10)!important;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(113,72,176,.13),transparent 28%),
+    linear-gradient(180deg,#081421 0%,#070c14 72%,#070a11 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 24px 58px rgba(0,0,0,.27)!important;
+}
+
+/* actual court */
+#ultimate .vdsUTCourtEnhanced:before{
+  left:6%!important;
+  right:6%!important;
+  top:7%!important;
+  bottom:5%!important;
+  border-radius:20px!important;
+  transform:perspective(1180px) rotateX(61deg)!important;
+  background:
+    linear-gradient(90deg,
+      transparent 49.65%,
+      rgba(235,224,255,.56) 49.82%,
+      rgba(235,224,255,.56) 50.18%,
+      transparent 50.35%),
+    linear-gradient(180deg,
+      transparent 32.7%,
+      rgba(235,224,255,.43) 32.9%,
+      rgba(235,224,255,.43) 33.15%,
+      transparent 33.35%,
+      transparent 66.55%,
+      rgba(235,224,255,.43) 66.8%,
+      rgba(235,224,255,.43) 67.05%,
+      transparent 67.3%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 58px),
+    linear-gradient(180deg,#6d3e91 0%,#563174 40%,#3b2458 72%,#2a1b43 100%)!important;
+  box-shadow:
+    inset 0 0 0 3px rgba(239,228,255,.72),
+    inset 0 -18px 45px rgba(0,0,0,.18),
+    0 35px 72px rgba(0,0,0,.27)!important;
+}
+
+/* visual net across the perspective court */
+#ultimate .vdsUTCourtEnhanced:after{
+  left:10%!important;
+  right:10%!important;
+  top:51%!important;
+  height:2px!important;
+  background:rgba(244,236,255,.78)!important;
+  box-shadow:
+    0 -8px 0 rgba(244,236,255,.055),
+    0 8px 0 rgba(244,236,255,.055),
+    0 0 13px rgba(197,161,245,.15)!important;
+}
+
+#ultimate .vdsUTCourtAura{
+  width:410px!important;
+  height:72px!important;
+  bottom:22px!important;
+  background:radial-gradient(circle,rgba(138,80,216,.24),rgba(99,62,151,.08) 46%,transparent 73%)!important;
+  filter:blur(22px)!important;
+}
+
+#ultimate .vdsUTOpponentHint{
+  top:11px!important;
+  color:rgba(171,153,196,.39)!important;
+  font-size:6px!important;
+  letter-spacing:.18em!important;
+}
+
+#ultimate .vdsUTCourtLabel{
+  left:27px!important;
+  bottom:16px!important;
+  color:rgba(179,158,205,.45)!important;
+  font-size:6px!important;
+}
+
+/* Keep six players visually grouped rather than scattered to the edges */
+#ultimate .vdsSquadSlot{
+  width:138px!important;
+}
+#ultimate .vdsSquadSlot:nth-child(1){left:29%!important;top:28%!important}
+#ultimate .vdsSquadSlot:nth-child(2){left:50%!important;top:24%!important}
+#ultimate .vdsSquadSlot:nth-child(3){left:71%!important;top:28%!important}
+#ultimate .vdsSquadSlot:nth-child(4){left:28%!important;top:68%!important}
+#ultimate .vdsSquadSlot:nth-child(5){left:50%!important;top:65%!important}
+#ultimate .vdsSquadSlot:nth-child(6){left:72%!important;top:68%!important}
+
+#ultimate .vdsSquadSlotMeta{
+  top:-13px!important;
+  gap:4px!important;
+}
+#ultimate .vdsSquadZone,
+#ultimate .vdsSquadRole{
+  min-width:30px!important;
+  padding:3px 6px!important;
+  border-color:rgba(190,159,232,.14)!important;
+  background:rgba(6,9,16,.82)!important;
+  font-size:6px!important;
+  box-shadow:none!important;
+}
+#ultimate .vdsSquadRole{
+  color:#d8b9ff!important;
+}
+
+#ultimate .vdsSquadFloatWrap{
+  animation:none!important;
+  padding-top:7px!important;
+}
+
+/* card presentation on the court */
+#ultimate .vdsSquadMiniCard{
+  width:88px!important;
+  height:126px!important;
+  min-height:126px!important;
+  border-radius:15px!important;
+  border-color:rgba(204,172,246,.19)!important;
+  box-shadow:0 20px 34px rgba(0,0,0,.32)!important;
+}
+#ultimate .vdsSquadMiniCard:hover{
+  transform:translateY(-3px) scale(1.025)!important;
+}
+#ultimate .vdsSquadMiniRating{
+  top:8px!important;
+  left:8px!important;
+  font-size:17px!important;
+}
+#ultimate .vdsSquadMiniRemove{
+  top:6px!important;
+  right:6px!important;
+  width:20px!important;
+  height:20px!important;
+  font-size:13px!important;
+  background:rgba(5,7,12,.82)!important;
+  border:1px solid rgba(186,147,239,.12)!important;
+}
+#ultimate .vdsSquadSpot{
+  bottom:32px!important;
+  width:98px!important;
+  height:24px!important;
+  background:radial-gradient(circle,rgba(178,127,245,.22),rgba(116,73,177,.09) 44%,transparent 72%)!important;
+  box-shadow:0 12px 20px rgba(0,0,0,.20)!important;
+}
+#ultimate .vdsSquadSlotLabel{
+  margin-top:6px!important;
+  font-size:7px!important;
+  letter-spacing:.07em!important;
+  color:#ddd6e7!important;
+}
+#ultimate .vdsSquadSlotHint{
+  margin-top:2px!important;
+  color:#756d83!important;
+  font-size:5.5px!important;
+}
+
+/* Keep chemistry logic but remove six repeated NO CLUB LINK labels.
+   Pips still show chemistry, and the team total remains at the top. */
+#ultimate .vdsUTPlayerChem .vdsUTChemClub{
+  display:none!important;
+}
+#ultimate .vdsUTPlayerChem{
+  margin-top:3px!important;
+}
+#ultimate .vdsUTChemPips{
+  justify-content:center!important;
+}
+
+/* cleaner bench */
+#ultimate .vdsUTBenchWrap{
+  margin-top:11px!important;
+  padding:13px!important;
+  border-color:rgba(171,126,229,.08)!important;
+  background:#080b12!important;
+}
+#ultimate .vdsUTBenchHead{
+  margin-bottom:9px!important;
+}
+#ultimate .vdsUTBenchHead b{
+  font-size:15px!important;
+}
+#ultimate .vdsUTBenchCards{
+  grid-template-columns:repeat(auto-fill,minmax(132px,1fr))!important;
+  gap:9px!important;
+}
+#ultimate .vdsUTBenchCard{
+  min-height:164px!important;
+  border-radius:13px!important;
+  box-shadow:0 14px 26px rgba(0,0,0,.22)!important;
+}
+#ultimate .vdsUTBenchCard:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 19px 31px rgba(0,0,0,.28)!important;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media(max-width:980px){
+  #home .gameHero{
+    grid-template-columns:1fr!important;
+    min-height:auto!important;
+  }
+  #home .gameHeroCopy{
+    padding:40px 24px 26px!important;
+  }
+  #home .gameHeroVisual{
+    min-height:420px!important;
+    height:420px!important;
+  }
+  #home .gameHomeLower{
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media(max-width:700px){
+  #home .gameHero{
+    border-radius:16px!important;
+  }
+  #home .gameHero h1{
+    font-size:clamp(43px,13vw,60px)!important;
+  }
+  #home .gameHeroCopy>p{
+    font-size:11px!important;
+  }
+  #home .gamePrimaryActions{
+    flex-direction:column!important;
+  }
+  #home .gamePlayBtn,
+  #home .gameSecondaryBtn{
+    width:100%!important;
+    min-width:0!important;
+  }
+  #home .ace22MainJourney{
+    width:100%;
+  }
+  #home .gameHeroVisual{
+    min-height:365px!important;
+    height:365px!important;
+  }
+  #home #heroCardStage .heroCarouselPlayerCard{
+    width:195px!important;
+    height:302px!important;
+    min-width:195px!important;
+    min-height:302px!important;
+    max-width:195px!important;
+    max-height:302px!important;
+  }
+
+  #ultimate .vdsUTCourtEnhanced{
+    height:430px!important;
+  }
+  #ultimate .vdsSquadSlot{
+    width:106px!important;
+  }
+  #ultimate .vdsSquadMiniCard{
+    width:72px!important;
+    height:103px!important;
+    min-height:103px!important;
+  }
+  #ultimate .vdsSquadSlot:nth-child(1){left:25%!important}
+  #ultimate .vdsSquadSlot:nth-child(3){left:75%!important}
+  #ultimate .vdsSquadSlot:nth-child(4){left:24%!important}
+  #ultimate .vdsSquadSlot:nth-child(6){left:76%!important}
+  #ultimate .vdsUTBenchCards{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #home *,
+  #ultimate *{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+</style>
+
+<script id="ace-b21-22-home-runtime">
+(function(){
+  "use strict";
+
+  const $=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let rendering=false;
+  let queued=false;
+
+  function state(){
+    let lineup=[];
+    try{
+      lineup=typeof vdsHubOwnedLineupCards==="function"?vdsHubOwnedLineupCards():[];
+    }catch(_){}
+    const filled=Array.isArray(lineup)?lineup.filter(Boolean).length:0;
+    const cards=Array.isArray(window.ultimateTeamState?.cards)?window.ultimateTeamState.cards.filter(Boolean):[];
+    const packCards=cards.filter(c=>String(c?.source||"")==="pack").length;
+    const free=Math.max(0,Number(window.vdsAccountProfile?.free_gold_packs||0));
+    const matches=Math.max(0,Number(window.vdsAccountProfile?.matches_played||0));
+    const d=window.vdsDailyProgressCache||{};
+    const pending=
+      (Number(d.matches_played||0)>=1 && !d.play_one_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.win_one_rewarded) ||
+      (Number(d.matches_played||0)>=3 && !d.play_three_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.first_win_rewarded);
+    const earned=Number(d.coins_earned||0)>0 || matches>0;
+    return {filled,cards,packCards,free,matches,d,pending,earned};
+  }
+
+  function action(){
+    const s=state();
+    if(s.pending)return {icon:"✓",title:"CLAIM REWARD",sub:"A COMPLETED OBJECTIVE IS READY",target:"missions"};
+    if(s.free>0)return {icon:"🎁",title:"OPEN YOUR FREE GOLD PACK",sub:`${s.free} FREE GOLD PACK${s.free===1?"":"S"} WAITING`,target:"packs"};
+    if(s.filled<6)return {icon:"⬡",title:"BUILD YOUR STARTING SIX",sub:`${s.filled}/6 STARTERS READY`,target:"squad"};
+    if(s.matches===0)return {icon:"▶",title:"PLAY YOUR FIRST MATCH",sub:"START YOUR ACE LEAGUE RUN",target:"match"};
+    return {icon:"▶",title:"PLAY NEXT MATCH",sub:"KEEP YOUR CLUB MOVING",target:"match"};
+  }
+
+  function journeyHTML(){
+    const s=state();
+    const steps=[
+      {label:"OPEN PACK",done:s.packCards>0||s.free===0,target:"packs"},
+      {label:"BUILD SIX",done:s.filled===6,target:"squad"},
+      {label:"PLAY MATCH",done:s.matches>0,target:"match"},
+      {label:"EARN COINS",done:s.earned,target:"missions"}
+    ];
+    const current=steps.findIndex(x=>!x.done);
+    return steps.map((x,i)=>
+      `${i?'<span class="ace22JourneyArrow">→</span>':""}`+
+      `<button class="ace22JourneyStep ${x.done?"done":i===current?"current":""}" data-ace22-target="${x.target}" type="button">`+
+      `<i>${x.done?"✓":i+1}</i><span>${x.label}</span></button>`
+    ).join("");
+  }
+
+  function route(target){
+    try{
+      if(target==="match"){
+        if(typeof window.aceUTOpenMatchFlow==="function"){
+          window.aceUTOpenMatchFlow();
+          return;
+        }
+        if(typeof window.goPage==="function")window.goPage("sim");
+        return;
+      }
+
+      if(typeof window.goPage==="function")window.goPage("ultimate");
+      setTimeout(()=>{
+        try{
+          if(typeof window.vdsSwitchUltimateInstance==="function"){
+            window.vdsSwitchUltimateInstance(target);
+          }
+        }catch(_){}
+      },90);
+    }catch(_){}
+  }
+
+  function setText(el,value){
+    if(el && el.textContent!==value)el.textContent=value;
+  }
+
+  function renderHome(){
+    if(rendering)return;
+    const home=$("#home");
+    if(!home)return;
+    rendering=true;
+    try{
+      const eyebrow=$(".gameEyebrow",home);
+      setText(eyebrow,"WELCOME TO ACE");
+
+      const title=$(".gameHero h1",home);
+      const desired='BUILD YOUR SIX.<br><span>OWN THE COURT.</span>';
+      if(title && title.innerHTML!==desired)title.innerHTML=desired;
+
+      const intro=$(".gameHeroCopy>p",home);
+      setText(intro,"Collect real players, shape your starting six, and compete rally by rally.");
+
+      const actions=$(".gamePrimaryActions",home);
+      let journey=$(".ace22MainJourney",home);
+      if(actions && !journey){
+        journey=document.createElement("div");
+        journey.className="ace22MainJourney";
+        actions.insertAdjacentElement("beforebegin",journey);
+      }
+      if(journey){
+        const j=journeyHTML();
+        if(journey.innerHTML!==j)journey.innerHTML=j;
+      }
+
+      const a=action();
+      const primary=$("#homePlayModes",home);
+      if(primary){
+        primary.dataset.ace22Target=a.target;
+        const mark=$(".gamePlayMark",primary);
+        setText(mark,a.icon);
+        const b=$("b",primary), small=$("small",primary);
+        setText(b,a.title);
+        setText(small,a.sub);
+      }
+    }finally{
+      rendering=false;
+    }
+  }
+
+  document.addEventListener("click",function(e){
+    const journey=e.target.closest?.("[data-ace22-target]");
+    if(journey && journey.closest("#home")){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      route(journey.dataset.ace22Target);
+      return;
+    }
+
+    const primary=e.target.closest?.("#homePlayModes[data-ace22-target]");
+    if(primary){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      route(primary.dataset.ace22Target);
+    }
+  },true);
+
+  function queue(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(()=>{
+      queued=false;
+      renderHome();
+    });
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",queue,{once:true});
+  }else{
+    queue();
+  }
+
+  const observer=new MutationObserver(()=>{
+    if($("#home.page.active")||$("#home.active")||$("#home"))queue();
+  });
+
+  if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+
+  window.ACE_PROJECT_BUILD="B21.22";
+  window.ACE_VISUAL_COHESION="MAIN_HOME_PLUS_PURPLE_SQUAD_COURT";
+})();
+</script>
+<!-- /ACE B21.22 — VISUAL COHESION / PURPLE COURT -->
+
 </body>
 </html>
 
