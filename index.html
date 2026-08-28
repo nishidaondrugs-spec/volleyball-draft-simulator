@@ -41837,71 +41837,84 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
   function ensureOverlay(){
     let overlay=q("#ace31ShareOverlay");
-    if(overlay)return overlay;
-
-    overlay=document.createElement("div");
-    overlay.id="ace31ShareOverlay";
-    overlay.className="ace31ShareOverlay";
-    overlay.setAttribute("aria-hidden","true");
-    overlay.innerHTML=`
-      <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
-        <div class="ace31SharePreview">
-          <div id="ace31CaptureStage" class="ace31CaptureStage ace31FormatStory">
-            <div class="ace31CaptureBrand"><b>THE ACE PROJECT</b><span>VOLLEYBALL ULTIMATE TEAM</span></div>
-            <div id="ace31RealCardPreview" class="ace31RealCardPreview"></div>
-            <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
+    if(!overlay){
+      overlay=document.createElement("div");
+      overlay.id="ace31ShareOverlay";
+      overlay.className="ace31ShareOverlay";
+      overlay.setAttribute("aria-hidden","true");
+      overlay.innerHTML=`
+        <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
+          <div class="ace31SharePreview">
+            <img id="ace31SharePreviewImage" class="ace31SharePreviewImage" alt="Share preview" hidden>
+            <div id="ace31PreviewLoading" class="ace31PreviewLoading">Rendering preview…</div>
+            <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
           </div>
-          <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
-        </div>
-        <div class="ace31SharePanel">
-          <small>THE ACE PROJECT · SOCIAL CARD</small>
-          <h2>Share your card.</h2>
-          <p>This uses the exact same ACE card component as the game — including the real frame, portrait crop, stats, playstyles and serve type.</p>
+          <div class="ace31SharePanel">
+            <small>THE ACE PROJECT · SOCIAL CARD</small>
+            <h2>Share your card.</h2>
+            <p>This uses the exact same ACE card component as the game — including the real frame, portrait crop, stats, playstyles and serve type.</p>
 
-          <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
+            <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
 
-          <div class="ace31ShareOptions">
-            <label class="ace31ShareOption">
-              <span>FORMAT</span>
-              <select id="ace31ShareFormat">
-                <option value="story">Story · 9:16</option>
-                <option value="square">Square · 1:1</option>
-              </select>
-            </label>
-            <label class="ace31ShareOption">
-              <span>BACKGROUND</span>
-              <select id="ace31ShareTheme">
-                <option value="ace">ACE Purple</option>
-                <option value="dark">Dark Arena</option>
-                <option value="gold">Gold Spotlight</option>
-              </select>
-            </label>
+            <div class="ace31ShareOptions">
+              <label class="ace31ShareOption">
+                <span>FORMAT</span>
+                <select id="ace31ShareFormat">
+                  <option value="story">Story · 9:16</option>
+                  <option value="square">Square · 1:1</option>
+                </select>
+              </label>
+              <label class="ace31ShareOption">
+                <span>BACKGROUND</span>
+                <select id="ace31ShareTheme">
+                  <option value="ace">ACE Purple</option>
+                  <option value="dark">Dark Arena</option>
+                  <option value="gold">Gold Spotlight</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="ace31ShareActions">
+              <button type="button" class="native" id="ace31NativeShare">SHARE</button>
+              <button type="button" class="primary" id="ace31SavePng">SAVE PNG</button>
+              <button type="button" id="ace31CopyText">COPY CAPTION</button>
+              <button type="button" id="ace31Close">CLOSE</button>
+            </div>
+            <div id="ace31ShareStatus" class="ace31ShareStatus"></div>
           </div>
+        </div>`;
+      document.body.appendChild(overlay);
 
-          <div class="ace31ShareActions">
-            <button type="button" class="native" id="ace31NativeShare">SHARE</button>
-            <button type="button" class="primary" id="ace31SavePng">SAVE PNG</button>
-            <button type="button" id="ace31CopyText">COPY CAPTION</button>
-            <button type="button" id="ace31Close">CLOSE</button>
+      q("#ace31Close")?.addEventListener("click",closeShare);
+      q("#ace31SavePng")?.addEventListener("click",savePng);
+      q("#ace31NativeShare")?.addEventListener("click",nativeShare);
+      q("#ace31CopyText")?.addEventListener("click",copyCaption);
+      q("#ace31ShareFormat")?.addEventListener("change",renderCurrent);
+      q("#ace31ShareTheme")?.addEventListener("change",renderCurrent);
+
+      overlay.addEventListener("click",e=>{
+        if(e.target===overlay)closeShare();
+      });
+    }
+
+    let captureRoot=q("#ace31CaptureRoot");
+    if(!captureRoot){
+      captureRoot=document.createElement("div");
+      captureRoot.id="ace31CaptureRoot";
+      captureRoot.setAttribute("aria-hidden","true");
+      captureRoot.innerHTML=`
+        <div id="ace31CaptureScene" class="ace31CaptureScene ace31FormatStory">
+          <div class="ace31CaptureBrand">
+            <b>THE ACE PROJECT</b>
+            <span>VOLLEYBALL ULTIMATE TEAM</span>
           </div>
-          <div id="ace31ShareStatus" class="ace31ShareStatus"></div>
-        </div>
-      </div>`;
+          <div id="ace31RealCardCapture" class="ace31RealCardCapture"></div>
+          <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
+        </div>`;
+      document.body.appendChild(captureRoot);
+    }
 
-    document.body.appendChild(overlay);
     ace31Canvas=q("#ace31ShareCanvas");
-
-    q("#ace31Close")?.addEventListener("click",closeShare);
-    q("#ace31SavePng")?.addEventListener("click",savePng);
-    q("#ace31NativeShare")?.addEventListener("click",nativeShare);
-    q("#ace31CopyText")?.addEventListener("click",copyCaption);
-    q("#ace31ShareFormat")?.addEventListener("change",renderCurrent);
-    q("#ace31ShareTheme")?.addEventListener("change",renderCurrent);
-
-    overlay.addEventListener("click",e=>{
-      if(e.target===overlay)closeShare();
-    });
-
     return overlay;
   }
 
@@ -42046,10 +42059,12 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
   async function renderShareCanvas(p,format,theme){
     const token=++ace31RenderToken;
-    const stage=q("#ace31CaptureStage");
-    const holder=q("#ace31RealCardPreview");
+    const scene=q("#ace31CaptureScene");
+    const holder=q("#ace31RealCardCapture");
+    const preview=q("#ace31SharePreviewImage");
+    const loading=q("#ace31PreviewLoading");
     const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!stage||!holder||!canvas)return;
+    if(!scene||!holder||!preview||!loading||!canvas)return;
 
     const tier=typeof cardTier==="function"?cardTier(p):"gold";
     const tierLabel=typeof cardTierLabel==="function"?cardTierLabel(p):"CARD";
@@ -42057,16 +42072,26 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
     const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
 
-    stage.classList.toggle("ace31FormatStory",format!=="square");
-    stage.classList.toggle("ace31FormatSquare",format==="square");
-    stage.style.background=theme==="gold"
-      ?"radial-gradient(circle at 50% 31%,rgba(203,161,55,.19),transparent 34%),linear-gradient(180deg,#241b0b 0%,#0f0d0b 53%,#06080d 100%)"
+    preview.hidden=true;
+    loading.hidden=false;
+    loading.textContent="Rendering preview…";
+
+    scene.classList.toggle("ace31FormatStory",format!=="square");
+    scene.classList.toggle("ace31FormatSquare",format==="square");
+    preview.classList.toggle("square",format==="square");
+
+    scene.style.background=theme==="gold"
+      ?"radial-gradient(circle at 50% 18%,rgba(203,161,55,.20),transparent 28%),linear-gradient(180deg,#231909 0%,#0d0c0b 56%,#06080d 100%)"
       :theme==="dark"
-        ?"radial-gradient(circle at 50% 31%,rgba(83,108,145,.12),transparent 34%),linear-gradient(180deg,#11151c 0%,#090b10 53%,#05070b 100%)"
-        :"radial-gradient(circle at 50% 31%,rgba(126,74,205,.16),transparent 34%),linear-gradient(180deg,#160d24 0%,#0b0b13 53%,#06080d 100%)";
+        ?"radial-gradient(circle at 50% 18%,rgba(92,119,153,.16),transparent 28%),linear-gradient(180deg,#10151d 0%,#0a0c11 56%,#05070a 100%)"
+        :"radial-gradient(circle at 50% 18%,rgba(126,74,205,.20),transparent 28%),linear-gradient(180deg,#140c22 0%,#0b0b13 56%,#06080d 100%)";
 
     holder.innerHTML=`<div class="fifaPlayerCard ${tier}${posClass}">${vdsMasterPlayerCardHTML(p,{
-      role,rating,tier,tierLabel,footer:""
+      role,
+      rating,
+      tier,
+      tierLabel,
+      footer:""
     })}</div>`;
 
     const img=holder.querySelector("img");
@@ -42074,27 +42099,48 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       await new Promise(resolve=>{
         img.addEventListener("load",resolve,{once:true});
         img.addEventListener("error",resolve,{once:true});
-        setTimeout(resolve,2500);
+        setTimeout(resolve,2600);
       });
     }
+
+    /* Wait two frames so the reused live ACE card fully lays out inside the
+       isolated off-screen capture scene before capture happens. */
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(token!==ace31RenderToken)return;
 
     if(!window.html2canvas){
-      setStatus("Real ACE card preview ready. Share capture library is still loading…");
+      loading.textContent="Capture library is still loading…";
+      setStatus("Preview is preparing…");
       return;
     }
+
     try{
-      const rendered=await window.html2canvas(stage,{backgroundColor:null,scale:3,useCORS:true,allowTaint:false,logging:false,imageTimeout:7000,removeContainer:true});
+      const rendered=await window.html2canvas(scene,{
+        backgroundColor:null,
+        scale:1,
+        useCORS:true,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:8000,
+        removeContainer:true
+      });
       if(token!==ace31RenderToken)return;
+
       canvas.width=rendered.width;
       canvas.height=rendered.height;
       const ctx=canvas.getContext("2d");
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(rendered,0,0);
+
+      preview.src=canvas.toDataURL("image/png");
+      preview.hidden=false;
+      loading.hidden=true;
       setStatus("Real ACE card ready to share.","ok");
     }catch(error){
-      console.error("ACE real-card share capture failed",error);
-      setStatus("The real card is shown correctly, but PNG capture failed: "+(error?.message||error),"bad");
+      console.error("ACE isolated share capture failed",error);
+      loading.hidden=false;
+      loading.textContent="Preview capture failed.";
+      setStatus("Share preview failed: "+(error?.message||error),"bad");
     }
   }
 
@@ -42107,9 +42153,17 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   }
 
   async function canvasBlob(){
-    const stage=q("#ace31CaptureStage");
-    if(stage&&window.html2canvas){
-      const rendered=await window.html2canvas(stage,{backgroundColor:null,scale:3,useCORS:true,allowTaint:false,logging:false,imageTimeout:7000,removeContainer:true});
+    const scene=q("#ace31CaptureScene");
+    if(scene&&window.html2canvas){
+      const rendered=await window.html2canvas(scene,{
+        backgroundColor:null,
+        scale:1,
+        useCORS:true,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:8000,
+        removeContainer:true
+      });
       return await new Promise((resolve,reject)=>{
         rendered.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
       });
@@ -42396,6 +42450,760 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 (function(){window.ACE_PROJECT_BUILD="B21.31.4";window.ACE_SHARE_REUSES_REAL_CARD=true})();
 </script>
 <!-- /ACE B21.31.4 — REUSE REAL ACE CARD -->
+
+
+<!-- ACE B21.31.5 — ISOLATED SHARE CAPTURE SCENE -->
+<style id="ace-b21-31-5-isolated-share-capture-scene">
+/* Visible preview now shows the captured image only. */
+.ace31SharePreview{
+  overflow:hidden!important;
+}
+.ace31SharePreviewImage{
+  display:block;
+  width:min(100%,355px);
+  height:auto;
+  aspect-ratio:9/16;
+  object-fit:contain;
+  border-radius:13px;
+  box-shadow:0 24px 50px rgba(0,0,0,.42);
+  background:#05070c;
+}
+.ace31SharePreviewImage.square{
+  aspect-ratio:1/1;
+}
+.ace31PreviewLoading{
+  display:grid;
+  place-items:center;
+  width:min(100%,355px);
+  aspect-ratio:9/16;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.06);
+  background:#070a10;
+  color:#7f8190;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-align:center;
+  padding:16px;
+}
+@media(max-width:760px){
+  .ace31SharePreviewImage,
+  .ace31PreviewLoading{
+    width:min(75vw,300px);
+  }
+}
+
+/* Hidden, isolated capture root: no flex/modal interference. */
+#ace31CaptureRoot{
+  position:fixed;
+  left:-20000px;
+  top:0;
+  width:0;
+  height:0;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  z-index:-1;
+}
+.ace31CaptureScene{
+  position:relative;
+  box-sizing:border-box;
+  width:1080px;
+  height:1920px;
+  padding:76px 72px 64px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:26px;
+  color:#fff;
+  isolation:isolate;
+}
+.ace31CaptureScene::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.18;
+  background-image:repeating-linear-gradient(45deg,transparent 0 34px,rgba(255,255,255,.035) 35px 36px);
+}
+.ace31CaptureScene.ace31FormatSquare{
+  height:1080px;
+  padding:40px 56px 38px;
+  gap:16px;
+}
+.ace31CaptureBrand{
+  flex:0 0 auto;
+  margin-top:2px;
+  text-align:center;
+}
+.ace31CaptureBrand b{
+  display:block;
+  color:#fff;
+  font-size:28px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+.ace31CaptureBrand span{
+  display:block;
+  margin-top:8px;
+  color:rgba(255,255,255,.58);
+  font-size:13px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.10em;
+}
+.ace31RealCardCapture{
+  width:640px;
+  max-width:640px;
+  flex:0 0 auto;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  margin-top:4px;
+}
+.ace31RealCardCapture>.fifaPlayerCard{
+  width:640px!important;
+  min-width:640px!important;
+  max-width:640px!important;
+  min-height:1030px!important;
+  margin:0!important;
+  transform:none!important;
+  transition:none!important;
+  pointer-events:none!important;
+  filter:drop-shadow(0 28px 36px rgba(0,0,0,.42))!important;
+  box-shadow:none!important;
+}
+.ace31RealCardCapture>.fifaPlayerCard:hover{
+  transform:none!important;
+}
+.ace31RealCardCapture>.fifaPlayerCard::before,
+.ace31RealCardCapture>.fifaPlayerCard::after{
+  animation:none!important;
+}
+.ace31RealCardCapture .fifaEditHint{
+  display:none!important;
+}
+.ace31CaptureFooter{
+  margin-top:auto;
+  padding-bottom:8px;
+  color:rgba(255,255,255,.84);
+  font-size:22px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.06em;
+  text-align:center;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31RealCardCapture{
+  width:510px;
+  max-width:510px;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31RealCardCapture>.fifaPlayerCard{
+  width:510px!important;
+  min-width:510px!important;
+  max-width:510px!important;
+  min-height:820px!important;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31CaptureFooter{
+  display:none;
+}
+</style>
+<!-- /ACE B21.31.5 — ISOLATED SHARE CAPTURE SCENE -->
+
+
+<!-- ACE B21.31.5 — BUILD TAG -->
+<script id="ace-b21-31-5-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.5";
+  window.ACE_ISOLATED_SHARE_CAPTURE_SCENE=true;
+})();
+</script>
+<!-- /ACE B21.31.5 — BUILD TAG -->
+
+
+<!-- ACE B21.31.6 — MOBILE PACK REVIEW FIX -->
+<style id="ace-b21-31-6-mobile-pack-review">
+/* =========================================================
+   MOBILE PACK REVIEW
+   - pack overlay owns the whole phone viewport
+   - fixed global nav is hidden during pack opening/review
+   - summary cards stay full-size and tappable
+   - old per-card decision grid is hidden on phone
+   - actions appear only after tapping a card
+   ========================================================= */
+
+.ace31PackTapHint{
+  display:none;
+}
+
+.ace31PackCardActionSheet{
+  position:fixed;
+  inset:0;
+  z-index:52050;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(3,5,9,.66);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ace31PackCardActionSheet.show{
+  display:flex;
+}
+.ace31PackCardActionPanel{
+  width:min(520px,100%);
+  padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+  border:1px solid rgba(184,139,241,.18);
+  border-bottom:0;
+  border-radius:20px 20px 0 0;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(126,73,201,.11),transparent 34%),
+    #080b12;
+  box-shadow:0 -24px 60px rgba(0,0,0,.52);
+}
+.ace31PackSheetGrab{
+  width:38px;
+  height:4px;
+  margin:0 auto 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+}
+.ace31PackSheetHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 2px 10px;
+}
+.ace31PackSheetHead small{
+  display:block;
+  color:#8d69b8;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+.ace31PackSheetHead b{
+  display:block;
+  margin-top:3px;
+  color:#f0edf4;
+  font-size:17px;
+}
+.ace31PackSheetRating{
+  flex:0 0 auto;
+  min-width:55px;
+  padding:7px 8px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#060910;
+  text-align:center;
+}
+.ace31PackSheetRating strong{
+  display:block;
+  color:#fff;
+  font-size:20px;
+}
+.ace31PackSheetRating span{
+  display:block;
+  margin-top:2px;
+  color:#817b89;
+  font-size:6px;
+  font-weight:1000;
+}
+.ace31PackSheetStatus{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  padding:0 2px 10px;
+}
+.ace31PackSheetStatus span{
+  padding:5px 7px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#060910;
+  color:#817b89;
+  font-size:6px;
+  font-weight:1000;
+}
+.ace31PackSheetStatus .new{
+  color:#9ae2ae;
+  border-color:rgba(80,200,118,.12);
+}
+.ace31PackSheetStatus .dup{
+  color:#e2c274;
+  border-color:rgba(212,172,68,.12);
+}
+.ace31PackSheetActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.ace31PackSheetActions button{
+  min-height:48px;
+  padding:0 9px;
+  border-radius:11px;
+  border:1px solid rgba(177,132,235,.10);
+  background:#0b0e16;
+  color:#aaa2b2;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.06em;
+  cursor:pointer;
+}
+.ace31PackSheetActions button.primary{
+  border-color:transparent;
+  background:linear-gradient(135deg,#7240c0,#9d5eea);
+  color:#fff;
+}
+.ace31PackSheetActions button.sell{
+  color:#e2c474;
+}
+.ace31PackSheetActions button.close{
+  grid-column:1/-1;
+  min-height:42px;
+  color:#77717f;
+}
+.ace31PackSheetActions button:disabled{
+  opacity:.38;
+  cursor:not-allowed;
+}
+
+@media(max-width:760px){
+  /* The pack reveal becomes its own full-screen mobile experience.
+     Do not leave the normal site navigation sitting over it. */
+  body.ace31PackReviewOpen{
+    overflow:hidden!important;
+    padding-bottom:0!important;
+    overscroll-behavior:none!important;
+  }
+  body.ace31PackReviewOpen .aceMobileQuickNav,
+  body.ace31PackReviewOpen .aceMobileMoreSheet{
+    display:none!important;
+  }
+
+  .aceCinematicPackOverlay.show{
+    display:block!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    padding:0!important;
+    touch-action:pan-y!important;
+  }
+
+  .aceCinematicPackStage{
+    width:100%!important;
+    min-height:100dvh!important;
+    height:auto!important;
+    justify-content:flex-start!important;
+    padding:
+      calc(20px + env(safe-area-inset-top))
+      0
+      calc(30px + env(safe-area-inset-bottom))!important;
+    box-sizing:border-box!important;
+  }
+
+  .aceCinematicPackHeader{
+    position:relative!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    width:calc(100% - 24px)!important;
+    margin:0 auto 12px!important;
+    padding:0!important;
+  }
+
+  .aceCinemaIntro,
+  .aceCinemaReveal,
+  .aceCinemaSummary{
+    width:100%!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .aceCinemaIntro,
+  .aceCinemaReveal{
+    flex:1 0 auto;
+    padding:14px 10px 24px!important;
+  }
+
+  /* The completed pack must be vertically scrollable instead of being
+     vertically centred inside a fixed viewport. */
+  .aceCinemaSummary:not(.hidden){
+    display:block!important;
+    padding:8px 0 30px!important;
+    overflow:visible!important;
+  }
+  .aceCinemaSummary h2{
+    margin-top:7px!important;
+    padding:0 14px!important;
+    font-size:34px!important;
+  }
+  .aceCinemaSummary>p{
+    padding:0 18px!important;
+    font-size:9px!important;
+  }
+  .aceCinemaSummary>p::after{
+    content:" Tap a card to choose what to do with it.";
+    color:#b593dc;
+    font-weight:900;
+  }
+
+  /* Full-size horizontal pack carousel, with vertical page scroll preserved. */
+  .aceCinemaSummaryCards{
+    touch-action:pan-x pan-y!important;
+    margin-top:16px!important;
+    padding-top:4px!important;
+    padding-bottom:13px!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+  }
+  .aceCinemaSummaryCard{
+    position:relative!important;
+    cursor:pointer!important;
+    touch-action:manipulation!important;
+  }
+  .aceCinemaSummaryCard::after{
+    content:"TAP FOR OPTIONS";
+    position:absolute;
+    left:50%;
+    bottom:8px;
+    z-index:90;
+    transform:translateX(-50%);
+    min-width:104px;
+    padding:6px 9px;
+    border-radius:999px;
+    border:1px solid rgba(199,158,250,.18);
+    background:rgba(6,8,13,.88);
+    color:#d4b7f4;
+    font-size:5.6px;
+    font-weight:1000;
+    letter-spacing:.08em;
+    pointer-events:none;
+    box-shadow:0 7px 18px rgba(0,0,0,.28);
+  }
+
+  /* B21.21 desktop decision cards are useful on PC, but duplicate the
+     entire interface on mobile. Tap the real card instead. */
+  .aceCinemaSummary #ace21PackDecisionGrid{
+    display:none!important;
+  }
+
+  /* Bulk pack actions stay in normal document flow. No sticky footer,
+     no overlap with the cards, no fixed nav underneath it. */
+  .aceCinemaSummaryActions{
+    position:relative!important;
+    inset:auto!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:7px!important;
+    width:calc(100% - 24px)!important;
+    margin:14px auto 0!important;
+    padding:0 0 calc(6px + env(safe-area-inset-bottom))!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  .aceCinemaSummaryActions button{
+    width:100%!important;
+    min-height:50px!important;
+    margin:0!important;
+    font-size:8px!important;
+    border-radius:11px!important;
+  }
+  #aceCinemaDone::before{
+    content:"✓ ";
+  }
+
+  /* Older single-card reveal shouldn't inherit the site bottom nav either. */
+  body:has(.utRevealOverlay.show) .aceMobileQuickNav,
+  body:has(.utRevealOverlay.show) .aceMobileMoreSheet{
+    display:none!important;
+  }
+  .utRevealOverlay.show{
+    padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+  }
+  .utRevealOverlay .aceRevealFooter{
+    bottom:auto!important;
+    position:relative!important;
+    margin:12px!important;
+  }
+}
+
+/* Narrow phones: give the action sheet one clear vertical stack. */
+@media(max-width:390px){
+  .ace31PackSheetActions{
+    grid-template-columns:1fr!important;
+  }
+  .ace31PackSheetActions button.close{
+    grid-column:auto;
+  }
+}
+</style>
+
+<script id="ace-b21-31-6-mobile-pack-review-runtime">
+(function(){
+  "use strict";
+
+  let mobilePackCards=[];
+  let selectedPackIndex=-1;
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+
+  function isMobile(){
+    return window.matchMedia?.("(max-width:760px)")?.matches===true;
+  }
+
+  function orderedPack(cards){
+    return (Array.isArray(cards)?cards:[]).slice().sort((a,b)=>{
+      if(Boolean(a?.featured)!==Boolean(b?.featured))return a?.featured?1:-1;
+      return Number(a?.packSlot||0)-Number(b?.packSlot||0);
+    });
+  }
+
+  function ensureActionSheet(){
+    let sheet=q("#ace31PackCardActionSheet");
+    if(sheet)return sheet;
+
+    sheet=document.createElement("div");
+    sheet.id="ace31PackCardActionSheet";
+    sheet.className="ace31PackCardActionSheet";
+    sheet.setAttribute("aria-hidden","true");
+    sheet.innerHTML=`
+      <div class="ace31PackCardActionPanel" role="dialog" aria-modal="true" aria-label="Pack card actions">
+        <div class="ace31PackSheetGrab"></div>
+        <div class="ace31PackSheetHead">
+          <div>
+            <small>PACK CARD</small>
+            <b id="ace31PackSheetName">PLAYER</b>
+          </div>
+          <div class="ace31PackSheetRating">
+            <strong id="ace31PackSheetOvr">0</strong>
+            <span id="ace31PackSheetPos">POS</span>
+          </div>
+        </div>
+        <div class="ace31PackSheetStatus" id="ace31PackSheetStatus"></div>
+        <div class="ace31PackSheetActions">
+          <button type="button" class="primary" data-ace31-pack-action="squad">ADD TO SQUAD</button>
+          <button type="button" data-ace31-pack-action="view">VIEW CARD</button>
+          <button type="button" class="sell" data-ace31-pack-action="sell">QUICK SELL</button>
+          <button type="button" data-ace31-pack-action="keep">KEEP IN MY CLUB</button>
+          <button type="button" class="close" data-ace31-pack-action="close">CLOSE OPTIONS</button>
+        </div>
+      </div>`;
+    document.body.appendChild(sheet);
+
+    sheet.addEventListener("click",e=>{
+      if(e.target===sheet)closeActionSheet();
+    });
+    return sheet;
+  }
+
+  function findClubCopies(card){
+    return (ultimateTeamState?.cards||[]).filter(c=>
+      Number(c?.playerId||0)===Number(card?.playerId||0)
+      && String(c?.rarity||"")===String(card?.rarity||"")
+    );
+  }
+
+  function openActionSheet(index){
+    if(!isMobile())return;
+    const card=mobilePackCards[Number(index)];
+    if(!card)return;
+
+    selectedPackIndex=Number(index);
+    const sheet=ensureActionSheet();
+    const copies=findClubCopies(card);
+    const duplicate=copies.length>1;
+    const sellable=typeof aceUTSellableCloudCopy==="function"
+      ? aceUTSellableCloudCopy(card)
+      : null;
+    const value=typeof aceUTQuickSellValue==="function"
+      ? aceUTQuickSellValue(card.rating)
+      : 0;
+
+    q("#ace31PackSheetName").textContent=String(card.playerName||"PLAYER");
+    q("#ace31PackSheetOvr").textContent=String(Math.round(Number(card.rating||0)));
+    q("#ace31PackSheetPos").textContent=String(card.position||"POS");
+
+    const status=q("#ace31PackSheetStatus");
+    if(status){
+      status.innerHTML=`
+        <span class="${duplicate?"dup":"new"}">${duplicate?`DUPLICATE ×${copies.length}`:"NEW CARD"}</span>
+        <span>${String(UT_RARITY?.[card.rarity]?.label||card.rarity||"CARD").toUpperCase()}</span>
+        ${card.featured?`<span>FEATURED PULL</span>`:""}`;
+    }
+
+    const sellBtn=q('[data-ace31-pack-action="sell"]',sheet);
+    if(sellBtn){
+      sellBtn.disabled=!sellable;
+      sellBtn.textContent=sellable
+        ? `QUICK SELL · ${Number(value).toLocaleString()} ◉`
+        : "QUICK SELL UNAVAILABLE";
+    }
+
+    const squadBtn=q('[data-ace31-pack-action="squad"]',sheet);
+    if(squadBtn){
+      const uids=new Set((ultimateTeamState?.lineupSlots||[]).filter(Boolean).map(String));
+      const inSquad=copies.some(c=>uids.has(String(typeof utCardUid==="function"?utCardUid(c):c.id)));
+      squadBtn.disabled=inSquad;
+      squadBtn.textContent=inSquad?"IN STARTING SIX ✓":"ADD TO SQUAD";
+    }
+
+    sheet.classList.add("show");
+    sheet.setAttribute("aria-hidden","false");
+    navigator.vibrate?.(16);
+  }
+
+  function closeActionSheet(){
+    const sheet=q("#ace31PackCardActionSheet");
+    sheet?.classList.remove("show");
+    sheet?.setAttribute("aria-hidden","true");
+    selectedPackIndex=-1;
+  }
+
+  function annotateSummary(){
+    const overlay=q("#aceTriplePackOverlay");
+    const summary=q("#aceCinemaSummary",overlay);
+    if(!overlay||!summary||summary.classList.contains("hidden"))return;
+
+    document.body.classList.add("ace31PackReviewOpen");
+
+    const cards=qa("#aceCinemaSummaryCards .aceCinemaSummaryCard",summary);
+    cards.forEach((el,index)=>{
+      el.dataset.ace31PackIndex=String(index);
+      el.setAttribute("role","button");
+      el.setAttribute("tabindex","0");
+      el.setAttribute("aria-label",`Manage ${mobilePackCards[index]?.playerName||"pack card"}`);
+    });
+
+    const done=q("#aceCinemaDone",summary);
+    if(done)done.textContent="SEND ALL TO MY CLUB";
+
+    const again=q("#aceCinemaAgain",summary);
+    if(again)again.textContent="OPEN ANOTHER";
+  }
+
+  function attachOverlayObserver(){
+    const overlay=q("#aceTriplePackOverlay");
+    if(!overlay||overlay.__ace31MobileObserved)return;
+    overlay.__ace31MobileObserved=true;
+
+    const summary=q("#aceCinemaSummary",overlay);
+    const cards=q("#aceCinemaSummaryCards",overlay);
+
+    const sync=()=>{
+      if(overlay.classList.contains("show")){
+        if(isMobile())document.body.classList.add("ace31PackReviewOpen");
+        annotateSummary();
+      }else{
+        document.body.classList.remove("ace31PackReviewOpen");
+        closeActionSheet();
+      }
+    };
+
+    const obs=new MutationObserver(sync);
+    obs.observe(overlay,{attributes:true,attributeFilter:["class"]});
+    if(summary)obs.observe(summary,{attributes:true,attributeFilter:["class"]});
+    if(cards)obs.observe(cards,{childList:true,subtree:false});
+    sync();
+  }
+
+  /* Capture the exact three cards and their same reveal order. */
+  if(typeof showUltimateTripleReveal==="function"&&!showUltimateTripleReveal.__ace31MobileWrapped){
+    const base=showUltimateTripleReveal;
+    const wrapped=function(cards,packId){
+      mobilePackCards=orderedPack(cards);
+      const result=base.apply(this,arguments);
+      setTimeout(()=>{
+        attachOverlayObserver();
+        annotateSummary();
+      },0);
+      return result;
+    };
+    wrapped.__ace31MobileWrapped=true;
+    try{showUltimateTripleReveal=wrapped}catch(_){}
+    window.showUltimateTripleReveal=wrapped;
+  }
+
+  document.addEventListener("click",e=>{
+    if(!isMobile())return;
+
+    const card=e.target.closest?.("#aceCinemaSummaryCards .aceCinemaSummaryCard[data-ace31-pack-index]");
+    if(card){
+      e.preventDefault();
+      e.stopPropagation();
+      openActionSheet(Number(card.dataset.ace31PackIndex));
+      return;
+    }
+
+    const action=e.target.closest?.("[data-ace31-pack-action]");
+    if(!action)return;
+
+    const cardData=mobilePackCards[selectedPackIndex];
+    const kind=action.dataset.ace31PackAction;
+
+    if(kind==="close"||kind==="keep"){
+      closeActionSheet();
+      return;
+    }
+    if(!cardData)return;
+
+    if(kind==="squad"){
+      const placed=typeof aceAssignFreshCardToSquad==="function"
+        ? aceAssignFreshCardToSquad(cardData)
+        : false;
+      window.aceNotify?.({
+        title:placed?"ADDED TO STARTING SIX":"CARD SELECTED",
+        body:placed
+          ? `${cardData.playerName} has been placed into your six.`
+          : "Your Starting Six is full. The card is selected for squad editing.",
+        type:"success"
+      });
+      closeActionSheet();
+      return;
+    }
+
+    if(kind==="view"){
+      closeActionSheet();
+      if(typeof openVdsCardShowcase==="function"){
+        openVdsCardShowcase(cardData.playerName);
+      }
+      return;
+    }
+
+    if(kind==="sell"){
+      closeActionSheet();
+      if(typeof aceUTQuickSellGroupedCard==="function"){
+        aceUTQuickSellGroupedCard(cardData.playerId,cardData.rarity);
+      }
+    }
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(!isMobile()||!(e.key==="Enter"||e.key===" "))return;
+    const card=e.target.closest?.("#aceCinemaSummaryCards .aceCinemaSummaryCard[data-ace31-pack-index]");
+    if(card){
+      e.preventDefault();
+      openActionSheet(Number(card.dataset.ace31PackIndex));
+    }
+  });
+
+  /* Remove pack body lock if the overlay is closed by any existing route. */
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("#aceCinemaDone,#aceCinemaAgain")){
+      closeActionSheet();
+      setTimeout(()=>document.body.classList.remove("ace31PackReviewOpen"),30);
+    }
+  });
+
+  window.ACE_PROJECT_BUILD="B21.31.6";
+  window.ACE_MOBILE_PACK_REVIEW_FIX=true;
+})();
+</script>
+<!-- /ACE B21.31.6 — MOBILE PACK REVIEW FIX -->
 
 </body>
 </html>
