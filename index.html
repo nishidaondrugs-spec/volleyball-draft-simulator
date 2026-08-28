@@ -41848,13 +41848,15 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       overlay.innerHTML=`
         <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
           <div class="ace31SharePreview">
-            <div id="ace31ShareLiveStage" class="ace31ShareLiveStage ace31FormatStory">
-              <div class="ace31CaptureBrand">
-                <b>THE ACE PROJECT</b>
-                <span>VOLLEYBALL ULTIMATE TEAM</span>
+            <div id="ace31SharePreviewViewport" class="ace31SharePreviewViewport">
+              <div id="ace31ShareLiveStage" class="ace31ShareLiveStage ace31FormatStory">
+                <div class="ace31CaptureBrand">
+                  <b>THE ACE PROJECT</b>
+                  <span>VOLLEYBALL ULTIMATE TEAM</span>
+                </div>
+                <div id="ace31ShareLiveCard" class="ace31ShareLiveCard"></div>
+                <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
               </div>
-              <div id="ace31ShareLiveCard" class="ace31ShareLiveCard"></div>
-              <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
             </div>
             <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
           </div>
@@ -41932,6 +41934,25 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     if(!el)return;
     el.className="ace31ShareStatus"+(type?" "+type:"");
     el.textContent=text||"";
+  }
+
+  function ace31SceneSize(format){
+    return format==="square"
+      ? {w:1080,h:1080}
+      : {w:1080,h:1920};
+  }
+
+  function updateSharePreviewScale(format){
+    const viewport=q("#ace31SharePreviewViewport");
+    const stage=q("#ace31ShareLiveStage");
+    if(!viewport||!stage)return;
+
+    const scene=ace31SceneSize(format);
+    const viewportWidth=viewport.clientWidth||355;
+    const scale=viewportWidth/scene.w;
+
+    viewport.style.aspectRatio = format==="square" ? "1 / 1" : "9 / 16";
+    stage.style.setProperty("--ace31-preview-scale", String(scale));
   }
 
   function setShareReady(ready){
@@ -42111,8 +42132,9 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const token=++ace31RenderToken;
     const liveStage=q("#ace31ShareLiveStage");
     const liveHolder=q("#ace31ShareLiveCard");
+    const viewport=q("#ace31SharePreviewViewport");
     const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!liveStage||!liveHolder||!canvas)return;
+    if(!liveStage||!liveHolder||!viewport||!canvas)return;
 
     function themeBg(name){
       if(name==="gold"){
@@ -42149,6 +42171,8 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
     liveStage.classList.toggle("ace31FormatStory",format!=="square");
     liveStage.classList.toggle("ace31FormatSquare",format==="square");
+    viewport.classList.toggle("ace31FormatSquare",format==="square");
+    viewport.classList.toggle("ace31FormatStory",format!=="square");
     liveStage.style.background=themeBg(theme);
 
     liveHolder.innerHTML="";
@@ -42165,36 +42189,42 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       });
     }));
 
+    const scene=ace31SceneSize(format);
+    liveStage.style.width=scene.w+"px";
+    liveStage.style.height=scene.h+"px";
+    canvas.width=scene.w;
+    canvas.height=scene.h;
+
+    updateSharePreviewScale(format);
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(token!==ace31RenderToken)return;
 
-    /* WHAT YOU SEE IS WHAT GETS EXPORTED:
-       capture the visible preview stage itself, not a different hidden scene. */
     if(window.html2canvas){
       try{
-        const rect=liveStage.getBoundingClientRect();
-        const targetWidth=1080;
-        const scale=Math.max(1,targetWidth/Math.max(1,rect.width));
+        /* Capture the single master stage at its fixed pixel size.
+           The preview is only a scaled-down view of this same scene. */
         const rendered=await window.html2canvas(liveStage,{
           backgroundColor:null,
-          scale,
+          scale:1,
           useCORS:true,
           allowTaint:false,
           logging:false,
           imageTimeout:8000,
-          removeContainer:true
+          removeContainer:true,
+          width:scene.w,
+          height:scene.h,
+          windowWidth:scene.w,
+          windowHeight:scene.h
         });
         if(token!==ace31RenderToken)return;
-        canvas.width=rendered.width;
-        canvas.height=rendered.height;
         const ctx=canvas.getContext("2d");
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.drawImage(rendered,0,0);
+        ctx.drawImage(rendered,0,0,scene.w,scene.h);
 
         const blob=await prepareBlobFromCanvas(canvas,p,format,theme);
         if(blob){
           setShareReady(true);
-          setStatus("Preview ready · export matches the preview.","ok");
+          setStatus("Preview ready · preview and export now use the same master scene.","ok");
         }else{
           setShareReady(false);
           setStatus("Preview ready. PNG capture is still preparing…","");
@@ -42224,22 +42254,28 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
   async function canvasBlob(){
     const liveStage=q("#ace31ShareLiveStage");
+    const format=q("#ace31ShareFormat")?.value||"story";
+    const scene=ace31SceneSize(format);
+
     if(liveStage&&window.html2canvas){
-      const rect=liveStage.getBoundingClientRect();
-      const scale=Math.max(1,1080/Math.max(1,rect.width));
       const rendered=await window.html2canvas(liveStage,{
         backgroundColor:null,
-        scale,
+        scale:1,
         useCORS:true,
         allowTaint:false,
         logging:false,
         imageTimeout:8000,
-        removeContainer:true
+        removeContainer:true,
+        width:scene.w,
+        height:scene.h,
+        windowWidth:scene.w,
+        windowHeight:scene.h
       });
       return await new Promise((resolve,reject)=>{
         rendered.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
       });
     }
+
     return await new Promise((resolve,reject)=>{
       if(!ace31Canvas){reject(new Error("No share image available."));return}
       ace31Canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
@@ -43665,6 +43701,162 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 })();
 </script>
 <!-- /ACE B21.31.10 — WYSIWYG SHARE EXPORT -->
+
+
+<!-- ACE B21.31.11 — SINGLE MASTER SHARE SCENE -->
+<style id="ace-b21-31-11-single-master-share-scene">
+/* One real master scene. Preview is only a scaled-down viewport of it. */
+.ace31SharePreview{
+  overflow:hidden!important;
+}
+.ace31SharePreview canvas,
+.ace31SharePreviewImage,
+.ace31PreviewLoading{
+  display:none!important;
+}
+
+.ace31SharePreviewViewport{
+  position:relative;
+  width:min(100%,355px);
+  max-width:355px;
+  overflow:hidden;
+  border-radius:13px;
+  box-shadow:0 24px 50px rgba(0,0,0,.42);
+  background:#05070c;
+}
+.ace31SharePreviewViewport.ace31FormatStory{
+  aspect-ratio:9/16;
+}
+.ace31SharePreviewViewport.ace31FormatSquare{
+  aspect-ratio:1/1;
+}
+@media(max-width:760px){
+  .ace31SharePreviewViewport{
+    width:min(75vw,300px);
+    max-width:300px;
+  }
+}
+
+.ace31ShareLiveStage{
+  position:absolute!important;
+  left:50%!important;
+  top:0!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:24px!important;
+  width:1080px!important;
+  height:1920px!important;
+  padding:74px 72px 64px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  transform-origin:top center!important;
+  transform:translateX(-50%) scale(var(--ace31-preview-scale,0.3287))!important;
+  border-radius:40px!important;
+}
+.ace31ShareLiveStage.ace31FormatSquare{
+  height:1080px!important;
+  padding:42px 56px 34px!important;
+  gap:14px!important;
+}
+.ace31ShareLiveStage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.18;
+  background-image:repeating-linear-gradient(45deg,transparent 0 34px,rgba(255,255,255,.035) 35px 36px);
+}
+
+.ace31ShareLiveStage .ace31CaptureBrand{
+  flex:0 0 auto;
+  margin-top:2px;
+  text-align:center;
+}
+.ace31ShareLiveStage .ace31CaptureBrand b{
+  display:block;
+  color:#fff;
+  font-size:28px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+.ace31ShareLiveStage .ace31CaptureBrand span{
+  display:block;
+  margin-top:8px;
+  color:rgba(255,255,255,.58);
+  font-size:13px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.10em;
+}
+
+.ace31ShareLiveCard{
+  width:640px!important;
+  max-width:640px!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+  margin-top:4px!important;
+  flex:0 0 auto!important;
+}
+.ace31ShareLiveCard>.fifaPlayerCard{
+  width:640px!important;
+  min-width:640px!important;
+  max-width:640px!important;
+  min-height:1035px!important;
+  margin:0!important;
+  transform:none!important;
+  transition:none!important;
+  pointer-events:none!important;
+  filter:drop-shadow(0 28px 36px rgba(0,0,0,.42))!important;
+  box-shadow:none!important;
+}
+.ace31ShareLiveStage.ace31FormatSquare .ace31ShareLiveCard{
+  width:520px!important;
+  max-width:520px!important;
+}
+.ace31ShareLiveStage.ace31FormatSquare .ace31ShareLiveCard>.fifaPlayerCard{
+  width:520px!important;
+  min-width:520px!important;
+  max-width:520px!important;
+  min-height:840px!important;
+}
+.ace31ShareLiveStage .fifaEditHint{
+  display:none!important;
+}
+.ace31ShareLiveStage .ace31CaptureFooter{
+  margin-top:auto!important;
+  padding-bottom:6px!important;
+  color:rgba(255,255,255,.84)!important;
+  font-size:22px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:.06em!important;
+  text-align:center!important;
+}
+.ace31ShareLiveStage.ace31FormatSquare .ace31CaptureFooter{
+  display:none!important;
+}
+</style>
+
+<script id="ace-b21-31-11-build-tag">
+(function(){
+  function ace31RefreshShareScale(){
+    try{
+      const format=document.querySelector("#ace31ShareFormat")?.value||"story";
+      if(typeof updateSharePreviewScale==="function") updateSharePreviewScale(format);
+    }catch(_){}
+  }
+  window.addEventListener("resize", ace31RefreshShareScale, {passive:true});
+  window.ACE_PROJECT_BUILD="B21.31.11";
+  window.ACE_SINGLE_MASTER_SHARE_SCENE=true;
+})();
+</script>
+<!-- /ACE B21.31.11 — SINGLE MASTER SHARE SCENE -->
 
 </body>
 </html>
