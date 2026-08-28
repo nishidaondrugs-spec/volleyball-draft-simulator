@@ -7107,6 +7107,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 <meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
+<script id="ace31-html2canvas" src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -41845,12 +41846,17 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     overlay.innerHTML=`
       <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
         <div class="ace31SharePreview">
-          <canvas id="ace31ShareCanvas" width="1080" height="1920"></canvas>
+          <div id="ace31CaptureStage" class="ace31CaptureStage ace31FormatStory">
+            <div class="ace31CaptureBrand"><b>THE ACE PROJECT</b><span>VOLLEYBALL ULTIMATE TEAM</span></div>
+            <div id="ace31RealCardPreview" class="ace31RealCardPreview"></div>
+            <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
+          </div>
+          <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
         </div>
         <div class="ace31SharePanel">
           <small>THE ACE PROJECT · SOCIAL CARD</small>
           <h2>Share your card.</h2>
-          <p>Create a clean share graphic that mirrors the base ACE card with the playstyles and serve type underneath.</p>
+          <p>This uses the exact same ACE card component as the game — including the real frame, portrait crop, stats, playstyles and serve type.</p>
 
           <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
 
@@ -41917,6 +41923,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       <span>${rating} ${esc(p.position||"POS")} · ${esc(tier)} · ${esc(serveLabel(p))}</span>`;
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden","false");
+    document.body.classList.add("ace31ShareOpen");
     setStatus("");
     renderCurrent();
   }
@@ -41925,6 +41932,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const overlay=q("#ace31ShareOverlay");
     overlay?.classList.remove("show");
     overlay?.setAttribute("aria-hidden","true");
+    document.body.classList.remove("ace31ShareOpen");
   }
 
   function roundedRect(ctx,x,y,w,h,r){
@@ -42038,207 +42046,56 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
   async function renderShareCanvas(p,format,theme){
     const token=++ace31RenderToken;
+    const stage=q("#ace31CaptureStage");
+    const holder=q("#ace31RealCardPreview");
     const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!canvas)return;
+    if(!stage||!holder||!canvas)return;
 
-    const square=format==="square";
-    canvas.width=1080;
-    canvas.height=square?1080:1920;
-    const ctx=canvas.getContext("2d");
-    const w=canvas.width,h=canvas.height;
+    const tier=typeof cardTier==="function"?cardTier(p):"gold";
+    const tierLabel=typeof cardTierLabel==="function"?cardTierLabel(p):"CARD";
+    const role=p.position&&p.position!=="-"?p.position:"POS";
+    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
+    const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
 
-    drawBackground(ctx,w,h,theme);
+    stage.classList.toggle("ace31FormatStory",format!=="square");
+    stage.classList.toggle("ace31FormatSquare",format==="square");
+    stage.style.background=theme==="gold"
+      ?"radial-gradient(circle at 50% 31%,rgba(203,161,55,.19),transparent 34%),linear-gradient(180deg,#241b0b 0%,#0f0d0b 53%,#06080d 100%)"
+      :theme==="dark"
+        ?"radial-gradient(circle at 50% 31%,rgba(83,108,145,.12),transparent 34%),linear-gradient(180deg,#11151c 0%,#090b10 53%,#05070b 100%)"
+        :"radial-gradient(circle at 50% 31%,rgba(126,74,205,.16),transparent 34%),linear-gradient(180deg,#160d24 0%,#0b0b13 53%,#06080d 100%)";
 
-    const photo=await loadPhoto(p.photo);
+    holder.innerHTML=`<div class="fifaPlayerCard ${tier}${posClass}">${vdsMasterPlayerCardHTML(p,{
+      role,rating,tier,tierLabel,footer:""
+    })}</div>`;
+
+    const img=holder.querySelector("img");
+    if(img&&!img.complete){
+      await new Promise(resolve=>{
+        img.addEventListener("load",resolve,{once:true});
+        img.addEventListener("error",resolve,{once:true});
+        setTimeout(resolve,2500);
+      });
+    }
     if(token!==ace31RenderToken)return;
 
-    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
-    const tierLabel=typeof cardTierLabel==="function"?cardTierLabel(p):"ACE CARD";
-    const cats=typeof categoryRatings==="function"?categoryRatings(p):{attacking:0,defense:0,physical:0};
-    const atk=(p.attackPlaystyle||"none")!=="none"&&typeof attackingPlaystyle==="function"?attackingPlaystyle(p):null;
-    const def=(p.defensePlaystyle||"none")!=="none"&&typeof defensivePlaystyle==="function"?defensivePlaystyle(p):null;
-
-    const topPad=square?50:78;
-    ctx.textAlign="center";
-    ctx.fillStyle="rgba(255,255,255,.95)";
-    ctx.font="1000 24px Inter, system-ui, sans-serif";
-    ctx.fillText("THE ACE PROJECT",w/2,topPad);
-    ctx.fillStyle="rgba(255,255,255,.55)";
-    ctx.font="800 14px Inter, system-ui, sans-serif";
-    ctx.fillText("VOLLEYBALL ULTIMATE TEAM",w/2,topPad+28);
-
-    /* Main base card */
-    const cardW=square?420:470;
-    const cardH=square?575:720;
-    const cardX=(w-cardW)/2;
-    const cardY=square?120:140;
-
-    roundedRect(ctx,cardX,cardY,cardW,cardH,28);
-    const cardFill=ctx.createLinearGradient(cardX,cardY,cardX,cardY+cardH);
-    if(theme==="gold"){
-      cardFill.addColorStop(0,"#7d6322");
-      cardFill.addColorStop(.28,"#2b2417");
-      cardFill.addColorStop(1,"#101219");
-    }else{
-      cardFill.addColorStop(0,"#7b5b24");
-      cardFill.addColorStop(.30,"#25201a");
-      cardFill.addColorStop(1,"#0c0e13");
-    }
-    ctx.fillStyle=cardFill;
-    ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,.32)";
-    ctx.lineWidth=2;
-    ctx.stroke();
-
-    ctx.shadowColor="rgba(0,0,0,.38)";
-    ctx.shadowBlur=34;
-    ctx.shadowOffsetY=20;
-    roundedRect(ctx,cardX,cardY,cardW,cardH,28);
-    ctx.strokeStyle="rgba(0,0,0,.18)";
-    ctx.stroke();
-    ctx.shadowColor="transparent";
-
-    const artPad=14;
-    const artX=cardX+artPad;
-    const artY=cardY+artPad;
-    const artW=cardW-artPad*2;
-    const artH=square?295:360;
-    roundedRect(ctx,artX,artY,artW,artH,18);
-    ctx.save();
-    ctx.clip();
-    if(photo){
-      drawCover(ctx,photo,artX,artY,artW,artH);
-      const ov=ctx.createLinearGradient(0,artY,0,artY+artH);
-      ov.addColorStop(.55,"rgba(5,7,11,0)");
-      ov.addColorStop(1,"rgba(5,7,11,.84)");
-      ctx.fillStyle=ov;
-      ctx.fillRect(artX,artY,artW,artH);
-    }else{
-      ctx.fillStyle="#121621";
-      ctx.fillRect(artX,artY,artW,artH);
-      ctx.fillStyle="rgba(255,255,255,.18)";
-      ctx.font="1000 128px Inter, system-ui, sans-serif";
-      ctx.textAlign="center";
-      ctx.fillText("♠",cardX+cardW/2,artY+artH*.65);
-    }
-    ctx.restore();
-
-    const infoY=cardY+artH+50;
-    ctx.textAlign="left";
-    ctx.fillStyle="#fff";
-    ctx.font="1000 62px Inter, system-ui, sans-serif";
-    ctx.fillText(String(rating),cardX+18,infoY);
-
-    ctx.fillStyle="#fff";
-    ctx.font="1000 25px Inter, system-ui, sans-serif";
-    ctx.fillText(String(p.position||"POS"),cardX+24,infoY+32);
-
-    ctx.fillStyle="#fff";
-    ctx.font="1000 36px Inter, system-ui, sans-serif";
-    ctx.fillText(String(p.name||"PLAYER"),cardX+138,infoY+8);
-
-    ctx.fillStyle="rgba(255,255,255,.60)";
-    ctx.font="800 14px Inter, system-ui, sans-serif";
-    ctx.fillText(`${String(tierLabel).toUpperCase()} · ${serveLabel(p).toUpperCase()}`,cardX+138,infoY+34);
-
-    const stats=[["ATT",cats.attacking],["DEF",cats.defense],["PHY",cats.physical],["SET",Math.round(Number(p.setting||0))]];
-    const statY=cardY+cardH-130;
-    const statGap=10;
-    const statW=(cardW-42-statGap*3)/4;
-    stats.forEach(([label,val],i)=>{
-      const x=cardX+16+i*(statW+statGap);
-      roundedRect(ctx,x,statY,statW,64,12);
-      ctx.fillStyle="rgba(8,10,15,.72)";
-      ctx.fill();
-      ctx.strokeStyle="rgba(255,255,255,.06)";
-      ctx.stroke();
-      ctx.textAlign="center";
-      ctx.fillStyle="rgba(255,255,255,.50)";
-      ctx.font="800 12px Inter, system-ui, sans-serif";
-      ctx.fillText(label,x+statW/2,statY+20);
-      ctx.fillStyle="#fff";
-      ctx.font="1000 26px Inter, system-ui, sans-serif";
-      ctx.fillText(String(Math.round(Number(val||0))),x+statW/2,statY+47);
-    });
-
-    ctx.textAlign="center";
-    ctx.fillStyle="rgba(255,255,255,.28)";
-    ctx.font="800 10px Inter, system-ui, sans-serif";
-    ctx.fillText("WORLD YOUR SIX · OWN THE COURT",cardX+cardW/2,cardY+cardH-26);
-
-    if(square){
-      setStatus("Share image ready.","ok");
+    if(!window.html2canvas){
+      setStatus("Real ACE card preview ready. Share capture library is still loading…");
       return;
     }
-
-    /* Under-card information mirrors the clean playstyle layout. */
-    const labelX=86;
-    let cursorY=920;
-    ctx.textAlign="left";
-    ctx.fillStyle="rgba(161,120,220,.92)";
-    ctx.font="1000 16px Inter, system-ui, sans-serif";
-    ctx.fillText("PLAYSTYLES",labelX,cursorY);
-    cursorY += 18;
-
-    function boxedStyle(title,desc,accent){
-      roundedRect(ctx,82,cursorY,916,74,12);
-      ctx.fillStyle="rgba(7,10,16,.92)";
-      ctx.fill();
-      ctx.strokeStyle="rgba(73,126,179,.34)";
-      ctx.lineWidth=1.4;
-      ctx.stroke();
-      ctx.fillStyle=accent;
-      ctx.font="1000 18px Inter, system-ui, sans-serif";
-      ctx.fillText(String(title||"NO PLAYSTYLE").toUpperCase(),104,cursorY+24);
-      ctx.fillStyle="rgba(255,255,255,.56)";
-      ctx.font="700 12px Inter, system-ui, sans-serif";
-      wrapText(ctx,String(desc||"No specialist behaviour assigned."),104,cursorY+47,872,15,2);
-      cursorY += 88;
+    try{
+      const rendered=await window.html2canvas(stage,{backgroundColor:null,scale:3,useCORS:true,allowTaint:false,logging:false,imageTimeout:7000,removeContainer:true});
+      if(token!==ace31RenderToken)return;
+      canvas.width=rendered.width;
+      canvas.height=rendered.height;
+      const ctx=canvas.getContext("2d");
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(rendered,0,0);
+      setStatus("Real ACE card ready to share.","ok");
+    }catch(error){
+      console.error("ACE real-card share capture failed",error);
+      setStatus("The real card is shown correctly, but PNG capture failed: "+(error?.message||error),"bad");
     }
-
-    boxedStyle(
-      atk ? String(atk.name).replace(/^[^A-Za-z0-9]+\s*/,"") : "No Attacking Playstyle",
-      atk?.desc || "No attacking playstyle assigned.",
-      "#d8b5ff"
-    );
-    boxedStyle(
-      def ? String(def.name).replace(/^[^A-Za-z0-9]+\s*/,"") : "No Defensive Playstyle",
-      def?.desc || "No defensive playstyle assigned.",
-      "#9bd4e9"
-    );
-
-    ctx.fillStyle="rgba(161,120,220,.92)";
-    ctx.font="1000 16px Inter, system-ui, sans-serif";
-    ctx.fillText("SERVE TYPE",labelX,cursorY+8);
-    ctx.fillStyle="#fff";
-    ctx.font="1000 34px Inter, system-ui, sans-serif";
-    ctx.fillText(serveLabel(p),labelX,cursorY+48);
-
-    cursorY += 150;
-    ctx.textAlign="center";
-    ctx.fillStyle="rgba(255,255,255,.96)";
-    ctx.font="1000 36px Inter, system-ui, sans-serif";
-    ctx.fillText("YOUR CARD. YOUR COURT.",w/2,cursorY);
-    ctx.fillStyle="rgba(255,255,255,.46)";
-    ctx.font="800 14px Inter, system-ui, sans-serif";
-    ctx.fillText("THE ACE PROJECT · VOLLEYBALL ULTIMATE TEAM",w/2,cursorY+30);
-
-    if(p.ultimateTeamPool===true){
-      roundedRect(ctx,w/2-167,cursorY+62,334,44,22);
-      ctx.fillStyle="rgba(16,68,39,.34)";
-      ctx.fill();
-      ctx.strokeStyle="rgba(113,230,151,.28)";
-      ctx.stroke();
-      ctx.fillStyle="#9bf0b4";
-      ctx.font="1000 16px Inter, system-ui, sans-serif";
-      ctx.fillText("LIVE IN ULTIMATE TEAM ✓",w/2,cursorY+90);
-    }
-
-    ctx.fillStyle="rgba(255,255,255,.22)";
-    ctx.font="800 14px Inter, system-ui, sans-serif";
-    ctx.fillText("THEACEPROJECT",w/2,h-56);
-
-    setStatus("Share image ready.","ok");
   }
 
   function renderCurrent(){
@@ -42249,15 +42106,17 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     renderShareCanvas(ace31Player,format,theme);
   }
 
-  function canvasBlob(){
-    return new Promise((resolve,reject)=>{
+  async function canvasBlob(){
+    const stage=q("#ace31CaptureStage");
+    if(stage&&window.html2canvas){
+      const rendered=await window.html2canvas(stage,{backgroundColor:null,scale:3,useCORS:true,allowTaint:false,logging:false,imageTimeout:7000,removeContainer:true});
+      return await new Promise((resolve,reject)=>{
+        rendered.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
+      });
+    }
+    return await new Promise((resolve,reject)=>{
       if(!ace31Canvas){reject(new Error("No share image available."));return}
-      try{
-        ace31Canvas.toBlob(blob=>{
-          if(blob)resolve(blob);
-          else reject(new Error("Could not create PNG."));
-        },"image/png",.96);
-      }catch(error){reject(error)}
+      ace31Canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
     });
   }
 
@@ -42458,6 +42317,85 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 })();
 </script>
 <!-- /ACE B21.31.2 — SHARE CARD + PLAYSTYLE BOX FIX -->
+
+
+<!-- ACE B21.31.3 — SHARE MODAL MOBILE LOCK -->
+<style id="ace-b21-31-3-share-modal-mobile-lock">
+body.ace31ShareOpen{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+.ace31ShareOverlay{
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+.ace31ShareModal{
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
+}
+.ace31SharePreview,
+.ace31SharePreview canvas{
+  touch-action:none!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+  -webkit-touch-callout:none!important;
+}
+@media(max-width:760px){
+  .ace31ShareOverlay{
+    align-items:flex-start!important;
+  }
+  .ace31ShareModal{
+    margin:0 auto!important;
+  }
+}
+</style>
+<!-- /ACE B21.31.3 — SHARE MODAL MOBILE LOCK -->
+
+
+<!-- ACE B21.31.3 — SHARE CARD MATCH + MOBILE LOCK -->
+<script id="ace-b21-31-3-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.3";
+  window.ACE_SHARE_CARD_MATCH_AND_MOBILE_LOCK=true;
+})();
+</script>
+<!-- /ACE B21.31.3 — SHARE CARD MATCH + MOBILE LOCK -->
+
+
+<!-- ACE B21.31.4 — REAL CARD SHARE + MOBILE VIEWPORT STABILITY -->
+<style id="ace-b21-31-4-real-card-share">
+html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscroll-behavior-y:none!important}
+.app,.page{max-width:100%!important}
+.ace31SharePreview{overflow:hidden!important}
+.ace31CaptureStage{position:relative;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:360px;height:640px;overflow:hidden;padding:23px 18px 18px;background:radial-gradient(circle at 50% 31%,rgba(126,74,205,.16),transparent 34%),linear-gradient(180deg,#160d24 0%,#0b0b13 53%,#06080d 100%);color:#fff;isolation:isolate}
+.ace31CaptureStage::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.20;pointer-events:none;background-image:repeating-linear-gradient(45deg,transparent 0 25px,rgba(255,255,255,.035) 26px 27px)}
+.ace31CaptureBrand{flex:0 0 auto;text-align:center;margin-bottom:13px}
+.ace31CaptureBrand b{display:block;color:#fff;font-size:9px;line-height:1;font-weight:1000}
+.ace31CaptureBrand span{display:block;margin-top:4px;color:rgba(255,255,255,.58);font-size:4.2px;line-height:1;font-weight:900;letter-spacing:.08em}
+.ace31RealCardPreview{position:relative;width:270px;flex:0 0 auto;display:flex;justify-content:center;align-items:flex-start}
+.ace31RealCardPreview>.fifaPlayerCard{width:270px!important;min-width:270px!important;max-width:270px!important;min-height:444px!important;margin:0!important;transform:none!important;transition:none!important;pointer-events:none!important;filter:drop-shadow(0 18px 22px rgba(0,0,0,.42))!important}
+.ace31RealCardPreview>.fifaPlayerCard:hover{transform:none!important}
+.ace31RealCardPreview>.fifaPlayerCard::before,.ace31RealCardPreview>.fifaPlayerCard::after{animation:none!important}
+.ace31RealCardPreview .fifaEditHint{display:none!important}
+.ace31CaptureFooter{margin-top:14px;color:rgba(255,255,255,.82);font-size:7px;line-height:1;font-weight:1000;letter-spacing:.06em;text-align:center}
+.ace31CaptureStage.ace31FormatSquare{width:360px;height:360px;padding:10px 14px}
+.ace31CaptureStage.ace31FormatSquare .ace31CaptureBrand{margin-bottom:6px}
+.ace31CaptureStage.ace31FormatSquare .ace31RealCardPreview{width:190px;height:294px}
+.ace31CaptureStage.ace31FormatSquare .ace31RealCardPreview>.fifaPlayerCard{width:270px!important;min-width:270px!important;max-width:270px!important;min-height:444px!important;transform:scale(.66)!important;transform-origin:top center!important}
+.ace31CaptureStage.ace31FormatSquare .ace31CaptureFooter{display:none}
+.ace31SharePreview .ace31CaptureStage{width:min(100%,360px);max-width:360px;height:auto;aspect-ratio:9/16;border-radius:13px;box-shadow:0 24px 50px rgba(0,0,0,.42)}
+.ace31SharePreview .ace31CaptureStage.ace31FormatSquare{aspect-ratio:1/1}
+@media(max-width:760px){.ace31SharePreview .ace31CaptureStage{width:min(75vw,300px)}.ace31ShareModal{overscroll-behavior:contain!important}}
+</style>
+<!-- /ACE B21.31.4 — REAL CARD SHARE + MOBILE VIEWPORT STABILITY -->
+
+
+<!-- ACE B21.31.4 — REUSE REAL ACE CARD -->
+<script id="ace-b21-31-4-build-tag">
+(function(){window.ACE_PROJECT_BUILD="B21.31.4";window.ACE_SHARE_REUSES_REAL_CARD=true})();
+</script>
+<!-- /ACE B21.31.4 — REUSE REAL ACE CARD -->
 
 </body>
 </html>
