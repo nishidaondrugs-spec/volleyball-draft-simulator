@@ -42955,6 +42955,123 @@ body.ace34ShareOpen{
 </script>
 <!-- /ACE B21.34 — BROWSER-NATIVE CARD CAPTURE -->
 
+
+<!-- ACE B21.34.1 — SHARE PILLS RESTORED -->
+<style id="ace-b21-34-1-profile-card-pills">
+/*
+  The B21.34 capture uses the Player Profile card as the source image.
+
+  The playstyle capsule styling already existed for:
+  - .vdsCardShowcaseCardFrame
+  - Ultimate Team cards / pack cards
+
+  But the Player Profile card stage did not inherit the same scoped pill CSS,
+  so the source card could render without the proper pills before capture.
+
+  These rules mirror the premium capsule treatment onto the profile-stage card
+  itself, so the browser-native share capture sees the correct final card.
+*/
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles{
+  position:relative!important;
+  z-index:46!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:4px!important;
+  width:calc(100% - 18px)!important;
+  height:auto!important;
+  min-height:22px!important;
+  max-height:none!important;
+  margin:5px auto 3px!important;
+  padding:0!important;
+  overflow:visible!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle{
+  position:relative!important;
+  z-index:47!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:22px!important;
+  height:22px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border-radius:6px!important;
+  border:1px solid rgba(230,197,86,.58)!important;
+  background:linear-gradient(180deg,rgba(22,25,28,.96),rgba(5,10,13,.96))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 2px 5px rgba(0,0,0,.30)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle.defense{
+  border-color:rgba(104,197,244,.58)!important;
+  background:linear-gradient(180deg,rgba(10,29,41,.96),rgba(4,13,20,.96))!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleEmoji{
+  flex:0 0 auto!important;
+  display:grid!important;
+  place-items:center!important;
+  width:14px!important;
+  height:14px!important;
+  font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:9px!important;
+  line-height:1!important;
+  font-weight:400!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleLabel{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#f2e8be!important;
+  font-size:5.2px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle.defense .vdsCardPlaystyleLabel{
+  color:#daf3ff!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle:only-child{
+  grid-column:1 / -1!important;
+  width:55%!important;
+  justify-self:center!important;
+}
+
+/* Keep the serve type neatly spaced under the pills. */
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles + .fifaServeType{
+  margin-top:1px!important;
+}
+</style>
+
+<script id="ace-b21-34-1-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.34.1";
+  window.ACE_SHARE_PILLS_RESTORED=true;
+})();
+</script>
+<!-- /ACE B21.34.1 — SHARE PILLS RESTORED -->
+
 </body>
 </html>
 
