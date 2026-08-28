@@ -42111,10 +42111,8 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const token=++ace31RenderToken;
     const liveStage=q("#ace31ShareLiveStage");
     const liveHolder=q("#ace31ShareLiveCard");
-    const scene=q("#ace31CaptureScene");
-    const captureHolder=q("#ace31RealCardCapture");
     const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!liveStage||!liveHolder||!scene||!captureHolder||!canvas)return;
+    if(!liveStage||!liveHolder||!canvas)return;
 
     function themeBg(name){
       if(name==="gold"){
@@ -42151,21 +42149,13 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
     liveStage.classList.toggle("ace31FormatStory",format!=="square");
     liveStage.classList.toggle("ace31FormatSquare",format==="square");
-    scene.classList.toggle("ace31FormatStory",format!=="square");
-    scene.classList.toggle("ace31FormatSquare",format==="square");
     liveStage.style.background=themeBg(theme);
-    scene.style.background=themeBg(theme);
 
     liveHolder.innerHTML="";
-    captureHolder.innerHTML="";
-
     const liveCard=buildCardNodeFromSource();
-    const captureCard=buildCardNodeFromSource();
-
     liveHolder.appendChild(liveCard);
-    captureHolder.appendChild(captureCard);
 
-    const imgs=[...liveHolder.querySelectorAll("img"),...captureHolder.querySelectorAll("img")];
+    const imgs=[...liveHolder.querySelectorAll("img")];
     await Promise.all(imgs.map(img=>{
       if(img.complete)return Promise.resolve();
       return new Promise(resolve=>{
@@ -42178,11 +42168,16 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(token!==ace31RenderToken)return;
 
+    /* WHAT YOU SEE IS WHAT GETS EXPORTED:
+       capture the visible preview stage itself, not a different hidden scene. */
     if(window.html2canvas){
       try{
-        const rendered=await window.html2canvas(scene,{
+        const rect=liveStage.getBoundingClientRect();
+        const targetWidth=1080;
+        const scale=Math.max(1,targetWidth/Math.max(1,rect.width));
+        const rendered=await window.html2canvas(liveStage,{
           backgroundColor:null,
-          scale:1,
+          scale,
           useCORS:true,
           allowTaint:false,
           logging:false,
@@ -42199,20 +42194,21 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
         const blob=await prepareBlobFromCanvas(canvas,p,format,theme);
         if(blob){
           setShareReady(true);
+          setStatus("Preview ready · export matches the preview.","ok");
         }else{
           setShareReady(false);
+          setStatus("Preview ready. PNG capture is still preparing…","");
         }
       }catch(error){
         console.error("ACE share capture failed",error);
         setShareReady(false);
+        setStatus("Share capture failed: "+(error?.message||error),"bad");
       }
+      return;
     }
 
-    if(ace31PreparedBlob){
-      setStatus("Preview ready · tap SHARE IMAGE.","ok");
-    }else{
-      setStatus("Preview ready. PNG capture is still preparing…","");
-    }
+    setShareReady(false);
+    setStatus("Preview ready, but capture is unavailable on this browser.","");
   }
   function renderCurrent(){
     if(!ace31Player)return;
@@ -42227,11 +42223,13 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   }
 
   async function canvasBlob(){
-    const scene=q("#ace31CaptureScene");
-    if(scene&&window.html2canvas){
-      const rendered=await window.html2canvas(scene,{
+    const liveStage=q("#ace31ShareLiveStage");
+    if(liveStage&&window.html2canvas){
+      const rect=liveStage.getBoundingClientRect();
+      const scale=Math.max(1,1080/Math.max(1,rect.width));
+      const rendered=await window.html2canvas(liveStage,{
         backgroundColor:null,
-        scale:1,
+        scale,
         useCORS:true,
         allowTaint:false,
         logging:false,
@@ -43657,6 +43655,16 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 })();
 </script>
 <!-- /ACE B21.31.9 — MOBILE SHARE FIX -->
+
+
+<!-- ACE B21.31.10 — WYSIWYG SHARE EXPORT -->
+<script id="ace-b21-31-10-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.10";
+  window.ACE_WYSIWYG_SHARE_EXPORT=true;
+})();
+</script>
+<!-- /ACE B21.31.10 — WYSIWYG SHARE EXPORT -->
 
 </body>
 </html>
