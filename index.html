@@ -18457,7 +18457,32 @@ async function vdsInitAccountGate(){
   document.getElementById("vdsSaveProfileBtn")?.addEventListener("click",vdsSaveProfile);
   document.getElementById("vdsSignOutBtn")?.addEventListener("click",vdsSignOut);
 
-  let {data,error}=await client.auth.getSession();
+  /*
+    Never leave the entire gate hanging forever on a storage/auth lock.
+    The Google button is already wired above, so after the timeout the user can
+    sign in normally while Supabase finishes resolving in the background.
+  */
+  let data=null;
+  let error=null;
+  let sessionCheckTimedOut=false;
+
+  try{
+    const result=await Promise.race([
+      client.auth.getSession().then(value=>({kind:"session",value})),
+      new Promise(resolve=>setTimeout(()=>resolve({kind:"timeout"}),5000))
+    ]);
+
+    if(result?.kind==="timeout"){
+      sessionCheckTimedOut=true;
+      console.warn("ACE account session check timed out after 5 seconds.");
+    }else{
+      data=result?.value?.data||null;
+      error=result?.value?.error||null;
+    }
+  }catch(sessionError){
+    error=sessionError;
+  }
+
   if(error)console.warn("VDS account session check failed",error);
 
   let session=data?.session||null;
@@ -18473,6 +18498,11 @@ async function vdsInitAccountGate(){
     vdsShowAccountGate(location.protocol==="file:"
       ?"Run THE ACE PROJECT from localhost or HTTPS, then sign in with Google."
       :"Sign in with Google to play THE ACE PROJECT.");
+
+    if(sessionCheckTimedOut && location.protocol!=="file:"){
+      vdsSetAuthStatus("Ready to sign in. Player-card loading will continue separately.");
+      if(btn)btn.disabled=false;
+    }
   }
 
   if(!vdsAccountAuthSubscription){
@@ -26119,15 +26149,48 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
 */
 
 
-/* THE ACE PROJECT B10.0 Stage 1B.2 — critical account-gate boot */
+/* THE ACE PROJECT B21.35.6 — ACCOUNT BOOT UNBLOCKED */
 (function aceBootAccountGate(){
-  const start=()=>setTimeout(()=>{
-    if(typeof vdsInitAccountGate==="function")vdsInitAccountGate();
-    else console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
-  },40);
+  let started=false;
 
-  if(document.readyState==="complete")start();
-  else window.addEventListener("load",start,{once:true});
+  const start=()=>{
+    if(started)return;
+    started=true;
+
+    setTimeout(()=>{
+      if(typeof vdsInitAccountGate==="function"){
+        Promise.resolve(vdsInitAccountGate()).catch(error=>{
+          console.error("ACE account gate could not initialise.",error);
+          try{
+            const btn=document.getElementById("vdsGoogleSignIn");
+            if(btn){
+              btn.disabled=false;
+              btn.onclick=vdsSignInWithGoogle;
+            }
+            vdsShowAccountGate("Sign in with Google to play THE ACE PROJECT.");
+            vdsSetAuthStatus("Account check was interrupted. You can still sign in with Google.");
+          }catch(_){}
+        });
+      }else{
+        console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
+      }
+    },20);
+  };
+
+  /*
+    CRITICAL:
+    Do not wait for window.load. window.load waits for images and other remote
+    resources. The sign-in artwork pulls remote player photos, so one slow or
+    failed image must never be allowed to block authentication.
+  */
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",start,{once:true});
+  }else{
+    start();
+  }
+
+  /* Independent failsafe in case another script prevents the normal event path. */
+  setTimeout(start,900);
 })();
 
 </script>
@@ -45325,6 +45388,16 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.35.5 — SAFE REWARD REBUILD -->
+
+
+<!-- ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
+<script id="ace-b21-35-6-account-boot-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.35.6";
+  window.ACE_ACCOUNT_BOOT_UNBLOCKED=true;
+})();
+</script>
+<!-- /ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
 
 </body>
 </html>
