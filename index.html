@@ -41845,14 +41845,20 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       overlay.innerHTML=`
         <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
           <div class="ace31SharePreview">
-            <img id="ace31SharePreviewImage" class="ace31SharePreviewImage" alt="Share preview" hidden>
-            <div id="ace31PreviewLoading" class="ace31PreviewLoading">Rendering preview…</div>
+            <div id="ace31ShareLiveStage" class="ace31ShareLiveStage ace31FormatStory">
+              <div class="ace31CaptureBrand">
+                <b>THE ACE PROJECT</b>
+                <span>VOLLEYBALL ULTIMATE TEAM</span>
+              </div>
+              <div id="ace31ShareLiveCard" class="ace31ShareLiveCard"></div>
+              <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
+            </div>
             <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
           </div>
           <div class="ace31SharePanel">
             <small>THE ACE PROJECT · SOCIAL CARD</small>
             <h2>Share your card.</h2>
-            <p>This uses the exact same ACE card component as the game — including the real frame, portrait crop, stats, playstyles and serve type.</p>
+            <p>This now reuses the live ACE card directly. The share view shows the real card itself rather than a redrawn approximation.</p>
 
             <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
 
@@ -42059,91 +42065,99 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
   async function renderShareCanvas(p,format,theme){
     const token=++ace31RenderToken;
+    const liveStage=q("#ace31ShareLiveStage");
+    const liveHolder=q("#ace31ShareLiveCard");
     const scene=q("#ace31CaptureScene");
-    const holder=q("#ace31RealCardCapture");
-    const preview=q("#ace31SharePreviewImage");
-    const loading=q("#ace31PreviewLoading");
+    const captureHolder=q("#ace31RealCardCapture");
     const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!scene||!holder||!preview||!loading||!canvas)return;
+    if(!liveStage||!liveHolder||!scene||!captureHolder||!canvas)return;
 
-    const tier=typeof cardTier==="function"?cardTier(p):"gold";
-    const tierLabel=typeof cardTierLabel==="function"?cardTierLabel(p):"CARD";
-    const role=p.position&&p.position!=="-"?p.position:"POS";
-    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
-    const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
+    function themeBg(name){
+      if(name==="gold"){
+        return "radial-gradient(circle at 50% 16%,rgba(206,164,63,.18),transparent 28%),linear-gradient(180deg,#231909 0%,#0d0c0b 56%,#06080d 100%)";
+      }
+      if(name==="dark"){
+        return "radial-gradient(circle at 50% 16%,rgba(94,121,153,.14),transparent 28%),linear-gradient(180deg,#10151d 0%,#0a0c11 56%,#05070a 100%)";
+      }
+      return "radial-gradient(circle at 50% 16%,rgba(126,74,205,.18),transparent 28%),linear-gradient(180deg,#140c22 0%,#0b0b13 56%,#06080d 100%)";
+    }
 
-    preview.hidden=true;
-    loading.hidden=false;
-    loading.textContent="Rendering preview…";
+    function buildCardNodeFromSource(){
+      const source=q("#vdsCardShowcaseOverlay .vdsCardShowcaseCardFrame .fifaPlayerCard");
+      if(source){
+        return source.cloneNode(true);
+      }
+      const tier=typeof cardTier==="function"?cardTier(p):"gold";
+      const role=p.position&&p.position!=="-"?p.position:"POS";
+      const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
+      const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
+      const wrapper=document.createElement("div");
+      wrapper.className=`fifaPlayerCard ${tier}${posClass}`;
+      wrapper.innerHTML=typeof vdsMasterPlayerCardHTML==="function"
+        ? vdsMasterPlayerCardHTML(p,{
+            role,
+            rating,
+            tier,
+            tierLabel:typeof cardTierLabel==="function"?cardTierLabel(p):"CARD",
+            footer:""
+          })
+        : "";
+      return wrapper;
+    }
 
+    liveStage.classList.toggle("ace31FormatStory",format!=="square");
+    liveStage.classList.toggle("ace31FormatSquare",format==="square");
     scene.classList.toggle("ace31FormatStory",format!=="square");
     scene.classList.toggle("ace31FormatSquare",format==="square");
-    preview.classList.toggle("square",format==="square");
+    liveStage.style.background=themeBg(theme);
+    scene.style.background=themeBg(theme);
 
-    scene.style.background=theme==="gold"
-      ?"radial-gradient(circle at 50% 18%,rgba(203,161,55,.20),transparent 28%),linear-gradient(180deg,#231909 0%,#0d0c0b 56%,#06080d 100%)"
-      :theme==="dark"
-        ?"radial-gradient(circle at 50% 18%,rgba(92,119,153,.16),transparent 28%),linear-gradient(180deg,#10151d 0%,#0a0c11 56%,#05070a 100%)"
-        :"radial-gradient(circle at 50% 18%,rgba(126,74,205,.20),transparent 28%),linear-gradient(180deg,#140c22 0%,#0b0b13 56%,#06080d 100%)";
+    liveHolder.innerHTML="";
+    captureHolder.innerHTML="";
 
-    holder.innerHTML=`<div class="fifaPlayerCard ${tier}${posClass}">${vdsMasterPlayerCardHTML(p,{
-      role,
-      rating,
-      tier,
-      tierLabel,
-      footer:""
-    })}</div>`;
+    const liveCard=buildCardNodeFromSource();
+    const captureCard=buildCardNodeFromSource();
 
-    const img=holder.querySelector("img");
-    if(img&&!img.complete){
-      await new Promise(resolve=>{
+    liveHolder.appendChild(liveCard);
+    captureHolder.appendChild(captureCard);
+
+    const imgs=[...liveHolder.querySelectorAll("img"),...captureHolder.querySelectorAll("img")];
+    await Promise.all(imgs.map(img=>{
+      if(img.complete)return Promise.resolve();
+      return new Promise(resolve=>{
         img.addEventListener("load",resolve,{once:true});
         img.addEventListener("error",resolve,{once:true});
         setTimeout(resolve,2600);
       });
-    }
+    }));
 
-    /* Wait two frames so the reused live ACE card fully lays out inside the
-       isolated off-screen capture scene before capture happens. */
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(token!==ace31RenderToken)return;
 
-    if(!window.html2canvas){
-      loading.textContent="Capture library is still loading…";
-      setStatus("Preview is preparing…");
-      return;
+    if(window.html2canvas){
+      try{
+        const rendered=await window.html2canvas(scene,{
+          backgroundColor:null,
+          scale:1,
+          useCORS:true,
+          allowTaint:false,
+          logging:false,
+          imageTimeout:8000,
+          removeContainer:true
+        });
+        if(token!==ace31RenderToken)return;
+        canvas.width=rendered.width;
+        canvas.height=rendered.height;
+        const ctx=canvas.getContext("2d");
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(rendered,0,0);
+      }catch(error){
+        console.error("ACE share capture failed",error);
+      }
     }
 
-    try{
-      const rendered=await window.html2canvas(scene,{
-        backgroundColor:null,
-        scale:1,
-        useCORS:true,
-        allowTaint:false,
-        logging:false,
-        imageTimeout:8000,
-        removeContainer:true
-      });
-      if(token!==ace31RenderToken)return;
-
-      canvas.width=rendered.width;
-      canvas.height=rendered.height;
-      const ctx=canvas.getContext("2d");
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(rendered,0,0);
-
-      preview.src=canvas.toDataURL("image/png");
-      preview.hidden=false;
-      loading.hidden=true;
-      setStatus("Real ACE card ready to share.","ok");
-    }catch(error){
-      console.error("ACE isolated share capture failed",error);
-      loading.hidden=false;
-      loading.textContent="Preview capture failed.";
-      setStatus("Share preview failed: "+(error?.message||error),"bad");
-    }
+    setStatus("Preview ready.","ok");
   }
-
   function renderCurrent(){
     if(!ace31Player)return;
     const format=q("#ace31ShareFormat")?.value||"story";
@@ -43204,6 +43218,205 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 })();
 </script>
 <!-- /ACE B21.31.6 — MOBILE PACK REVIEW FIX -->
+
+
+<!-- ACE B21.31.7 — SIMPLE LIVE CARD SHARE -->
+<style id="ace-b21-31-7-simple-live-card-share">
+/* Clean visible preview using the live ACE card itself. */
+.ace31SharePreview{
+  overflow:hidden!important;
+}
+.ace31SharePreview canvas,
+.ace31SharePreviewImage,
+.ace31PreviewLoading{
+  display:none!important;
+}
+.ace31ShareLiveStage{
+  position:relative;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  width:min(100%,355px);
+  max-width:355px;
+  aspect-ratio:9/16;
+  overflow:hidden;
+  padding:22px 18px 18px;
+  border-radius:13px;
+  box-shadow:0 24px 50px rgba(0,0,0,.42);
+  isolation:isolate;
+}
+.ace31ShareLiveStage::before,
+.ace31CaptureScene::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.18;
+  background-image:repeating-linear-gradient(45deg,transparent 0 24px,rgba(255,255,255,.035) 25px 26px);
+}
+.ace31ShareLiveStage.ace31FormatSquare{
+  aspect-ratio:1/1;
+  padding:14px 14px 10px;
+}
+.ace31ShareLiveCard{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  margin-top:10px;
+  flex:1 1 auto;
+}
+.ace31ShareLiveCard>.fifaPlayerCard{
+  width:270px!important;
+  min-width:270px!important;
+  max-width:270px!important;
+  min-height:420px!important;
+  margin:0!important;
+  transform:none!important;
+  transition:none!important;
+  pointer-events:none!important;
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.42))!important;
+  box-shadow:none!important;
+}
+.ace31ShareLiveCard>.fifaPlayerCard:hover{
+  transform:none!important;
+}
+.ace31ShareLiveStage.ace31FormatSquare .ace31ShareLiveCard>.fifaPlayerCard{
+  transform:scale(.78)!important;
+  transform-origin:top center!important;
+}
+.ace31ShareLiveStage .fifaEditHint,
+.ace31CaptureScene .fifaEditHint{
+  display:none!important;
+}
+.ace31CaptureBrand{
+  flex:0 0 auto;
+  margin-top:1px;
+  text-align:center;
+}
+.ace31CaptureBrand b{
+  display:block;
+  color:#fff;
+  font-size:9px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.02em;
+}
+.ace31CaptureBrand span{
+  display:block;
+  margin-top:4px;
+  color:rgba(255,255,255,.58);
+  font-size:4.2px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.ace31CaptureFooter{
+  margin-top:auto;
+  color:rgba(255,255,255,.82);
+  font-size:7px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.06em;
+  text-align:center;
+}
+.ace31ShareLiveStage.ace31FormatSquare .ace31CaptureFooter{
+  display:none;
+}
+
+/* Hidden isolated capture scene for PNG/share generation only. */
+#ace31CaptureRoot{
+  position:fixed;
+  left:-20000px;
+  top:0;
+  width:0;
+  height:0;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  z-index:-1;
+}
+.ace31CaptureScene{
+  position:relative;
+  box-sizing:border-box;
+  width:1080px;
+  height:1920px;
+  padding:74px 72px 64px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:24px;
+  color:#fff;
+  isolation:isolate;
+}
+.ace31CaptureScene.ace31FormatSquare{
+  width:1080px;
+  height:1080px;
+  padding:42px 56px 34px;
+  gap:14px;
+}
+.ace31CaptureScene .ace31CaptureBrand b{
+  font-size:28px;
+}
+.ace31CaptureScene .ace31CaptureBrand span{
+  margin-top:8px;
+  font-size:13px;
+}
+.ace31RealCardCapture{
+  width:640px;
+  max-width:640px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  margin-top:4px;
+  flex:0 0 auto;
+}
+.ace31RealCardCapture>.fifaPlayerCard{
+  width:640px!important;
+  min-width:640px!important;
+  max-width:640px!important;
+  min-height:1035px!important;
+  margin:0!important;
+  transform:none!important;
+  transition:none!important;
+  pointer-events:none!important;
+  filter:drop-shadow(0 28px 36px rgba(0,0,0,.42))!important;
+  box-shadow:none!important;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31RealCardCapture{
+  width:520px;
+  max-width:520px;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31RealCardCapture>.fifaPlayerCard{
+  width:520px!important;
+  min-width:520px!important;
+  max-width:520px!important;
+  min-height:840px!important;
+}
+.ace31CaptureScene .ace31CaptureFooter{
+  font-size:22px;
+  padding-bottom:6px;
+}
+.ace31CaptureScene.ace31FormatSquare .ace31CaptureFooter{
+  display:none;
+}
+</style>
+<!-- /ACE B21.31.7 — SIMPLE LIVE CARD SHARE -->
+
+
+<!-- ACE B21.31.7 — BUILD TAG -->
+<script id="ace-b21-31-7-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.7";
+  window.ACE_SHARE_SIMPLE_LIVE_CARD=true;
+})();
+</script>
+<!-- /ACE B21.31.7 — BUILD TAG -->
 
 </body>
 </html>
