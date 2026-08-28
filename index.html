@@ -43418,6 +43418,127 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 </script>
 <!-- /ACE B21.31.7 — BUILD TAG -->
 
+
+<!-- ACE B21.31.8 — SHARE PLAYSTYLE BOXES -->
+<style id="ace-b21-31-8-share-playstyle-boxes">
+/* The real profile card's playstyle styling is scoped under
+   .vdsCardShowcaseCardFrame. Share mode reuses that same card outside
+   that wrapper, so mirror the exact capsule rules here. */
+
+.ace31ShareLiveCard .vdsCardPlaystyles,
+.ace31RealCardCapture .vdsCardPlaystyles{
+  position:relative!important;
+  z-index:40!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:4px!important;
+  width:100%!important;
+  min-height:18px!important;
+  height:auto!important;
+  margin:5px 0 2px!important;
+  padding:0 5px!important;
+  overflow:visible!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+.ace31ShareLiveCard .vdsCardPlaystyle,
+.ace31RealCardCapture .vdsCardPlaystyle{
+  position:relative!important;
+  z-index:41!important;
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:46%!important;
+  height:18px!important;
+  margin:0!important;
+  padding:2px 7px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(228,197,88,.34)!important;
+  background:rgba(2,11,19,.82)!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.28)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+
+.ace31ShareLiveCard .vdsCardPlaystyle.defense,
+.ace31RealCardCapture .vdsCardPlaystyle.defense{
+  border-color:rgba(104,181,225,.32)!important;
+}
+
+.ace31ShareLiveCard .vdsCardPlaystyleEmoji,
+.ace31RealCardCapture .vdsCardPlaystyleEmoji{
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:8px!important;
+  line-height:1!important;
+  font-weight:400!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+.ace31ShareLiveCard .vdsCardPlaystyleLabel,
+.ace31RealCardCapture .vdsCardPlaystyleLabel{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#dce6ed!important;
+  font-size:5px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+.ace31ShareLiveCard .vdsCardPlaystyles + .fifaServeType,
+.ace31RealCardCapture .vdsCardPlaystyles + .fifaServeType{
+  position:relative!important;
+  z-index:20!important;
+  margin-top:2px!important;
+}
+
+/* Make the larger export preserve the same visual proportions. */
+.ace31RealCardCapture .vdsCardPlaystyle{
+  height:28px!important;
+  gap:5px!important;
+  padding:4px 12px!important;
+  border-width:2px!important;
+  box-shadow:0 4px 9px rgba(0,0,0,.28)!important;
+}
+.ace31RealCardCapture .vdsCardPlaystyleEmoji{
+  font-size:13px!important;
+}
+.ace31RealCardCapture .vdsCardPlaystyleLabel{
+  font-size:8px!important;
+}
+.ace31RealCardCapture .vdsCardPlaystyles{
+  gap:7px!important;
+  min-height:30px!important;
+  margin:8px 0 4px!important;
+  padding:0 9px!important;
+}
+</style>
+
+<script id="ace-b21-31-8-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.8";
+  window.ACE_SHARE_PLAYSTYLE_BOXES=true;
+})();
+</script>
+<!-- /ACE B21.31.8 — SHARE PLAYSTYLE BOXES -->
+
 </body>
 </html>
 
