@@ -7107,110 +7107,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 <meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
-<script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js" defer></script>
-<script id="ace-supabase-resilient-loader">
-(function(){
-  "use strict";
-
-  if(window.supabase?.createClient){
-    window.ACE_SUPABASE_READY=Promise.resolve(window.supabase);
-    window.aceEnsureSupabase=()=>window.ACE_SUPABASE_READY;
-    return;
-  }
-
-  const sources=[
-    "https://unpkg.com/@supabase/supabase-js@2.107.0/dist/umd/supabase.js",
-    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0/dist/umd/supabase.js"
-  ];
-
-  let settled=false;
-  let resolveReady,rejectReady;
-
-  window.ACE_SUPABASE_READY=new Promise((resolve,reject)=>{
-    resolveReady=resolve;
-    rejectReady=reject;
-  });
-
-  function markReady(){
-    if(settled)return false;
-    if(window.supabase?.createClient){
-      settled=true;
-      document.documentElement.dataset.aceSupabase="ready";
-      resolveReady(window.supabase);
-      window.dispatchEvent(new CustomEvent("ace:supabase-ready"));
-      return true;
-    }
-    return false;
-  }
-
-  function loadScript(index){
-    if(markReady())return;
-    if(index>=sources.length){
-      loadModuleFallback();
-      return;
-    }
-
-    const script=document.createElement("script");
-    let done=false;
-    const finish=(ok)=>{
-      if(done)return;
-      done=true;
-      clearTimeout(timer);
-      script.onload=null;
-      script.onerror=null;
-      if(ok && markReady())return;
-      try{script.remove()}catch(_){}
-      loadScript(index+1);
-    };
-
-    script.src=sources[index];
-    script.async=true;
-    script.crossOrigin="anonymous";
-    script.referrerPolicy="no-referrer";
-    script.onload=()=>finish(true);
-    script.onerror=()=>finish(false);
-
-    const timer=setTimeout(()=>finish(false),4500);
-    document.head.appendChild(script);
-  }
-
-  async function loadModuleFallback(){
-    if(markReady())return;
-    try{
-      const mod=await Promise.race([
-        import("https://esm.sh/@supabase/supabase-js@2.107.0?bundle"),
-        new Promise((_,reject)=>setTimeout(()=>reject(new Error("ESM_TIMEOUT")),5500))
-      ]);
-      if(mod?.createClient){
-        window.supabase=mod;
-        markReady();
-        return;
-      }
-      throw new Error("SUPABASE_MODULE_INVALID");
-    }catch(error){
-      if(settled)return;
-      settled=true;
-      document.documentElement.dataset.aceSupabase="failed";
-      console.error("ACE could not load the Supabase browser SDK from any source.",error);
-      rejectReady(error instanceof Error?error:new Error("SUPABASE_SDK_UNAVAILABLE"));
-      window.dispatchEvent(new CustomEvent("ace:supabase-failed"));
-    }
-  }
-
-  window.aceEnsureSupabase=function(timeoutMs=16000){
-    if(window.supabase?.createClient)return Promise.resolve(window.supabase);
-    return Promise.race([
-      window.ACE_SUPABASE_READY,
-      new Promise((_,reject)=>setTimeout(
-        ()=>reject(new Error("SUPABASE_LOAD_TIMEOUT")),
-        Math.max(1000,Number(timeoutMs)||16000)
-      ))
-    ]);
-  };
-
-  setTimeout(()=>loadScript(0),0);
-})();
-</script>
+<script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -7235,126 +7132,6 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
           <span class="vdsGoogleMark">G</span>
           <span>Continue with Google</span>
         </button>
-        <script id="ace-b21-35-8-early-google-auth">
-        (function(){
-          "use strict";
-
-          const SUPABASE_URL="https://vpkvjvyxadjzjbsvlqws.supabase.co";
-          const SUPABASE_KEY="sb_publishable_fNXCiKev7n2v40GF3TMUbg_9MoeG2qk";
-          let emergencyClient=null;
-          let busy=false;
-
-          function setStatus(text,isError){
-            const el=document.getElementById("vdsAuthStatus");
-            if(el){
-              el.textContent=text;
-              el.classList.toggle("error",!!isError);
-            }
-          }
-
-          function safeReturnUrl(){
-            if(location.protocol==="file:")return "";
-            try{
-              const url=new URL(location.href);
-              url.hash="";
-              for(const key of ["code","error","error_code","error_description"]){
-                url.searchParams.delete(key);
-              }
-              return url.toString();
-            }catch(_){
-              return "";
-            }
-          }
-
-          async function emergencyGoogleLogin(){
-            if(busy)return;
-
-            const btn=document.getElementById("vdsGoogleSignIn");
-            if(location.protocol==="file:"){
-              document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
-              setStatus("Google sign-in needs localhost or your deployed HTTPS website.",true);
-              return;
-            }
-
-            /*
-              If the normal ACE auth function has finished loading, hand over to
-              it. Otherwise this handler can start OAuth by itself.
-            */
-            if(typeof window.vdsSignInWithGoogle==="function"){
-              return window.vdsSignInWithGoogle();
-            }
-
-            busy=true;
-            if(btn)btn.disabled=true;
-            setStatus("Connecting securely to ACE…");
-
-            try{
-              if(!window.supabase?.createClient){
-                if(typeof window.aceEnsureSupabase!=="function"){
-                  throw new Error("ACE SDK loader has not initialised.");
-                }
-                await window.aceEnsureSupabase(16000);
-              }
-
-              if(!window.supabase?.createClient){
-                throw new Error("ACE account SDK is unavailable.");
-              }
-
-              if(!emergencyClient){
-                emergencyClient=window.supabase.createClient(
-                  SUPABASE_URL,
-                  SUPABASE_KEY,
-                  {
-                    auth:{
-                      storageKey:"vds-multiplayer-auth",
-                      persistSession:true,
-                      autoRefreshToken:true,
-                      detectSessionInUrl:true
-                    }
-                  }
-                );
-              }
-
-              const redirectTo=safeReturnUrl();
-              if(!redirectTo)throw new Error("ACE could not determine the login return URL.");
-
-              setStatus("Opening Google sign-in…");
-              const {error}=await emergencyClient.auth.signInWithOAuth({
-                provider:"google",
-                options:{
-                  redirectTo,
-                  scopes:"openid email profile",
-                  queryParams:{prompt:"select_account"}
-                }
-              });
-              if(error)throw error;
-            }catch(error){
-              console.error("ACE emergency Google login failed",error);
-              setStatus(
-                String(error?.message||error||"ACE sign-in could not start."),
-                true
-              );
-              busy=false;
-              if(btn)btn.disabled=false;
-            }
-          }
-
-          const btn=document.getElementById("vdsGoogleSignIn");
-          if(btn){
-            /* Explicitly rule out a stale CSS/pointer-event regression. */
-            btn.disabled=false;
-            btn.style.pointerEvents="auto";
-            btn.style.position="relative";
-            btn.style.zIndex="20";
-            btn.onclick=emergencyGoogleLogin;
-          }
-
-          /* The button is usable now, before player cards or game data load. */
-          setStatus("Ready. Continue with Google.");
-
-          window.ACE_EARLY_GOOGLE_LOGIN=emergencyGoogleLogin;
-        })();
-        </script>
 
         <div class="vdsSignInAuthMeta">
           <i class="vdsSignInSecureDot"></i>
@@ -8653,7 +8430,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 
 <div class="revealOverlay" id="revealOverlay"><div id="revealContent"></div></div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>document.addEventListener("keydown",e=>{
   if(e.key==="Escape" && document.getElementById("vdsCardShowcaseOverlay")?.classList.contains("show")){
     closeVdsCardShowcase();
@@ -8756,21 +8533,13 @@ let storedPlayers = JSON.parse(safeStore.get("vballPlayers") || "null");
 const CLOUD_SUPABASE_URL="https://vpkvjvyxadjzjbsvlqws.supabase.co";
 const CLOUD_SUPABASE_KEY="sb_publishable_fNXCiKev7n2v40GF3TMUbg_9MoeG2qk";
 const CLOUD_ADMIN_UID="e9b02045-3b2e-43d3-b80b-c22c63bc6007";
-let cloudDb=null;
-
-function ensureCloudDb(){
-  if(cloudDb)return cloudDb;
-  if(!window.supabase?.createClient)return null;
-
-  cloudDb=window.supabase.createClient(CLOUD_SUPABASE_URL,CLOUD_SUPABASE_KEY,{
-    auth:{
-      detectSessionInUrl:false
-    }
-  });
-
-  try{window.cloudDb=cloudDb}catch(_){}
-  return cloudDb;
-}
+const cloudDb=window.supabase
+  ? window.supabase.createClient(CLOUD_SUPABASE_URL,CLOUD_SUPABASE_KEY,{
+      auth:{
+        detectSessionInUrl:false
+      }
+    })
+  : null;
 
 let cloudAdmin=false;
 let cloudLoaded=false;
@@ -8900,16 +8669,7 @@ async function detectCloudColumns(){
 }
 
 async function loadPlayersFromCloud(){
-  if(!ensureCloudDb()){
-    try{await window.aceEnsureSupabase?.(14000);}catch(error){
-      console.warn("Cloud player database SDK unavailable",error);
-    }
-  }
-  if(!ensureCloudDb()){
-    const status=document.getElementById("cloudPlayerStatus");
-    if(status)status.textContent="Shared player database is temporarily unavailable.";
-    return false;
-  }
+  if(!cloudDb)return false;
   await detectCloudColumns();
 
   const {data,error}=await cloudDb.from("players").select(CLOUD_PLAYER_SELECT).order("id");
@@ -8946,10 +8706,7 @@ async function loadPlayersFromCloud(){
 }
 
 async function refreshCloudSession(){
-  if(!ensureCloudDb()){
-    try{await window.aceEnsureSupabase?.(14000);}catch(_){}
-  }
-  if(!ensureCloudDb())return;
+  if(!cloudDb)return;
   const {data}=await cloudDb.auth.getSession();
   const user=data?.session?.user||null;
   cloudAdmin=!!user && user.id===CLOUD_ADMIN_UID;
@@ -8957,14 +8714,6 @@ async function refreshCloudSession(){
 }
 
 async function cloudAdminLogin(){
-  if(!ensureCloudDb()){
-    try{await window.aceEnsureSupabase?.(14000);}catch(_){}
-  }
-  if(!ensureCloudDb()){
-    const status=document.getElementById("adminLoginStatus");
-    if(status)status.textContent="Cloud SDK unavailable. Check your connection and try again.";
-    return;
-  }
   const email=document.getElementById("adminEmail").value.trim();
   const password=document.getElementById("adminPassword").value;
   const status=document.getElementById("adminLoginStatus");
@@ -18195,24 +17944,8 @@ async function vdsApplySignedInSession(session,{resumeRoom=true}={}){
 
 async function vdsSignInWithGoogle(){
   if(vdsAccountAuthBusy)return;
-
-  let client=ensureMultiplayerClient();
-  if(!client){
-    vdsSetAuthStatus("Connecting securely to ACE…");
-    try{
-      await window.aceEnsureSupabase?.(16000);
-    }catch(error){
-      console.error("ACE sign-in SDK unavailable",error);
-      vdsSetAuthStatus("ACE sign-in could not connect. Check your connection and tap Google again.","error");
-      return;
-    }
-    client=ensureMultiplayerClient();
-  }
-
-  if(!client){
-    vdsSetAuthStatus("ACE sign-in could not initialise. Tap Google again.","error");
-    return;
-  }
+  const client=ensureMultiplayerClient();
+  if(!client){vdsSetAuthStatus("Supabase did not load. Please refresh the page.","error");return;}
 
   if(location.protocol==="file:"){
     document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
@@ -18703,39 +18436,15 @@ function vdsHydrateSignInArtwork(){
 }
 
 async function vdsInitAccountGate(){
-  const btn=document.getElementById("vdsGoogleSignIn");
-  if(btn){
-    btn.onclick=vdsSignInWithGoogle;
-    btn.disabled=false;
-  }
+  vdsHydrateSignInArtwork();
 
-  vdsSetAuthStatus("Connecting to your ACE account…");
-
-  try{vdsHydrateSignInArtwork();}catch(error){
-    console.warn("ACE sign-in artwork could not hydrate",error);
-  }
-
-  let client=ensureMultiplayerClient();
-  if(!client){
-    try{
-      await window.aceEnsureSupabase?.(16000);
-    }catch(error){
-      console.error("ACE account SDK connection failed",error);
-      vdsShowAccountGate("ACE account service could not connect. Check your internet connection, then tap Google to retry.","error");
-      vdsSetAuthStatus("Could not connect to ACE account services. Google remains available to retry.","error");
-      if(btn)btn.disabled=false;
-      return;
-    }
-    client=ensureMultiplayerClient();
-  }
-
-  if(!client){
-    vdsShowAccountGate("ACE account service could not initialise. Tap Google to retry.","error");
-    if(btn)btn.disabled=false;
-    return;
-  }
+  const client=ensureMultiplayerClient();
+  if(!client){vdsShowAccountGate("Supabase did not load. Refresh the page to sign in.","error");return;}
 
   if(location.protocol==="file:")document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
+
+  const btn=document.getElementById("vdsGoogleSignIn");
+  if(btn)btn.onclick=vdsSignInWithGoogle;
 
   document.getElementById("vdsAccountOpenBtn")?.addEventListener("click",()=>{
     vdsUpdateAccountUI();
@@ -18748,32 +18457,7 @@ async function vdsInitAccountGate(){
   document.getElementById("vdsSaveProfileBtn")?.addEventListener("click",vdsSaveProfile);
   document.getElementById("vdsSignOutBtn")?.addEventListener("click",vdsSignOut);
 
-  /*
-    Never leave the entire gate hanging forever on a storage/auth lock.
-    The Google button is already wired above, so after the timeout the user can
-    sign in normally while Supabase finishes resolving in the background.
-  */
-  let data=null;
-  let error=null;
-  let sessionCheckTimedOut=false;
-
-  try{
-    const result=await Promise.race([
-      client.auth.getSession().then(value=>({kind:"session",value})),
-      new Promise(resolve=>setTimeout(()=>resolve({kind:"timeout"}),5000))
-    ]);
-
-    if(result?.kind==="timeout"){
-      sessionCheckTimedOut=true;
-      console.warn("ACE account session check timed out after 5 seconds.");
-    }else{
-      data=result?.value?.data||null;
-      error=result?.value?.error||null;
-    }
-  }catch(sessionError){
-    error=sessionError;
-  }
-
+  let {data,error}=await client.auth.getSession();
   if(error)console.warn("VDS account session check failed",error);
 
   let session=data?.session||null;
@@ -18789,11 +18473,6 @@ async function vdsInitAccountGate(){
     vdsShowAccountGate(location.protocol==="file:"
       ?"Run THE ACE PROJECT from localhost or HTTPS, then sign in with Google."
       :"Sign in with Google to play THE ACE PROJECT.");
-
-    if(sessionCheckTimedOut && location.protocol!=="file:"){
-      vdsSetAuthStatus("Ready to sign in. Player-card loading will continue separately.");
-      if(btn)btn.disabled=false;
-    }
   }
 
   if(!vdsAccountAuthSubscription){
@@ -24996,11 +24675,6 @@ if(rosterStatus){
   try{
     const cloudStart=performance.now();
 
-    try{await window.aceEnsureSupabase?.(15000);}catch(error){
-      console.warn("ACE cloud-player SDK did not become ready",error);
-    }
-    ensureCloudDb();
-
     // B4.0 Stage 2: session lookup and public roster fetch do not depend
     // on each other, so start them together rather than serially.
     await Promise.all([
@@ -26445,48 +26119,15 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
 */
 
 
-/* THE ACE PROJECT B21.35.6 — ACCOUNT BOOT UNBLOCKED */
+/* THE ACE PROJECT B10.0 Stage 1B.2 — critical account-gate boot */
 (function aceBootAccountGate(){
-  let started=false;
+  const start=()=>setTimeout(()=>{
+    if(typeof vdsInitAccountGate==="function")vdsInitAccountGate();
+    else console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
+  },40);
 
-  const start=()=>{
-    if(started)return;
-    started=true;
-
-    setTimeout(()=>{
-      if(typeof vdsInitAccountGate==="function"){
-        Promise.resolve(vdsInitAccountGate()).catch(error=>{
-          console.error("ACE account gate could not initialise.",error);
-          try{
-            const btn=document.getElementById("vdsGoogleSignIn");
-            if(btn){
-              btn.disabled=false;
-              btn.onclick=vdsSignInWithGoogle;
-            }
-            vdsShowAccountGate("Sign in with Google to play THE ACE PROJECT.");
-            vdsSetAuthStatus("ACE account check was interrupted. Google sign-in is still available.");
-          }catch(_){}
-        });
-      }else{
-        console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
-      }
-    },20);
-  };
-
-  /*
-    CRITICAL:
-    Do not wait for window.load. window.load waits for images and other remote
-    resources. The sign-in artwork pulls remote player photos, so one slow or
-    failed image must never be allowed to block authentication.
-  */
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",start,{once:true});
-  }else{
-    start();
-  }
-
-  /* Independent failsafe in case another script prevents the normal event path. */
-  setTimeout(start,900);
+  if(document.readyState==="complete")start();
+  else window.addEventListener("load",start,{once:true});
 })();
 
 </script>
@@ -44163,9 +43804,29 @@ body.ace34ShareOpen{
   document.addEventListener("ace:coins-changed",scheduleRefresh);
   document.addEventListener("ace:club-changed",scheduleRefresh);
 
-  setTimeout(scheduleRefresh,0);
-  setTimeout(scheduleRefresh,700);
-  setTimeout(scheduleRefresh,1800);
+  let ace35Booted=false;
+
+  function ace35StartAfterLogin(){
+    if(ace35Booted)return;
+
+    let signedIn=false;
+    try{
+      signedIn=typeof vdsHasPermanentAccount==="function"
+        ? !!vdsHasPermanentAccount()
+        : !!vdsAccountSession?.user?.id;
+    }catch(_){}
+
+    if(!signedIn){
+      setTimeout(ace35StartAfterLogin,500);
+      return;
+    }
+
+    ace35Booted=true;
+    scheduleRefresh();
+    setTimeout(scheduleRefresh,700);
+  }
+
+  setTimeout(ace35StartAfterLogin,300);
 
   window.ace35RefreshHome=()=>{rookieCache=null;scheduleRefresh()};
   window.ACE_PROJECT_BUILD="B21.35";
@@ -44493,7 +44154,8 @@ body.ace34ShareOpen{
 
   function renderMount(el){
     if(!el)return;
-    el.innerHTML=shellHTML();
+    const next=shellHTML();
+    if(el.innerHTML!==next)el.innerHTML=next;
   }
 
   function ensureMounts(){
@@ -44614,13 +44276,44 @@ body.ace34ShareOpen{
     }
   });
 
-  const observer=new MutationObserver(()=>{
-    if(q("#home.active")||q("#ultimate.active"))ensureMounts();
-  });
-  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+  /*
+    B21.35.10 ROOT-CAUSE FIX
+    ---------------------------------------------------------
+    #home is already .active underneath the login overlay.
 
-  setTimeout(start,0);
-  setTimeout(start,900);
+    The old document-wide MutationObserver called ensureMounts().
+    ensureMounts() called renderMount().
+    renderMount() rewrote innerHTML.
+    That rewrite triggered the same observer again.
+
+    Result: an endless microtask loop that starved clicks/UI updates while
+    Supabase networking continued in the background.
+
+    LIVE ACE PULLS is post-login content, so do not run it at all until
+    a permanent ACE account exists.
+  */
+  let ace351Booted=false;
+
+  function ace351StartAfterLogin(){
+    if(ace351Booted)return;
+
+    let signedIn=false;
+    try{
+      signedIn=typeof vdsHasPermanentAccount==="function"
+        ? !!vdsHasPermanentAccount()
+        : !!vdsAccountSession?.user?.id;
+    }catch(_){}
+
+    if(!signedIn){
+      setTimeout(ace351StartAfterLogin,500);
+      return;
+    }
+
+    ace351Booted=true;
+    start();
+  }
+
+  setTimeout(ace351StartAfterLogin,350);
 
   window.ace351ReloadLivePulls=loadPulls;
   window.ACE_PROJECT_BUILD="B21.35.1";
@@ -45086,11 +44779,33 @@ body.ace34ShareOpen{
     requestAnimationFrame(run);
   }
 
-  const observer=new MutationObserver(schedule);
-  observer.observe(document.documentElement,{
-    childList:true,
-    subtree:true
-  });
+  let ace352Booted=false;
+  let ace352RefreshTimer=null;
+
+  function ace352StartAfterLogin(){
+    if(ace352Booted)return;
+
+    let signedIn=false;
+    try{
+      signedIn=typeof vdsHasPermanentAccount==="function"
+        ? !!vdsHasPermanentAccount()
+        : !!vdsAccountSession?.user?.id;
+    }catch(_){}
+
+    if(!signedIn){
+      setTimeout(ace352StartAfterLogin,500);
+      return;
+    }
+
+    ace352Booted=true;
+    schedule();
+
+    /* Low-frequency reconciliation only on the actual Home / UT screens.
+       No document-wide DOM observer. */
+    ace352RefreshTimer=setInterval(()=>{
+      if(q("#home.active")||q("#ultimate.active"))schedule();
+    },1600);
+  }
 
   document.addEventListener("click",e=>{
     if(e.target.closest?.("[data-page='home'],[data-page='ultimate'],[data-go='ultimate']")){
@@ -45098,9 +44813,7 @@ body.ace34ShareOpen{
     }
   });
 
-  setTimeout(schedule,0);
-  setTimeout(schedule,500);
-  setTimeout(schedule,1500);
+  setTimeout(ace352StartAfterLogin,350);
 
   window.ace352RefreshLayout=schedule;
   window.ACE_PROJECT_BUILD="B21.35.2";
@@ -45686,76 +45399,15 @@ body.ace34ShareOpen{
 <!-- /ACE B21.35.5 — SAFE REWARD REBUILD -->
 
 
-<!-- ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
-<script id="ace-b21-35-6-account-boot-marker">
+<!-- ACE B21.35.10 — ROOT CAUSE LOGIN FIX -->
+<script id="ace-b21-35-10-root-cause-login-fix">
 (function(){
-  window.ACE_PROJECT_BUILD="B21.35.6";
-  window.ACE_ACCOUNT_BOOT_UNBLOCKED=true;
+  window.ACE_PROJECT_BUILD="B21.35.10";
+  window.ACE_ROOT_CAUSE_LOGIN_FIX=true;
+  window.ACE_LIVE_PULL_OBSERVER_LOOP_REMOVED=true;
 })();
 </script>
-<!-- /ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
-
-
-<!-- ACE B21.35.7 — NONBLOCKING SUPABASE BOOT -->
-<script id="ace-b21-35-7-sdk-diagnostics">
-(function(){
-  function status(text,type){
-    try{
-      if(typeof vdsSetAuthStatus==="function")vdsSetAuthStatus(text,type);
-      else{
-        const el=document.getElementById("vdsAuthStatus");
-        if(el)el.textContent=text;
-      }
-    }catch(_){}
-  }
-
-  window.addEventListener("ace:supabase-ready",()=>{
-    if(!window.vdsAccountSession?.user?.id){
-      status("ACE account service connected. Continue with Google.");
-    }
-  });
-
-  window.addEventListener("ace:supabase-failed",()=>{
-    if(!window.vdsAccountSession?.user?.id){
-      status("Could not reach ACE account services. Check your connection and tap Google to retry.","error");
-    }
-  });
-
-  window.ACE_PROJECT_BUILD="B21.35.7";
-  window.ACE_NONBLOCKING_SUPABASE_BOOT=true;
-})();
-</script>
-<!-- /ACE B21.35.7 — NONBLOCKING SUPABASE BOOT -->
-
-
-<!-- ACE B21.35.8 — HARDENED LOGIN BOOT -->
-<script id="ace-b21-35-8-login-watchdog">
-(function(){
-  setTimeout(()=>{
-    const authStatus=document.getElementById("vdsAuthStatus");
-    const btn=document.getElementById("vdsGoogleSignIn");
-
-    if(btn && !window.vdsAccountSession?.user?.id){
-      btn.disabled=false;
-      btn.style.pointerEvents="auto";
-
-      if(authStatus && /checking your ace account/i.test(authStatus.textContent||"")){
-        authStatus.textContent="Ready. Continue with Google.";
-      }
-    }
-
-    document.querySelectorAll(".vdsAuthDbLoading").forEach(el=>{
-      if(/loading ace project player cards/i.test(el.textContent||"")){
-        el.textContent="PLAYER DATABASE CONNECTING… · SIGN-IN IS READY";
-      }
-    });
-  },4500);
-
-  window.ACE_PROJECT_BUILD="B21.35.8";
-  window.ACE_HARDENED_LOGIN_BOOT=true;
-})();
-</script>
-<!-- /ACE B21.35.8 — HARDENED LOGIN BOOT -->
+<!-- /ACE B21.35.10 — ROOT CAUSE LOGIN FIX -->
 
 </body>
 </html>
