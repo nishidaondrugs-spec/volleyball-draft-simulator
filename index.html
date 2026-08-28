@@ -41042,12 +41042,9 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
               </div>
             </div>
 
-            <div class="ace29ProfilePanel ace36AttributesPanel">
-              <button class="ace36AttributesToggle" type="button" aria-expanded="false">
-                <span>FULL ATTRIBUTES</span>
-                <b>VIEW ALL ATTRIBUTES ↓</b>
-              </button>
-              <div class="ace29StatGroups ace36AttributesBody" hidden>
+            <div class="ace29ProfilePanel ace361AttributesPanel">
+              <h3>FULL ATTRIBUTES</h3>
+              <div class="ace29StatGroups ace361AttributesBody">
                 ${statGroup("ATTACK",cats.attacking,[
                   ["Attack Creativity",p.creativity],["Hitting Accuracy",p.accuracy],["Hitting Power",p.hittingPower]
                 ])}
@@ -45957,6 +45954,227 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36 — DESKTOP READABILITY + LAYOUT POLISH -->
+
+
+<!-- ACE B21.36.1 — EXPANDED PLAYER PROFILE -->
+<style id="ace-b21-36-1-expanded-player-profile-style">
+/* =========================================================
+   B21.36.1 — EXPANDED PLAYER PROFILE
+   Full attributes stay visible.
+   The modal itself gets larger instead.
+   ========================================================= */
+
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay{
+    padding:14px!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    width:min(1540px,97vw)!important;
+    max-width:1540px!important;
+    height:min(900px,95dvh)!important;
+    max-height:95dvh!important;
+    padding:24px!important;
+    border-radius:18px!important;
+    overflow:auto!important;
+  }
+
+  .ace29ProfileTop{
+    gap:24px!important;
+    padding-bottom:19px!important;
+  }
+
+  .ace29ProfileTop h2{
+    font-size:42px!important;
+  }
+
+  .ace29ProfileTop p{
+    max-width:760px!important;
+    font-size:10px!important;
+  }
+
+  .ace29ProfileGrid{
+    grid-template-columns:390px minmax(0,1fr)!important;
+    gap:22px!important;
+    margin-top:20px!important;
+    align-items:start!important;
+  }
+
+  .ace29ProfileCardStage{
+    min-height:500px!important;
+    padding:22px!important;
+  }
+
+  .ace29ProfileCardStage .fifaPlayerCard{
+    width:300px!important;
+    min-width:300px!important;
+    transform:scale(1.04)!important;
+    transform-origin:center center!important;
+  }
+
+  .ace29ProfileInfo{
+    gap:13px!important;
+  }
+
+  .ace29ProfilePanel{
+    padding:17px!important;
+    border-radius:14px!important;
+  }
+
+  .ace29ProfilePanel h3{
+    font-size:8px!important;
+    margin-bottom:2px!important;
+  }
+
+  .ace29ProfileMetrics{
+    gap:9px!important;
+  }
+
+  .ace29ProfileMetric{
+    padding:12px!important;
+  }
+
+  .ace29ProfileMetric span{
+    font-size:7.2px!important;
+  }
+
+  .ace29ProfileMetric b{
+    font-size:21px!important;
+  }
+
+  .ace29PositionGrid{
+    gap:8px!important;
+  }
+
+  .ace29PositionGrid>div{
+    padding:12px 7px!important;
+  }
+
+  .ace29PositionGrid span{
+    font-size:7.2px!important;
+  }
+
+  .ace29PositionGrid b{
+    font-size:23px!important;
+  }
+
+  .ace29ProfileTwo{
+    gap:13px!important;
+  }
+
+  .ace29Playstyle{
+    padding:11px!important;
+  }
+
+  .ace29Playstyle b{
+    font-size:9px!important;
+  }
+
+  .ace29Playstyle p{
+    font-size:7.4px!important;
+  }
+
+  /* Full attributes are visible, wider and readable. */
+  .ace361AttributesPanel{
+    padding:17px!important;
+    overflow:visible!important;
+  }
+
+  .ace361AttributesBody{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;
+    margin-top:11px!important;
+    padding:0!important;
+  }
+
+  .ace361AttributesBody .ace29StatGroup{
+    min-width:0!important;
+  }
+
+  .ace361AttributesBody .ace29StatGroupHead{
+    padding:10px 11px!important;
+    font-size:7.4px!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow{
+    padding:8px 11px!important;
+    font-size:7.6px!important;
+    line-height:1.25!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow b{
+    font-size:8.3px!important;
+  }
+
+  .ace29ProfileActions button{
+    min-height:48px!important;
+    font-size:7.4px!important;
+  }
+}
+
+/* Large monitors get an even more spacious profile. */
+@media(min-width:1450px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    width:min(1600px,96vw)!important;
+    max-width:1600px!important;
+  }
+
+  .ace29ProfileGrid{
+    grid-template-columns:410px minmax(0,1fr)!important;
+  }
+
+  .ace29ProfileCardStage .fifaPlayerCard{
+    width:315px!important;
+    min-width:315px!important;
+  }
+}
+
+/* Tablet: keep attributes visible; allow normal vertical scroll. */
+@media(min-width:701px) and (max-width:900px){
+  .ace36AttributesToggle{
+    display:none!important;
+  }
+
+  .ace361AttributesPanel{
+    padding:14px!important;
+  }
+
+  .ace361AttributesBody{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:9px!important;
+    margin-top:9px!important;
+  }
+}
+
+/* Mobile: visible attributes too, stacked to stay readable. */
+@media(max-width:700px){
+  .ace36AttributesToggle{
+    display:none!important;
+  }
+
+  .ace361AttributesPanel{
+    padding:12px!important;
+  }
+
+  .ace361AttributesBody{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    margin-top:8px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-1-expanded-player-profile-runtime">
+(function(){
+  /* UI-only marker. No auth/backend/gameplay changes. */
+  window.ACE_PROJECT_BUILD="B21.36.1";
+  window.ACE_EXPANDED_PLAYER_PROFILE=true;
+})();
+</script>
+<!-- /ACE B21.36.1 — EXPANDED PLAYER PROFILE -->
 
 </body>
 </html>
