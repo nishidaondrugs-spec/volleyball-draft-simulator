@@ -17478,7 +17478,7 @@ async function vdsEnsureProfile(user){
 
   let {data,error}=await client
     .from("vds_profiles")
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .eq("id",user.id)
     .maybeSingle();
 
@@ -17493,7 +17493,7 @@ async function vdsEnsureProfile(user){
         display_name:String(google.displayName||"Manager").slice(0,40),
         avatar_url:google.avatar||null
       },{onConflict:"id"})
-      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
       .single();
 
     if(upsert.error){
@@ -17599,7 +17599,7 @@ async function vdsForceWalletSyncFromServer({rerender=false,quiet=true}={}){
   try{
     const {data,error}=await client
       .from("vds_profiles")
-      .select("coins,total_coins_earned,xp,manager_level,free_gold_packs,matches_played,wins,losses,elo,win_streak,best_streak,updated_at")
+      .select("coins,total_coins_earned,xp,manager_level,free_bronze_packs,free_silver_packs,free_gold_packs,matches_played,wins,losses,elo,win_streak,best_streak,updated_at")
       .eq("id",vdsAccountSession.user.id)
       .single();
 
@@ -17611,6 +17611,8 @@ async function vdsForceWalletSyncFromServer({rerender=false,quiet=true}={}){
       ...(vdsAccountProfile||{}),
       ...data,
       coins:Math.max(0,Number(data.coins||0)),
+      free_bronze_packs:Math.max(0,Math.floor(Number(data.free_bronze_packs||0))),
+      free_silver_packs:Math.max(0,Math.floor(Number(data.free_silver_packs||0))),
       free_gold_packs:Math.max(0,Math.floor(Number(data.free_gold_packs||0)))
     };
     vdsWalletLastHardSyncAt=Date.now();
@@ -17729,7 +17731,7 @@ async function vdsLoadDailyProgress(){
 
   const {data,error}=await client
     .from("vds_daily_progress")
-    .select("user_id,activity_date,matches_played,wins,play_one_rewarded,win_one_rewarded,play_three_rewarded,first_win_rewarded,coins_earned,updated_at")
+    .select("user_id,activity_date,matches_played,wins,play_one_rewarded,win_one_rewarded,play_three_rewarded,first_win_rewarded,completion_pack_claimed,coins_earned,updated_at")
     .eq("user_id",vdsAccountSession.user.id)
     .eq("activity_date",vdsUtcDateKey())
     .maybeSingle();
@@ -17745,6 +17747,7 @@ async function vdsLoadDailyProgress(){
     matches_played:0,wins:0,
     play_one_rewarded:false,win_one_rewarded:false,
     play_three_rewarded:false,first_win_rewarded:false,
+    completion_pack_claimed:false,
     coins_earned:0
   };
   vdsRenderDailyProgress();
@@ -18008,7 +18011,7 @@ async function vdsSaveProfile(){
     .from("vds_profiles")
     .update({display_name:display,username})
     .eq("id",vdsAccountSession.user.id)
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .single();
 
   if(error){
@@ -22122,7 +22125,7 @@ async function openUltimatePack(packId){
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
-  const usingFreeGoldPack=vdsHasFreeGoldPack(packId);
+  const usingFreeGoldPack=(typeof vdsHasFreePack==='function'?vdsHasFreePack(packId):vdsHasFreeGoldPack(packId));
   if(!usingFreeGoldPack && !isHostWallet && currentCoins<pack.cost){
     alert(`Not enough ACE coins. ${pack.cost.toLocaleString()} coins required.`);
     return;
@@ -22136,7 +22139,7 @@ async function openUltimatePack(packId){
   openButtons.forEach(btn=>{
     btn.disabled=true;
     btn.dataset.oldText=btn.textContent;
-    btn.textContent=usingFreeGoldPack?"OPENING FREE GOLD PACK…":"OPENING 3 CARDS…";
+    btn.textContent=usingFreeGoldPack?`OPENING FREE ${String(packId).toUpperCase()} PACK…`:"OPENING 3 CARDS…";
   });
 
   let committed=false;
@@ -22151,6 +22154,8 @@ async function openUltimatePack(packId){
     if(entries.length!==3)throw new Error(`SERVER_PACK_CARD_COUNT_${entries.length}_OF_3`);
 
     const newBalance=Number(data?.coin_balance);
+    const freeBronzeRemaining=Number(data?.free_bronze_packs_remaining);
+    const freeSilverRemaining=Number(data?.free_silver_packs_remaining);
     const freeRemaining=Number(data?.free_gold_packs_remaining);
     const usedFreePack=data?.used_free_pack===true;
 
@@ -22158,9 +22163,12 @@ async function openUltimatePack(packId){
       vdsAccountProfile={...(vdsAccountProfile||{}),coins:newBalance};
       ultimateTeamState.coins=newBalance;
     }
-    if(Number.isFinite(freeRemaining)){
-      vdsAccountProfile={...(vdsAccountProfile||{}),free_gold_packs:Math.max(0,Math.floor(freeRemaining))};
-    }
+    vdsAccountProfile={
+      ...(vdsAccountProfile||{}),
+      ...(Number.isFinite(freeBronzeRemaining)?{free_bronze_packs:Math.max(0,Math.floor(freeBronzeRemaining))}:{}),
+      ...(Number.isFinite(freeSilverRemaining)?{free_silver_packs:Math.max(0,Math.floor(freeSilverRemaining))}:{}),
+      ...(Number.isFinite(freeRemaining)?{free_gold_packs:Math.max(0,Math.floor(freeRemaining))}:{})
+    };
 
     if(vdsAccountProfile?.is_host_account && !Number.isFinite(newBalance)){
       vdsSyncUltimateWalletFromProfile();
@@ -22173,7 +22181,7 @@ async function openUltimatePack(packId){
     vdsScheduleWalletVerification(240,{rerender:true});
 
     if(usedFreePack){
-      console.info(`Project ACE gift pack used. ${vdsFreeGoldPackCount()} free Gold Pack(s) remaining.`);
+      console.info(`Project ACE reward pack used: ${String(packId).toUpperCase()}.`);
     }
 
     // All three cards were committed atomically on Supabase. Pull the club
@@ -43071,6 +43079,2477 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.34.1 — SHARE PILLS RESTORED -->
+
+
+<!-- ACE B21.35 — HOME / UT NEXT MOVE OVERHAUL -->
+<style id="ace-b21-35-home-ut-overhaul-style">
+/* =========================================================
+   B21.35
+   HOME / ULTIMATE TEAM — "WHAT DO I DO NEXT?"
+   Adds live club-status surfaces without changing economy,
+   match, pack, squad or cloud-save mechanics.
+   ========================================================= */
+
+/* ---------- MAIN HOME: CLUB PULSE ---------- */
+#home .ace35HomePulse{
+  display:grid;
+  grid-template-columns:1.35fr repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:9px 0 0;
+}
+#home .ace35PulseCard{
+  position:relative;
+  min-width:0;
+  min-height:112px;
+  padding:14px;
+  overflow:hidden;
+  border:1px solid rgba(173,126,239,.10);
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(126,74,205,.08),transparent 36%),
+    #080c14;
+  color:#fff;
+}
+#home button.ace35PulseCard{
+  appearance:none;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
+}
+#home button.ace35PulseCard:hover{
+  border-color:rgba(191,145,251,.23);
+  background:
+    radial-gradient(circle at 100% 0,rgba(139,79,224,.13),transparent 36%),
+    #0b101a;
+}
+#home .ace35PulseCard.primary{
+  border-color:rgba(180,126,252,.24);
+  background:
+    radial-gradient(circle at 90% 10%,rgba(206,163,255,.16),transparent 34%),
+    linear-gradient(135deg,#3b2165,#171024 67%,#0a0c14);
+}
+#home .ace35PulseKicker{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:#82758f;
+  font-size:6.5px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+#home .ace35PulseCard.primary .ace35PulseKicker{
+  color:#bf9bea;
+}
+#home .ace35PulseIcon{
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  flex:0 0 auto;
+  border-radius:999px;
+  background:rgba(152,92,235,.11);
+  color:#bd98ea;
+  font-size:11px;
+}
+#home .ace35PulseValue{
+  display:block;
+  margin-top:9px;
+  color:#f4effa;
+  font-size:17px;
+  line-height:1.02;
+  font-weight:1000;
+  letter-spacing:-.025em;
+}
+#home .ace35PulseCard.primary .ace35PulseValue{
+  max-width:85%;
+  font-size:21px;
+}
+#home .ace35PulseMeta{
+  display:block;
+  margin-top:6px;
+  color:#787382;
+  font-size:7px;
+  line-height:1.35;
+  font-weight:800;
+}
+#home .ace35PulseCard.primary .ace35PulseMeta{
+  color:#b09bbf;
+}
+#home .ace35PulseArrow{
+  position:absolute;
+  right:13px;
+  bottom:11px;
+  color:#8e63c5;
+  font-size:16px;
+}
+#home .ace35PulseBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-top:8px;
+  padding:4px 6px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.025);
+  color:#948d9d;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+#home .ace35PulseBadge.hot{
+  color:#eed7ff;
+  border-color:rgba(194,143,255,.22);
+  background:rgba(130,74,213,.12);
+}
+#home .ace35PulseBadge.reward{
+  color:#9ee7b5;
+  border-color:rgba(83,204,126,.20);
+  background:rgba(36,110,62,.12);
+}
+
+/* ---------- ULTIMATE TEAM: CLUB COMMAND DECK ---------- */
+#ultimate .ace35UTDeck{
+  display:grid;
+  grid-template-columns:1.35fr repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:9px 0 0;
+}
+#ultimate .ace35UTDeckCard{
+  position:relative;
+  min-width:0;
+  min-height:126px;
+  padding:14px;
+  overflow:hidden;
+  border:1px solid rgba(178,132,241,.09);
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(126,74,205,.07),transparent 38%),
+    #080b13;
+  color:#fff;
+}
+#ultimate button.ace35UTDeckCard{
+  appearance:none;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
+}
+#ultimate button.ace35UTDeckCard:hover{
+  border-color:rgba(190,143,250,.22);
+  background:
+    radial-gradient(circle at 100% 0,rgba(138,79,223,.12),transparent 38%),
+    #0c0f18;
+}
+#ultimate .ace35UTDeckCard.next{
+  border-color:rgba(194,145,255,.22);
+  background:
+    radial-gradient(circle at 90% 8%,rgba(202,155,255,.15),transparent 34%),
+    linear-gradient(135deg,#34205a,#151021 68%,#090b12);
+}
+#ultimate .ace35DeckTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+#ultimate .ace35DeckTop span{
+  color:#796e86;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+#ultimate .ace35UTDeckCard.next .ace35DeckTop span{
+  color:#b58edc;
+}
+#ultimate .ace35DeckTop i{
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  flex:0 0 auto;
+  border-radius:999px;
+  background:rgba(139,80,223,.10);
+  color:#ba91e6;
+  font-style:normal;
+  font-size:11px;
+}
+#ultimate .ace35UTDeckCard strong{
+  display:block;
+  margin-top:10px;
+  color:#f2edf8;
+  font-size:17px;
+  line-height:1.04;
+  letter-spacing:-.025em;
+}
+#ultimate .ace35UTDeckCard.next strong{
+  max-width:88%;
+  font-size:21px;
+}
+#ultimate .ace35UTDeckCard small{
+  display:block;
+  margin-top:6px;
+  color:#76717f;
+  font-size:6.7px;
+  line-height:1.38;
+}
+#ultimate .ace35UTDeckCard.next small{
+  color:#a996b7;
+}
+#ultimate .ace35DeckArrow{
+  position:absolute;
+  right:13px;
+  bottom:11px;
+  color:#8d62c5;
+  font-size:16px;
+}
+#ultimate .ace35DeckProgress{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:13px;
+  height:4px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#1b1721;
+}
+#ultimate .ace35DeckProgress i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#7841c3,#af6cf1);
+}
+#ultimate .ace35DeckTag{
+  display:inline-flex;
+  align-items:center;
+  margin-top:8px;
+  padding:4px 6px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  color:#898390;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+#ultimate .ace35DeckTag.reward{
+  color:#99e3b0;
+  border-color:rgba(82,199,124,.20);
+  background:rgba(33,105,58,.12);
+}
+#ultimate .ace35DeckTag.hot{
+  color:#edd4ff;
+  border-color:rgba(191,140,251,.22);
+  background:rgba(128,71,210,.12);
+}
+
+/* Make the existing rail subordinate to the live deck instead of competing. */
+#ultimate .ace35UTDeck + .aceUTHomeRail{
+  margin-top:8px!important;
+}
+#ultimate .ace35UTDeck + .aceUTHomeRail button{
+  min-height:78px!important;
+  opacity:.88;
+}
+
+/* Existing featured pack becomes live rather than always advertising 2,500. */
+#ultimate .aceUTFeaturedPack.ace35FreeWaiting{
+  border-color:rgba(218,183,75,.30)!important;
+  box-shadow:0 0 28px rgba(203,161,46,.055);
+}
+#ultimate .aceUTFeaturedPack.ace35FreeWaiting strong{
+  color:#f1d774!important;
+}
+
+/* Small notification dot on UT tab when something is waiting. */
+#ultimate .vdsUTHubTab.ace35Attention::before{
+  content:"";
+  position:absolute;
+  right:7px;
+  top:7px;
+  width:5px;
+  height:5px;
+  border-radius:999px;
+  background:#b067ff;
+  box-shadow:0 0 10px rgba(176,103,255,.55);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  #home .ace35HomePulse,
+  #ultimate .ace35UTDeck{
+    grid-template-columns:1fr 1fr;
+  }
+  #home .ace35PulseCard.primary,
+  #ultimate .ace35UTDeckCard.next{
+    grid-column:1/-1;
+  }
+}
+@media(max-width:760px){
+  #home .ace35HomePulse{
+    display:flex;
+    gap:7px;
+    margin:8px -2px 0;
+    padding:0 2px 4px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  #home .ace35HomePulse::-webkit-scrollbar{display:none}
+  #home .ace35PulseCard{
+    flex:0 0 74vw;
+    min-height:103px;
+    scroll-snap-align:start;
+  }
+  #home .ace35PulseCard.primary{
+    flex-basis:84vw;
+  }
+
+  #ultimate .ace35UTDeck{
+    display:flex;
+    gap:7px;
+    margin:8px -2px 0;
+    padding:0 2px 5px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  #ultimate .ace35UTDeck::-webkit-scrollbar{display:none}
+  #ultimate .ace35UTDeckCard{
+    flex:0 0 72vw;
+    min-height:116px;
+    scroll-snap-align:start;
+  }
+  #ultimate .ace35UTDeckCard.next{
+    flex-basis:84vw;
+  }
+}
+</style>
+
+<script id="ace-b21-35-home-ut-overhaul-runtime">
+(function(){
+  "use strict";
+
+  const $=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let rookieCache=null;
+  let rookieLoading=false;
+  let refreshQueued=false;
+
+  function safeEsc(v){
+    try{return typeof esc==="function"?esc(String(v??"")):String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+    catch(_){return String(v??"")}
+  }
+
+  function state(){
+    let lineup=[];
+    try{
+      lineup=typeof vdsHubOwnedLineupCards==="function"?vdsHubOwnedLineupCards():[];
+    }catch(_){}
+    if(!Array.isArray(lineup))lineup=[];
+
+    const filled=lineup.filter(Boolean);
+    const cards=Array.isArray(ultimateTeamState?.cards)?ultimateTeamState.cards.filter(Boolean):[];
+    const free=Math.max(0,Math.floor(Number(vdsAccountProfile?.free_gold_packs||0)));
+    const matches=Math.max(0,Math.floor(Number(vdsAccountProfile?.matches_played||0)));
+    const wins=Math.max(0,Math.floor(Number(vdsAccountProfile?.wins||0)));
+    const losses=Math.max(0,Math.floor(Number(vdsAccountProfile?.losses||0)));
+    const coins=vdsAccountProfile?.is_host_account?"∞":Math.max(0,Math.floor(Number(vdsAccountProfile?.coins||0))).toLocaleString();
+    const d=vdsDailyProgressCache||{};
+
+    const rewarded=[
+      !!d.first_win_rewarded,
+      !!d.play_one_rewarded,
+      !!d.win_one_rewarded,
+      !!d.play_three_rewarded
+    ];
+    const completed=rewarded.filter(Boolean).length;
+
+    const pending=
+      (Number(d.matches_played||0)>=1 && !d.play_one_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.win_one_rewarded) ||
+      (Number(d.matches_played||0)>=3 && !d.play_three_rewarded) ||
+      (Number(d.wins||0)>=1 && !d.first_win_rewarded);
+
+    const newCards=cards.filter(c=>{
+      try{return typeof aceIsRecentClubCard==="function" && aceIsRecentClubCard(c)}
+      catch(_){return false}
+    });
+
+    let squadOvr=0;
+    if(filled.length){
+      let total=0;
+      filled.forEach((card,i)=>{
+        try{
+          const idx=lineup.indexOf(card);
+          const role=typeof aceUTRoleForDataIndex==="function"?aceUTRoleForDataIndex(idx):card.position;
+          total+=typeof aceUTCardRoleRating==="function"?Number(aceUTCardRoleRating(card,role)||0):Number(card.rating||0);
+        }catch(_){
+          total+=Number(card.rating||0);
+        }
+      });
+      squadOvr=Math.round(total/filled.length);
+    }
+
+    return {
+      lineup,filled:filled.length,cards,free,matches,wins,losses,coins,
+      completed,pending,newCards,squadOvr,d
+    };
+  }
+
+  function nextAction(s=state()){
+    if(s.pending)return {
+      icon:"✓",
+      title:"CLAIM YOUR REWARD",
+      sub:"A completed objective is waiting for you.",
+      target:"missions",
+      badge:"REWARD READY"
+    };
+    if(s.free>0)return {
+      icon:"🎁",
+      title:"OPEN YOUR FREE GOLD PACK",
+      sub:`${s.free} free Gold Pack${s.free===1?" is":"s are"} waiting.`,
+      target:"packs",
+      badge:`${s.free} FREE`
+    };
+    if(s.filled<6)return {
+      icon:"⬡",
+      title:"FINISH YOUR STARTING SIX",
+      sub:`${s.filled}/6 starters are currently locked in.`,
+      target:"squad",
+      badge:`${6-s.filled} SLOT${6-s.filled===1?"":"S"} LEFT`
+    };
+    if(s.matches===0)return {
+      icon:"▶",
+      title:"PLAY YOUR FIRST ACE LEAGUE MATCH",
+      sub:"Your six is ready. Take it onto the court.",
+      target:"match",
+      badge:"FIRST MATCH"
+    };
+    if(s.newCards.length>0)return {
+      icon:"★",
+      title:`CHECK YOUR ${s.newCards.length} NEW CARD${s.newCards.length===1?"":"S"}`,
+      sub:"Review your latest pulls before the next match.",
+      target:"club",
+      badge:"NEW PULL"
+    };
+    return {
+      icon:"▶",
+      title:"PLAY YOUR NEXT MATCH",
+      sub:"Keep climbing ACE League and earning rewards.",
+      target:"match",
+      badge:`${s.wins}-${s.losses} RECORD`
+    };
+  }
+
+  function route(target){
+    try{
+      if(target==="match"){
+        if(typeof aceUTOpenMatchFlow==="function"){
+          aceUTOpenMatchFlow();
+          return;
+        }
+        if(typeof goPage==="function")goPage("sim");
+        return;
+      }
+
+      if(typeof goPage==="function")goPage("ultimate");
+      setTimeout(()=>{
+        try{
+          if(typeof vdsSwitchUltimateInstance==="function"){
+            vdsSwitchUltimateInstance(target);
+          }
+        }catch(_){}
+      },70);
+    }catch(_){}
+  }
+
+  function latestPull(s){
+    if(!s.cards.length)return null;
+    const candidates=s.cards.slice().sort((a,b)=>{
+      const at=Date.parse(a?.pulledAt||a?.created_at||"")||0;
+      const bt=Date.parse(b?.pulledAt||b?.created_at||"")||0;
+      const an=(()=>{try{return typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(a)?1:0}catch(_){return 0}})();
+      const bn=(()=>{try{return typeof aceIsRecentClubCard==="function"&&aceIsRecentClubCard(b)?1:0}catch(_){return 0}})();
+      return bn-an || bt-at || Number(b.rating||0)-Number(a.rating||0);
+    });
+    return candidates[0]||null;
+  }
+
+  function rookieSummary(){
+    const p=rookieCache || (typeof aceUTLeagueState!=="undefined"?aceUTLeagueState?.progress:null);
+    if(!p)return {label:"ROOKIE ROAD",value:"LOADING…",meta:"Your next coin milestone will appear here.",pct:0};
+
+    const claimed=new Set(Array.isArray(p.milestones_claimed)?p.milestones_claimed:[]);
+    const milestones=Array.isArray(window.ACE_AI_ROOKIE_MILESTONES)
+      ? window.ACE_AI_ROOKIE_MILESTONES
+      : (typeof ACE_AI_ROOKIE_MILESTONES!=="undefined"?ACE_AI_ROOKIE_MILESTONES:[]);
+
+    const targets={
+      play1:["matches_completed",1],
+      win1:["wins",1],
+      play3:["matches_completed",3],
+      play5:["matches_completed",5],
+      win5:["wins",5],
+      play10:["matches_completed",10]
+    };
+
+    const next=milestones.find(m=>!claimed.has(m.id) && !m.test(p));
+    if(!next)return {
+      label:"ROOKIE ROAD",
+      value:"COMPLETE ✓",
+      meta:"Every Rookie Road milestone has been claimed.",
+      pct:100
+    };
+
+    const [field,target]=targets[next.id]||["matches_completed",1];
+    const current=Math.min(target,Number(p?.[field]||0));
+    const pct=Math.max(0,Math.min(100,current/target*100));
+    const noun=field==="wins"?"WIN":"MATCH";
+    return {
+      label:"ROOKIE ROAD",
+      value:`${current}/${target} ${noun}${target===1?"":"ES"}`,
+      meta:`Next reward: +${Number(next.coins||0).toLocaleString()} coins`,
+      pct
+    };
+  }
+
+  async function loadRookie(){
+    if(rookieLoading)return;
+    if(rookieCache)return;
+    rookieLoading=true;
+    try{
+      if(typeof aceUTLeagueState!=="undefined" && aceUTLeagueState?.progress){
+        rookieCache=aceUTLeagueState.progress;
+      }else if(typeof aceUTLoadAIProgress==="function"){
+        rookieCache=await aceUTLoadAIProgress({quiet:true});
+      }
+    }catch(_){}
+    rookieLoading=false;
+    scheduleRefresh();
+  }
+
+  function homePulseHTML(){
+    const s=state();
+    const a=nextAction(s);
+    const newest=latestPull(s);
+    const newestName=newest?.playerName||"No pulls yet";
+    const newestMeta=newest
+      ? `${Number(newest.rating||0)} ${safeEsc(newest.position||"")} · ${safeEsc(String(newest.rarity||"CARD").replace("_"," ").toUpperCase())}`
+      : "Open your first pack to start the club.";
+
+    return `
+      <button class="ace35PulseCard primary" type="button" data-ace35-route="${safeEsc(a.target)}">
+        <div class="ace35PulseKicker"><span>YOUR NEXT MOVE</span><i class="ace35PulseIcon">${a.icon}</i></div>
+        <span class="ace35PulseValue">${safeEsc(a.title)}</span>
+        <span class="ace35PulseMeta">${safeEsc(a.sub)}</span>
+        <span class="ace35PulseBadge ${s.pending?"reward":"hot"}">${safeEsc(a.badge)}</span>
+        <i class="ace35PulseArrow">→</i>
+      </button>
+
+      <button class="ace35PulseCard" type="button" data-ace35-route="packs">
+        <div class="ace35PulseKicker"><span>PACKS</span><i class="ace35PulseIcon">🎁</i></div>
+        <span class="ace35PulseValue">${s.free>0?`${s.free} FREE`:"PACK STORE"}</span>
+        <span class="ace35PulseMeta">${s.free>0?"Gold Packs ready to open.":"Open packs and grow the club."}</span>
+        ${s.free>0?'<span class="ace35PulseBadge hot">WAITING NOW</span>':""}
+        <i class="ace35PulseArrow">→</i>
+      </button>
+
+      <button class="ace35PulseCard" type="button" data-ace35-route="missions">
+        <div class="ace35PulseKicker"><span>DAILY OBJECTIVES</span><i class="ace35PulseIcon">⚡</i></div>
+        <span class="ace35PulseValue">${s.completed}/4 COMPLETE</span>
+        <span class="ace35PulseMeta">${s.pending?"A reward is ready to claim.":"Keep playing to finish today's objectives."}</span>
+        ${s.pending?'<span class="ace35PulseBadge reward">CLAIM REWARD</span>':""}
+        <i class="ace35PulseArrow">→</i>
+      </button>
+
+      <button class="ace35PulseCard" type="button" data-ace35-route="club">
+        <div class="ace35PulseKicker"><span>MY CLUB</span><i class="ace35PulseIcon">★</i></div>
+        <span class="ace35PulseValue">${safeEsc(newestName)}</span>
+        <span class="ace35PulseMeta">${newestMeta}</span>
+        <span class="ace35PulseBadge">${s.cards.length} CARD${s.cards.length===1?"":"S"} · ${s.filled}/6 SIX</span>
+        <i class="ace35PulseArrow">→</i>
+      </button>`;
+  }
+
+  function renderMainHome(){
+    const home=$("#home .gameHome");
+    if(!home)return;
+
+    let pulse=$("#home .ace35HomePulse");
+    if(!pulse){
+      pulse=document.createElement("div");
+      pulse.className="ace35HomePulse";
+      const lower=$("#home .gameHomeLower");
+      if(lower)lower.insertAdjacentElement("beforebegin",pulse);
+      else home.appendChild(pulse);
+    }
+
+    const next=homePulseHTML();
+    if(pulse.innerHTML!==next)pulse.innerHTML=next;
+
+    const s=state();
+    const a=nextAction(s);
+    const eyebrow=$("#home .gameEyebrow");
+    if(eyebrow)eyebrow.textContent=s.pending?"REWARD WAITING":s.free>0?"YOUR CLUB HAS SOMETHING WAITING":"WELCOME BACK TO ACE";
+  }
+
+  function utDeckHTML(){
+    const s=state();
+    const a=nextAction(s);
+    const rookie=rookieSummary();
+    const squadPct=Math.max(0,Math.min(100,s.filled/6*100));
+    const missionPct=Math.max(0,Math.min(100,s.completed/4*100));
+
+    return `
+      <button class="ace35UTDeckCard next" type="button" data-ace35-route="${safeEsc(a.target)}">
+        <div class="ace35DeckTop"><span>YOUR NEXT MOVE</span><i>${a.icon}</i></div>
+        <strong>${safeEsc(a.title)}</strong>
+        <small>${safeEsc(a.sub)}</small>
+        <span class="ace35DeckTag ${s.pending?"reward":"hot"}">${safeEsc(a.badge)}</span>
+        <i class="ace35DeckArrow">→</i>
+      </button>
+
+      <button class="ace35UTDeckCard" type="button" data-ace35-route="squad">
+        <div class="ace35DeckTop"><span>STARTING SIX</span><i>⬡</i></div>
+        <strong>${s.filled}/6 READY${s.squadOvr?` · ${s.squadOvr} OVR`:""}</strong>
+        <small>${s.filled===6?"Your six is complete and ready for a match.":`${6-s.filled} position${6-s.filled===1?"":"s"} still need a starter.`}</small>
+        <div class="ace35DeckProgress"><i style="width:${squadPct}%"></i></div>
+      </button>
+
+      <button class="ace35UTDeckCard" type="button" data-ace35-route="missions">
+        <div class="ace35DeckTop"><span>DAILY OBJECTIVES</span><i>⚡</i></div>
+        <strong>${s.completed}/4 COMPLETE</strong>
+        <small>${s.pending?"You have a completed reward waiting.":"Finish objectives for bonus progression."}</small>
+        ${s.pending?'<span class="ace35DeckTag reward">REWARD READY</span>':`<div class="ace35DeckProgress"><i style="width:${missionPct}%"></i></div>`}
+      </button>
+
+      <button class="ace35UTDeckCard" type="button" data-ace35-route="match">
+        <div class="ace35DeckTop"><span>${safeEsc(rookie.label)}</span><i>🏐</i></div>
+        <strong>${safeEsc(rookie.value)}</strong>
+        <small>${safeEsc(rookie.meta)}</small>
+        <div class="ace35DeckProgress"><i style="width:${rookie.pct}%"></i></div>
+      </button>`;
+  }
+
+  function renderUltimateHome(){
+    const mount=$("#ultimate #vdsUTHubHome");
+    const stage=$("#ultimate .aceUTHomeStage");
+    if(!mount||!stage)return;
+
+    let deck=$("#ultimate .ace35UTDeck");
+    if(!deck){
+      deck=document.createElement("div");
+      deck.className="ace35UTDeck";
+      stage.insertAdjacentElement("afterend",deck);
+    }
+    const next=utDeckHTML();
+    if(deck.innerHTML!==next)deck.innerHTML=next;
+
+    const s=state();
+
+    /* Existing featured pack card now reflects actual account state. */
+    const pack=$("#ultimate .aceUTFeaturedPack");
+    if(pack){
+      pack.classList.toggle("ace35FreeWaiting",s.free>0);
+      const label=$("small",pack);
+      const strong=$("strong",pack);
+      const em=$("em",pack);
+      if(s.free>0){
+        if(label)label.textContent="UNOPENED PACKS";
+        if(strong)strong.textContent=`${s.free} Free Gold Pack${s.free===1?"":"s"} Waiting`;
+        if(em)em.textContent="No coins required · open now";
+      }else{
+        if(label)label.textContent="FEATURED PACK";
+        if(strong)strong.textContent="Rare Gold Hunt";
+        if(em)em.textContent="2,500 ◉ · 85–89 Rare Gold available";
+      }
+    }
+
+    /* Put attention dots on tabs with live reasons to visit. */
+    $("#ultimate .vdsUTHubTab[data-ut-target='packs']")?.classList.toggle("ace35Attention",s.free>0);
+    $("#ultimate .vdsUTHubTab[data-ut-target='missions']")?.classList.toggle("ace35Attention",s.pending);
+
+    loadRookie();
+  }
+
+  function scheduleRefresh(){
+    if(refreshQueued)return;
+    refreshQueued=true;
+    requestAnimationFrame(()=>{
+      refreshQueued=false;
+      renderMainHome();
+      renderUltimateHome();
+    });
+  }
+
+  document.addEventListener("click",e=>{
+    const routeBtn=e.target.closest?.("[data-ace35-route]");
+    if(routeBtn){
+      e.preventDefault();
+      route(routeBtn.dataset.ace35Route);
+      return;
+    }
+
+    if(e.target.closest?.("[data-page='home'],[data-page='ultimate'],[data-go='ultimate']")){
+      setTimeout(scheduleRefresh,80);
+    }
+  });
+
+  /* Re-run after the canonical UT Home renderer reconstructs its DOM. */
+  if(typeof vdsRenderUltimateHubHome==="function" && !vdsRenderUltimateHubHome.__ace35Wrapped){
+    const base=vdsRenderUltimateHubHome;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(renderUltimateHome);
+      return result;
+    };
+    wrapped.__ace35Wrapped=true;
+    try{vdsRenderUltimateHubHome=wrapped}catch(_){}
+    try{window.vdsRenderUltimateHubHome=wrapped}catch(_){}
+  }
+
+  /* Account/UT state updates often emit DOM changes elsewhere. Refresh on
+     the high-value completion events without changing their handlers. */
+  document.addEventListener("ace:coins-changed",scheduleRefresh);
+  document.addEventListener("ace:club-changed",scheduleRefresh);
+
+  setTimeout(scheduleRefresh,0);
+  setTimeout(scheduleRefresh,700);
+  setTimeout(scheduleRefresh,1800);
+
+  window.ace35RefreshHome=()=>{rookieCache=null;scheduleRefresh()};
+  window.ACE_PROJECT_BUILD="B21.35";
+  window.ACE_HOME_UT_NEXT_MOVE_OVERHAUL=true;
+})();
+</script>
+<!-- /ACE B21.35 — HOME / UT NEXT MOVE OVERHAUL -->
+
+
+<!-- ACE B21.35.1 — LIVE ACE PULLS -->
+<style id="ace-b21-35-1-live-ace-pulls-style">
+/* =========================================================
+   LIVE ACE PULLS
+   Real server-backed social proof from pack openings.
+   ========================================================= */
+.ace351LivePulls{
+  position:relative;
+  margin-top:9px;
+  padding:11px;
+  overflow:hidden;
+  border:1px solid rgba(179,130,242,.10);
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 0 0,rgba(123,69,202,.085),transparent 34%),
+    #070a11;
+}
+.ace351LivePulls::after{
+  content:"ACE";
+  position:absolute;
+  right:-4px;
+  top:-28px;
+  color:rgba(255,255,255,.016);
+  font-size:112px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  pointer-events:none;
+}
+.ace351LiveHead{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
+}
+.ace351LiveTitle{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.ace351LiveDot{
+  width:7px;
+  height:7px;
+  flex:0 0 auto;
+  border-radius:999px;
+  background:#bd69ff;
+  box-shadow:0 0 0 3px rgba(189,105,255,.08),0 0 16px rgba(189,105,255,.55);
+  animation:ace351LivePulse 1.8s ease-in-out infinite;
+}
+@keyframes ace351LivePulse{
+  0%,100%{opacity:.62;transform:scale(.88)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+.ace351LiveTitle b{
+  color:#d8c0f4;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+.ace351LiveTitle span{
+  color:#625d68;
+  font-size:5.7px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+.ace351LiveHead>small{
+  color:#625c6a;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.10em;
+  white-space:nowrap;
+}
+.ace351LiveRail{
+  position:relative;
+  z-index:2;
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding-bottom:2px;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+}
+.ace351LiveRail::-webkit-scrollbar{display:none}
+.ace351Pull{
+  position:relative;
+  flex:0 0 230px;
+  min-height:71px;
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:8px;
+  scroll-snap-align:start;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:11px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(155,89,236,.075),transparent 38%),
+    #090c13;
+  color:#fff;
+  text-align:left;
+  cursor:pointer;
+  transition:border-color .15s ease,transform .15s ease,background .15s ease;
+}
+.ace351Pull:hover{
+  transform:translateY(-1px);
+  border-color:rgba(190,142,248,.18);
+  background:
+    radial-gradient(circle at 100% 0,rgba(155,89,236,.12),transparent 38%),
+    #0b0e16;
+}
+.ace351Pull.ace351Fresh{
+  animation:ace351FreshPull 1.2s ease both;
+}
+@keyframes ace351FreshPull{
+  0%{box-shadow:0 0 0 rgba(181,99,255,0);border-color:rgba(207,163,255,.5)}
+  45%{box-shadow:0 0 28px rgba(181,99,255,.18);border-color:rgba(207,163,255,.32)}
+  100%{box-shadow:none;border-color:rgba(255,255,255,.045)}
+}
+.ace351PullPhoto{
+  position:relative;
+  width:48px;
+  height:55px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  clip-path:polygon(9% 0,91% 0,100% 10%,100% 90%,91% 100%,9% 100%,0 90%,0 10%);
+  background:linear-gradient(145deg,#56317e,#160f23 64%,#091018);
+  border:1px solid rgba(202,157,255,.18);
+}
+.ace351PullPhoto img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+.ace351PullPhoto span{
+  color:#c9a4ef;
+  font-size:18px;
+  font-weight:1000;
+}
+.ace351PullCopy{
+  min-width:0;
+}
+.ace351PullCopy small,
+.ace351PullCopy strong,
+.ace351PullCopy span{
+  display:block;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.ace351PullCopy small{
+  color:#776f80;
+  font-size:5.2px;
+  font-weight:900;
+}
+.ace351PullCopy small b{
+  color:#a98ad0;
+  font-size:5.7px;
+}
+.ace351PullCopy strong{
+  margin-top:3px;
+  color:#f2edf8;
+  font-size:10px;
+  font-weight:1000;
+}
+.ace351PullCopy span{
+  margin-top:3px;
+  color:#817988;
+  font-size:5.4px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.ace351PullRating{
+  align-self:start;
+  min-width:31px;
+  padding-top:2px;
+  text-align:right;
+}
+.ace351PullRating b{
+  display:block;
+  color:#d7b0ff;
+  font-size:16px;
+  line-height:1;
+  font-weight:1000;
+}
+.ace351PullRating span{
+  display:block;
+  margin-top:3px;
+  color:#8c62b7;
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+.ace351LiveEmpty{
+  flex:1 1 auto;
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  border:1px dashed rgba(173,130,228,.10);
+  border-radius:10px;
+  color:#66616d;
+  font-size:6px;
+  font-weight:900;
+}
+
+/* Main Home gets a slightly more prominent LIVE strip. */
+#home .ace351LivePulls{
+  margin-top:8px;
+}
+#home .ace351Pull{
+  flex-basis:250px;
+}
+
+/* UT Home: tuck it directly under the command deck. */
+#ultimate .ace351LivePulls{
+  margin-top:8px;
+}
+
+@media(max-width:760px){
+  .ace351LivePulls{
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:9px 8px;
+  }
+  .ace351LiveHead{
+    margin-bottom:7px;
+  }
+  .ace351LiveHead>small{
+    display:none;
+  }
+  .ace351Pull,
+  #home .ace351Pull{
+    flex-basis:78vw;
+    min-height:69px;
+  }
+}
+</style>
+
+<script id="ace-b21-35-1-live-ace-pulls-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let pulls=[];
+  let channel=null;
+  let loading=false;
+  let started=false;
+  let pollTimer=null;
+
+  function escLocal(v){
+    try{return typeof esc==="function"?esc(String(v??"")):String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+    catch(_){return String(v??"")}
+  }
+
+  function relativeTime(value){
+    const t=Date.parse(value||"");
+    if(!Number.isFinite(t))return "RECENTLY";
+    const sec=Math.max(0,Math.floor((Date.now()-t)/1000));
+    if(sec<45)return "JUST NOW";
+    const min=Math.floor(sec/60);
+    if(min<60)return `${min}M AGO`;
+    const hr=Math.floor(min/60);
+    if(hr<24)return `${hr}H AGO`;
+    const day=Math.floor(hr/24);
+    if(day<7)return `${day}D AGO`;
+    return new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric"}).toUpperCase();
+  }
+
+  function pullHTML(item,index){
+    const photo=item?.player_photo_url
+      ? `<img src="${escLocal(item.player_photo_url)}" alt="">`
+      : `<span>♠</span>`;
+    const label=String(item?.puller_label||"ACE Manager");
+    const pos=String(item?.player_position||"POS").toUpperCase();
+    const pack=String(item?.pack_id||"pack").toUpperCase();
+    return `
+      <button class="ace351Pull${index===0&&item?._fresh?" ace351Fresh":""}" type="button" data-ace351-player="${escLocal(item?.player_name||"")}">
+        <span class="ace351PullPhoto">${photo}</span>
+        <span class="ace351PullCopy">
+          <small><b>${escLocal(label)}</b> JUST PULLED</small>
+          <strong>${escLocal(item?.player_name||"ACE PLAYER")}</strong>
+          <span>${escLocal(pos)} · ${escLocal(pack)} PACK · ${relativeTime(item?.pulled_at)}</span>
+        </span>
+        <span class="ace351PullRating"><b>${Number(item?.rating||96)}</b><span>ACE</span></span>
+      </button>`;
+  }
+
+  function railHTML(){
+    if(!pulls.length){
+      return `<div class="ace351LiveEmpty">THE NEXT ACE PULL WILL APPEAR HERE LIVE.</div>`;
+    }
+    return pulls.slice(0,8).map(pullHTML).join("");
+  }
+
+  function shellHTML(){
+    return `
+      <div class="ace351LiveHead">
+        <div class="ace351LiveTitle">
+          <i class="ace351LiveDot"></i>
+          <b>LIVE ACE PULLS</b>
+          <span>REAL PACK OPENINGS</span>
+        </div>
+        <small>96–99 OVR · UPDATES LIVE</small>
+      </div>
+      <div class="ace351LiveRail">${railHTML()}</div>`;
+  }
+
+  function renderMount(el){
+    if(!el)return;
+    el.innerHTML=shellHTML();
+  }
+
+  function ensureMounts(){
+    const homePulse=q("#home .ace35HomePulse");
+    if(homePulse){
+      let mount=q("#home .ace351LivePulls");
+      if(!mount){
+        mount=document.createElement("section");
+        mount.className="ace351LivePulls";
+        mount.setAttribute("aria-label","Live ACE pulls");
+        homePulse.insertAdjacentElement("afterend",mount);
+      }
+      renderMount(mount);
+    }
+
+    const deck=q("#ultimate .ace35UTDeck");
+    if(deck){
+      let mount=q("#ultimate .ace351LivePulls");
+      if(!mount){
+        mount=document.createElement("section");
+        mount.className="ace351LivePulls";
+        mount.setAttribute("aria-label","Live ACE pulls");
+        deck.insertAdjacentElement("afterend",mount);
+      }
+      renderMount(mount);
+    }
+  }
+
+  async function loadPulls(){
+    if(loading)return;
+    loading=true;
+    try{
+      const client=typeof ensureMultiplayerClient==="function"?ensureMultiplayerClient():null;
+      if(!client)return;
+      const {data,error}=await client
+        .from("vds_live_ace_pulls")
+        .select("id,puller_label,player_name,player_position,player_photo_url,rating,pack_id,pulled_at")
+        .order("pulled_at",{ascending:false})
+        .limit(8);
+      if(error)throw error;
+      pulls=(Array.isArray(data)?data:[]).map(x=>({...x,_fresh:false}));
+      ensureMounts();
+    }catch(error){
+      console.warn("ACE live pull feed load failed",error);
+    }finally{
+      loading=false;
+    }
+  }
+
+  function addLivePull(row){
+    if(!row)return;
+    const id=String(row.id||"");
+    pulls=pulls.filter(x=>String(x.id||"")!==id);
+    pulls.unshift({...row,_fresh:true});
+    pulls=pulls.slice(0,8);
+    ensureMounts();
+    setTimeout(()=>{
+      pulls=pulls.map(x=>String(x.id||"")===id?{...x,_fresh:false}:x);
+      ensureMounts();
+    },1600);
+  }
+
+  function startRealtime(){
+    if(started)return;
+    const client=typeof ensureMultiplayerClient==="function"?ensureMultiplayerClient():null;
+    if(!client?.channel)return;
+    started=true;
+    try{
+      channel=client
+        .channel("ace-live-ace-pulls")
+        .on("postgres_changes",{
+          event:"INSERT",
+          schema:"public",
+          table:"vds_live_ace_pulls"
+        },payload=>addLivePull(payload?.new))
+        .subscribe(status=>{
+          if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
+            console.warn("ACE live pull realtime status",status);
+          }
+        });
+    }catch(error){
+      started=false;
+      console.warn("ACE live pull subscription failed",error);
+    }
+  }
+
+  function start(){
+    ensureMounts();
+    loadPulls();
+    startRealtime();
+    if(!pollTimer){
+      pollTimer=setInterval(()=>{
+        loadPulls();
+        startRealtime();
+      },30000);
+    }
+  }
+
+  document.addEventListener("click",e=>{
+    const card=e.target.closest?.("[data-ace351-player]");
+    if(card){
+      const name=card.dataset.ace351Player;
+      if(!name)return;
+      try{
+        if(typeof goPage==="function")goPage("players");
+        setTimeout(()=>{
+          try{
+            if(typeof openVdsCardShowcase==="function")openVdsCardShowcase(name);
+            else if(typeof window.ace29OpenPlayerProfile==="function")window.ace29OpenPlayerProfile(name);
+          }catch(_){}
+        },90);
+      }catch(_){}
+      return;
+    }
+
+    if(e.target.closest?.("[data-page='home'],[data-page='ultimate'],[data-go='ultimate']")){
+      setTimeout(ensureMounts,90);
+    }
+  });
+
+  const observer=new MutationObserver(()=>{
+    if(q("#home.active")||q("#ultimate.active"))ensureMounts();
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+
+  setTimeout(start,0);
+  setTimeout(start,900);
+
+  window.ace351ReloadLivePulls=loadPulls;
+  window.ACE_PROJECT_BUILD="B21.35.1";
+  window.ACE_LIVE_ACE_PULLS=true;
+})();
+</script>
+<!-- /ACE B21.35.1 — LIVE ACE PULLS -->
+
+
+<!-- ACE B21.35.2 — RESPONSIVE DECLUTTER -->
+<style id="ace-b21-35-2-responsive-declutter-style">
+/* =========================================================
+   B21.35.2 — RESPONSIVE DECLUTTER
+
+   Visual hierarchy:
+   LEVEL 1 = one primary action
+   LEVEL 2 = compact club-status widgets
+   LEVEL 3 = ambient LIVE activity
+   ========================================================= */
+
+/* Keep the new dashboard surfaces from stretching endlessly on huge screens. */
+#home .ace35HomePulse,
+#home .ace351LivePulls,
+#ultimate .ace35UTDeck,
+#ultimate .ace351LivePulls{
+  width:min(100%,1280px);
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* =========================================================
+   DESKTOP / LAPTOP — ONE HERO, THEN COMPACT STATUS
+   ========================================================= */
+@media(min-width:761px){
+  /* ---------- MAIN HOME ---------- */
+  #home .ace35HomePulse{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #home .ace35HomePulse>.ace35PulseCard.primary{
+    grid-column:1/-1!important;
+    min-height:112px!important;
+    padding:16px 18px!important;
+  }
+  #home .ace35HomePulse>.ace35PulseCard:not(.primary){
+    min-height:82px!important;
+    padding:10px 11px!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseKicker{
+    font-size:5.7px!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseIcon{
+    width:20px!important;
+    height:20px!important;
+    font-size:9px!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseValue{
+    margin-top:6px!important;
+    font-size:13px!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseMeta{
+    margin-top:3px!important;
+    font-size:5.9px!important;
+    line-height:1.25!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseBadge{
+    margin-top:5px!important;
+    padding:3px 5px!important;
+    font-size:4.8px!important;
+  }
+  #home .ace35PulseCard:not(.primary) .ace35PulseArrow{
+    right:10px!important;
+    bottom:8px!important;
+    font-size:12px!important;
+  }
+
+  /* ---------- ULTIMATE TEAM ---------- */
+  #ultimate .ace35UTDeck{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #ultimate .ace35UTDeck>.ace35UTDeckCard.next{
+    grid-column:1/-1!important;
+    min-height:114px!important;
+    padding:16px 18px!important;
+  }
+  #ultimate .ace35UTDeck>.ace35UTDeckCard:not(.next){
+    min-height:86px!important;
+    padding:10px 11px 13px!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) .ace35DeckTop span{
+    font-size:5.5px!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) .ace35DeckTop i{
+    width:20px!important;
+    height:20px!important;
+    font-size:9px!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) strong{
+    margin-top:6px!important;
+    font-size:13px!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) small{
+    margin-top:3px!important;
+    font-size:5.7px!important;
+    line-height:1.25!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) .ace35DeckTag{
+    margin-top:5px!important;
+    padding:3px 5px!important;
+    font-size:4.8px!important;
+  }
+  #ultimate .ace35UTDeckCard:not(.next) .ace35DeckProgress{
+    left:11px!important;
+    right:11px!important;
+    bottom:8px!important;
+    height:3px!important;
+  }
+
+  /* LIVE is ambient social proof — three visible, not another hero row. */
+  .ace351LivePulls{
+    padding:9px 10px!important;
+  }
+  .ace351LiveHead{
+    margin-bottom:6px!important;
+  }
+  .ace351LiveTitle span{
+    display:none!important;
+  }
+  .ace351LiveHead>small{
+    font-size:4.8px!important;
+    opacity:.72;
+  }
+  .ace351LiveRail{
+    gap:6px!important;
+  }
+  .ace351Pull,
+  #home .ace351Pull{
+    flex:0 0 calc((100% - 12px)/3)!important;
+    min-width:0!important;
+    min-height:63px!important;
+    grid-template-columns:40px minmax(0,1fr) auto!important;
+    gap:7px!important;
+    padding:7px!important;
+  }
+  .ace351PullPhoto{
+    width:40px!important;
+    height:46px!important;
+  }
+  .ace351PullCopy small{
+    font-size:4.6px!important;
+  }
+  .ace351PullCopy small b{
+    font-size:5.1px!important;
+  }
+  .ace351PullCopy strong{
+    margin-top:2px!important;
+    font-size:8.7px!important;
+  }
+  .ace351PullCopy span{
+    margin-top:2px!important;
+    font-size:4.7px!important;
+  }
+  .ace351PullRating b{
+    font-size:14px!important;
+  }
+  .ace351PullRating span{
+    font-size:4.5px!important;
+  }
+}
+
+/* =========================================================
+   MOBILE — HERO FIRST, SUPPORT IS A SWIPE RAIL
+   ========================================================= */
+@media(max-width:760px){
+  /* Main Home wrapper becomes hero + one compact status rail. */
+  #home .ace35HomePulse,
+  #ultimate .ace35UTDeck{
+    display:block!important;
+    margin-top:7px!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+
+  #home .ace35PulseCard.primary,
+  #ultimate .ace35UTDeckCard.next{
+    width:100%!important;
+    min-height:112px!important;
+    margin:0!important;
+    padding:14px!important;
+  }
+  #home .ace35PulseCard.primary .ace35PulseValue,
+  #ultimate .ace35UTDeckCard.next strong{
+    max-width:88%!important;
+    font-size:19px!important;
+  }
+
+  .ace352SupportRail{
+    display:flex;
+    gap:6px;
+    margin:7px -2px 0;
+    padding:0 2px 4px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .ace352SupportRail::-webkit-scrollbar{display:none}
+
+  #home .ace352SupportRail>.ace35PulseCard,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard{
+    flex:0 0 68vw!important;
+    width:68vw!important;
+    min-height:76px!important;
+    padding:9px 10px!important;
+    scroll-snap-align:start;
+  }
+  #home .ace352SupportRail>.ace35PulseCard .ace35PulseKicker,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard .ace35DeckTop span{
+    font-size:5.2px!important;
+  }
+  #home .ace352SupportRail>.ace35PulseCard .ace35PulseIcon,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard .ace35DeckTop i{
+    width:19px!important;
+    height:19px!important;
+    font-size:8px!important;
+  }
+  #home .ace352SupportRail>.ace35PulseCard .ace35PulseValue,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard strong{
+    margin-top:5px!important;
+    font-size:12px!important;
+  }
+  #home .ace352SupportRail>.ace35PulseCard .ace35PulseMeta,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard small{
+    display:none!important;
+  }
+  #home .ace352SupportRail>.ace35PulseCard .ace35PulseBadge,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard .ace35DeckTag{
+    margin-top:5px!important;
+    padding:3px 5px!important;
+    font-size:4.7px!important;
+  }
+  #ultimate .ace352SupportRail>.ace35UTDeckCard .ace35DeckProgress{
+    left:10px!important;
+    right:10px!important;
+    bottom:7px!important;
+    height:3px!important;
+  }
+
+  /* LIVE = one nearly-full item with a peek at the next pull. */
+  .ace351LivePulls{
+    margin-top:7px!important;
+    padding:8px!important;
+  }
+  .ace351LiveTitle span,
+  .ace351LiveHead>small{
+    display:none!important;
+  }
+  .ace351LiveHead{
+    margin-bottom:6px!important;
+  }
+  .ace351LiveTitle b{
+    font-size:6px!important;
+  }
+  .ace351LiveRail{
+    gap:6px!important;
+    scroll-snap-type:x mandatory!important;
+  }
+  .ace351Pull,
+  #home .ace351Pull{
+    flex:0 0 calc(100% - 22px)!important;
+    min-width:calc(100% - 22px)!important;
+    min-height:62px!important;
+    grid-template-columns:41px minmax(0,1fr) auto!important;
+    gap:7px!important;
+    padding:7px!important;
+    scroll-snap-align:start!important;
+  }
+  .ace351PullPhoto{
+    width:41px!important;
+    height:47px!important;
+  }
+  .ace351PullCopy small{
+    font-size:4.7px!important;
+  }
+  .ace351PullCopy small b{
+    font-size:5.2px!important;
+  }
+  .ace351PullCopy strong{
+    margin-top:2px!important;
+    font-size:9px!important;
+  }
+  .ace351PullCopy span{
+    margin-top:2px!important;
+    font-size:4.7px!important;
+  }
+  .ace351PullRating b{
+    font-size:14px!important;
+  }
+
+  /* Old UT rail becomes genuinely secondary on mobile. */
+  #ultimate .aceUTHomeRail{
+    margin-top:7px!important;
+  }
+  #ultimate .aceUTHomeRail button{
+    min-height:64px!important;
+    opacity:.78!important;
+  }
+}
+
+/* =========================================================
+   DYNAMIC DUPLICATION CONTROL
+   If the hero already owns an action, don't repeat it loudly
+   in the support row as well.
+   ========================================================= */
+.ace352DuplicateOfHero{
+  display:none!important;
+}
+
+/* The old featured Gold pack is redundant while the hero is already telling
+   the manager to open a free Gold pack. Keep the Packs tab available. */
+#ultimate.ace352HeroIsPacks .aceUTFeaturedPack.ace35FreeWaiting{
+  display:none!important;
+}
+
+/* ---------- Explicit small CTA inside the hero ---------- */
+.ace352HeroCTA{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:25px;
+  margin-top:8px;
+  padding:0 9px;
+  border-radius:7px;
+  border:1px solid rgba(218,186,250,.15);
+  background:rgba(255,255,255,.055);
+  color:#eadcf7;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+
+/* LIVE copy is deliberately less verbose. */
+.ace351PullCopy span.ace352LiveMeta{
+  color:#77707f!important;
+}
+</style>
+
+<script id="ace-b21-35-2-responsive-declutter-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let queued=false;
+
+  function ctaLabel(route){
+    return ({
+      packs:"OPEN PACK",
+      missions:"VIEW REWARD",
+      squad:"BUILD SQUAD",
+      match:"PLAY MATCH",
+      club:"VIEW CLUB"
+    })[route]||"CONTINUE";
+  }
+
+  function supportRail(container,cardSelector,heroSelector){
+    if(!container)return;
+    const hero=q(heroSelector,container);
+    if(!hero)return;
+
+    let rail=q(":scope > .ace352SupportRail",container);
+    if(!rail){
+      rail=document.createElement("div");
+      rail.className="ace352SupportRail";
+      hero.insertAdjacentElement("afterend",rail);
+    }
+
+    /* B21.35 can re-render the container. Move each current support card into
+       one compact rail, leaving only one hero at top level. */
+    [...container.querySelectorAll(`:scope > ${cardSelector}`)]
+      .filter(card=>card!==hero)
+      .forEach(card=>rail.appendChild(card));
+
+    /* If a previous rail survived but B21.35 recreated support cards, move them. */
+    [...container.querySelectorAll(`:scope > ${cardSelector}`)]
+      .filter(card=>card!==hero)
+      .forEach(card=>rail.appendChild(card));
+  }
+
+  function dedupeHero(container,supportSelector){
+    if(!container)return;
+    const hero=q("[data-ace35-route]",container);
+    if(!hero)return;
+    const route=hero.dataset.ace35Route||"";
+
+    /* Add one tiny explicit CTA, rather than another competing button. */
+    let cta=q(".ace352HeroCTA",hero);
+    if(!cta){
+      cta=document.createElement("span");
+      cta.className="ace352HeroCTA";
+      hero.appendChild(cta);
+    }
+    cta.textContent=ctaLabel(route);
+
+    [...container.querySelectorAll(supportSelector)].forEach(card=>{
+      card.classList.toggle(
+        "ace352DuplicateOfHero",
+        card!==hero && String(card.dataset.ace35Route||"")===String(route)
+      );
+    });
+    return route;
+  }
+
+  function simplifyLive(){
+    document.querySelectorAll(".ace351PullCopy span:not(.ace352Processed)").forEach(meta=>{
+      const parts=String(meta.textContent||"").split(" · ").map(x=>x.trim()).filter(Boolean);
+      if(parts.length>=2){
+        /* Drop pack type from the teaser. Dedicated pack surfaces already
+           contain pack information; LIVE only needs position + recency. */
+        meta.textContent=parts.length>=3 ? `${parts[0]} · ${parts[parts.length-1]}` : parts.join(" · ");
+      }
+      meta.classList.add("ace352Processed","ace352LiveMeta");
+    });
+  }
+
+  function processHome(){
+    const container=q("#home .ace35HomePulse");
+    if(!container)return;
+
+    const hero=q(":scope > .ace35PulseCard.primary",container)
+      || q(".ace35PulseCard.primary",container);
+    if(!hero)return;
+
+    supportRail(container,".ace35PulseCard",".ace35PulseCard.primary");
+    dedupeHero(container,".ace35PulseCard[data-ace35-route]");
+  }
+
+  function processUT(){
+    const container=q("#ultimate .ace35UTDeck");
+    if(!container)return;
+
+    const hero=q(":scope > .ace35UTDeckCard.next",container)
+      || q(".ace35UTDeckCard.next",container);
+    if(!hero)return;
+
+    supportRail(container,".ace35UTDeckCard",".ace35UTDeckCard.next");
+    const route=dedupeHero(container,".ace35UTDeckCard[data-ace35-route]");
+    q("#ultimate")?.classList.toggle("ace352HeroIsPacks",route==="packs");
+  }
+
+  function run(){
+    queued=false;
+    processHome();
+    processUT();
+    simplifyLive();
+  }
+
+  function schedule(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(run);
+  }
+
+  const observer=new MutationObserver(schedule);
+  observer.observe(document.documentElement,{
+    childList:true,
+    subtree:true
+  });
+
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("[data-page='home'],[data-page='ultimate'],[data-go='ultimate']")){
+      setTimeout(schedule,70);
+    }
+  });
+
+  setTimeout(schedule,0);
+  setTimeout(schedule,500);
+  setTimeout(schedule,1500);
+
+  window.ace352RefreshLayout=schedule;
+  window.ACE_PROJECT_BUILD="B21.35.2";
+  window.ACE_RESPONSIVE_DECLUTTER=true;
+})();
+</script>
+<!-- /ACE B21.35.2 — RESPONSIVE DECLUTTER -->
+
+
+<!-- ACE B21.35.3 — DAILY LOGIN + PACK REWARDS -->
+<style id="ace-b21-35-3-reward-loop-style">
+/* =========================================================
+   DAILY COMPLETION + LOGIN REWARDS
+   Kept compact to preserve the B21.35.2 hierarchy.
+   ========================================================= */
+
+.ace353RewardLoop{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);
+  gap:8px;
+  margin-top:9px;
+}
+.ace353RewardPanel{
+  min-width:0;
+  padding:12px;
+  border:1px solid rgba(177,131,237,.09);
+  border-radius:13px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(124,70,201,.07),transparent 36%),
+    #080b12;
+}
+.ace353RewardHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.ace353RewardHead span{
+  display:block;
+  color:#806f91;
+  font-size:5.7px;
+  font-weight:1000;
+  letter-spacing:.15em;
+}
+.ace353RewardHead b{
+  display:block;
+  margin-top:4px;
+  color:#eee9f4;
+  font-size:14px;
+  line-height:1.05;
+}
+.ace353RewardHead em{
+  display:inline-flex;
+  align-items:center;
+  min-height:23px;
+  padding:0 7px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  color:#847d8b;
+  font-size:5px;
+  font-style:normal;
+  font-weight:1000;
+  letter-spacing:.07em;
+  white-space:nowrap;
+}
+.ace353RewardHead em.ready{
+  color:#a5e8b8;
+  border-color:rgba(90,204,128,.18);
+  background:rgba(34,110,59,.10);
+}
+
+.ace353DailyBonus{
+  position:relative;
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  margin-top:10px;
+  padding:10px;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:11px;
+  background:#070a10;
+}
+.ace353PackArt{
+  position:relative;
+  width:52px;
+  height:67px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  clip-path:polygon(10% 0,90% 0,100% 10%,100% 90%,90% 100%,10% 100%,0 90%,0 10%);
+  border:1px solid rgba(216,226,236,.24);
+  background:
+    radial-gradient(circle at 50% 30%,rgba(255,255,255,.12),transparent 38%),
+    linear-gradient(145deg,#768491,#343d47 58%,#14191f);
+  color:#edf3f7;
+  box-shadow:0 10px 23px rgba(0,0,0,.25);
+}
+.ace353PackArt span{
+  font-size:5px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.ace353PackArt b{
+  margin-top:3px;
+  font-size:12px;
+  line-height:1;
+}
+.ace353DailyCopy b{
+  display:block;
+  color:#e7e2eb;
+  font-size:10px;
+}
+.ace353DailyCopy span{
+  display:block;
+  margin-top:4px;
+  color:#77717e;
+  font-size:5.8px;
+  line-height:1.35;
+}
+.ace353ClaimBtn{
+  min-height:34px;
+  padding:0 9px;
+  border:1px solid rgba(190,146,247,.15);
+  border-radius:8px;
+  background:linear-gradient(135deg,#7540c5,#9a59e6);
+  color:#fff;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+.ace353ClaimBtn:disabled{
+  cursor:default;
+  opacity:.45;
+  background:#11141b;
+  color:#77717f;
+  border-color:rgba(255,255,255,.055);
+}
+.ace353ClaimBtn.claimed{
+  opacity:1;
+  color:#85d9a0;
+  border-color:rgba(77,195,117,.14);
+  background:rgba(32,97,53,.11);
+}
+
+/* ---------- LOGIN 7-DAY TRACK ---------- */
+.ace353LoginDays{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:5px;
+  margin-top:10px;
+}
+.ace353LoginDay{
+  position:relative;
+  min-width:0;
+  min-height:72px;
+  padding:7px 5px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.045);
+  border-radius:9px;
+  background:#070a10;
+  text-align:center;
+}
+.ace353LoginDay>span{
+  display:block;
+  color:#625d69;
+  font-size:4.7px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.ace353LoginDay>b{
+  display:block;
+  margin-top:8px;
+  color:#c8c1cf;
+  font-size:8px;
+  line-height:1.05;
+}
+.ace353LoginDay>small{
+  display:block;
+  margin-top:4px;
+  color:#6f6876;
+  font-size:4.5px;
+  line-height:1.25;
+}
+.ace353LoginDay.done{
+  border-color:rgba(91,199,127,.12);
+  background:rgba(31,91,50,.08);
+}
+.ace353LoginDay.done::after{
+  content:"✓";
+  position:absolute;
+  right:5px;
+  top:4px;
+  color:#74d592;
+  font-size:6px;
+  font-weight:1000;
+}
+.ace353LoginDay.next{
+  border-color:rgba(184,130,248,.24);
+  background:
+    radial-gradient(circle at 50% 0,rgba(148,81,225,.12),transparent 55%),
+    #0a0b13;
+  box-shadow:0 0 20px rgba(125,67,204,.06);
+}
+.ace353LoginDay.gold{
+  border-color:rgba(224,187,71,.17);
+}
+.ace353LoginDay.gold>b{
+  color:#e9cf73;
+}
+.ace353LoginDay.bronze>b{
+  color:#d89a6d;
+}
+.ace353LoginActions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:9px;
+  margin-top:8px;
+}
+.ace353LoginActions p{
+  margin:0;
+  color:#6f6876;
+  font-size:5.5px;
+  line-height:1.35;
+}
+.ace353LoginActions p b{
+  color:#a38abf;
+}
+.ace353LoginActions button{
+  min-width:112px;
+  min-height:34px;
+  padding:0 10px;
+  border:1px solid rgba(190,146,247,.16);
+  border-radius:8px;
+  background:linear-gradient(135deg,#7541c8,#9a59e7);
+  color:#fff;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+.ace353LoginActions button:disabled{
+  opacity:.5;
+  cursor:default;
+  color:#7f7886;
+  background:#10131a;
+  border-color:rgba(255,255,255,.055);
+}
+
+/* ---------- PACK INVENTORY CHIPS ---------- */
+.ace353FreePackInventory{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+.ace353FreePackInventory span{
+  display:inline-flex;
+  align-items:center;
+  min-height:20px;
+  padding:0 6px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  color:#7d7783;
+  font-size:4.9px;
+  font-weight:1000;
+  letter-spacing:.06em;
+}
+.ace353FreePackInventory .bronze{color:#d09a78;border-color:rgba(201,135,91,.13)}
+.ace353FreePackInventory .silver{color:#ccd7df;border-color:rgba(194,208,219,.13)}
+.ace353FreePackInventory .gold{color:#e6cc72;border-color:rgba(221,184,61,.15)}
+
+@media(max-width:850px){
+  .ace353RewardLoop{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:760px){
+  .ace353RewardLoop{
+    gap:7px;
+    margin-top:7px;
+  }
+  .ace353RewardPanel{
+    padding:10px;
+  }
+  .ace353DailyBonus{
+    grid-template-columns:44px minmax(0,1fr);
+  }
+  .ace353PackArt{
+    width:44px;
+    height:58px;
+  }
+  .ace353ClaimBtn{
+    grid-column:1/-1;
+    width:100%;
+    min-height:42px;
+  }
+  .ace353LoginDays{
+    display:flex;
+    gap:5px;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .ace353LoginDays::-webkit-scrollbar{display:none}
+  .ace353LoginDay{
+    flex:0 0 78px;
+    min-height:69px;
+    scroll-snap-align:start;
+  }
+  .ace353LoginActions{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .ace353LoginActions button{
+    width:100%;
+    min-height:43px;
+  }
+}
+</style>
+
+<script id="ace-b21-35-3-reward-loop-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  let loginCache=null;
+  let loginBusy=false;
+  let dailyClaimBusy=false;
+  let renderQueued=false;
+
+  const LOGIN_REWARDS=[
+    {day:1,label:"100 ◉",sub:"COINS"},
+    {day:2,label:"150 ◉",sub:"COINS"},
+    {day:3,label:"200 ◉",sub:"COINS"},
+    {day:4,label:"250 ◉",sub:"COINS"},
+    {day:5,label:"300 ◉",sub:"COINS"},
+    {day:6,label:"BRONZE",sub:"+150 ◉",kind:"bronze"},
+    {day:7,label:"GOLD PACK",sub:"WEEKLY REWARD",kind:"gold"}
+  ];
+
+  function utcKey(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function count(kind){
+    const key=`free_${kind}_packs`;
+    return Math.max(0,Math.floor(Number(vdsAccountProfile?.[key]||0)));
+  }
+
+  function totalFree(){
+    return count("bronze")+count("silver")+count("gold");
+  }
+
+  function vdsFreePackCount(packId){
+    const id=String(packId||"").toLowerCase();
+    if(!["bronze","silver","gold"].includes(id))return 0;
+    return count(id);
+  }
+
+  function vdsHasFreePack(packId){
+    return vdsFreePackCount(packId)>0;
+  }
+
+  /* Export generically so the original pack opener can use this function. */
+  window.vdsFreePackCount=vdsFreePackCount;
+  window.vdsHasFreePack=vdsHasFreePack;
+  try{vdsHasFreePack=vdsHasFreePack}catch(_){}
+
+  function syncProfileFromReward(data){
+    if(!data)return;
+    const next={...(vdsAccountProfile||{})};
+    ["free_bronze_packs","free_silver_packs","free_gold_packs"].forEach(key=>{
+      const val=Number(data[key]);
+      if(Number.isFinite(val))next[key]=Math.max(0,Math.floor(val));
+    });
+    const coins=Number(data.coin_balance);
+    if(Number.isFinite(coins)){
+      next.coins=Math.max(0,Math.floor(coins));
+      if(typeof ultimateTeamState==="object"&&ultimateTeamState)ultimateTeamState.coins=next.coins;
+    }
+    vdsAccountProfile=next;
+    try{vdsUpdateAccountUI?.()}catch(_){}
+    try{vdsSyncUltimateWalletFromProfile?.()}catch(_){}
+    try{vdsRefreshFreeGoldPackUI?.()}catch(_){}
+    try{vdsRenderPackStoreShowcase?.()}catch(_){}
+    try{window.ace35RefreshHome?.()}catch(_){}
+  }
+
+  async function loadLogin(){
+    if(loginBusy||!vdsHasPermanentAccount?.())return loginCache;
+    const client=ensureMultiplayerClient?.();
+    if(!client)return loginCache;
+    loginBusy=true;
+    try{
+      const {data,error}=await client
+        .from("vds_login_progress")
+        .select("user_id,cycle_day,last_claim_date,total_claims,last_reward,updated_at")
+        .eq("user_id",vdsAccountSession.user.id)
+        .maybeSingle();
+      if(error)throw error;
+      loginCache=data||{
+        user_id:vdsAccountSession.user.id,
+        cycle_day:0,
+        last_claim_date:null,
+        total_claims:0,
+        last_reward:{}
+      };
+      scheduleRender();
+      return loginCache;
+    }catch(error){
+      console.warn("ACE login rewards load failed",error);
+      return loginCache;
+    }finally{
+      loginBusy=false;
+    }
+  }
+
+  function allDailiesDone(){
+    const d=vdsDailyProgressCache||{};
+    return !!(
+      d.play_one_rewarded &&
+      d.win_one_rewarded &&
+      d.play_three_rewarded &&
+      d.first_win_rewarded
+    );
+  }
+
+  function dailyCompletedCount(){
+    const d=vdsDailyProgressCache||{};
+    return [
+      d.play_one_rewarded,
+      d.win_one_rewarded,
+      d.play_three_rewarded,
+      d.first_win_rewarded
+    ].filter(Boolean).length;
+  }
+
+  function nextLoginDay(){
+    const current=Math.max(0,Math.min(7,Number(loginCache?.cycle_day||0)));
+    return current>=7?1:current+1;
+  }
+
+  function loginClaimedToday(){
+    return String(loginCache?.last_claim_date||"")===utcKey();
+  }
+
+  function rewardInventoryHTML(){
+    const b=count("bronze"),s=count("silver"),g=count("gold");
+    if(!(b+s+g))return "";
+    return `<div class="ace353FreePackInventory">
+      ${b?`<span class="bronze">BRONZE ×${b}</span>`:""}
+      ${s?`<span class="silver">SILVER ×${s}</span>`:""}
+      ${g?`<span class="gold">GOLD ×${g}</span>`:""}
+    </div>`;
+  }
+
+  function loginDaysHTML(){
+    const cycle=Math.max(0,Math.min(7,Number(loginCache?.cycle_day||0)));
+    const claimedToday=loginClaimedToday();
+    const next=nextLoginDay();
+
+    return LOGIN_REWARDS.map(r=>{
+      const done=cycle>0 && r.day<=cycle;
+      const isNext=!claimedToday && r.day===next;
+      return `<div class="ace353LoginDay ${done?"done":""} ${isNext?"next":""} ${r.kind||""}">
+        <span>DAY ${r.day}</span>
+        <b>${r.label}</b>
+        <small>${r.sub}</small>
+      </div>`;
+    }).join("");
+  }
+
+  function ensureRewardLoop(){
+    const mount=q("#vdsUTHubMissionsMount");
+    if(!mount)return null;
+
+    let loop=q("#ace353RewardLoop");
+    if(!loop){
+      loop=document.createElement("div");
+      loop.id="ace353RewardLoop";
+      loop.className="ace353RewardLoop";
+      mount.prepend(loop);
+    }
+    return loop;
+  }
+
+  function render(){
+    renderQueued=false;
+    const loop=ensureRewardLoop();
+    if(!loop)return;
+
+    const d=vdsDailyProgressCache||{};
+    const complete=dailyCompletedCount();
+    const allDone=allDailiesDone();
+    const claimed=!!d.completion_pack_claimed;
+    const claimedToday=loginClaimedToday();
+    const next=nextLoginDay();
+    const nextReward=LOGIN_REWARDS[next-1]||LOGIN_REWARDS[0];
+
+    loop.innerHTML=`
+      <section class="ace353RewardPanel">
+        <div class="ace353RewardHead">
+          <div>
+            <span>DAILY COMPLETION BONUS</span>
+            <b>Finish all 4. Earn a Silver Pack.</b>
+          </div>
+          <em class="${allDone&&!claimed?"ready":""}">${complete}/4 ${claimed?"CLAIMED":"COMPLETE"}</em>
+        </div>
+
+        <div class="ace353DailyBonus">
+          <div class="ace353PackArt"><span>ACE</span><b>SILVER</b><span>PACK</span></div>
+          <div class="ace353DailyCopy">
+            <b>Silver Player Pack</b>
+            <span>${claimed
+              ?"Today's completion pack is already in your club inventory."
+              : allDone
+                ?"All four Daily Objectives are complete. Your Silver Pack is ready."
+                : `Complete ${4-complete} more objective${4-complete===1?"":"s"} to unlock today's pack.`}</span>
+            ${rewardInventoryHTML()}
+          </div>
+          <button id="ace353ClaimDaily" class="ace353ClaimBtn ${claimed?"claimed":""}" type="button" ${(!allDone||claimed||dailyClaimBusy)?"disabled":""}>
+            ${claimed?"✓ CLAIMED":dailyClaimBusy?"CLAIMING…":allDone?"CLAIM SILVER PACK":"LOCKED"}
+          </button>
+        </div>
+      </section>
+
+      <section class="ace353RewardPanel">
+        <div class="ace353RewardHead">
+          <div>
+            <span>DAILY LOGIN</span>
+            <b>7 claimed days → Gold Pack.</b>
+          </div>
+          <em class="${!claimedToday?"ready":""}">${claimedToday?`DAY ${loginCache?.cycle_day||1} CLAIMED`:`DAY ${next} READY`}</em>
+        </div>
+
+        <div class="ace353LoginDays">${loginDaysHTML()}</div>
+
+        <div class="ace353LoginActions">
+          <p>${claimedToday
+            ? `<b>Come back tomorrow.</b> Missing a day does not reset your progress.`
+            : `Today's reward: <b>${nextReward.label}${nextReward.sub?` · ${nextReward.sub}`:""}</b>. Your progress only advances when you claim.`}</p>
+          <button id="ace353ClaimLogin" type="button" ${claimedToday||loginBusy?"disabled":""}>
+            ${claimedToday?"✓ TODAY CLAIMED":loginBusy?"LOADING…":`CLAIM DAY ${next}`}
+          </button>
+        </div>
+      </section>`;
+
+    q("#ace353ClaimDaily")?.addEventListener("click",claimDailyPack);
+    q("#ace353ClaimLogin")?.addEventListener("click",claimLogin);
+
+    patchDashboard();
+    patchPackStore();
+  }
+
+  function scheduleRender(){
+    if(renderQueued)return;
+    renderQueued=true;
+    requestAnimationFrame(render);
+  }
+
+  async function claimDailyPack(){
+    if(dailyClaimBusy||!allDailiesDone()||vdsDailyProgressCache?.completion_pack_claimed)return;
+    const client=ensureMultiplayerClient?.();
+    if(!client)return;
+    dailyClaimBusy=true;
+    scheduleRender();
+    try{
+      const {data,error}=await client.rpc("vds_claim_daily_completion_pack");
+      if(error)throw error;
+
+      if(data?.claimed||data?.already_claimed){
+        vdsDailyProgressCache={
+          ...(vdsDailyProgressCache||{}),
+          completion_pack_claimed:true
+        };
+        syncProfileFromReward(data);
+        try{
+          aceNotify?.({
+            title:data?.claimed?"+1 SILVER PACK":"SILVER PACK ALREADY CLAIMED",
+            body:data?.claimed?"All 4 Daily Objectives complete. Your reward pack is ready in Packs.":"Today's completion reward has already been collected.",
+            type:"pack",
+            sticky:true
+          });
+        }catch(_){}
+      }
+    }catch(error){
+      console.warn("ACE daily completion claim failed",error);
+      alert(String(error?.message||error).includes("DAILIES_NOT_COMPLETE")
+        ?"Complete all four Daily Objectives first."
+        :"Could not claim the Daily Completion pack.");
+    }finally{
+      dailyClaimBusy=false;
+      scheduleRender();
+    }
+  }
+
+  async function claimLogin(){
+    if(loginBusy||loginClaimedToday())return;
+    const client=ensureMultiplayerClient?.();
+    if(!client)return;
+    loginBusy=true;
+    scheduleRender();
+    try{
+      const {data,error}=await client.rpc("vds_claim_daily_login");
+      if(error)throw error;
+
+      syncProfileFromReward(data);
+      loginCache={
+        ...(loginCache||{}),
+        cycle_day:Number(data?.day||loginCache?.cycle_day||0),
+        last_claim_date:String(data?.last_claim_date||utcKey()),
+        last_reward:{
+          day:Number(data?.day||0),
+          coins:Number(data?.coin_reward||0),
+          bronze_packs:Number(data?.bronze_pack_reward||0),
+          gold_packs:Number(data?.gold_pack_reward||0)
+        }
+      };
+
+      const bits=[];
+      if(Number(data?.coin_reward||0)>0)bits.push(`+${Number(data.coin_reward).toLocaleString()} coins`);
+      if(Number(data?.bronze_pack_reward||0)>0)bits.push("+1 Bronze Pack");
+      if(Number(data?.gold_pack_reward||0)>0)bits.push("+1 Gold Pack");
+
+      try{
+        aceNotify?.({
+          title:`DAY ${Number(data?.day||0)} LOGIN CLAIMED`,
+          body:bits.join(" · ")||"Daily login collected.",
+          type:Number(data?.gold_pack_reward||0)>0?"pack":"reward",
+          sticky:true
+        });
+      }catch(_){}
+    }catch(error){
+      console.warn("ACE login reward claim failed",error);
+      alert("Could not claim today's login reward.");
+    }finally{
+      loginBusy=false;
+      scheduleRender();
+    }
+  }
+
+  /* ---------- Generic free pack inventory ---------- */
+  window.vdsFreePackCount=vdsFreePackCount;
+  window.vdsHasFreePack=vdsHasFreePack;
+
+  /* Patch pack-store display after its canonical renderer runs. */
+  function patchPackStore(){
+    const showcase=q("#vdsUTPackShowcase");
+    if(!showcase)return;
+    const packId=String(vdsPackStoreSelection||showcase.dataset.pack||"gold").toLowerCase();
+    const free=vdsFreePackCount(packId);
+    if(free<=0)return;
+
+    const checkout=q(".acePackCheckout",showcase);
+    checkout?.classList.add("gift");
+    const copy=checkout?.querySelector("div");
+    if(copy){
+      const small=copy.querySelector("small");
+      const b=copy.querySelector("b");
+      if(small)small.textContent="YOUR REWARD PACK";
+      if(b)b.textContent=`FREE · ${free} LEFT`;
+    }
+    const btn=q("#vdsUTPackHeroOpen",showcase);
+    if(btn){
+      const title=btn.querySelector("b");
+      const sub=btn.querySelector("small");
+      const icon=btn.querySelector("span");
+      if(icon)icon.textContent="🎁";
+      if(title)title.textContent=`OPEN FREE ${packId.toUpperCase()} PACK`;
+      if(sub)sub.textContent="NO COINS CHARGED";
+    }
+  }
+
+  /* Keep wallet label informative without creating another giant panel. */
+  try{
+    vdsPackStoreWalletText=function(){
+      const coins=vdsAccountProfile?.is_host_account?"∞":Number(vdsAccountProfile?.coins||0).toLocaleString();
+      const free=totalFree();
+      return free>0?`${coins} · 🎁 ${free} FREE PACK${free===1?"":"S"}`:coins;
+    };
+  }catch(_){}
+
+  if(typeof vdsRenderPackStoreShowcase==="function" && !vdsRenderPackStoreShowcase.__ace353Wrapped){
+    const base=vdsRenderPackStoreShowcase;
+    const wrapped=function(){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(patchPackStore);
+      return result;
+    };
+    wrapped.__ace353Wrapped=true;
+    try{vdsRenderPackStoreShowcase=wrapped}catch(_){}
+    try{window.vdsRenderPackStoreShowcase=wrapped}catch(_){}
+  }
+
+  /* ---------- Home/UT status patches ---------- */
+  function bestFreePack(){
+    if(count("gold"))return {kind:"GOLD",count:count("gold")};
+    if(count("silver"))return {kind:"SILVER",count:count("silver")};
+    if(count("bronze"))return {kind:"BRONZE",count:count("bronze")};
+    return null;
+  }
+
+  function patchDashboard(){
+    const free=bestFreePack();
+    const total=totalFree();
+
+    document.querySelectorAll("[data-ace35-route='packs']").forEach(card=>{
+      if(!total)return;
+      const value=card.querySelector(".ace35PulseValue, strong");
+      const meta=card.querySelector(".ace35PulseMeta, small");
+      const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
+
+      if(value && !card.classList.contains("primary") && !card.classList.contains("next")){
+        value.textContent=`${total} FREE PACK${total===1?"":"S"}`;
+      }
+      if(meta && !card.classList.contains("primary") && !card.classList.contains("next")){
+        meta.textContent=`${free.kind} reward pack${free.count===1?"":"s"} available now.`;
+      }
+      if(badge && !card.classList.contains("primary") && !card.classList.contains("next")){
+        badge.textContent="REWARD INVENTORY";
+        badge.classList.add("hot");
+      }
+    });
+
+    /* Daily completion/login attention lives on Missions rather than adding
+       another Home card. */
+    const loginReady=!!loginCache && !loginClaimedToday();
+    const silverReady=allDailiesDone() && !vdsDailyProgressCache?.completion_pack_claimed;
+
+    document.querySelectorAll("[data-ace35-route='missions']").forEach(card=>{
+      if(!(loginReady||silverReady))return;
+      const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
+      if(badge){
+        badge.textContent=silverReady?"SILVER PACK READY":"LOGIN REWARD READY";
+        badge.classList.add("reward");
+      }
+    });
+
+    q("#ultimate .vdsUTHubTab[data-ut-target='missions']")?.classList.toggle(
+      "ace35Attention",
+      loginReady||silverReady
+    );
+  }
+
+  /* Refresh login state when account/progression refreshes. */
+  if(typeof vdsLoadDailyProgress==="function" && !vdsLoadDailyProgress.__ace353Wrapped){
+    const base=vdsLoadDailyProgress;
+    const wrapped=async function(){
+      const result=await base.apply(this,arguments);
+      scheduleRender();
+      return result;
+    };
+    wrapped.__ace353Wrapped=true;
+    try{vdsLoadDailyProgress=wrapped}catch(_){}
+    try{window.vdsLoadDailyProgress=wrapped}catch(_){}
+  }
+
+  const observer=new MutationObserver(()=>{
+    if(q("#ultimate [data-ut-instance='missions'].active")||q("#vdsUTPackShowcase")){
+      scheduleRender();
+    }else{
+      patchDashboard();
+    }
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("[data-ut-nav='missions'],[data-ace35-route='missions'],[data-ut-nav='packs'],[data-ace35-route='packs']")){
+      setTimeout(()=>{
+        loadLogin();
+        scheduleRender();
+      },90);
+    }
+  });
+
+  setTimeout(()=>{
+    loadLogin();
+    scheduleRender();
+  },300);
+  setTimeout(()=>{
+    loadLogin();
+    scheduleRender();
+  },1400);
+
+  window.ace353LoadLogin=loadLogin;
+  window.ace353RenderRewards=scheduleRender;
+  window.ACE_PROJECT_BUILD="B21.35.3";
+  window.ACE_DAILY_LOGIN_PACK_REWARDS=true;
+})();
+</script>
+<!-- /ACE B21.35.3 — DAILY LOGIN + PACK REWARDS -->
 
 </body>
 </html>
