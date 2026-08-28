@@ -7107,7 +7107,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 <meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
-<script id="ace31-html2canvas" src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -42310,23 +42310,18 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
 
 
-<!-- ACE B21.33 — CLEAN 1080P SHARE -->
-<style id="ace-b21-33-clean-share-style">
-/* =========================================================
-   CLEAN SHARE PIPELINE
-   1. Snapshot exact visible Player-page card.
-   2. Card becomes pixels — no more CSS/layout changes.
-   3. Place that bitmap on ONE 1080x1920 canvas.
-   4. Preview / Save / Share all use that same canvas.
-   ========================================================= */
 
-#vdsCardShowcaseOverlay .ace33ShareBtn{
+
+
+<!-- ACE B21.34 — BROWSER-NATIVE CARD CAPTURE -->
+<style id="ace-b21-34-share-style">
+#vdsCardShowcaseOverlay .ace34ShareBtn{
   color:#fff!important;
   border-color:rgba(193,148,248,.18)!important;
   background:linear-gradient(135deg,#7441c8,#9b5bea)!important;
 }
 
-.ace33ShareOverlay{
+.ace34ShareOverlay{
   position:fixed;
   inset:0;
   z-index:54000;
@@ -42339,11 +42334,9 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
 }
-.ace33ShareOverlay.show{
-  display:flex;
-}
+.ace34ShareOverlay.show{display:flex}
 
-.ace33ShareModal{
+.ace34ShareModal{
   width:min(980px,96vw);
   max-height:94dvh;
   display:grid;
@@ -42359,7 +42352,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   box-shadow:0 30px 80px rgba(0,0,0,.50);
 }
 
-.ace33PreviewWrap{
+.ace34Preview{
   display:flex;
   align-items:flex-start;
   justify-content:center;
@@ -42370,7 +42363,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   border:1px solid rgba(255,255,255,.055);
   background:#05070c;
 }
-#ace33ShareCanvas{
+#ace34Canvas{
   display:block;
   width:min(100%,350px);
   height:auto;
@@ -42380,53 +42373,53 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   box-shadow:0 23px 48px rgba(0,0,0,.40);
 }
 
-.ace33SharePanel{
+.ace34Panel{
   display:flex;
   min-width:0;
   flex-direction:column;
 }
-.ace33SharePanel small{
+.ace34Panel small{
   display:block;
   color:#9c6cde;
   font-size:6px;
   font-weight:1000;
   letter-spacing:.17em;
 }
-.ace33SharePanel h2{
+.ace34Panel h2{
   margin:5px 0 6px;
   color:#fff;
   font-size:31px;
   line-height:1;
   letter-spacing:-.04em;
 }
-.ace33SharePanel>p{
+.ace34Panel>p{
   margin:0;
-  max-width:520px;
+  max-width:540px;
   color:#818591;
   font-size:7px;
   line-height:1.55;
 }
 
-.ace33SharePlayer{
+.ace34Identity{
   margin-top:14px;
   padding:11px;
   border-radius:11px;
   border:1px solid rgba(255,255,255,.05);
   background:#080b12;
 }
-.ace33SharePlayer b{
+.ace34Identity b{
   display:block;
   color:#eeeaf2;
   font-size:13px;
 }
-.ace33SharePlayer span{
+.ace34Identity span{
   display:block;
   margin-top:4px;
   color:#77727f;
   font-size:6px;
 }
 
-.ace33ResolutionCheck{
+.ace34Check{
   display:flex;
   align-items:center;
   gap:7px;
@@ -42439,54 +42432,45 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   font-size:6px;
   font-weight:1000;
 }
-.ace33ResolutionCheck::before{
+.ace34Check::before{
   content:"";
-  width:7px;
-  height:7px;
-  flex:0 0 auto;
-  border-radius:50%;
+  width:7px;height:7px;flex:0 0 auto;border-radius:50%;
   background:#67d88b;
   box-shadow:0 0 9px rgba(91,220,134,.35);
 }
-.ace33ResolutionCheck.pending{
+.ace34Check.pending{
   color:#bca071;
   border-color:rgba(201,157,67,.12);
   background:rgba(112,80,24,.07);
 }
-.ace33ResolutionCheck.pending::before{
-  background:#c79b45;
-}
-.ace33ResolutionCheck.bad{
+.ace34Check.pending::before{background:#c79b45}
+.ace34Check.bad{
   color:#e69891;
   border-color:rgba(219,103,93,.12);
   background:rgba(112,36,30,.07);
 }
-.ace33ResolutionCheck.bad::before{
-  background:#dc6f65;
-}
+.ace34Check.bad::before{background:#dc6f65}
 
-.ace33ShareHelp{
-  margin-top:11px;
+.ace34TechNote{
+  margin-top:10px;
   padding:10px;
   border-radius:10px;
   border:1px solid rgba(173,130,228,.08);
   background:#080b12;
   color:#77727f;
   font-size:6.2px;
-  line-height:1.48;
+  line-height:1.5;
 }
-.ace33ShareHelp b{
-  color:#b9a3d2;
-}
+.ace34TechNote b{color:#b9a3d2}
 
-.ace33ShareActions{
+.ace34Actions{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:7px;
   margin-top:auto;
   padding-top:16px;
 }
-.ace33ShareActions button{
+.ace34Actions button{
   min-height:46px;
   padding:0 10px;
   border-radius:10px;
@@ -42498,47 +42482,43 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   letter-spacing:.07em;
   cursor:pointer;
 }
-.ace33ShareActions button:hover{
-  color:#d2b7f2;
-  border-color:rgba(190,144,247,.22);
-}
-.ace33ShareActions button.primary{
+.ace34Actions .share{
   grid-column:1/-1;
   min-height:52px;
   color:#101711;
   border-color:transparent;
   background:linear-gradient(135deg,#82dda0,#5ac987);
 }
-.ace33ShareActions button.save{
+.ace34Actions .save{
   color:#fff;
   border-color:rgba(191,146,247,.17);
   background:linear-gradient(135deg,#7341c5,#9858e6);
 }
-.ace33ShareActions button:disabled{
+.ace34Actions button:disabled{
   opacity:.46;
   cursor:wait;
 }
 
-.ace33ShareStatus{
+.ace34Status{
   min-height:18px;
   margin-top:9px;
   color:#77717e;
   font-size:6px;
 }
-.ace33ShareStatus.ok{color:#88dca3}
-.ace33ShareStatus.bad{color:#e5958e}
+.ace34Status.ok{color:#88dca3}
+.ace34Status.bad{color:#e5958e}
 
-body.ace33ShareOpen{
+body.ace34ShareOpen{
   overflow:hidden!important;
   overscroll-behavior:none!important;
 }
 
 @media(max-width:760px){
-  .ace33ShareOverlay{
+  .ace34ShareOverlay{
     align-items:flex-start;
     padding:8px;
   }
-  .ace33ShareModal{
+  .ace34ShareModal{
     width:100%;
     max-height:calc(100dvh - 16px);
     grid-template-columns:1fr;
@@ -42546,32 +42526,26 @@ body.ace33ShareOpen{
     padding:10px;
     border-radius:17px;
   }
-  .ace33PreviewWrap{
+  .ace34Preview{
     min-height:0;
     padding:7px;
   }
-  #ace33ShareCanvas{
+  #ace34Canvas{
     width:min(72vw,295px);
   }
-  .ace33SharePanel h2{
-    font-size:25px;
-  }
-  .ace33ShareActions{
+  .ace34Panel h2{font-size:25px}
+  .ace34Actions{
     position:sticky;
     bottom:0;
     padding:10px 0 calc(4px + env(safe-area-inset-bottom));
     background:linear-gradient(180deg,transparent,#070910 23%);
   }
-  .ace33ShareActions button{
-    min-height:48px;
-  }
-  .ace33ShareActions button.primary{
-    min-height:54px;
-  }
+  .ace34Actions button{min-height:48px}
+  .ace34Actions .share{min-height:54px}
 }
 </style>
 
-<script id="ace-b21-33-clean-share-runtime">
+<script id="ace-b21-34-share-runtime">
 (function(){
   "use strict";
 
@@ -42607,72 +42581,77 @@ body.ace33ShareOpen{
     return `${activePlayer.name} · ${rating} ${activePlayer.position||"POS"} · ${serveLabel(activePlayer)}\n\nMy card on The ACE Project 🏐`;
   }
 
-  function setStatus(text,type=""){
-    const el=q("#ace33ShareStatus");
-    if(!el)return;
-    el.className="ace33ShareStatus"+(type?" "+type:"");
-    el.textContent=text||"";
-  }
-
-  function setResolutionState(state,text){
-    const el=q("#ace33ResolutionCheck");
-    if(!el)return;
-    el.className="ace33ResolutionCheck"+(state==="ok"?"":` ${state}`);
-    el.textContent=text;
-  }
-
   function ensureOverlay(){
-    let overlay=q("#ace33ShareOverlay");
+    let overlay=q("#ace34ShareOverlay");
     if(overlay)return overlay;
 
     overlay=document.createElement("div");
-    overlay.id="ace33ShareOverlay";
-    overlay.className="ace33ShareOverlay";
+    overlay.id="ace34ShareOverlay";
+    overlay.className="ace34ShareOverlay";
     overlay.setAttribute("aria-hidden","true");
     overlay.innerHTML=`
-      <div class="ace33ShareModal" role="dialog" aria-modal="true" aria-label="Share ACE card">
-        <div class="ace33PreviewWrap">
-          <canvas id="ace33ShareCanvas" width="1080" height="1920"></canvas>
+      <div class="ace34ShareModal" role="dialog" aria-modal="true" aria-label="Share ACE card">
+        <div class="ace34Preview">
+          <canvas id="ace34Canvas" width="1080" height="1920"></canvas>
         </div>
-
-        <div class="ace33SharePanel">
+        <div class="ace34Panel">
           <small>THE ACE PROJECT · STORY SHARE</small>
           <h2>Share your card.</h2>
-          <p>The card is captured from the real Player page first. Once captured, it is just pixels — it cannot reflow, resize internally or change its playstyle layout.</p>
+          <p>The browser now paints the real Player-page card into an SVG snapshot first. The 1080 × 1920 story uses that finished bitmap — no second card layout exists.</p>
 
-          <div class="ace33SharePlayer" id="ace33SharePlayer"></div>
+          <div id="ace34Identity" class="ace34Identity"></div>
 
-          <div id="ace33ResolutionCheck" class="ace33ResolutionCheck pending">
-            Preparing exact 1080 × 1920 image…
+          <div id="ace34Check" class="ace34Check pending">
+            Capturing browser-painted card…
           </div>
 
-          <div class="ace33ShareHelp">
-            <b>Instagram:</b> tap Share to Phone, then choose Instagram from your phone's share sheet if it is available. ACE sends the original 1080 × 1920 PNG without resizing it again.
+          <div class="ace34TechNote">
+            <b>Why this is different:</b> the old renderer approximated CSS masks, transforms and capsules. This one asks the browser to rasterise the computed DOM through SVG before ACE ever touches the image.
           </div>
 
-          <div class="ace33ShareActions">
-            <button id="ace33NativeShare" class="primary" type="button" disabled>PREPARING IMAGE…</button>
-            <button id="ace33Save" class="save" type="button" disabled>SAVE 1080P PNG</button>
-            <button id="ace33Caption" type="button">COPY CAPTION</button>
-            <button id="ace33Close" type="button">CLOSE</button>
+          <div class="ace34Actions">
+            <button id="ace34Share" class="share" type="button" disabled>PREPARING IMAGE…</button>
+            <button id="ace34Save" class="save" type="button" disabled>SAVE 1080 × 1920 PNG</button>
+            <button id="ace34Caption" type="button">COPY CAPTION</button>
+            <button id="ace34Close" type="button">CLOSE</button>
           </div>
 
-          <div id="ace33ShareStatus" class="ace33ShareStatus"></div>
+          <div id="ace34Status" class="ace34Status"></div>
         </div>
       </div>`;
 
     document.body.appendChild(overlay);
 
-    q("#ace33Close")?.addEventListener("click",closeShare);
-    q("#ace33Save")?.addEventListener("click",savePng);
-    q("#ace33NativeShare")?.addEventListener("click",nativeShare);
-    q("#ace33Caption")?.addEventListener("click",copyCaption);
-
-    overlay.addEventListener("click",e=>{
-      if(e.target===overlay)closeShare();
-    });
-
+    q("#ace34Close")?.addEventListener("click",closeShare);
+    q("#ace34Save")?.addEventListener("click",savePng);
+    q("#ace34Share")?.addEventListener("click",nativeShare);
+    q("#ace34Caption")?.addEventListener("click",copyCaption);
+    overlay.addEventListener("click",e=>{if(e.target===overlay)closeShare()});
     return overlay;
+  }
+
+  function setStatus(text,type=""){
+    const el=q("#ace34Status");
+    if(!el)return;
+    el.className="ace34Status"+(type?" "+type:"");
+    el.textContent=text||"";
+  }
+
+  function setCheck(state,text){
+    const el=q("#ace34Check");
+    if(!el)return;
+    el.className="ace34Check"+(state==="ok"?"":` ${state}`);
+    el.textContent=text;
+  }
+
+  function setReady(ready){
+    const share=q("#ace34Share");
+    const save=q("#ace34Save");
+    if(share){
+      share.disabled=!ready;
+      share.textContent=ready?"SHARE TO PHONE / INSTAGRAM":"PREPARING IMAGE…";
+    }
+    if(save)save.disabled=!ready;
   }
 
   function drawPosterBackground(ctx,w,h){
@@ -42700,43 +42679,60 @@ body.ace33ShareOpen{
     }
   }
 
-  async function captureExactLiveCard(){
-    /* The exact card already visible in the Player profile is the source.
-       Capture it BEFORE opening the share overlay. */
+  async function waitForCardAssets(source){
+    const imgs=[...source.querySelectorAll("img")];
+    await Promise.all(imgs.map(img=>{
+      if(img.complete && img.naturalWidth)return Promise.resolve();
+      return new Promise(resolve=>{
+        img.addEventListener("load",resolve,{once:true});
+        img.addEventListener("error",resolve,{once:true});
+        setTimeout(resolve,3000);
+      });
+    }));
+    if(document.fonts?.ready){
+      try{await document.fonts.ready}catch(_){}
+    }
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  }
+
+  async function captureBrowserPaintedCard(){
     const source=
       q("#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard")
       || q("#vdsCardShowcaseOverlay .vdsCardShowcaseCardFrame .fifaPlayerCard");
 
-    if(!source)throw new Error("Open the player profile before sharing.");
-    if(!window.html2canvas)throw new Error("Card capture library is not ready.");
+    if(!source)throw new Error("Open the Player profile before sharing.");
+    if(!window.htmlToImage?.toCanvas)throw new Error("Browser-native card capture library is not ready.");
 
-    const imgs=[...source.querySelectorAll("img")];
-    await Promise.all(imgs.map(img=>{
-      if(img.complete)return Promise.resolve();
-      return new Promise(resolve=>{
-        img.addEventListener("load",resolve,{once:true});
-        img.addEventListener("error",resolve,{once:true});
-        setTimeout(resolve,2500);
-      });
-    }));
+    await waitForCardAssets(source);
 
-    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-
-    /* High-resolution bitmap of the ACTUAL rendered card.
-       From this point onward there is zero card HTML in the share pipeline. */
-    return await window.html2canvas(source,{
-      backgroundColor:null,
-      scale:3,
-      useCORS:true,
-      allowTaint:false,
-      logging:false,
-      imageTimeout:8000,
-      removeContainer:true
+    /* html-to-image serialises the card and computed CSS into an SVG
+       foreignObject, then THE BROWSER paints that SVG to canvas.
+       We neutralise only the outer 1.04 profile zoom; internal art
+       transforms, mask-image, clip-path and playstyle layout remain. */
+    const canvas=await window.htmlToImage.toCanvas(source,{
+      pixelRatio:4,
+      cacheBust:true,
+      skipAutoScale:true,
+      backgroundColor:"transparent",
+      style:{
+        transform:"none",
+        transition:"none",
+        margin:"0"
+      },
+      filter(node){
+        /* UI-only footer is intentionally excluded from the share card. */
+        return !(node?.classList?.contains("fifaEditHint"));
+      }
     });
+
+    if(!canvas||!canvas.width||!canvas.height){
+      throw new Error("The browser returned an empty card snapshot.");
+    }
+    return canvas;
   }
 
-  function compose1080Story(cardBitmap,p){
-    const canvas=q("#ace33ShareCanvas");
+  function composeStory(cardBitmap){
+    const canvas=q("#ace34Canvas");
     canvas.width=1080;
     canvas.height=1920;
     const ctx=canvas.getContext("2d");
@@ -42744,23 +42740,21 @@ body.ace33ShareOpen{
     drawPosterBackground(ctx,1080,1920);
 
     ctx.textAlign="center";
-    ctx.fillStyle="#ffffff";
+    ctx.fillStyle="#fff";
     ctx.font="1000 32px Inter, system-ui, sans-serif";
     ctx.fillText("THE ACE PROJECT",540,78);
-
     ctx.fillStyle="rgba(255,255,255,.56)";
     ctx.font="900 14px Inter, system-ui, sans-serif";
     ctx.fillText("VOLLEYBALL ULTIMATE TEAM",540,104);
 
-    /* We resize only the FINISHED bitmap as one flat image.
-       Internal card proportions can no longer change. */
-    const maxW=800;
-    const maxH=1500;
+    /* Flat bitmap resize only. No internal element can reflow now. */
+    const maxW=760;
+    const maxH=1490;
     const scale=Math.min(maxW/cardBitmap.width,maxH/cardBitmap.height);
-    const cardW=cardBitmap.width*scale;
-    const cardH=cardBitmap.height*scale;
-    const x=(1080-cardW)/2;
-    const y=Math.max(150,(1920-cardH)/2-8);
+    const cardW=Math.round(cardBitmap.width*scale);
+    const cardH=Math.round(cardBitmap.height*scale);
+    const x=Math.round((1080-cardW)/2);
+    const y=Math.max(150,Math.round((1920-cardH)/2-4));
 
     ctx.imageSmoothingEnabled=true;
     ctx.imageSmoothingQuality="high";
@@ -42769,10 +42763,6 @@ body.ace33ShareOpen{
     ctx.fillStyle="rgba(255,255,255,.90)";
     ctx.font="1000 22px Inter, system-ui, sans-serif";
     ctx.fillText("YOUR CARD. YOUR COURT.",540,1848);
-
-    ctx.fillStyle="rgba(255,255,255,.28)";
-    ctx.font="900 12px Inter, system-ui, sans-serif";
-    ctx.fillText("THEACEPROJECT",540,1882);
 
     return canvas;
   }
@@ -42783,10 +42773,9 @@ body.ace33ShareOpen{
         reject(new Error(`Resolution check failed: ${canvas.width} × ${canvas.height}`));
         return;
       }
-
       canvas.toBlob(blob=>{
         if(!blob){
-          reject(new Error("Could not create PNG."));
+          reject(new Error("Could not create final PNG."));
           return;
         }
         finalBlob=blob;
@@ -42806,15 +42795,17 @@ body.ace33ShareOpen{
     activePlayer=p;
     finalBlob=null;
     finalFile=null;
+    setReady(false);
     const token=++renderToken;
 
-    /* IMPORTANT: snapshot real card before modal changes anything onscreen. */
+    /* Snapshot BEFORE opening the share overlay, so the player-profile
+       rendering context is completely untouched. */
     let cardBitmap;
     try{
-      cardBitmap=await captureExactLiveCard();
+      cardBitmap=await captureBrowserPaintedCard();
     }catch(error){
-      console.error("ACE clean card capture failed",error);
-      alert(`Could not prepare share card: ${error?.message||error}`);
+      console.error("ACE B21.34 browser-native capture failed",error);
+      alert(`Could not prepare the card image: ${error?.message||error}`);
       return;
     }
     if(token!==renderToken)return;
@@ -42825,49 +42816,39 @@ body.ace33ShareOpen{
       : Math.round(Number(p.finalRating||0));
     const tier=typeof cardTierLabel==="function"?cardTierLabel(p):"CARD";
 
-    q("#ace33SharePlayer").innerHTML=`
+    q("#ace34Identity").innerHTML=`
       <b>${esc(p.name)}</b>
       <span>${rating} ${esc(p.position||"POS")} · ${esc(tier)} · ${esc(serveLabel(p))}</span>`;
 
-    const canvas=compose1080Story(cardBitmap,p);
+    const finalCanvas=composeStory(cardBitmap);
 
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden","false");
-    document.body.classList.add("ace33ShareOpen");
+    document.body.classList.add("ace34ShareOpen");
 
-    const shareBtn=q("#ace33NativeShare");
-    const saveBtn=q("#ace33Save");
-    if(shareBtn){shareBtn.disabled=true;shareBtn.textContent="PREPARING IMAGE…";}
-    if(saveBtn)saveBtn.disabled=true;
-    setResolutionState("pending","Verifying exact 1080 × 1920 image…");
+    setCheck("pending","Verifying browser-painted card + exact 1080 × 1920 output…");
     setStatus("Preparing final PNG…");
 
     try{
-      await prepareFile(canvas,p);
+      await prepareFile(finalCanvas,p);
       if(token!==renderToken)return;
-
-      if(canvas.width!==1080||canvas.height!==1920){
-        throw new Error("Final canvas resolution changed unexpectedly.");
+      if(finalCanvas.width!==1080||finalCanvas.height!==1920){
+        throw new Error("Final story dimensions changed.");
       }
 
-      if(shareBtn){
-        shareBtn.disabled=false;
-        shareBtn.textContent="SHARE TO PHONE / INSTAGRAM";
-      }
-      if(saveBtn)saveBtn.disabled=false;
-
-      setResolutionState("ok","✓ Verified 1080 × 1920 PNG · no second resize");
-      setStatus("Ready. Preview, Save PNG and Share all use this same file.","ok");
+      setReady(true);
+      setCheck("ok","✓ Browser-painted card · ✓ 1080 × 1920 PNG · ✓ single final file");
+      setStatus("Ready. Preview, Save and Share all use this exact PNG.","ok");
     }catch(error){
-      setResolutionState("bad","Resolution / PNG verification failed");
+      setCheck("bad","Share image verification failed");
       setStatus(error?.message||String(error),"bad");
     }
   }
 
   function closeShare(){
-    q("#ace33ShareOverlay")?.classList.remove("show");
-    q("#ace33ShareOverlay")?.setAttribute("aria-hidden","true");
-    document.body.classList.remove("ace33ShareOpen");
+    q("#ace34ShareOverlay")?.classList.remove("show");
+    q("#ace34ShareOverlay")?.setAttribute("aria-hidden","true");
+    document.body.classList.remove("ace34ShareOpen");
   }
 
   async function savePng(){
@@ -42893,22 +42874,17 @@ body.ace33ShareOpen{
           : navigator.canShare({files:[finalFile]});
 
         if(canShareFile){
-          /* Nothing is generated or resized after this tap.
-             The exact prebuilt File is handed to the OS. */
+          /* The File already exists before the tap: no re-render/resizing here. */
           await navigator.share({
             files:[finalFile],
             title:`${activePlayer.name} · The ACE Project`,
             text:caption()
           });
-          setStatus("Image sent to your phone share sheet.","ok");
+          setStatus("Original PNG sent to your phone share sheet.","ok");
           return;
         }
 
-        await navigator.share({
-          title:`${activePlayer.name} · The ACE Project`,
-          text:caption()
-        });
-        setStatus("Your browser cannot attach PNG files to Web Share. Use SAVE 1080P PNG for the image.","");
+        setStatus("This browser cannot attach PNG files to its share sheet. Use SAVE 1080 × 1920 PNG.","");
         return;
       }catch(error){
         if(error?.name==="AbortError"){
@@ -42920,8 +42896,7 @@ body.ace33ShareOpen{
       }
     }
 
-    setStatus("This browser has no native share sheet. Saving the original PNG instead…","");
-    await savePng();
+    setStatus("No native share sheet is available here. Use SAVE 1080 × 1920 PNG.","");
   }
 
   async function copyCaption(){
@@ -42941,7 +42916,7 @@ body.ace33ShareOpen{
 
   function addShareButton(){
     const actions=q("#vdsCardShowcaseOverlay .ace29ProfileActions");
-    if(!actions||actions.querySelector(".ace33ShareBtn"))return;
+    if(!actions||actions.querySelector(".ace34ShareBtn"))return;
 
     const name=q("#vdsCardShowcaseOverlay .ace29ProfileTop h2")?.textContent?.trim();
     const p=(players||[]).find(x=>String(x.name)===String(name));
@@ -42949,32 +42924,36 @@ body.ace33ShareOpen{
 
     const btn=document.createElement("button");
     btn.type="button";
-    btn.className="ace33ShareBtn";
+    btn.className="ace34ShareBtn";
     btn.textContent="SHARE CARD";
     btn.addEventListener("click",()=>openShare(p));
     actions.insertAdjacentElement("afterbegin",btn);
   }
 
-  /* Profile contents are dynamic. Add exactly one fresh share button. */
   const observer=new MutationObserver(()=>{
     if(q("#vdsCardShowcaseOverlay.show .ace29ProfileActions"))addShareButton();
   });
-  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
-
-  document.addEventListener("keydown",e=>{
-    if(e.key==="Escape"&&q("#ace33ShareOverlay.show"))closeShare();
+  observer.observe(document.documentElement,{
+    childList:true,
+    subtree:true,
+    attributes:true,
+    attributeFilter:["class"]
   });
 
-  window.ace33SharePlayerCard=function(name){
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&q("#ace34ShareOverlay.show"))closeShare();
+  });
+
+  window.ace34SharePlayerCard=function(name){
     const p=(players||[]).find(x=>String(x.name)===String(name));
     if(p)openShare(p);
   };
 
-  window.ACE_PROJECT_BUILD="B21.33";
-  window.ACE_CLEAN_1080P_SHARE=true;
+  window.ACE_PROJECT_BUILD="B21.34";
+  window.ACE_BROWSER_NATIVE_CARD_CAPTURE=true;
 })();
 </script>
-<!-- /ACE B21.33 — CLEAN 1080P SHARE -->
+<!-- /ACE B21.34 — BROWSER-NATIVE CARD CAPTURE -->
 
 </body>
 </html>
