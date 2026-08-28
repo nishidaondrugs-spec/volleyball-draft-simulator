@@ -40058,7 +40058,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
     }
   }
 
-  function renderEditorReview(){
+  function renderEditorReview({skipVerify=false}={}){
     const body=q("#playerEditorContent");
     const idx=Number(playerEditorIndex);
     const p=players?.[idx];
@@ -40097,8 +40097,20 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
       <div id="ace28EditorSaveStatus" class="ace28EditorSaveStatus"></div>`;
     body.insertAdjacentElement("afterbegin",panel);
 
-    if(p.ultimateTeamPool===true){
-      verifyUT(p).then(()=>renderEditorReview());
+    if(p.ultimateTeamPool===true && !skipVerify){
+      const currentEditorIndex=Number(playerEditorIndex);
+      verifyUT(p).then(()=>{
+        /* Repaint once from the verification cache. Do NOT recursively
+           verify/render again — that old loop could freeze Edit Player. */
+        if(Number(playerEditorIndex)===currentEditorIndex){
+          renderEditorReview({skipVerify:true});
+        }
+      }).catch(error=>{
+        console.error("ACE editor UT verification failed",error);
+        if(Number(playerEditorIndex)===currentEditorIndex){
+          renderEditorReview({skipVerify:true});
+        }
+      });
     }
   }
 
@@ -41000,7 +41012,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
               ${owned.length
                 ? `<button type="button" class="squad" data-ace29-profile-squad="${esc(p.name)}">ADD TO SQUAD</button>`
                 : `<button type="button" disabled>NOT OWNED IN UT</button>`}
-              ${cloudAdmin?`<button type="button" class="primary" data-ace29-profile-edit="${(players||[]).indexOf(p)}">EDIT PLAYER</button>`:""}
+              ${cloudAdmin?`<button type="button" class="primary" data-ace29-profile-edit="${(players||[]).indexOf(p)}" data-ace29-profile-edit-name="${esc(p.name)}" data-ace29-profile-edit-id="${Number(p.cloudId||0)}">EDIT PLAYER</button>`:""}
               <button type="button" data-ace29-profile-close>CLOSE</button>
             </div>
           </div>
@@ -41160,8 +41172,39 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 
     const edit=e.target.closest?.("[data-ace29-profile-edit]");
     if(edit){
+      const requestedId=Number(edit.dataset.ace29ProfileEditId||0);
+      const requestedName=String(edit.dataset.ace29ProfileEditName||"");
+      let idx=-1;
+
+      if(requestedId){
+        idx=(players||[]).findIndex(p=>Number(p?.cloudId||0)===requestedId);
+      }
+      if(idx<0 && requestedName){
+        idx=(players||[]).findIndex(p=>String(p?.name||"")===requestedName);
+      }
+      if(idx<0){
+        const fallback=Number(edit.dataset.ace29ProfileEdit);
+        if(Number.isInteger(fallback) && fallback>=0 && fallback<(players||[]).length)idx=fallback;
+      }
+
+      if(idx<0){
+        console.error("ACE Edit Player: player could not be resolved",{
+          requestedId,requestedName,fallback:edit.dataset.ace29ProfileEdit
+        });
+        if(typeof aceNotify==="function"){
+          aceNotify({
+            title:"COULD NOT OPEN EDITOR",
+            body:"That player changed in the database. Refresh Players and try again.",
+            type:"error"
+          });
+        }
+        return;
+      }
+
       if(typeof closeVdsCardShowcase==="function")closeVdsCardShowcase();
-      if(typeof openPlayerEditor==="function")openPlayerEditor(Number(edit.dataset.ace29ProfileEdit));
+      if(typeof openPlayerEditor==="function"){
+        requestAnimationFrame(()=>openPlayerEditor(idx));
+      }
       return;
     }
 
@@ -46175,6 +46218,384 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.1 — EXPANDED PLAYER PROFILE -->
+
+
+<!-- ACE B21.36.2 — EDITOR CRASH FIX + NON-SCROLL DESKTOP PROFILE -->
+<style id="ace-b21-36-2-editor-profile-fix-style">
+/* =========================================================
+   PLAYER PROFILE — DESKTOP
+   The box grows; the user should not have to scroll inside it.
+   ========================================================= */
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay{
+    padding:10px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet{
+    width:min(1760px,98vw)!important;
+    max-width:1760px!important;
+    height:min(1010px,97dvh)!important;
+    max-height:97dvh!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    border-radius:20px!important;
+  }
+
+  #vdsCardShowcaseOverlay #vdsCardShowcaseContent{
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    width:100%!important;
+    max-width:none!important;
+    height:100%!important;
+    max-height:none!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    padding:24px 28px!important;
+    border:0!important;
+    border-radius:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseClose{
+    top:14px!important;
+    right:14px!important;
+    width:44px!important;
+    height:44px!important;
+  }
+
+  .ace29ProfileTop{
+    gap:28px!important;
+    padding:0 50px 16px 0!important;
+  }
+
+  .ace29ProfileKicker{
+    font-size:7px!important;
+  }
+
+  .ace29ProfileTop h2{
+    margin-top:5px!important;
+    font-size:44px!important;
+  }
+
+  .ace29ProfileTop p{
+    max-width:820px!important;
+    font-size:10.5px!important;
+    line-height:1.42!important;
+  }
+
+  .ace29ProfileBadge{
+    padding:7px 10px!important;
+    font-size:6.3px!important;
+  }
+
+  .ace29ProfileGrid{
+    grid-template-columns:410px minmax(0,1fr)!important;
+    gap:22px!important;
+    height:calc(100% - 100px)!important;
+    min-height:0!important;
+    margin-top:16px!important;
+    align-items:stretch!important;
+  }
+
+  .ace29ProfileCardColumn{
+    min-height:0!important;
+  }
+
+  .ace29ProfileCardStage{
+    min-height:0!important;
+    height:calc(100% - 108px)!important;
+    padding:18px!important;
+  }
+
+  .ace29ProfileCardStage .fifaPlayerCard{
+    width:315px!important;
+    min-width:315px!important;
+    transform:scale(1.035)!important;
+  }
+
+  .ace29ProfileActions{
+    gap:8px!important;
+  }
+
+  .ace29ProfileActions button{
+    min-height:48px!important;
+    padding:0 11px!important;
+    font-size:7.5px!important;
+  }
+
+  /* Fit the complete information stack inside the enlarged modal. */
+  .ace29ProfileInfo{
+    min-height:0!important;
+    height:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    grid-template-rows:auto auto minmax(0,1fr)!important;
+    gap:11px!important;
+    overflow:hidden!important;
+    align-content:stretch!important;
+  }
+
+  .ace29ProfileInfo > .ace29ProfilePanel:nth-child(1){
+    grid-column:1!important;
+  }
+
+  .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    grid-column:2!important;
+  }
+
+  .ace29ProfileInfo > .ace29ProfileTwo{
+    grid-column:1 / -1!important;
+  }
+
+  .ace29ProfileInfo > .ace361AttributesPanel{
+    grid-column:1 / -1!important;
+    min-height:0!important;
+  }
+
+  .ace29ProfilePanel{
+    padding:15px 16px!important;
+    border-radius:14px!important;
+  }
+
+  .ace29ProfilePanel h3{
+    font-size:8.6px!important;
+    margin-bottom:3px!important;
+  }
+
+  .ace29ProfileMetrics{
+    gap:8px!important;
+    margin-top:9px!important;
+  }
+
+  .ace29ProfileMetric{
+    padding:11px!important;
+  }
+
+  .ace29ProfileMetric span{
+    font-size:7.7px!important;
+  }
+
+  .ace29ProfileMetric b{
+    margin-top:4px!important;
+    font-size:24px!important;
+  }
+
+  /* Override the two inline 11px values in identity panel. */
+  .ace29ProfileMetric b[style]{
+    font-size:15px!important;
+    line-height:1.05!important;
+  }
+
+  .ace29PositionGrid{
+    gap:7px!important;
+    margin-top:9px!important;
+  }
+
+  .ace29PositionGrid>div{
+    padding:10px 6px!important;
+  }
+
+  .ace29PositionGrid span{
+    font-size:7.8px!important;
+  }
+
+  .ace29PositionGrid b{
+    margin-top:3px!important;
+    font-size:25px!important;
+  }
+
+  .ace29PositionGrid small{
+    font-size:5.2px!important;
+  }
+
+  .ace29ProfileTwo{
+    gap:11px!important;
+    min-height:0!important;
+  }
+
+  .ace29ProfileTwo > .ace29ProfilePanel{
+    min-height:0!important;
+  }
+
+  .ace29Playstyles{
+    gap:7px!important;
+    margin-top:9px!important;
+  }
+
+  .ace29Playstyle{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:9px!important;
+    padding:9px 10px!important;
+  }
+
+  .ace29PlaystyleIcon{
+    width:32px!important;
+    height:32px!important;
+    font-size:16px!important;
+  }
+
+  .ace29Playstyle b{
+    font-size:9.5px!important;
+  }
+
+  .ace29Playstyle p{
+    margin-top:3px!important;
+    font-size:7.8px!important;
+    line-height:1.28!important;
+  }
+
+  /* FULL ATTRIBUTES: always visible, larger, still no inner scrollbar. */
+  .ace361AttributesPanel{
+    overflow:hidden!important;
+    padding:14px 16px!important;
+  }
+
+  .ace361AttributesBody{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:9px!important;
+    margin-top:9px!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  .ace361AttributesBody .ace29StatGroup{
+    min-width:0!important;
+    height:100%!important;
+  }
+
+  .ace361AttributesBody .ace29StatGroupHead{
+    padding:9px 10px!important;
+    font-size:8px!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow{
+    padding:7px 10px!important;
+    font-size:8.2px!important;
+    line-height:1.18!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow b{
+    font-size:9.4px!important;
+  }
+}
+
+/* Typical shorter laptop screens: preserve no-scroll behaviour by using
+   slightly tighter vertical spacing, not by adding a scrollbar. */
+@media(min-width:901px) and (max-height:850px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet{
+    height:98dvh!important;
+    max-height:98dvh!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    padding:16px 22px!important;
+  }
+
+  .ace29ProfileTop{
+    padding-bottom:10px!important;
+  }
+
+  .ace29ProfileTop h2{
+    font-size:37px!important;
+  }
+
+  .ace29ProfileTop p{
+    font-size:9px!important;
+  }
+
+  .ace29ProfileGrid{
+    grid-template-columns:360px minmax(0,1fr)!important;
+    height:calc(100% - 82px)!important;
+    gap:16px!important;
+    margin-top:10px!important;
+  }
+
+  .ace29ProfileCardStage .fifaPlayerCard{
+    width:275px!important;
+    min-width:275px!important;
+  }
+
+  .ace29ProfilePanel{
+    padding:10px 12px!important;
+  }
+
+  .ace29ProfilePanel h3{
+    font-size:7.7px!important;
+  }
+
+  .ace29ProfileMetric{
+    padding:8px!important;
+  }
+
+  .ace29ProfileMetric span{
+    font-size:6.8px!important;
+  }
+
+  .ace29ProfileMetric b{
+    font-size:20px!important;
+  }
+
+  .ace29PositionGrid>div{
+    padding:7px 5px!important;
+  }
+
+  .ace29PositionGrid b{
+    font-size:21px!important;
+  }
+
+  .ace29Playstyle{
+    padding:7px 8px!important;
+  }
+
+  .ace29Playstyle p{
+    font-size:6.9px!important;
+  }
+
+  .ace361AttributesPanel{
+    padding:10px 12px!important;
+  }
+
+  .ace361AttributesBody{
+    gap:7px!important;
+    margin-top:7px!important;
+  }
+
+  .ace361AttributesBody .ace29StatGroupHead{
+    padding:7px 8px!important;
+    font-size:7.2px!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow{
+    padding:5px 8px!important;
+    font-size:7.3px!important;
+  }
+
+  .ace361AttributesBody .ace29StatRow b{
+    font-size:8.3px!important;
+  }
+}
+
+/* Tablet/mobile keep their existing responsive scrolling behaviour where
+   a full desktop-style layout physically cannot fit in one viewport. */
+</style>
+
+<script id="ace-b21-36-2-editor-profile-fix-runtime">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.2";
+  window.ACE_PLAYER_EDITOR_VERIFY_LOOP_FIXED=true;
+  window.ACE_PLAYER_PROFILE_DESKTOP_NO_SCROLL=true;
+  window.ACE_PLAYER_PROFILE_FULLSCREEN_READABILITY=true;
+})();
+</script>
+<!-- /ACE B21.36.2 — EDITOR CRASH FIX + NON-SCROLL DESKTOP PROFILE -->
 
 </body>
 </html>
