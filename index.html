@@ -43820,6 +43820,457 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 </script>
 <!-- /ACE B21.31.12 — REAL CARD SNAPSHOT SHARE -->
 
+
+<!-- ACE B21.31.13 — SHARE FUNCTION REMOVED -->
+<style id="ace-b21-31-13-share-removed-style">
+/* Share Card has been intentionally removed. */
+.ace31ShareBtn,
+#ace31ShareOverlay,
+#ace31CaptureRoot,
+.ace31ShareOverlay,
+.ace31CleanShare{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+</style>
+
+<script id="ace-b21-31-13-share-removed-runtime">
+(function(){
+  "use strict";
+
+  function removeShareUI(){
+    try{
+      document.querySelectorAll(".ace31ShareBtn").forEach(el=>el.remove());
+      document.querySelector("#ace31ShareOverlay")?.remove();
+      document.querySelector("#ace31CaptureRoot")?.remove();
+      document.body.classList.remove("ace31ShareOpen");
+    }catch(_){}
+  }
+
+  /* Disable any remaining programmatic entry point. */
+  window.ace31SharePlayerCard=function(){
+    return false;
+  };
+
+  /* Older B21.31 wrappers may try to re-insert SHARE CARD whenever
+     a player profile is opened. Remove it immediately if they do. */
+  const observer=new MutationObserver(()=>removeShareUI());
+  observer.observe(document.documentElement,{
+    childList:true,
+    subtree:true
+  });
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",removeShareUI,{once:true});
+  }else{
+    removeShareUI();
+  }
+
+  window.ACE_PROJECT_BUILD="B21.31.13";
+  window.ACE_SHARE_FUNCTION_REMOVED=true;
+})();
+</script>
+<!-- /ACE B21.31.13 — SHARE FUNCTION REMOVED -->
+
+
+<!-- ACE B21.32 — SCREENSHOT SHARE MODE -->
+<style id="ace-b21-32-screenshot-share-mode">
+/* =========================================================
+   SCREENSHOT SHARE MODE
+   Uses the real on-screen ACE card — no export/canvas/cloning.
+   ========================================================= */
+
+#vdsCardShowcaseOverlay .ace32ScreenshotShareBtn{
+  color:#fff!important;
+  border-color:rgba(191,145,247,.18)!important;
+  background:linear-gradient(135deg,#7541c9,#9d5ce9)!important;
+}
+
+.ace32ScreenshotGuide{
+  position:fixed;
+  inset:0;
+  z-index:53000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(3,5,9,.74);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.ace32ScreenshotGuide.show{
+  display:flex;
+}
+.ace32ScreenshotGuideCard{
+  width:min(430px,94vw);
+  padding:18px;
+  border-radius:18px;
+  border:1px solid rgba(184,139,241,.16);
+  background:
+    radial-gradient(circle at 10% 0%,rgba(125,71,201,.11),transparent 30%),
+    #090c13;
+  box-shadow:0 30px 70px rgba(0,0,0,.48);
+}
+.ace32ScreenshotGuideCard small{
+  display:block;
+  color:#9e70dc;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+.ace32ScreenshotGuideCard h3{
+  margin:6px 0 7px;
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.ace32ScreenshotGuideCard p{
+  margin:0;
+  color:#85808d;
+  font-size:7px;
+  line-height:1.55;
+}
+.ace32ScreenshotGuideSteps{
+  display:grid;
+  gap:7px;
+  margin-top:13px;
+}
+.ace32ScreenshotGuideStep{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr);
+  gap:9px;
+  align-items:center;
+  min-height:50px;
+  padding:8px 9px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.05);
+  background:#070a10;
+}
+.ace32ScreenshotGuideStep b{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  background:rgba(126,72,205,.15);
+  color:#c7a8ec;
+  font-size:9px;
+}
+.ace32ScreenshotGuideStep span{
+  color:#aaa4b1;
+  font-size:6.5px;
+  line-height:1.35;
+}
+.ace32ScreenshotGuideActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:14px;
+}
+.ace32ScreenshotGuideActions button{
+  min-height:43px;
+  border-radius:10px;
+  border:1px solid rgba(177,132,234,.10);
+  background:#080b12;
+  color:#85808d;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.07em;
+  cursor:pointer;
+}
+.ace32ScreenshotGuideActions .primary{
+  color:#fff;
+  border-color:rgba(193,148,248,.18);
+  background:linear-gradient(135deg,#7340c4,#9b5be9);
+}
+
+/* ---------- Screenshot mode itself ---------- */
+body.ace32ScreenshotMode{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay{
+  z-index:52900!important;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(119,68,192,.13),transparent 28%),
+    linear-gradient(180deg,#100a1a,#06080d 58%,#040609)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .vdsCardShowcaseInner{
+  width:100%!important;
+  max-width:none!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  margin:0!important;
+  padding:
+    calc(44px + env(safe-area-inset-top))
+    16px
+    calc(70px + env(safe-area-inset-bottom))!important;
+  overflow:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileTop,
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileInfo,
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileActions,
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .vdsCardShowcaseAtmosphere{
+  display:none!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileGrid{
+  display:block!important;
+  margin:0!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileCardColumn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:calc(100dvh - 150px)!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileCardStage{
+  width:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+
+body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+  width:min(74vw,340px)!important;
+  min-width:min(74vw,340px)!important;
+  max-width:340px!important;
+  margin:0 auto!important;
+  transform:none!important;
+  filter:drop-shadow(0 24px 36px rgba(0,0,0,.42))!important;
+}
+
+.ace32ScreenshotTopHint{
+  position:fixed;
+  top:calc(10px + env(safe-area-inset-top));
+  left:50%;
+  z-index:52950;
+  display:none;
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px);
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(190,145,247,.16);
+  background:rgba(7,9,14,.91);
+  color:#c7b2df;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.06em;
+  text-align:center;
+  white-space:nowrap;
+  box-shadow:0 10px 28px rgba(0,0,0,.26);
+}
+body.ace32ScreenshotMode .ace32ScreenshotTopHint{
+  display:block;
+}
+
+.ace32ScreenshotDone{
+  position:fixed;
+  left:50%;
+  bottom:calc(12px + env(safe-area-inset-bottom));
+  z-index:52950;
+  display:none;
+  min-width:160px;
+  min-height:46px;
+  transform:translateX(-50%);
+  border:1px solid rgba(190,145,247,.18);
+  border-radius:11px;
+  background:rgba(10,12,19,.94);
+  color:#d0b7ee;
+  font-size:6.5px;
+  font-weight:1000;
+  letter-spacing:.08em;
+  cursor:pointer;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+}
+body.ace32ScreenshotMode .ace32ScreenshotDone{
+  display:block;
+}
+
+body.ace32ScreenshotMode .aceMobileQuickNav,
+body.ace32ScreenshotMode .aceMobileMoreSheet{
+  display:none!important;
+}
+
+@media(max-width:760px){
+  .ace32ScreenshotGuide{
+    align-items:flex-end;
+    padding:0;
+  }
+  .ace32ScreenshotGuideCard{
+    width:100%;
+    border-radius:20px 20px 0 0;
+    padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+  }
+  .ace32ScreenshotGuideActions button{
+    min-height:48px;
+  }
+  body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:min(84vw,330px)!important;
+    min-width:min(84vw,330px)!important;
+    max-width:330px!important;
+  }
+}
+
+@media(min-width:761px){
+  body.ace32ScreenshotMode #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:340px!important;
+    min-width:340px!important;
+    max-width:340px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-32-screenshot-share-mode-runtime">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+
+  function ensureScreenshotUI(){
+    let guide=q("#ace32ScreenshotGuide");
+    if(!guide){
+      guide=document.createElement("div");
+      guide.id="ace32ScreenshotGuide";
+      guide.className="ace32ScreenshotGuide";
+      guide.setAttribute("aria-hidden","true");
+      guide.innerHTML=`
+        <div class="ace32ScreenshotGuideCard" role="dialog" aria-modal="true" aria-label="Screenshot share">
+          <small>SHARE CARD</small>
+          <h3>Use a screenshot.</h3>
+          <p>The cleanest way to share your ACE card is to screenshot the real card directly. No export, no recreation, no layout changes.</p>
+
+          <div class="ace32ScreenshotGuideSteps">
+            <div class="ace32ScreenshotGuideStep"><b>1</b><span>Tap <strong>OPEN SCREENSHOT MODE</strong> below.</span></div>
+            <div class="ace32ScreenshotGuideStep"><b>2</b><span>Use your phone's normal screenshot shortcut — usually the side/power button plus a volume button.</span></div>
+            <div class="ace32ScreenshotGuideStep"><b>3</b><span>Tap <strong>DONE</strong> when you've taken the screenshot.</span></div>
+          </div>
+
+          <div class="ace32ScreenshotGuideActions">
+            <button type="button" data-ace32-guide-close>CANCEL</button>
+            <button type="button" class="primary" data-ace32-start>OPEN SCREENSHOT MODE</button>
+          </div>
+        </div>`;
+      document.body.appendChild(guide);
+
+      guide.addEventListener("click",e=>{
+        if(e.target===guide)closeGuide();
+      });
+    }
+
+    if(!q("#ace32ScreenshotTopHint")){
+      const hint=document.createElement("div");
+      hint.id="ace32ScreenshotTopHint";
+      hint.className="ace32ScreenshotTopHint";
+      hint.textContent="SCREENSHOT MODE · TAKE YOUR SCREENSHOT NOW";
+      document.body.appendChild(hint);
+    }
+
+    if(!q("#ace32ScreenshotDone")){
+      const done=document.createElement("button");
+      done.id="ace32ScreenshotDone";
+      done.className="ace32ScreenshotDone";
+      done.type="button";
+      done.textContent="DONE";
+      document.body.appendChild(done);
+    }
+  }
+
+  function openGuide(){
+    ensureScreenshotUI();
+    const guide=q("#ace32ScreenshotGuide");
+    guide?.classList.add("show");
+    guide?.setAttribute("aria-hidden","false");
+  }
+
+  function closeGuide(){
+    const guide=q("#ace32ScreenshotGuide");
+    guide?.classList.remove("show");
+    guide?.setAttribute("aria-hidden","true");
+  }
+
+  function startScreenshotMode(){
+    closeGuide();
+    document.body.classList.add("ace32ScreenshotMode");
+    navigator.vibrate?.(12);
+  }
+
+  function stopScreenshotMode(){
+    document.body.classList.remove("ace32ScreenshotMode");
+  }
+
+  function addButton(){
+    /* B21.31.13 removes the old broken Share Card button.
+       Add a fresh screenshot-based share button instead. */
+    const actions=q("#vdsCardShowcaseOverlay .ace29ProfileActions");
+    if(!actions||actions.querySelector(".ace32ScreenshotShareBtn"))return;
+
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="ace32ScreenshotShareBtn";
+    btn.textContent="SHARE / SCREENSHOT";
+    btn.addEventListener("click",openGuide);
+    actions.insertAdjacentElement("afterbegin",btn);
+  }
+
+  document.addEventListener("click",e=>{
+    if(e.target.closest?.("[data-ace32-guide-close]")){
+      closeGuide();
+      return;
+    }
+    if(e.target.closest?.("[data-ace32-start]")){
+      startScreenshotMode();
+      return;
+    }
+    if(e.target.closest?.("#ace32ScreenshotDone")){
+      stopScreenshotMode();
+      return;
+    }
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){
+      closeGuide();
+      stopScreenshotMode();
+    }
+  });
+
+  /* The profile is rendered dynamically, so watch only for the actions area. */
+  const observer=new MutationObserver(()=>{
+    if(q("#vdsCardShowcaseOverlay.show .ace29ProfileActions")){
+      addButton();
+    }
+    if(!q("#vdsCardShowcaseOverlay.show")){
+      stopScreenshotMode();
+      closeGuide();
+    }
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+
+  ensureScreenshotUI();
+  setTimeout(addButton,0);
+
+  window.ACE_PROJECT_BUILD="B21.32";
+  window.ACE_SCREENSHOT_SHARE_MODE=true;
+})();
+</script>
+<!-- /ACE B21.32 — SCREENSHOT SHARE MODE -->
+
 </body>
 </html>
 
