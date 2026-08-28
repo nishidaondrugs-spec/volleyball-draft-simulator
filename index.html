@@ -41042,9 +41042,12 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
               </div>
             </div>
 
-            <div class="ace29ProfilePanel">
-              <h3>FULL ATTRIBUTES</h3>
-              <div class="ace29StatGroups">
+            <div class="ace29ProfilePanel ace36AttributesPanel">
+              <button class="ace36AttributesToggle" type="button" aria-expanded="false">
+                <span>FULL ATTRIBUTES</span>
+                <b>VIEW ALL ATTRIBUTES ↓</b>
+              </button>
+              <div class="ace29StatGroups ace36AttributesBody" hidden>
                 ${statGroup("ATTACK",cats.attacking,[
                   ["Attack Creativity",p.creativity],["Hitting Accuracy",p.accuracy],["Hitting Power",p.hittingPower]
                 ])}
@@ -45408,6 +45411,552 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.35.10 — ROOT CAUSE LOGIN FIX -->
+
+
+<!-- ACE B21.36 — DESKTOP READABILITY + LAYOUT POLISH -->
+<style id="ace-b21-36-desktop-readability-style">
+/* =========================================================
+   B21.36
+   DESKTOP READABILITY + LAYOUT POLISH
+
+   UI ONLY:
+   - no auth
+   - no Supabase
+   - no economy
+   - no pack logic
+   - no LIVE backend
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   HOME / UT — FIX THE ACTUAL DESKTOP GRID BUG
+   B21.35.2 moved support cards into .ace352SupportRail.
+   That rail was never assigned a desktop grid span, so it sat
+   in column 1 and stacked its children vertically.
+   --------------------------------------------------------- */
+@media(min-width:761px){
+  #home .ace35HomePulse,
+  #ultimate .ace35UTDeck{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+
+  #home .ace35HomePulse>.ace35PulseCard.primary,
+  #ultimate .ace35UTDeck>.ace35UTDeckCard.next{
+    grid-column:1 / -1!important;
+  }
+
+  #home .ace35HomePulse>.ace352SupportRail,
+  #ultimate .ace35UTDeck>.ace352SupportRail{
+    grid-column:1 / -1!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+
+  #home .ace352SupportRail>.ace35PulseCard,
+  #ultimate .ace352SupportRail>.ace35UTDeckCard{
+    width:100%!important;
+    min-width:0!important;
+    min-height:112px!important;
+    padding:15px 16px!important;
+  }
+
+  /* Hero stays important, but doesn't need to be an enormous billboard. */
+  #home .ace35PulseCard.primary,
+  #ultimate .ace35UTDeckCard.next{
+    min-height:124px!important;
+    padding:18px 20px!important;
+  }
+
+  #home .ace35PulseCard.primary .ace35PulseValue,
+  #ultimate .ace35UTDeckCard.next strong{
+    font-size:24px!important;
+    line-height:1.02!important;
+  }
+
+  #home .ace35PulseCard.primary .ace35PulseMeta,
+  #ultimate .ace35UTDeckCard.next small{
+    font-size:9px!important;
+    line-height:1.4!important;
+  }
+
+  .ace352HeroCTA{
+    min-height:31px!important;
+    padding:0 11px!important;
+    font-size:7px!important;
+  }
+
+  /* Supporting cards: readable at normal laptop distance. */
+  #home .ace352SupportRail .ace35PulseKicker,
+  #ultimate .ace352SupportRail .ace35DeckTop span{
+    font-size:7.5px!important;
+    letter-spacing:.13em!important;
+  }
+
+  #home .ace352SupportRail .ace35PulseIcon,
+  #ultimate .ace352SupportRail .ace35DeckTop i{
+    width:27px!important;
+    height:27px!important;
+    font-size:11px!important;
+  }
+
+  #home .ace352SupportRail .ace35PulseValue,
+  #ultimate .ace352SupportRail .ace35UTDeckCard strong{
+    margin-top:9px!important;
+    font-size:18px!important;
+    line-height:1.08!important;
+  }
+
+  #home .ace352SupportRail .ace35PulseMeta,
+  #ultimate .ace352SupportRail .ace35UTDeckCard small{
+    display:block!important;
+    margin-top:6px!important;
+    font-size:8px!important;
+    line-height:1.4!important;
+  }
+
+  #home .ace352SupportRail .ace35PulseBadge,
+  #ultimate .ace352SupportRail .ace35DeckTag{
+    margin-top:9px!important;
+    padding:5px 7px!important;
+    font-size:6.3px!important;
+  }
+
+  #home .ace352SupportRail .ace35PulseArrow{
+    right:14px!important;
+    bottom:12px!important;
+    font-size:16px!important;
+  }
+
+  #ultimate .ace352SupportRail .ace35DeckProgress{
+    left:16px!important;
+    right:16px!important;
+    bottom:11px!important;
+    height:4px!important;
+  }
+
+  /* -------------------------------------------------------
+     LIVE ACE PULLS
+     Keep it ambient, but not microscopic.
+     ------------------------------------------------------- */
+  .ace351LivePulls{
+    padding:13px 14px!important;
+    border-radius:14px!important;
+  }
+
+  .ace351LiveHead{
+    margin-bottom:10px!important;
+  }
+
+  .ace351LiveTitle b{
+    font-size:8px!important;
+    letter-spacing:.11em!important;
+  }
+
+  .ace351LiveTitle span{
+    display:inline!important;
+    font-size:6.5px!important;
+    opacity:.7!important;
+  }
+
+  .ace351LiveHead>small{
+    font-size:6.5px!important;
+  }
+
+  .ace351LiveRail{
+    gap:9px!important;
+  }
+
+  .ace351Pull,
+  #home .ace351Pull{
+    flex:0 0 calc((100% - 18px)/3)!important;
+    min-width:0!important;
+    min-height:86px!important;
+    grid-template-columns:57px minmax(0,1fr) auto!important;
+    gap:10px!important;
+    padding:10px!important;
+    border-radius:11px!important;
+  }
+
+  .ace351PullPhoto{
+    width:57px!important;
+    height:66px!important;
+    border-radius:8px!important;
+  }
+
+  .ace351PullCopy small{
+    font-size:6.4px!important;
+    line-height:1.25!important;
+  }
+
+  .ace351PullCopy small b{
+    font-size:7px!important;
+  }
+
+  .ace351PullCopy strong{
+    margin-top:4px!important;
+    font-size:12.5px!important;
+    line-height:1.1!important;
+  }
+
+  .ace351PullCopy span{
+    margin-top:4px!important;
+    font-size:6.5px!important;
+  }
+
+  .ace351PullRating b{
+    font-size:20px!important;
+  }
+
+  .ace351PullRating span{
+    font-size:6px!important;
+  }
+}
+
+/* Use the monitor, don't stretch into nonsense on ultrawide screens. */
+@media(min-width:1200px){
+  #home .ace35HomePulse,
+  #home .ace351LivePulls,
+  #ultimate .ace35UTDeck,
+  #ultimate .ace351LivePulls{
+    width:min(100%,1380px)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+}
+
+/* ---------------------------------------------------------
+   PLAYER PROFILE — DESKTOP INFORMATION HIERARCHY
+   --------------------------------------------------------- */
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    width:min(1320px,94vw)!important;
+    max-height:min(900px,92dvh)!important;
+    padding:20px!important;
+  }
+
+  .ace29ProfileTop{
+    gap:20px!important;
+    padding-bottom:17px!important;
+  }
+
+  .ace29ProfileKicker{
+    font-size:8px!important;
+  }
+
+  .ace29ProfileTop h2{
+    margin-top:6px!important;
+    font-size:38px!important;
+  }
+
+  .ace29ProfileTop p{
+    max-width:670px!important;
+    font-size:9px!important;
+    line-height:1.5!important;
+  }
+
+  .ace29ProfileBadge{
+    padding:7px 10px!important;
+    font-size:7px!important;
+  }
+
+  .ace29ProfileGrid{
+    grid-template-columns:350px minmax(0,1fr)!important;
+    gap:18px!important;
+    margin-top:17px!important;
+  }
+
+  .ace29ProfileCardStage{
+    min-height:455px!important;
+    padding:18px!important;
+  }
+
+  .ace29ProfileCardStage .fifaPlayerCard{
+    width:270px!important;
+    min-width:270px!important;
+    transform:scale(1.03)!important;
+  }
+
+  .ace29ProfileActions{
+    gap:8px!important;
+  }
+
+  .ace29ProfileActions button{
+    min-height:46px!important;
+    padding:0 11px!important;
+    font-size:7px!important;
+  }
+
+  .ace29ProfileInfo{
+    gap:11px!important;
+  }
+
+  .ace29ProfilePanel{
+    padding:15px!important;
+    border-radius:14px!important;
+  }
+
+  .ace29ProfilePanel h3{
+    font-size:7.5px!important;
+  }
+
+  .ace29ProfileMetrics{
+    gap:8px!important;
+    margin-top:10px!important;
+  }
+
+  .ace29ProfileMetric{
+    padding:11px!important;
+  }
+
+  .ace29ProfileMetric span{
+    font-size:6.7px!important;
+  }
+
+  .ace29ProfileMetric b{
+    margin-top:5px!important;
+    font-size:20px!important;
+  }
+
+  /* Inline serve/status values were hard-coded at 11px. */
+  .ace29ProfileMetric b[style]{
+    font-size:14px!important;
+    line-height:1.2!important;
+  }
+
+  .ace29PositionGrid{
+    gap:7px!important;
+    margin-top:10px!important;
+  }
+
+  .ace29PositionGrid>div{
+    padding:11px 6px!important;
+  }
+
+  .ace29PositionGrid span{
+    font-size:6.8px!important;
+  }
+
+  .ace29PositionGrid b{
+    margin-top:4px!important;
+    font-size:22px!important;
+  }
+
+  .ace29PositionGrid small{
+    min-height:10px!important;
+    margin-top:3px!important;
+    font-size:5.5px!important;
+  }
+
+  .ace29ProfileTwo{
+    gap:11px!important;
+  }
+
+  .ace29Playstyles{
+    gap:8px!important;
+    margin-top:10px!important;
+  }
+
+  .ace29Playstyle{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:10px!important;
+    padding:10px!important;
+  }
+
+  .ace29PlaystyleIcon{
+    width:32px!important;
+    height:32px!important;
+    font-size:13px!important;
+  }
+
+  .ace29Playstyle b{
+    font-size:8.5px!important;
+  }
+
+  .ace29Playstyle p{
+    margin-top:4px!important;
+    font-size:7px!important;
+    line-height:1.45!important;
+  }
+
+  /* Full attributes are optional detail now. */
+  .ace36AttributesPanel{
+    padding:0!important;
+    overflow:hidden!important;
+  }
+
+  .ace36AttributesToggle{
+    appearance:none;
+    width:100%;
+    min-height:52px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:0 15px;
+    border:0;
+    background:transparent;
+    color:#8c8494;
+    cursor:pointer;
+    text-align:left;
+  }
+
+  .ace36AttributesToggle span{
+    font-size:7.5px;
+    font-weight:1000;
+    letter-spacing:.15em;
+  }
+
+  .ace36AttributesToggle b{
+    color:#a97ae8;
+    font-size:7px;
+    font-weight:1000;
+    letter-spacing:.08em;
+  }
+
+  .ace36AttributesToggle:hover{
+    background:rgba(142,82,218,.055);
+  }
+
+  .ace36AttributesBody{
+    margin:0!important;
+    padding:0 15px 15px!important;
+  }
+
+  .ace36AttributesBody[hidden]{
+    display:none!important;
+  }
+
+  .ace29StatGroups{
+    gap:10px!important;
+  }
+
+  .ace29StatGroupHead{
+    padding:9px 10px!important;
+    font-size:6.8px!important;
+  }
+
+  .ace29StatRow{
+    padding:7px 10px!important;
+    font-size:7px!important;
+  }
+
+  .ace29StatRow b{
+    font-size:7.6px!important;
+  }
+}
+
+/* Tablet profile stays readable without becoming gigantic. */
+@media(min-width:701px) and (max-width:900px){
+  .ace29ProfileKicker{font-size:7px!important}
+  .ace29ProfileTop p{font-size:8px!important}
+  .ace29ProfilePanel h3{font-size:7px!important}
+  .ace29ProfileMetric span{font-size:6px!important}
+  .ace29ProfileMetric b{font-size:18px!important}
+  .ace29PositionGrid span{font-size:6px!important}
+  .ace29StatRow{font-size:6.5px!important}
+  .ace29StatRow b{font-size:7px!important}
+
+  .ace36AttributesToggle{
+    appearance:none;
+    width:100%;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 12px;
+    border:0;
+    background:transparent;
+    color:#8c8494;
+  }
+  .ace36AttributesToggle span,
+  .ace36AttributesToggle b{
+    font-size:6.5px;
+    font-weight:1000;
+  }
+  .ace36AttributesBody[hidden]{display:none!important}
+}
+
+/* Mobile keeps the existing compact layout, only make the attributes control usable. */
+@media(max-width:700px){
+  .ace36AttributesPanel{
+    padding:0!important;
+    overflow:hidden!important;
+  }
+
+  .ace36AttributesToggle{
+    appearance:none;
+    width:100%;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:0 12px;
+    border:0;
+    background:transparent;
+    color:#8c8494;
+  }
+
+  .ace36AttributesToggle span{
+    font-size:6px;
+    font-weight:1000;
+    letter-spacing:.12em;
+  }
+
+  .ace36AttributesToggle b{
+    color:#a97ae8;
+    font-size:5.7px;
+    font-weight:1000;
+  }
+
+  .ace36AttributesBody{
+    padding:0 12px 12px!important;
+  }
+
+  .ace36AttributesBody[hidden]{
+    display:none!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-desktop-readability-runtime">
+(function(){
+  "use strict";
+
+  /* Event delegation only; no MutationObserver / boot work. */
+  document.addEventListener("click",event=>{
+    const toggle=event.target.closest?.(".ace36AttributesToggle");
+    if(!toggle)return;
+
+    const panel=toggle.closest(".ace36AttributesPanel");
+    const body=panel?.querySelector(".ace36AttributesBody");
+    if(!body)return;
+
+    const opening=body.hasAttribute("hidden");
+    if(opening)body.removeAttribute("hidden");
+    else body.setAttribute("hidden","");
+
+    toggle.setAttribute("aria-expanded",String(opening));
+
+    const label=toggle.querySelector("b");
+    if(label){
+      label.textContent=opening
+        ? "HIDE ATTRIBUTES ↑"
+        : "VIEW ALL ATTRIBUTES ↓";
+    }
+  });
+
+  window.ACE_PROJECT_BUILD="B21.36";
+  window.ACE_DESKTOP_READABILITY_POLISH=true;
+})();
+</script>
+<!-- /ACE B21.36 — DESKTOP READABILITY + LAYOUT POLISH -->
 
 </body>
 </html>
