@@ -26127,15 +26127,31 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
 */
 
 
-/* THE ACE PROJECT B10.0 Stage 1B.2 — critical account-gate boot */
+/* THE ACE PROJECT B21.35.4 — resilient account-gate boot */
 (function aceBootAccountGate(){
-  const start=()=>setTimeout(()=>{
-    if(typeof vdsInitAccountGate==="function")vdsInitAccountGate();
-    else console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
-  },40);
+  let started=false;
+  const start=()=>{
+    if(started)return;
+    started=true;
+    setTimeout(()=>{
+      if(typeof vdsInitAccountGate==="function"){
+        Promise.resolve(vdsInitAccountGate()).catch(error=>{
+          console.error("ACE account gate init failed",error);
+          try{vdsShowAccountGate("Could not check your ACE account. Refresh and try again.","error")}catch(_){}
+        });
+      }else{
+        console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
+      }
+    },40);
+  };
 
-  if(document.readyState==="complete")start();
-  else window.addEventListener("load",start,{once:true});
+  /* Do not wait for every image/CDN to fire window.load.
+     The auth client only needs the DOM + Supabase script. */
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",start,{once:true});
+  }else{
+    start();
+  }
 })();
 
 </script>
@@ -45088,6 +45104,9 @@ body.ace34ShareOpen{
   let loginBusy=false;
   let dailyClaimBusy=false;
   let renderQueued=false;
+  let lastRewardRenderSignature="";
+  let rewardObserver=null;
+  let rewardStartupTimer=null;
 
   const LOGIN_REWARDS=[
     {day:1,label:"100 ◉",sub:"COINS"},
@@ -45166,6 +45185,7 @@ body.ace34ShareOpen{
         total_claims:0,
         last_reward:{}
       };
+      lastRewardRenderSignature="";
       scheduleRender();
       return loginCache;
     }catch(error){
@@ -45245,10 +45265,44 @@ body.ace34ShareOpen{
     return loop;
   }
 
+  function rewardRenderSignature(){
+    const d=vdsDailyProgressCache||{};
+    return JSON.stringify({
+      permanent:!!vdsHasPermanentAccount?.(),
+      uid:String(vdsAccountSession?.user?.id||""),
+      daily:[
+        !!d.play_one_rewarded,
+        !!d.win_one_rewarded,
+        !!d.play_three_rewarded,
+        !!d.first_win_rewarded,
+        !!d.completion_pack_claimed
+      ],
+      login:[
+        Number(loginCache?.cycle_day||0),
+        String(loginCache?.last_claim_date||""),
+        Number(loginCache?.total_claims||0)
+      ],
+      packs:[count("bronze"),count("silver"),count("gold")],
+      busy:[loginBusy,dailyClaimBusy]
+    });
+  }
+
   function render(){
     renderQueued=false;
+
+    /* Reward UI is account-only. Never compete with the auth gate. */
+    if(!vdsHasPermanentAccount?.() || !vdsAccountSession?.user?.id)return;
+
     const loop=ensureRewardLoop();
     if(!loop)return;
+
+    const signature=rewardRenderSignature();
+    if(signature===lastRewardRenderSignature){
+      patchDashboard();
+      patchPackStore();
+      return;
+    }
+    lastRewardRenderSignature=signature;
 
     const d=vdsDailyProgressCache||{};
     const complete=dailyCompletedCount();
@@ -45334,6 +45388,7 @@ body.ace34ShareOpen{
           ...(vdsDailyProgressCache||{}),
           completion_pack_claimed:true
         };
+        lastRewardRenderSignature="";
         syncProfileFromReward(data);
         try{
           aceNotify?.({
@@ -45377,6 +45432,7 @@ body.ace34ShareOpen{
           gold_packs:Number(data?.gold_pack_reward||0)
         }
       };
+      lastRewardRenderSignature="";
 
       const bits=[];
       if(Number(data?.coin_reward||0)>0)bits.push(`+${Number(data.coin_reward).toLocaleString()} coins`);
@@ -45462,29 +45518,33 @@ body.ace34ShareOpen{
   }
 
   function patchDashboard(){
+    if(!vdsHasPermanentAccount?.())return;
+
     const free=bestFreePack();
     const total=totalFree();
+
+    const setTextIfChanged=(el,text)=>{
+      if(el && el.textContent!==String(text))el.textContent=String(text);
+    };
+    const toggleClass=(el,name,on)=>{
+      if(el && el.classList.contains(name)!==!!on)el.classList.toggle(name,!!on);
+    };
 
     document.querySelectorAll("[data-ace35-route='packs']").forEach(card=>{
       if(!total)return;
       const value=card.querySelector(".ace35PulseValue, strong");
       const meta=card.querySelector(".ace35PulseMeta, small");
       const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
+      const secondary=!card.classList.contains("primary")&&!card.classList.contains("next");
 
-      if(value && !card.classList.contains("primary") && !card.classList.contains("next")){
-        value.textContent=`${total} FREE PACK${total===1?"":"S"}`;
-      }
-      if(meta && !card.classList.contains("primary") && !card.classList.contains("next")){
-        meta.textContent=`${free.kind} reward pack${free.count===1?"":"s"} available now.`;
-      }
-      if(badge && !card.classList.contains("primary") && !card.classList.contains("next")){
-        badge.textContent="REWARD INVENTORY";
-        badge.classList.add("hot");
+      if(secondary){
+        setTextIfChanged(value,`${total} FREE PACK${total===1?"":"S"}`);
+        if(free)setTextIfChanged(meta,`${free.kind} reward pack${free.count===1?"":"s"} available now.`);
+        setTextIfChanged(badge,"REWARD INVENTORY");
+        toggleClass(badge,"hot",true);
       }
     });
 
-    /* Daily completion/login attention lives on Missions rather than adding
-       another Home card. */
     const loginReady=!!loginCache && !loginClaimedToday();
     const silverReady=allDailiesDone() && !vdsDailyProgressCache?.completion_pack_claimed;
 
@@ -45492,15 +45552,13 @@ body.ace34ShareOpen{
       if(!(loginReady||silverReady))return;
       const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
       if(badge){
-        badge.textContent=silverReady?"SILVER PACK READY":"LOGIN REWARD READY";
-        badge.classList.add("reward");
+        setTextIfChanged(badge,silverReady?"SILVER PACK READY":"LOGIN REWARD READY");
+        toggleClass(badge,"reward",true);
       }
     });
 
-    q("#ultimate .vdsUTHubTab[data-ut-target='missions']")?.classList.toggle(
-      "ace35Attention",
-      loginReady||silverReady
-    );
+    const missionsTab=q("#ultimate .vdsUTHubTab[data-ut-target='missions']");
+    toggleClass(missionsTab,"ace35Attention",loginReady||silverReady);
   }
 
   /* Refresh login state when account/progression refreshes. */
@@ -45516,32 +45574,64 @@ body.ace34ShareOpen{
     try{window.vdsLoadDailyProgress=wrapped}catch(_){}
   }
 
-  const observer=new MutationObserver(()=>{
-    if(q("#ultimate [data-ut-instance='missions'].active")||q("#vdsUTPackShowcase")){
-      scheduleRender();
-    }else{
-      patchDashboard();
+  function rewardUIRelevant(){
+    if(!vdsHasPermanentAccount?.() || !vdsAccountSession?.user?.id)return false;
+    return !!(
+      q("#ultimate [data-ut-instance='missions'].active") ||
+      q("#vdsUTPackShowcase") ||
+      q("#home.active") ||
+      q("#ultimate.active")
+    );
+  }
+
+  function startRewardRuntime(){
+    if(rewardObserver)return;
+
+    /* The auth gate has priority. If the session is not ready yet, try again
+       later without touching the DOM. */
+    if(!vdsHasPermanentAccount?.() || !vdsAccountSession?.user?.id){
+      clearTimeout(rewardStartupTimer);
+      rewardStartupTimer=setTimeout(startRewardRuntime,450);
+      return;
     }
-  });
-  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+
+    loadLogin();
+    lastRewardRenderSignature="";
+    scheduleRender();
+
+    /* Observe structural changes only. Do NOT observe class/text mutations:
+       that was the B21.35.3 feedback loop that could stall account boot. */
+    rewardObserver=new MutationObserver(()=>{
+      if(!rewardUIRelevant())return;
+      scheduleRender();
+    });
+    rewardObserver.observe(document.body,{
+      childList:true,
+      subtree:true
+    });
+  }
 
   document.addEventListener("click",e=>{
     if(e.target.closest?.("[data-ut-nav='missions'],[data-ace35-route='missions'],[data-ut-nav='packs'],[data-ace35-route='packs']")){
       setTimeout(()=>{
-        loadLogin();
-        scheduleRender();
+        if(vdsHasPermanentAccount?.()){
+          loadLogin();
+          lastRewardRenderSignature="";
+          scheduleRender();
+        }
       },90);
     }
   });
 
-  setTimeout(()=>{
-    loadLogin();
-    scheduleRender();
-  },300);
-  setTimeout(()=>{
-    loadLogin();
-    scheduleRender();
-  },1400);
+  /* Start only after DOM readiness, and then wait for a permanent account.
+     No reward code gets to mutate the page while ACE is checking auth. */
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>{
+      rewardStartupTimer=setTimeout(startRewardRuntime,600);
+    },{once:true});
+  }else{
+    rewardStartupTimer=setTimeout(startRewardRuntime,600);
+  }
 
   window.ace353LoadLogin=loadLogin;
   window.ace353RenderRewards=scheduleRender;
@@ -45550,6 +45640,16 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.35.3 — DAILY LOGIN + PACK REWARDS -->
+
+
+<!-- ACE B21.35.4 — LOGIN BOOT HOTFIX -->
+<script id="ace-b21-35-4-login-hotfix-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.35.4";
+  window.ACE_LOGIN_BOOT_HOTFIX=true;
+})();
+</script>
+<!-- /ACE B21.35.4 — LOGIN BOOT HOTFIX -->
 
 </body>
 </html>
