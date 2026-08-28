@@ -41813,6 +41813,9 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   let ace31Player=null;
   let ace31Canvas=null;
   let ace31RenderToken=0;
+  let ace31PreparedBlob=null;
+  let ace31PreparedFile=null;
+  let ace31PreparedKey="";
 
   function isFollower(p){
     return /^follower_spinner_/i.test(String(p?.tendencies?.source||""));
@@ -41931,6 +41934,43 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     el.textContent=text||"";
   }
 
+  function setShareReady(ready){
+    const btn=q("#ace31NativeShare");
+    if(!btn)return;
+    btn.disabled=!ready;
+    btn.textContent=ready?"SHARE IMAGE":"PREPARING IMAGE…";
+  }
+
+  function preparedShareKey(p,format,theme){
+    return [
+      String(p?.cloudId||p?.name||""),
+      String(p?.photo||""),
+      String(p?.finalRating||""),
+      String(p?.attackPlaystyle||""),
+      String(p?.defensePlaystyle||""),
+      String(p?.serveType||""),
+      String(format||"story"),
+      String(theme||"ace")
+    ].join("|");
+  }
+
+  function prepareBlobFromCanvas(canvas,p,format,theme){
+    return new Promise(resolve=>{
+      try{
+        canvas.toBlob(blob=>{
+          if(!blob){resolve(null);return}
+          const filename=`ace-${safeFilename(p?.name)}-card.png`;
+          ace31PreparedBlob=blob;
+          ace31PreparedFile=new File([blob],filename,{type:"image/png"});
+          ace31PreparedKey=preparedShareKey(p,format,theme);
+          resolve(blob);
+        },"image/png",.96);
+      }catch(_){
+        resolve(null);
+      }
+    });
+  }
+
   function openShare(p){
     if(!p)return;
     ace31Player=p;
@@ -41943,6 +41983,10 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden","false");
     document.body.classList.add("ace31ShareOpen");
+    ace31PreparedBlob=null;
+    ace31PreparedFile=null;
+    ace31PreparedKey="";
+    setShareReady(false);
     setStatus("");
     renderCurrent();
   }
@@ -42151,17 +42195,33 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
         const ctx=canvas.getContext("2d");
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.drawImage(rendered,0,0);
+
+        const blob=await prepareBlobFromCanvas(canvas,p,format,theme);
+        if(blob){
+          setShareReady(true);
+        }else{
+          setShareReady(false);
+        }
       }catch(error){
         console.error("ACE share capture failed",error);
+        setShareReady(false);
       }
     }
 
-    setStatus("Preview ready.","ok");
+    if(ace31PreparedBlob){
+      setStatus("Preview ready · tap SHARE IMAGE.","ok");
+    }else{
+      setStatus("Preview ready. PNG capture is still preparing…","");
+    }
   }
   function renderCurrent(){
     if(!ace31Player)return;
     const format=q("#ace31ShareFormat")?.value||"story";
     const theme=q("#ace31ShareTheme")?.value||"ace";
+    ace31PreparedBlob=null;
+    ace31PreparedFile=null;
+    ace31PreparedKey="";
+    setShareReady(false);
     setStatus("Rendering…");
     renderShareCanvas(ace31Player,format,theme);
   }
@@ -42231,30 +42291,61 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   async function nativeShare(){
     if(!ace31Player)return;
 
-    setStatus("Preparing share…");
-    try{
-      const blob=await canvasBlob();
-      const file=new File([blob],`ace-${safeFilename(ace31Player.name)}-card.png`,{type:"image/png"});
+    const format=q("#ace31ShareFormat")?.value||"story";
+    const theme=q("#ace31ShareTheme")?.value||"ace";
+    const expectedKey=preparedShareKey(ace31Player,format,theme);
 
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+    /* The image is pre-generated BEFORE the tap. This is important on
+       iOS/Safari because Web Share must be called while the original
+       user activation is still valid. */
+    const file=(ace31PreparedKey===expectedKey)?ace31PreparedFile:null;
+
+    if(file && navigator.share){
+      try{
+        const canShareFiles=typeof navigator.canShare!=="function"
+          ? true
+          : navigator.canShare({files:[file]});
+
+        if(canShareFiles){
+          /* No asynchronous work before this call. */
+          await navigator.share({
+            files:[file],
+            title:`${ace31Player.name} · The ACE Project`,
+            text:caption()
+          });
+          setStatus("Shared.","ok");
+          return;
+        }
+      }catch(error){
+        if(error?.name==="AbortError"){
+          setStatus("Share cancelled.");
+          return;
+        }
+        console.warn("ACE image share failed; trying fallback",error);
+      }
+    }
+
+    /* Some browsers support Web Share but not file attachments. */
+    if(navigator.share){
+      try{
         await navigator.share({
           title:`${ace31Player.name} · The ACE Project`,
-          text:caption(),
-          files:[file]
+          text:caption()
         });
-        setStatus("Shared.","ok");
+        setStatus("Your phone shared the caption. Use SAVE PNG if you also want the card image.","ok");
         return;
+      }catch(error){
+        if(error?.name==="AbortError"){
+          setStatus("Share cancelled.");
+          return;
+        }
       }
-
-      setStatus("Native image sharing is not available in this browser. Saving the PNG instead.","");
-      await savePng();
-    }catch(error){
-      if(error?.name==="AbortError"){
-        setStatus("Share cancelled.");
-        return;
-      }
-      setStatus("Share failed: "+(error?.message||error),"bad");
     }
+
+    /* Final fallback: keep the card image usable even on browsers with
+       no Web Share API at all. */
+    setStatus("Native sharing is not supported here. Saving the PNG instead…","");
+    await savePng();
   }
 
   /* Add SHARE CARD to the B21.29 player profile after it renders. */
@@ -43538,6 +43629,34 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 })();
 </script>
 <!-- /ACE B21.31.8 — SHARE PLAYSTYLE BOXES -->
+
+
+<!-- ACE B21.31.9 — MOBILE SHARE FIX -->
+<style id="ace-b21-31-9-mobile-share-fix">
+.ace31ShareActions .native:disabled{
+  opacity:.52!important;
+  cursor:wait!important;
+  filter:saturate(.55);
+}
+@media(max-width:760px){
+  .ace31ShareActions .native{
+    grid-column:1/-1;
+    min-height:52px!important;
+    font-size:7px!important;
+  }
+  .ace31ShareActions{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+</style>
+
+<script id="ace-b21-31-9-build-tag">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.31.9";
+  window.ACE_MOBILE_SHARE_FIX=true;
+})();
+</script>
+<!-- /ACE B21.31.9 — MOBILE SHARE FIX -->
 
 </body>
 </html>
