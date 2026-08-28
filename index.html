@@ -41839,91 +41839,68 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   }
 
   function ensureOverlay(){
-    let overlay=q("#ace31ShareOverlay");
-    if(!overlay){
-      overlay=document.createElement("div");
-      overlay.id="ace31ShareOverlay";
-      overlay.className="ace31ShareOverlay";
-      overlay.setAttribute("aria-hidden","true");
-      overlay.innerHTML=`
-        <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
-          <div class="ace31SharePreview">
-            <div id="ace31SharePreviewViewport" class="ace31SharePreviewViewport">
-              <div id="ace31ShareLiveStage" class="ace31ShareLiveStage ace31FormatStory">
-                <div class="ace31CaptureBrand">
-                  <b>THE ACE PROJECT</b>
-                  <span>VOLLEYBALL ULTIMATE TEAM</span>
-                </div>
-                <div id="ace31ShareLiveCard" class="ace31ShareLiveCard"></div>
-                <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
-              </div>
-            </div>
-            <canvas id="ace31ShareCanvas" width="1080" height="1920" hidden></canvas>
+    /* Remove any older share overlay markup from previous patch generations.
+       We want one clean share UI only. */
+    const existing=q("#ace31ShareOverlay");
+    if(existing) existing.remove();
+    const existingRoot=q("#ace31CaptureRoot");
+    if(existingRoot) existingRoot.remove();
+
+    const overlay=document.createElement("div");
+    overlay.id="ace31ShareOverlay";
+    overlay.className="ace31ShareOverlay ace31CleanShare";
+    overlay.setAttribute("aria-hidden","true");
+    overlay.innerHTML=`
+      <div class="ace31ShareModal" role="dialog" aria-modal="true" aria-label="Share your ACE card">
+        <div class="ace31SharePreview ace31CleanPreview">
+          <canvas id="ace31ShareCanvas" width="1080" height="1920"></canvas>
+        </div>
+        <div class="ace31SharePanel">
+          <small>THE ACE PROJECT · SOCIAL CARD</small>
+          <h2>Share your card.</h2>
+          <p>This version captures the exact real card first, then builds the story graphic from that snapshot. The preview and export use the same canvas.</p>
+
+          <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
+
+          <div class="ace31ShareOptions">
+            <label class="ace31ShareOption">
+              <span>FORMAT</span>
+              <select id="ace31ShareFormat">
+                <option value="story">Story · 9:16</option>
+                <option value="square">Square · 1:1</option>
+              </select>
+            </label>
+            <label class="ace31ShareOption">
+              <span>BACKGROUND</span>
+              <select id="ace31ShareTheme">
+                <option value="ace">ACE Purple</option>
+                <option value="dark">Dark Arena</option>
+                <option value="gold">Gold Spotlight</option>
+              </select>
+            </label>
           </div>
-          <div class="ace31SharePanel">
-            <small>THE ACE PROJECT · SOCIAL CARD</small>
-            <h2>Share your card.</h2>
-            <p>This now reuses the live ACE card directly. The share view shows the real card itself rather than a redrawn approximation.</p>
 
-            <div class="ace31ShareIdentity" id="ace31ShareIdentity"></div>
-
-            <div class="ace31ShareOptions">
-              <label class="ace31ShareOption">
-                <span>FORMAT</span>
-                <select id="ace31ShareFormat">
-                  <option value="story">Story · 9:16</option>
-                  <option value="square">Square · 1:1</option>
-                </select>
-              </label>
-              <label class="ace31ShareOption">
-                <span>BACKGROUND</span>
-                <select id="ace31ShareTheme">
-                  <option value="ace">ACE Purple</option>
-                  <option value="dark">Dark Arena</option>
-                  <option value="gold">Gold Spotlight</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="ace31ShareActions">
-              <button type="button" class="native" id="ace31NativeShare">SHARE</button>
-              <button type="button" class="primary" id="ace31SavePng">SAVE PNG</button>
-              <button type="button" id="ace31CopyText">COPY CAPTION</button>
-              <button type="button" id="ace31Close">CLOSE</button>
-            </div>
-            <div id="ace31ShareStatus" class="ace31ShareStatus"></div>
+          <div class="ace31ShareActions">
+            <button type="button" class="native" id="ace31NativeShare">PREPARING IMAGE…</button>
+            <button type="button" class="primary" id="ace31SavePng">SAVE PNG</button>
+            <button type="button" id="ace31CopyText">COPY CAPTION</button>
+            <button type="button" id="ace31Close">CLOSE</button>
           </div>
-        </div>`;
-      document.body.appendChild(overlay);
+          <div id="ace31ShareStatus" class="ace31ShareStatus"></div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
 
-      q("#ace31Close")?.addEventListener("click",closeShare);
-      q("#ace31SavePng")?.addEventListener("click",savePng);
-      q("#ace31NativeShare")?.addEventListener("click",nativeShare);
-      q("#ace31CopyText")?.addEventListener("click",copyCaption);
-      q("#ace31ShareFormat")?.addEventListener("change",renderCurrent);
-      q("#ace31ShareTheme")?.addEventListener("change",renderCurrent);
+    q("#ace31Close")?.addEventListener("click",closeShare);
+    q("#ace31SavePng")?.addEventListener("click",savePng);
+    q("#ace31NativeShare")?.addEventListener("click",nativeShare);
+    q("#ace31CopyText")?.addEventListener("click",copyCaption);
+    q("#ace31ShareFormat")?.addEventListener("change",renderCurrent);
+    q("#ace31ShareTheme")?.addEventListener("change",renderCurrent);
 
-      overlay.addEventListener("click",e=>{
-        if(e.target===overlay)closeShare();
-      });
-    }
-
-    let captureRoot=q("#ace31CaptureRoot");
-    if(!captureRoot){
-      captureRoot=document.createElement("div");
-      captureRoot.id="ace31CaptureRoot";
-      captureRoot.setAttribute("aria-hidden","true");
-      captureRoot.innerHTML=`
-        <div id="ace31CaptureScene" class="ace31CaptureScene ace31FormatStory">
-          <div class="ace31CaptureBrand">
-            <b>THE ACE PROJECT</b>
-            <span>VOLLEYBALL ULTIMATE TEAM</span>
-          </div>
-          <div id="ace31RealCardCapture" class="ace31RealCardCapture"></div>
-          <div class="ace31CaptureFooter">YOUR CARD. YOUR COURT.</div>
-        </div>`;
-      document.body.appendChild(captureRoot);
-    }
+    overlay.addEventListener("click",e=>{
+      if(e.target===overlay)closeShare();
+    });
 
     ace31Canvas=q("#ace31ShareCanvas");
     return overlay;
@@ -41937,22 +41914,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
   }
 
   function ace31SceneSize(format){
-    return format==="square"
-      ? {w:1080,h:1080}
-      : {w:1080,h:1920};
-  }
-
-  function updateSharePreviewScale(format){
-    const viewport=q("#ace31SharePreviewViewport");
-    const stage=q("#ace31ShareLiveStage");
-    if(!viewport||!stage)return;
-
-    const scene=ace31SceneSize(format);
-    const viewportWidth=viewport.clientWidth||355;
-    const scale=viewportWidth/scene.w;
-
-    viewport.style.aspectRatio = format==="square" ? "1 / 1" : "9 / 16";
-    stage.style.setProperty("--ace31-preview-scale", String(scale));
+    return format==="square" ? {w:1080,h:1080} : {w:1080,h:1920};
   }
 
   function setShareReady(ready){
@@ -42008,7 +41970,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     ace31PreparedFile=null;
     ace31PreparedKey="";
     setShareReady(false);
-    setStatus("");
+    setStatus("Rendering…");
     renderCurrent();
   }
 
@@ -42028,25 +41990,6 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     ctx.arcTo(x,y+h,x,y,rr);
     ctx.arcTo(x,y,x+w,y,rr);
     ctx.closePath();
-  }
-
-  function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines=3){
-    const words=String(text||"").split(/\s+/);
-    const lines=[];
-    let line="";
-    for(const word of words){
-      const test=line?line+" "+word:word;
-      if(ctx.measureText(test).width>maxWidth && line){
-        lines.push(line);
-        line=word;
-        if(lines.length>=maxLines-1)break;
-      }else{
-        line=test;
-      }
-    }
-    if(line && lines.length<maxLines)lines.push(line);
-    lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));
-    return lines.length;
   }
 
   function loadPhoto(url){
@@ -42092,8 +42035,8 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     ctx.fillStyle=g;
     ctx.fillRect(0,0,w,h);
 
-    const rg=ctx.createRadialGradient(w*.5,h*.32,20,w*.5,h*.32,w*.72);
-    rg.addColorStop(0,theme==="gold"?"rgba(218,178,83,.27)":"rgba(145,79,230,.29)");
+    const rg=ctx.createRadialGradient(w*.5,h*.22,20,w*.5,h*.22,w*.72);
+    rg.addColorStop(0,theme==="gold"?"rgba(218,178,83,.26)":"rgba(145,79,230,.26)");
     rg.addColorStop(.52,theme==="dark"?"rgba(88,106,140,.08)":"rgba(95,55,155,.08)");
     rg.addColorStop(1,"rgba(0,0,0,0)");
     ctx.fillStyle=rg;
@@ -42110,54 +42053,36 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     }
   }
 
-  function drawPlaystyle(ctx,style,x,y,w,accent){
-    roundedRect(ctx,x,y,w,70,18);
-    ctx.fillStyle="rgba(7,9,14,.78)";
-    ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,.07)";
-    ctx.stroke();
-
-    ctx.fillStyle=accent;
-    ctx.font="900 22px Inter, system-ui, sans-serif";
-    ctx.textAlign="left";
-    ctx.fillText(String(style?.name||"NO PLAYSTYLE").replace(/^[^A-Za-z0-9]+\s*/,"").toUpperCase(),x+20,y+29);
-
-    ctx.fillStyle="rgba(232,228,237,.60)";
-    ctx.font="700 14px Inter, system-ui, sans-serif";
-    const desc=String(style?.desc||"");
-    wrapText(ctx,desc,x+20,y+51,w-40,17,1);
-  }
-
-  async function renderShareCanvas(p,format,theme){
-    const token=++ace31RenderToken;
-    const liveStage=q("#ace31ShareLiveStage");
-    const liveHolder=q("#ace31ShareLiveCard");
-    const viewport=q("#ace31SharePreviewViewport");
-    const canvas=ace31Canvas||q("#ace31ShareCanvas");
-    if(!liveStage||!liveHolder||!viewport||!canvas)return;
-
-    function themeBg(name){
-      if(name==="gold"){
-        return "radial-gradient(circle at 50% 16%,rgba(206,164,63,.18),transparent 28%),linear-gradient(180deg,#231909 0%,#0d0c0b 56%,#06080d 100%)";
-      }
-      if(name==="dark"){
-        return "radial-gradient(circle at 50% 16%,rgba(94,121,153,.14),transparent 28%),linear-gradient(180deg,#10151d 0%,#0a0c11 56%,#05070a 100%)";
-      }
-      return "radial-gradient(circle at 50% 16%,rgba(126,74,205,.18),transparent 28%),linear-gradient(180deg,#140c22 0%,#0b0b13 56%,#06080d 100%)";
+  async function captureRealCardBitmap(p){
+    const source=q("#vdsCardShowcaseOverlay .vdsCardShowcaseCardFrame .fifaPlayerCard");
+    if(source && window.html2canvas){
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      return await window.html2canvas(source,{
+        backgroundColor:null,
+        scale:2,
+        useCORS:true,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:8000,
+        removeContainer:true
+      });
     }
 
-    function buildCardNodeFromSource(){
-      const source=q("#vdsCardShowcaseOverlay .vdsCardShowcaseCardFrame .fifaPlayerCard");
-      if(source){
-        return source.cloneNode(true);
-      }
-      const tier=typeof cardTier==="function"?cardTier(p):"gold";
-      const role=p.position&&p.position!=="-"?p.position:"POS";
-      const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
-      const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
-      const wrapper=document.createElement("div");
-      wrapper.className=`fifaPlayerCard ${tier}${posClass}`;
-      wrapper.innerHTML=typeof vdsMasterPlayerCardHTML==="function"
+    /* Fallback only if the live showcase card is unavailable. */
+    const sandbox=document.createElement("div");
+    sandbox.style.position="fixed";
+    sandbox.style.left="-20000px";
+    sandbox.style.top="0";
+    sandbox.style.width="420px";
+    sandbox.style.opacity="0";
+    sandbox.style.pointerEvents="none";
+    sandbox.style.zIndex="-1";
+    const tier=typeof cardTier==="function"?cardTier(p):"gold";
+    const role=p.position&&p.position!=="-"?p.position:"POS";
+    const rating=typeof mainPositionRating==="function"?mainPositionRating(p):Math.round(Number(p.finalRating||0));
+    const posClass=["OH","OP","M","S","L"].includes(String(role).toUpperCase())?` pos-${String(role).toUpperCase()}`:"";
+    sandbox.innerHTML=`<div class="vdsCardShowcaseCardFrame"><div class="fifaPlayerCard ${tier}${posClass}">${
+      typeof vdsMasterPlayerCardHTML==="function"
         ? vdsMasterPlayerCardHTML(p,{
             role,
             rating,
@@ -42165,21 +42090,11 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
             tierLabel:typeof cardTierLabel==="function"?cardTierLabel(p):"CARD",
             footer:""
           })
-        : "";
-      return wrapper;
-    }
-
-    liveStage.classList.toggle("ace31FormatStory",format!=="square");
-    liveStage.classList.toggle("ace31FormatSquare",format==="square");
-    viewport.classList.toggle("ace31FormatSquare",format==="square");
-    viewport.classList.toggle("ace31FormatStory",format!=="square");
-    liveStage.style.background=themeBg(theme);
-
-    liveHolder.innerHTML="";
-    const liveCard=buildCardNodeFromSource();
-    liveHolder.appendChild(liveCard);
-
-    const imgs=[...liveHolder.querySelectorAll("img")];
+        : ""
+    }</div></div>`;
+    document.body.appendChild(sandbox);
+    const node=sandbox.querySelector(".fifaPlayerCard");
+    const imgs=[...sandbox.querySelectorAll("img")];
     await Promise.all(imgs.map(img=>{
       if(img.complete)return Promise.resolve();
       return new Promise(resolve=>{
@@ -42188,58 +42103,89 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
         setTimeout(resolve,2600);
       });
     }));
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const snap=window.html2canvas ? await window.html2canvas(node,{
+      backgroundColor:null,
+      scale:2,
+      useCORS:true,
+      allowTaint:false,
+      logging:false,
+      imageTimeout:8000,
+      removeContainer:true
+    }) : null;
+    sandbox.remove();
+    return snap;
+  }
+
+  async function renderShareCanvas(p,format,theme){
+    const token=++ace31RenderToken;
+    const canvas=ace31Canvas||q("#ace31ShareCanvas");
+    if(!canvas||!p)return;
 
     const scene=ace31SceneSize(format);
-    liveStage.style.width=scene.w+"px";
-    liveStage.style.height=scene.h+"px";
     canvas.width=scene.w;
     canvas.height=scene.h;
+    const ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,scene.w,scene.h);
 
-    updateSharePreviewScale(format);
-    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    drawBackground(ctx,scene.w,scene.h,theme);
+
+    /* Brand text */
+    ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,.98)";
+    ctx.font="1000 32px Inter, system-ui, sans-serif";
+    ctx.fillText("THE ACE PROJECT",scene.w/2,68);
+    ctx.fillStyle="rgba(255,255,255,.56)";
+    ctx.font="900 13px Inter, system-ui, sans-serif";
+    ctx.fillText("VOLLEYBALL ULTIMATE TEAM",scene.w/2,92);
+
+    let cardBitmap=null;
+    try{
+      cardBitmap=await captureRealCardBitmap(p);
+    }catch(error){
+      console.error("ACE share source-card capture failed",error);
+    }
     if(token!==ace31RenderToken)return;
 
-    if(window.html2canvas){
-      try{
-        /* Capture the single master stage at its fixed pixel size.
-           The preview is only a scaled-down view of this same scene. */
-        const rendered=await window.html2canvas(liveStage,{
-          backgroundColor:null,
-          scale:1,
-          useCORS:true,
-          allowTaint:false,
-          logging:false,
-          imageTimeout:8000,
-          removeContainer:true,
-          width:scene.w,
-          height:scene.h,
-          windowWidth:scene.w,
-          windowHeight:scene.h
-        });
-        if(token!==ace31RenderToken)return;
-        const ctx=canvas.getContext("2d");
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.drawImage(rendered,0,0,scene.w,scene.h);
-
-        const blob=await prepareBlobFromCanvas(canvas,p,format,theme);
-        if(blob){
-          setShareReady(true);
-          setStatus("Preview ready · preview and export now use the same master scene.","ok");
-        }else{
-          setShareReady(false);
-          setStatus("Preview ready. PNG capture is still preparing…","");
-        }
-      }catch(error){
-        console.error("ACE share capture failed",error);
-        setShareReady(false);
-        setStatus("Share capture failed: "+(error?.message||error),"bad");
-      }
+    if(!cardBitmap){
+      ctx.fillStyle="rgba(255,255,255,.1)";
+      roundedRect(ctx,scene.w/2-250,scene.h/2-180,500,360,24);
+      ctx.fill();
+      ctx.fillStyle="rgba(255,255,255,.85)";
+      ctx.font="900 28px Inter, system-ui, sans-serif";
+      ctx.fillText("Could not capture the card.",scene.w/2,scene.h/2-8);
+      ctx.fillStyle="rgba(255,255,255,.56)";
+      ctx.font="800 18px Inter, system-ui, sans-serif";
+      ctx.fillText("Please reopen the player profile and try again.",scene.w/2,scene.h/2+28);
+      setShareReady(false);
+      setStatus("Could not capture the live card.","bad");
       return;
     }
 
-    setShareReady(false);
-    setStatus("Preview ready, but capture is unavailable on this browser.","");
+    /* Place the already-captured card image on the share poster. */
+    const aspect=cardBitmap.width/cardBitmap.height;
+    const targetW=format==="square" ? 780 : 830;
+    const targetH=targetW/aspect;
+    const x=(scene.w-targetW)/2;
+    const y=format==="square" ? 120 : 140;
+    ctx.drawImage(cardBitmap,x,y,targetW,targetH);
+
+    /* Footer */
+    ctx.fillStyle="rgba(255,255,255,.9)";
+    ctx.font="1000 22px Inter, system-ui, sans-serif";
+    ctx.fillText("YOUR CARD. YOUR COURT.",scene.w/2,scene.h-54);
+
+    const blob=await prepareBlobFromCanvas(canvas,p,format,theme);
+    if(token!==ace31RenderToken)return;
+    if(blob){
+      setShareReady(true);
+      setStatus("Preview ready · preview and export are now the same final canvas.","ok");
+    }else{
+      setShareReady(false);
+      setStatus("Preview rendered, but PNG preparation failed.","bad");
+    }
   }
+
   function renderCurrent(){
     if(!ace31Player)return;
     const format=q("#ace31ShareFormat")?.value||"story";
@@ -42249,36 +42195,17 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     ace31PreparedKey="";
     setShareReady(false);
     setStatus("Rendering…");
+    const cvs=q("#ace31ShareCanvas"); if(cvs) cvs.dataset.format=format;
     renderShareCanvas(ace31Player,format,theme);
   }
 
   async function canvasBlob(){
-    const liveStage=q("#ace31ShareLiveStage");
-    const format=q("#ace31ShareFormat")?.value||"story";
-    const scene=ace31SceneSize(format);
-
-    if(liveStage&&window.html2canvas){
-      const rendered=await window.html2canvas(liveStage,{
-        backgroundColor:null,
-        scale:1,
-        useCORS:true,
-        allowTaint:false,
-        logging:false,
-        imageTimeout:8000,
-        removeContainer:true,
-        width:scene.w,
-        height:scene.h,
-        windowWidth:scene.w,
-        windowHeight:scene.h
-      });
-      return await new Promise((resolve,reject)=>{
-        rendered.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
-      });
-    }
-
     return await new Promise((resolve,reject)=>{
       if(!ace31Canvas){reject(new Error("No share image available."));return}
-      ace31Canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Could not create PNG.")),"image/png",.96);
+      ace31Canvas.toBlob(blob=>{
+        if(blob) resolve(blob);
+        else reject(new Error("Could not create PNG."));
+      },"image/png",.96);
     });
   }
 
@@ -42328,10 +42255,6 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
     const format=q("#ace31ShareFormat")?.value||"story";
     const theme=q("#ace31ShareTheme")?.value||"ace";
     const expectedKey=preparedShareKey(ace31Player,format,theme);
-
-    /* The image is pre-generated BEFORE the tap. This is important on
-       iOS/Safari because Web Share must be called while the original
-       user activation is still valid. */
     const file=(ace31PreparedKey===expectedKey)?ace31PreparedFile:null;
 
     if(file && navigator.share){
@@ -42341,7 +42264,6 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
           : navigator.canShare({files:[file]});
 
         if(canShareFiles){
-          /* No asynchronous work before this call. */
           await navigator.share({
             files:[file],
             title:`${ace31Player.name} · The ACE Project`,
@@ -42359,7 +42281,6 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       }
     }
 
-    /* Some browsers support Web Share but not file attachments. */
     if(navigator.share){
       try{
         await navigator.share({
@@ -42376,8 +42297,6 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
       }
     }
 
-    /* Final fallback: keep the card image usable even on browsers with
-       no Web Share API at all. */
     setStatus("Native sharing is not supported here. Saving the PNG instead…","");
     await savePng();
   }
@@ -43857,6 +43776,49 @@ html,body{overflow-x:clip!important;overscroll-behavior-x:none!important;overscr
 })();
 </script>
 <!-- /ACE B21.31.11 — SINGLE MASTER SHARE SCENE -->
+
+
+<!-- ACE B21.31.12 — REAL CARD SNAPSHOT SHARE -->
+<style id="ace-b21-31-12-real-card-snapshot-share">
+/* Clean share UI that previews the actual final export canvas. */
+.ace31ShareOverlay.ace31CleanShare .ace31SharePreview{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.ace31ShareOverlay.ace31CleanShare .ace31SharePreview canvas{
+  display:block!important;
+  width:min(100%,360px)!important;
+  height:auto!important;
+  aspect-ratio:9 / 16;
+  border-radius:16px!important;
+  background:#05070c!important;
+  box-shadow:0 24px 50px rgba(0,0,0,.42)!important;
+}
+.ace31ShareOverlay.ace31CleanShare .ace31SharePreview canvas[data-format="square"]{
+  aspect-ratio:1 / 1;
+}
+@media(max-width:760px){
+  .ace31ShareOverlay.ace31CleanShare .ace31SharePreview canvas{
+    width:min(76vw,320px)!important;
+  }
+}
+.ace31ShareOverlay.ace31CleanShare .ace31ShareActions .native:disabled{
+  opacity:.52!important;
+  cursor:wait!important;
+  filter:saturate(.55);
+}
+</style>
+
+<script id="ace-b21-31-12-build-tag">
+(function(){
+  const originalRenderCurrent = window.renderCurrent;
+  window.ACE_PROJECT_BUILD="B21.31.12";
+  window.ACE_REAL_CARD_SNAPSHOT_SHARE=true;
+})();
+</script>
+<!-- /ACE B21.31.12 — REAL CARD SNAPSHOT SHARE -->
 
 </body>
 </html>
