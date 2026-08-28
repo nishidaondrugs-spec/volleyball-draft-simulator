@@ -7107,7 +7107,110 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 }
 </style>
 <meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
-<script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js" defer></script>
+<script id="ace-supabase-resilient-loader">
+(function(){
+  "use strict";
+
+  if(window.supabase?.createClient){
+    window.ACE_SUPABASE_READY=Promise.resolve(window.supabase);
+    window.aceEnsureSupabase=()=>window.ACE_SUPABASE_READY;
+    return;
+  }
+
+  const sources=[
+    "https://unpkg.com/@supabase/supabase-js@2.107.0/dist/umd/supabase.js",
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0/dist/umd/supabase.js"
+  ];
+
+  let settled=false;
+  let resolveReady,rejectReady;
+
+  window.ACE_SUPABASE_READY=new Promise((resolve,reject)=>{
+    resolveReady=resolve;
+    rejectReady=reject;
+  });
+
+  function markReady(){
+    if(settled)return false;
+    if(window.supabase?.createClient){
+      settled=true;
+      document.documentElement.dataset.aceSupabase="ready";
+      resolveReady(window.supabase);
+      window.dispatchEvent(new CustomEvent("ace:supabase-ready"));
+      return true;
+    }
+    return false;
+  }
+
+  function loadScript(index){
+    if(markReady())return;
+    if(index>=sources.length){
+      loadModuleFallback();
+      return;
+    }
+
+    const script=document.createElement("script");
+    let done=false;
+    const finish=(ok)=>{
+      if(done)return;
+      done=true;
+      clearTimeout(timer);
+      script.onload=null;
+      script.onerror=null;
+      if(ok && markReady())return;
+      try{script.remove()}catch(_){}
+      loadScript(index+1);
+    };
+
+    script.src=sources[index];
+    script.async=true;
+    script.crossOrigin="anonymous";
+    script.referrerPolicy="no-referrer";
+    script.onload=()=>finish(true);
+    script.onerror=()=>finish(false);
+
+    const timer=setTimeout(()=>finish(false),4500);
+    document.head.appendChild(script);
+  }
+
+  async function loadModuleFallback(){
+    if(markReady())return;
+    try{
+      const mod=await Promise.race([
+        import("https://esm.sh/@supabase/supabase-js@2.107.0?bundle"),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("ESM_TIMEOUT")),5500))
+      ]);
+      if(mod?.createClient){
+        window.supabase=mod;
+        markReady();
+        return;
+      }
+      throw new Error("SUPABASE_MODULE_INVALID");
+    }catch(error){
+      if(settled)return;
+      settled=true;
+      document.documentElement.dataset.aceSupabase="failed";
+      console.error("ACE could not load the Supabase browser SDK from any source.",error);
+      rejectReady(error instanceof Error?error:new Error("SUPABASE_SDK_UNAVAILABLE"));
+      window.dispatchEvent(new CustomEvent("ace:supabase-failed"));
+    }
+  }
+
+  window.aceEnsureSupabase=function(timeoutMs=16000){
+    if(window.supabase?.createClient)return Promise.resolve(window.supabase);
+    return Promise.race([
+      window.ACE_SUPABASE_READY,
+      new Promise((_,reject)=>setTimeout(
+        ()=>reject(new Error("SUPABASE_LOAD_TIMEOUT")),
+        Math.max(1000,Number(timeoutMs)||16000)
+      ))
+    ]);
+  };
+
+  setTimeout(()=>loadScript(0),0);
+})();
+</script>
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -7132,6 +7235,126 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
           <span class="vdsGoogleMark">G</span>
           <span>Continue with Google</span>
         </button>
+        <script id="ace-b21-35-8-early-google-auth">
+        (function(){
+          "use strict";
+
+          const SUPABASE_URL="https://vpkvjvyxadjzjbsvlqws.supabase.co";
+          const SUPABASE_KEY="sb_publishable_fNXCiKev7n2v40GF3TMUbg_9MoeG2qk";
+          let emergencyClient=null;
+          let busy=false;
+
+          function setStatus(text,isError){
+            const el=document.getElementById("vdsAuthStatus");
+            if(el){
+              el.textContent=text;
+              el.classList.toggle("error",!!isError);
+            }
+          }
+
+          function safeReturnUrl(){
+            if(location.protocol==="file:")return "";
+            try{
+              const url=new URL(location.href);
+              url.hash="";
+              for(const key of ["code","error","error_code","error_description"]){
+                url.searchParams.delete(key);
+              }
+              return url.toString();
+            }catch(_){
+              return "";
+            }
+          }
+
+          async function emergencyGoogleLogin(){
+            if(busy)return;
+
+            const btn=document.getElementById("vdsGoogleSignIn");
+            if(location.protocol==="file:"){
+              document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
+              setStatus("Google sign-in needs localhost or your deployed HTTPS website.",true);
+              return;
+            }
+
+            /*
+              If the normal ACE auth function has finished loading, hand over to
+              it. Otherwise this handler can start OAuth by itself.
+            */
+            if(typeof window.vdsSignInWithGoogle==="function"){
+              return window.vdsSignInWithGoogle();
+            }
+
+            busy=true;
+            if(btn)btn.disabled=true;
+            setStatus("Connecting securely to ACE…");
+
+            try{
+              if(!window.supabase?.createClient){
+                if(typeof window.aceEnsureSupabase!=="function"){
+                  throw new Error("ACE SDK loader has not initialised.");
+                }
+                await window.aceEnsureSupabase(16000);
+              }
+
+              if(!window.supabase?.createClient){
+                throw new Error("ACE account SDK is unavailable.");
+              }
+
+              if(!emergencyClient){
+                emergencyClient=window.supabase.createClient(
+                  SUPABASE_URL,
+                  SUPABASE_KEY,
+                  {
+                    auth:{
+                      storageKey:"vds-multiplayer-auth",
+                      persistSession:true,
+                      autoRefreshToken:true,
+                      detectSessionInUrl:true
+                    }
+                  }
+                );
+              }
+
+              const redirectTo=safeReturnUrl();
+              if(!redirectTo)throw new Error("ACE could not determine the login return URL.");
+
+              setStatus("Opening Google sign-in…");
+              const {error}=await emergencyClient.auth.signInWithOAuth({
+                provider:"google",
+                options:{
+                  redirectTo,
+                  scopes:"openid email profile",
+                  queryParams:{prompt:"select_account"}
+                }
+              });
+              if(error)throw error;
+            }catch(error){
+              console.error("ACE emergency Google login failed",error);
+              setStatus(
+                String(error?.message||error||"ACE sign-in could not start."),
+                true
+              );
+              busy=false;
+              if(btn)btn.disabled=false;
+            }
+          }
+
+          const btn=document.getElementById("vdsGoogleSignIn");
+          if(btn){
+            /* Explicitly rule out a stale CSS/pointer-event regression. */
+            btn.disabled=false;
+            btn.style.pointerEvents="auto";
+            btn.style.position="relative";
+            btn.style.zIndex="20";
+            btn.onclick=emergencyGoogleLogin;
+          }
+
+          /* The button is usable now, before player cards or game data load. */
+          setStatus("Ready. Continue with Google.");
+
+          window.ACE_EARLY_GOOGLE_LOGIN=emergencyGoogleLogin;
+        })();
+        </script>
 
         <div class="vdsSignInAuthMeta">
           <i class="vdsSignInSecureDot"></i>
@@ -8430,7 +8653,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 
 <div class="revealOverlay" id="revealOverlay"><div id="revealContent"></div></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>document.addEventListener("keydown",e=>{
   if(e.key==="Escape" && document.getElementById("vdsCardShowcaseOverlay")?.classList.contains("show")){
     closeVdsCardShowcase();
@@ -8533,13 +8756,21 @@ let storedPlayers = JSON.parse(safeStore.get("vballPlayers") || "null");
 const CLOUD_SUPABASE_URL="https://vpkvjvyxadjzjbsvlqws.supabase.co";
 const CLOUD_SUPABASE_KEY="sb_publishable_fNXCiKev7n2v40GF3TMUbg_9MoeG2qk";
 const CLOUD_ADMIN_UID="e9b02045-3b2e-43d3-b80b-c22c63bc6007";
-const cloudDb=window.supabase
-  ? window.supabase.createClient(CLOUD_SUPABASE_URL,CLOUD_SUPABASE_KEY,{
-      auth:{
-        detectSessionInUrl:false
-      }
-    })
-  : null;
+let cloudDb=null;
+
+function ensureCloudDb(){
+  if(cloudDb)return cloudDb;
+  if(!window.supabase?.createClient)return null;
+
+  cloudDb=window.supabase.createClient(CLOUD_SUPABASE_URL,CLOUD_SUPABASE_KEY,{
+    auth:{
+      detectSessionInUrl:false
+    }
+  });
+
+  try{window.cloudDb=cloudDb}catch(_){}
+  return cloudDb;
+}
 
 let cloudAdmin=false;
 let cloudLoaded=false;
@@ -8669,7 +8900,16 @@ async function detectCloudColumns(){
 }
 
 async function loadPlayersFromCloud(){
-  if(!cloudDb)return false;
+  if(!ensureCloudDb()){
+    try{await window.aceEnsureSupabase?.(14000);}catch(error){
+      console.warn("Cloud player database SDK unavailable",error);
+    }
+  }
+  if(!ensureCloudDb()){
+    const status=document.getElementById("cloudPlayerStatus");
+    if(status)status.textContent="Shared player database is temporarily unavailable.";
+    return false;
+  }
   await detectCloudColumns();
 
   const {data,error}=await cloudDb.from("players").select(CLOUD_PLAYER_SELECT).order("id");
@@ -8706,7 +8946,10 @@ async function loadPlayersFromCloud(){
 }
 
 async function refreshCloudSession(){
-  if(!cloudDb)return;
+  if(!ensureCloudDb()){
+    try{await window.aceEnsureSupabase?.(14000);}catch(_){}
+  }
+  if(!ensureCloudDb())return;
   const {data}=await cloudDb.auth.getSession();
   const user=data?.session?.user||null;
   cloudAdmin=!!user && user.id===CLOUD_ADMIN_UID;
@@ -8714,6 +8957,14 @@ async function refreshCloudSession(){
 }
 
 async function cloudAdminLogin(){
+  if(!ensureCloudDb()){
+    try{await window.aceEnsureSupabase?.(14000);}catch(_){}
+  }
+  if(!ensureCloudDb()){
+    const status=document.getElementById("adminLoginStatus");
+    if(status)status.textContent="Cloud SDK unavailable. Check your connection and try again.";
+    return;
+  }
   const email=document.getElementById("adminEmail").value.trim();
   const password=document.getElementById("adminPassword").value;
   const status=document.getElementById("adminLoginStatus");
@@ -17478,7 +17729,7 @@ async function vdsEnsureProfile(user){
 
   let {data,error}=await client
     .from("vds_profiles")
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .eq("id",user.id)
     .maybeSingle();
 
@@ -17493,7 +17744,7 @@ async function vdsEnsureProfile(user){
         display_name:String(google.displayName||"Manager").slice(0,40),
         avatar_url:google.avatar||null
       },{onConflict:"id"})
-      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+      .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
       .single();
 
     if(upsert.error){
@@ -17599,7 +17850,7 @@ async function vdsForceWalletSyncFromServer({rerender=false,quiet=true}={}){
   try{
     const {data,error}=await client
       .from("vds_profiles")
-      .select("coins,total_coins_earned,xp,manager_level,free_bronze_packs,free_silver_packs,free_gold_packs,matches_played,wins,losses,elo,win_streak,best_streak,updated_at")
+      .select("coins,total_coins_earned,xp,manager_level,free_gold_packs,matches_played,wins,losses,elo,win_streak,best_streak,updated_at")
       .eq("id",vdsAccountSession.user.id)
       .single();
 
@@ -17611,8 +17862,6 @@ async function vdsForceWalletSyncFromServer({rerender=false,quiet=true}={}){
       ...(vdsAccountProfile||{}),
       ...data,
       coins:Math.max(0,Number(data.coins||0)),
-      free_bronze_packs:Math.max(0,Math.floor(Number(data.free_bronze_packs||0))),
-      free_silver_packs:Math.max(0,Math.floor(Number(data.free_silver_packs||0))),
       free_gold_packs:Math.max(0,Math.floor(Number(data.free_gold_packs||0)))
     };
     vdsWalletLastHardSyncAt=Date.now();
@@ -17731,7 +17980,7 @@ async function vdsLoadDailyProgress(){
 
   const {data,error}=await client
     .from("vds_daily_progress")
-    .select("user_id,activity_date,matches_played,wins,play_one_rewarded,win_one_rewarded,play_three_rewarded,first_win_rewarded,completion_pack_claimed,coins_earned,updated_at")
+    .select("user_id,activity_date,matches_played,wins,play_one_rewarded,win_one_rewarded,play_three_rewarded,first_win_rewarded,coins_earned,updated_at")
     .eq("user_id",vdsAccountSession.user.id)
     .eq("activity_date",vdsUtcDateKey())
     .maybeSingle();
@@ -17747,7 +17996,6 @@ async function vdsLoadDailyProgress(){
     matches_played:0,wins:0,
     play_one_rewarded:false,win_one_rewarded:false,
     play_three_rewarded:false,first_win_rewarded:false,
-    completion_pack_claimed:false,
     coins_earned:0
   };
   vdsRenderDailyProgress();
@@ -17947,8 +18195,24 @@ async function vdsApplySignedInSession(session,{resumeRoom=true}={}){
 
 async function vdsSignInWithGoogle(){
   if(vdsAccountAuthBusy)return;
-  const client=ensureMultiplayerClient();
-  if(!client){vdsSetAuthStatus("Supabase did not load. Please refresh the page.","error");return;}
+
+  let client=ensureMultiplayerClient();
+  if(!client){
+    vdsSetAuthStatus("Connecting securely to ACE…");
+    try{
+      await window.aceEnsureSupabase?.(16000);
+    }catch(error){
+      console.error("ACE sign-in SDK unavailable",error);
+      vdsSetAuthStatus("ACE sign-in could not connect. Check your connection and tap Google again.","error");
+      return;
+    }
+    client=ensureMultiplayerClient();
+  }
+
+  if(!client){
+    vdsSetAuthStatus("ACE sign-in could not initialise. Tap Google again.","error");
+    return;
+  }
 
   if(location.protocol==="file:"){
     document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
@@ -18011,7 +18275,7 @@ async function vdsSaveProfile(){
     .from("vds_profiles")
     .update({display_name:display,username})
     .eq("id",vdsAccountSession.user.id)
-    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_bronze_packs,free_silver_packs,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
+    .select("id,username,display_name,avatar_url,matches_played,wins,losses,elo,win_streak,best_streak,coins,xp,manager_level,total_coins_earned,starter_club_claimed,welcome_pack_claimed,free_gold_packs,is_host_account,onboarding_complete,created_at,updated_at")
     .single();
 
   if(error){
@@ -18439,15 +18703,39 @@ function vdsHydrateSignInArtwork(){
 }
 
 async function vdsInitAccountGate(){
-  vdsHydrateSignInArtwork();
+  const btn=document.getElementById("vdsGoogleSignIn");
+  if(btn){
+    btn.onclick=vdsSignInWithGoogle;
+    btn.disabled=false;
+  }
 
-  const client=ensureMultiplayerClient();
-  if(!client){vdsShowAccountGate("Supabase did not load. Refresh the page to sign in.","error");return;}
+  vdsSetAuthStatus("Connecting to your ACE account…");
+
+  try{vdsHydrateSignInArtwork();}catch(error){
+    console.warn("ACE sign-in artwork could not hydrate",error);
+  }
+
+  let client=ensureMultiplayerClient();
+  if(!client){
+    try{
+      await window.aceEnsureSupabase?.(16000);
+    }catch(error){
+      console.error("ACE account SDK connection failed",error);
+      vdsShowAccountGate("ACE account service could not connect. Check your internet connection, then tap Google to retry.","error");
+      vdsSetAuthStatus("Could not connect to ACE account services. Google remains available to retry.","error");
+      if(btn)btn.disabled=false;
+      return;
+    }
+    client=ensureMultiplayerClient();
+  }
+
+  if(!client){
+    vdsShowAccountGate("ACE account service could not initialise. Tap Google to retry.","error");
+    if(btn)btn.disabled=false;
+    return;
+  }
 
   if(location.protocol==="file:")document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
-
-  const btn=document.getElementById("vdsGoogleSignIn");
-  if(btn)btn.onclick=vdsSignInWithGoogle;
 
   document.getElementById("vdsAccountOpenBtn")?.addEventListener("click",()=>{
     vdsUpdateAccountUI();
@@ -18460,7 +18748,32 @@ async function vdsInitAccountGate(){
   document.getElementById("vdsSaveProfileBtn")?.addEventListener("click",vdsSaveProfile);
   document.getElementById("vdsSignOutBtn")?.addEventListener("click",vdsSignOut);
 
-  let {data,error}=await client.auth.getSession();
+  /*
+    Never leave the entire gate hanging forever on a storage/auth lock.
+    The Google button is already wired above, so after the timeout the user can
+    sign in normally while Supabase finishes resolving in the background.
+  */
+  let data=null;
+  let error=null;
+  let sessionCheckTimedOut=false;
+
+  try{
+    const result=await Promise.race([
+      client.auth.getSession().then(value=>({kind:"session",value})),
+      new Promise(resolve=>setTimeout(()=>resolve({kind:"timeout"}),5000))
+    ]);
+
+    if(result?.kind==="timeout"){
+      sessionCheckTimedOut=true;
+      console.warn("ACE account session check timed out after 5 seconds.");
+    }else{
+      data=result?.value?.data||null;
+      error=result?.value?.error||null;
+    }
+  }catch(sessionError){
+    error=sessionError;
+  }
+
   if(error)console.warn("VDS account session check failed",error);
 
   let session=data?.session||null;
@@ -18476,6 +18789,11 @@ async function vdsInitAccountGate(){
     vdsShowAccountGate(location.protocol==="file:"
       ?"Run THE ACE PROJECT from localhost or HTTPS, then sign in with Google."
       :"Sign in with Google to play THE ACE PROJECT.");
+
+    if(sessionCheckTimedOut && location.protocol!=="file:"){
+      vdsSetAuthStatus("Ready to sign in. Player-card loading will continue separately.");
+      if(btn)btn.disabled=false;
+    }
   }
 
   if(!vdsAccountAuthSubscription){
@@ -22125,7 +22443,7 @@ async function openUltimatePack(packId){
 
   const isHostWallet=!!vdsAccountProfile?.is_host_account;
   const currentCoins=Math.max(0,Number(vdsAccountProfile?.coins||0));
-  const usingFreeGoldPack=(typeof vdsHasFreePack==='function'?vdsHasFreePack(packId):vdsHasFreeGoldPack(packId));
+  const usingFreeGoldPack=vdsHasFreeGoldPack(packId);
   if(!usingFreeGoldPack && !isHostWallet && currentCoins<pack.cost){
     alert(`Not enough ACE coins. ${pack.cost.toLocaleString()} coins required.`);
     return;
@@ -22139,7 +22457,7 @@ async function openUltimatePack(packId){
   openButtons.forEach(btn=>{
     btn.disabled=true;
     btn.dataset.oldText=btn.textContent;
-    btn.textContent=usingFreeGoldPack?`OPENING FREE ${String(packId).toUpperCase()} PACK…`:"OPENING 3 CARDS…";
+    btn.textContent=usingFreeGoldPack?"OPENING FREE GOLD PACK…":"OPENING 3 CARDS…";
   });
 
   let committed=false;
@@ -22154,8 +22472,6 @@ async function openUltimatePack(packId){
     if(entries.length!==3)throw new Error(`SERVER_PACK_CARD_COUNT_${entries.length}_OF_3`);
 
     const newBalance=Number(data?.coin_balance);
-    const freeBronzeRemaining=Number(data?.free_bronze_packs_remaining);
-    const freeSilverRemaining=Number(data?.free_silver_packs_remaining);
     const freeRemaining=Number(data?.free_gold_packs_remaining);
     const usedFreePack=data?.used_free_pack===true;
 
@@ -22163,12 +22479,9 @@ async function openUltimatePack(packId){
       vdsAccountProfile={...(vdsAccountProfile||{}),coins:newBalance};
       ultimateTeamState.coins=newBalance;
     }
-    vdsAccountProfile={
-      ...(vdsAccountProfile||{}),
-      ...(Number.isFinite(freeBronzeRemaining)?{free_bronze_packs:Math.max(0,Math.floor(freeBronzeRemaining))}:{}),
-      ...(Number.isFinite(freeSilverRemaining)?{free_silver_packs:Math.max(0,Math.floor(freeSilverRemaining))}:{}),
-      ...(Number.isFinite(freeRemaining)?{free_gold_packs:Math.max(0,Math.floor(freeRemaining))}:{})
-    };
+    if(Number.isFinite(freeRemaining)){
+      vdsAccountProfile={...(vdsAccountProfile||{}),free_gold_packs:Math.max(0,Math.floor(freeRemaining))};
+    }
 
     if(vdsAccountProfile?.is_host_account && !Number.isFinite(newBalance)){
       vdsSyncUltimateWalletFromProfile();
@@ -22181,7 +22494,7 @@ async function openUltimatePack(packId){
     vdsScheduleWalletVerification(240,{rerender:true});
 
     if(usedFreePack){
-      console.info(`Project ACE reward pack used: ${String(packId).toUpperCase()}.`);
+      console.info(`Project ACE gift pack used. ${vdsFreeGoldPackCount()} free Gold Pack(s) remaining.`);
     }
 
     // All three cards were committed atomically on Supabase. Pull the club
@@ -24683,6 +24996,11 @@ if(rosterStatus){
   try{
     const cloudStart=performance.now();
 
+    try{await window.aceEnsureSupabase?.(15000);}catch(error){
+      console.warn("ACE cloud-player SDK did not become ready",error);
+    }
+    ensureCloudDb();
+
     // B4.0 Stage 2: session lookup and public roster fetch do not depend
     // on each other, so start them together rather than serially.
     await Promise.all([
@@ -26127,15 +26445,48 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
 */
 
 
-/* THE ACE PROJECT B10.0 Stage 1B.2 — critical account-gate boot */
+/* THE ACE PROJECT B21.35.6 — ACCOUNT BOOT UNBLOCKED */
 (function aceBootAccountGate(){
-  const start=()=>setTimeout(()=>{
-    if(typeof vdsInitAccountGate==="function")vdsInitAccountGate();
-    else console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
-  },40);
+  let started=false;
 
-  if(document.readyState==="complete")start();
-  else window.addEventListener("load",start,{once:true});
+  const start=()=>{
+    if(started)return;
+    started=true;
+
+    setTimeout(()=>{
+      if(typeof vdsInitAccountGate==="function"){
+        Promise.resolve(vdsInitAccountGate()).catch(error=>{
+          console.error("ACE account gate could not initialise.",error);
+          try{
+            const btn=document.getElementById("vdsGoogleSignIn");
+            if(btn){
+              btn.disabled=false;
+              btn.onclick=vdsSignInWithGoogle;
+            }
+            vdsShowAccountGate("Sign in with Google to play THE ACE PROJECT.");
+            vdsSetAuthStatus("ACE account check was interrupted. Google sign-in is still available.");
+          }catch(_){}
+        });
+      }else{
+        console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
+      }
+    },20);
+  };
+
+  /*
+    CRITICAL:
+    Do not wait for window.load. window.load waits for images and other remote
+    resources. The sign-in artwork pulls remote player photos, so one slow or
+    failed image must never be allowed to block authentication.
+  */
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",start,{once:true});
+  }else{
+    start();
+  }
+
+  /* Independent failsafe in case another script prevents the normal event path. */
+  setTimeout(start,900);
 })();
 
 </script>
@@ -44759,258 +45110,146 @@ body.ace34ShareOpen{
 <!-- /ACE B21.35.2 — RESPONSIVE DECLUTTER -->
 
 
-<!-- ACE B21.35.3 — DAILY LOGIN + PACK REWARDS -->
-<style id="ace-b21-35-3-reward-loop-style">
-/* =========================================================
-   DAILY COMPLETION + LOGIN REWARDS
-   Kept compact to preserve the B21.35.2 hierarchy.
-   ========================================================= */
-
-.ace353RewardLoop{
+<!-- ACE B21.35.5 — SAFE REWARD REBUILD -->
+<style id="ace-b21-35-5-safe-rewards-style">
+/* Reward UI is deliberately contained inside Missions. */
+.ace355Rewards{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);
+  grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);
   gap:8px;
-  margin-top:9px;
+  margin:0 0 10px;
 }
-.ace353RewardPanel{
+.ace355Panel{
   min-width:0;
   padding:12px;
-  border:1px solid rgba(177,131,237,.09);
+  border:1px solid rgba(176,131,236,.09);
   border-radius:13px;
-  background:
-    radial-gradient(circle at 100% 0,rgba(124,70,201,.07),transparent 36%),
-    #080b12;
+  background:radial-gradient(circle at 100% 0,rgba(126,73,204,.07),transparent 38%),#080b12;
 }
-.ace353RewardHead{
+.ace355Head{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:10px;
+  gap:9px;
 }
-.ace353RewardHead span{
+.ace355Head small{
   display:block;
-  color:#806f91;
-  font-size:5.7px;
+  color:#806f92;
+  font-size:5.6px;
   font-weight:1000;
-  letter-spacing:.15em;
+  letter-spacing:.14em;
 }
-.ace353RewardHead b{
+.ace355Head b{
   display:block;
   margin-top:4px;
   color:#eee9f4;
   font-size:14px;
   line-height:1.05;
 }
-.ace353RewardHead em{
+.ace355Chip{
   display:inline-flex;
   align-items:center;
-  min-height:23px;
+  min-height:22px;
   padding:0 7px;
   border:1px solid rgba(255,255,255,.06);
   border-radius:999px;
+  color:#817a88;
   background:rgba(255,255,255,.025);
-  color:#847d8b;
   font-size:5px;
-  font-style:normal;
   font-weight:1000;
-  letter-spacing:.07em;
   white-space:nowrap;
 }
-.ace353RewardHead em.ready{
-  color:#a5e8b8;
-  border-color:rgba(90,204,128,.18);
-  background:rgba(34,110,59,.10);
+.ace355Chip.ready{
+  color:#9fe4b3;
+  border-color:rgba(84,202,124,.18);
+  background:rgba(31,103,55,.10);
 }
-
-.ace353DailyBonus{
-  position:relative;
+.ace355DailyRow{
   display:grid;
   grid-template-columns:52px minmax(0,1fr) auto;
-  gap:10px;
+  gap:9px;
   align-items:center;
-  margin-top:10px;
-  padding:10px;
+  margin-top:9px;
+  padding:9px;
   border:1px solid rgba(255,255,255,.045);
-  border-radius:11px;
+  border-radius:10px;
   background:#070a10;
 }
-.ace353PackArt{
-  position:relative;
-  width:52px;
-  height:67px;
+.ace355Silver{
+  width:52px;height:65px;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   clip-path:polygon(10% 0,90% 0,100% 10%,100% 90%,90% 100%,10% 100%,0 90%,0 10%);
-  border:1px solid rgba(216,226,236,.24);
-  background:
-    radial-gradient(circle at 50% 30%,rgba(255,255,255,.12),transparent 38%),
-    linear-gradient(145deg,#768491,#343d47 58%,#14191f);
+  background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.13),transparent 40%),linear-gradient(145deg,#7a8792,#333c45 58%,#14191e);
   color:#edf3f7;
-  box-shadow:0 10px 23px rgba(0,0,0,.25);
 }
-.ace353PackArt span{
-  font-size:5px;
-  font-weight:1000;
-  letter-spacing:.10em;
-}
-.ace353PackArt b{
-  margin-top:3px;
-  font-size:12px;
-  line-height:1;
-}
-.ace353DailyCopy b{
-  display:block;
-  color:#e7e2eb;
-  font-size:10px;
-}
-.ace353DailyCopy span{
-  display:block;
-  margin-top:4px;
-  color:#77717e;
-  font-size:5.8px;
-  line-height:1.35;
-}
-.ace353ClaimBtn{
+.ace355Silver span{font-size:5px;font-weight:1000;letter-spacing:.08em}
+.ace355Silver b{margin:3px 0;font-size:11px}
+.ace355Copy b{display:block;color:#e6e1ea;font-size:9.5px}
+.ace355Copy span{display:block;margin-top:4px;color:#746e7a;font-size:5.6px;line-height:1.35}
+.ace355Btn{
   min-height:34px;
   padding:0 9px;
-  border:1px solid rgba(190,146,247,.15);
+  border:1px solid rgba(190,144,247,.16);
   border-radius:8px;
-  background:linear-gradient(135deg,#7540c5,#9a59e6);
+  background:linear-gradient(135deg,#7440c5,#9959e6);
   color:#fff;
-  font-size:5.5px;
+  font-size:5.4px;
   font-weight:1000;
-  letter-spacing:.07em;
+  letter-spacing:.06em;
   cursor:pointer;
 }
-.ace353ClaimBtn:disabled{
+.ace355Btn:disabled{
+  opacity:.48;
   cursor:default;
-  opacity:.45;
-  background:#11141b;
   color:#77717f;
-  border-color:rgba(255,255,255,.055);
+  background:#10131a;
+  border-color:rgba(255,255,255,.05);
 }
-.ace353ClaimBtn.claimed{
-  opacity:1;
-  color:#85d9a0;
-  border-color:rgba(77,195,117,.14);
-  background:rgba(32,97,53,.11);
-}
-
-/* ---------- LOGIN 7-DAY TRACK ---------- */
-.ace353LoginDays{
+.ace355LoginDays{
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
-  gap:5px;
-  margin-top:10px;
+  gap:4px;
+  margin-top:9px;
 }
-.ace353LoginDay{
+.ace355Day{
   position:relative;
   min-width:0;
-  min-height:72px;
-  padding:7px 5px;
+  min-height:69px;
+  padding:7px 4px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.045);
   border-radius:9px;
   background:#070a10;
   text-align:center;
 }
-.ace353LoginDay>span{
-  display:block;
-  color:#625d69;
-  font-size:4.7px;
-  font-weight:1000;
-  letter-spacing:.10em;
-}
-.ace353LoginDay>b{
-  display:block;
-  margin-top:8px;
-  color:#c8c1cf;
-  font-size:8px;
-  line-height:1.05;
-}
-.ace353LoginDay>small{
-  display:block;
-  margin-top:4px;
-  color:#6f6876;
-  font-size:4.5px;
-  line-height:1.25;
-}
-.ace353LoginDay.done{
-  border-color:rgba(91,199,127,.12);
-  background:rgba(31,91,50,.08);
-}
-.ace353LoginDay.done::after{
-  content:"✓";
-  position:absolute;
-  right:5px;
-  top:4px;
-  color:#74d592;
-  font-size:6px;
-  font-weight:1000;
-}
-.ace353LoginDay.next{
-  border-color:rgba(184,130,248,.24);
-  background:
-    radial-gradient(circle at 50% 0,rgba(148,81,225,.12),transparent 55%),
-    #0a0b13;
-  box-shadow:0 0 20px rgba(125,67,204,.06);
-}
-.ace353LoginDay.gold{
-  border-color:rgba(224,187,71,.17);
-}
-.ace353LoginDay.gold>b{
-  color:#e9cf73;
-}
-.ace353LoginDay.bronze>b{
-  color:#d89a6d;
-}
-.ace353LoginActions{
+.ace355Day span{display:block;color:#615c67;font-size:4.5px;font-weight:1000}
+.ace355Day b{display:block;margin-top:8px;color:#c9c2cf;font-size:7.5px;line-height:1.05}
+.ace355Day small{display:block;margin-top:4px;color:#6d6673;font-size:4.2px;line-height:1.2}
+.ace355Day.done{border-color:rgba(84,194,120,.12);background:rgba(28,87,47,.08)}
+.ace355Day.done::after{content:"✓";position:absolute;right:4px;top:3px;color:#73d28f;font-size:5.5px;font-weight:1000}
+.ace355Day.next{border-color:rgba(184,132,247,.24);background:radial-gradient(circle at 50% 0,rgba(143,78,222,.12),transparent 58%),#090b13}
+.ace355Day.bronze b{color:#d49a72}
+.ace355Day.gold{border-color:rgba(222,185,66,.17)}
+.ace355Day.gold b{color:#e6cc71}
+.ace355LoginBottom{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:9px;
+  gap:8px;
   margin-top:8px;
 }
-.ace353LoginActions p{
-  margin:0;
-  color:#6f6876;
-  font-size:5.5px;
-  line-height:1.35;
-}
-.ace353LoginActions p b{
-  color:#a38abf;
-}
-.ace353LoginActions button{
-  min-width:112px;
-  min-height:34px;
-  padding:0 10px;
-  border:1px solid rgba(190,146,247,.16);
-  border-radius:8px;
-  background:linear-gradient(135deg,#7541c8,#9a59e7);
-  color:#fff;
-  font-size:5.5px;
-  font-weight:1000;
-  letter-spacing:.07em;
-  cursor:pointer;
-}
-.ace353LoginActions button:disabled{
-  opacity:.5;
-  cursor:default;
-  color:#7f7886;
-  background:#10131a;
-  border-color:rgba(255,255,255,.055);
-}
-
-/* ---------- PACK INVENTORY CHIPS ---------- */
-.ace353FreePackInventory{
+.ace355LoginBottom p{margin:0;color:#6e6874;font-size:5.4px;line-height:1.35}
+.ace355LoginBottom p b{color:#9d82bd}
+.ace355Inventory{
   display:flex;
   gap:5px;
   flex-wrap:wrap;
-  margin-top:7px;
+  margin-top:8px;
 }
-.ace353FreePackInventory span{
+.ace355Inventory span{
   display:inline-flex;
   align-items:center;
   min-height:20px;
@@ -45018,375 +45257,287 @@ body.ace34ShareOpen{
   border:1px solid rgba(255,255,255,.06);
   border-radius:999px;
   background:rgba(255,255,255,.025);
-  color:#7d7783;
-  font-size:4.9px;
+  font-size:4.8px;
   font-weight:1000;
-  letter-spacing:.06em;
 }
-.ace353FreePackInventory .bronze{color:#d09a78;border-color:rgba(201,135,91,.13)}
-.ace353FreePackInventory .silver{color:#ccd7df;border-color:rgba(194,208,219,.13)}
-.ace353FreePackInventory .gold{color:#e6cc72;border-color:rgba(221,184,61,.15)}
+.ace355Inventory .bronze{color:#d09b78}
+.ace355Inventory .silver{color:#ccd7df}
+.ace355Inventory .gold{color:#e7cd71}
 
 @media(max-width:850px){
-  .ace353RewardLoop{
-    grid-template-columns:1fr;
-  }
+  .ace355Rewards{grid-template-columns:1fr}
 }
 @media(max-width:760px){
-  .ace353RewardLoop{
-    gap:7px;
-    margin-top:7px;
-  }
-  .ace353RewardPanel{
-    padding:10px;
-  }
-  .ace353DailyBonus{
-    grid-template-columns:44px minmax(0,1fr);
-  }
-  .ace353PackArt{
-    width:44px;
-    height:58px;
-  }
-  .ace353ClaimBtn{
-    grid-column:1/-1;
-    width:100%;
-    min-height:42px;
-  }
-  .ace353LoginDays{
+  .ace355Panel{padding:10px}
+  .ace355DailyRow{grid-template-columns:44px minmax(0,1fr)}
+  .ace355Silver{width:44px;height:57px}
+  .ace355DailyRow .ace355Btn{grid-column:1/-1;width:100%;min-height:42px}
+  .ace355LoginDays{
     display:flex;
+    overflow-x:auto;
     gap:5px;
     margin-left:-2px;
     margin-right:-2px;
     padding:0 2px 4px;
-    overflow-x:auto;
     scroll-snap-type:x proximity;
     scrollbar-width:none;
   }
-  .ace353LoginDays::-webkit-scrollbar{display:none}
-  .ace353LoginDay{
-    flex:0 0 78px;
-    min-height:69px;
-    scroll-snap-align:start;
-  }
-  .ace353LoginActions{
-    align-items:stretch;
-    flex-direction:column;
-  }
-  .ace353LoginActions button{
-    width:100%;
-    min-height:43px;
-  }
+  .ace355LoginDays::-webkit-scrollbar{display:none}
+  .ace355Day{flex:0 0 78px;scroll-snap-align:start}
+  .ace355LoginBottom{align-items:stretch;flex-direction:column}
+  .ace355LoginBottom .ace355Btn{width:100%;min-height:42px}
 }
 </style>
 
-<script id="ace-b21-35-3-reward-loop-runtime">
+<script id="ace-b21-35-5-safe-rewards-runtime">
 (function(){
   "use strict";
 
+  let ace355State=null;
+  let ace355Busy=false;
+  let ace355Started=false;
+  let ace355PackBridgeInstalled=false;
+  let ace355OriginalFreeChecker=null;
+  let ace355OriginalOpenPack=null;
+  let ace355OriginalPackRenderer=null;
+  let ace355LastStatusFetch=0;
+
   const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
-  let loginCache=null;
-  let loginBusy=false;
-  let dailyClaimBusy=false;
-  let renderQueued=false;
 
   const LOGIN_REWARDS=[
-    {day:1,label:"100 ◉",sub:"COINS"},
-    {day:2,label:"150 ◉",sub:"COINS"},
-    {day:3,label:"200 ◉",sub:"COINS"},
-    {day:4,label:"250 ◉",sub:"COINS"},
-    {day:5,label:"300 ◉",sub:"COINS"},
-    {day:6,label:"BRONZE",sub:"+150 ◉",kind:"bronze"},
-    {day:7,label:"GOLD PACK",sub:"WEEKLY REWARD",kind:"gold"}
+    ["100 ◉","COINS",""],
+    ["150 ◉","COINS",""],
+    ["200 ◉","COINS",""],
+    ["250 ◉","COINS",""],
+    ["300 ◉","COINS",""],
+    ["BRONZE","+150 ◉","bronze"],
+    ["GOLD PACK","WEEKLY REWARD","gold"]
   ];
 
-  function utcKey(){
+  function isSignedIn(){
+    try{return !!(vdsHasPermanentAccount?.() && vdsAccountSession?.user?.id)}
+    catch(_){return false}
+  }
+
+  function utcToday(){
     return new Date().toISOString().slice(0,10);
   }
 
-  function count(kind){
-    const key=`free_${kind}_packs`;
-    return Math.max(0,Math.floor(Number(vdsAccountProfile?.[key]||0)));
-  }
-
-  function totalFree(){
-    return count("bronze")+count("silver")+count("gold");
-  }
-
-  function vdsFreePackCount(packId){
+  function freeCount(packId){
     const id=String(packId||"").toLowerCase();
-    if(!["bronze","silver","gold"].includes(id))return 0;
-    return count(id);
+    const key=`free_${id}_packs`;
+    return Math.max(0,Math.floor(Number(ace355State?.[key] ?? vdsAccountProfile?.[key] ?? 0)));
   }
 
-  function vdsHasFreePack(packId){
-    return vdsFreePackCount(packId)>0;
-  }
-
-  /* Export generically so the original pack opener can use this function. */
-  window.vdsFreePackCount=vdsFreePackCount;
-  window.vdsHasFreePack=vdsHasFreePack;
-  try{vdsHasFreePack=vdsHasFreePack}catch(_){}
-
-  function syncProfileFromReward(data){
+  function mergeRewardWallet(data){
     if(!data)return;
-    const next={...(vdsAccountProfile||{})};
-    ["free_bronze_packs","free_silver_packs","free_gold_packs"].forEach(key=>{
-      const val=Number(data[key]);
-      if(Number.isFinite(val))next[key]=Math.max(0,Math.floor(val));
-    });
-    const coins=Number(data.coin_balance);
-    if(Number.isFinite(coins)){
-      next.coins=Math.max(0,Math.floor(coins));
-      if(typeof ultimateTeamState==="object"&&ultimateTeamState)ultimateTeamState.coins=next.coins;
-    }
-    vdsAccountProfile=next;
-    try{vdsUpdateAccountUI?.()}catch(_){}
-    try{vdsSyncUltimateWalletFromProfile?.()}catch(_){}
-    try{vdsRefreshFreeGoldPackUI?.()}catch(_){}
-    try{vdsRenderPackStoreShowcase?.()}catch(_){}
-    try{window.ace35RefreshHome?.()}catch(_){}
-  }
+    ace355State={
+      ...(ace355State||{}),
+      free_bronze_packs:Math.max(0,Math.floor(Number(data.free_bronze_packs||0))),
+      free_silver_packs:Math.max(0,Math.floor(Number(data.free_silver_packs||0))),
+      free_gold_packs:Math.max(0,Math.floor(Number(data.free_gold_packs||0))),
+      ...(data.daily?{daily:data.daily}:{}),
+      ...(data.login?{login:data.login}:{}),
+      ...(data.today?{today:data.today}:{})
+    };
 
-  async function loadLogin(){
-    if(loginBusy||!vdsHasPermanentAccount?.())return loginCache;
-    const client=ensureMultiplayerClient?.();
-    if(!client)return loginCache;
-    loginBusy=true;
-    try{
-      const {data,error}=await client
-        .from("vds_login_progress")
-        .select("user_id,cycle_day,last_claim_date,total_claims,last_reward,updated_at")
-        .eq("user_id",vdsAccountSession.user.id)
-        .maybeSingle();
-      if(error)throw error;
-      loginCache=data||{
-        user_id:vdsAccountSession.user.id,
-        cycle_day:0,
-        last_claim_date:null,
-        total_claims:0,
-        last_reward:{}
+    if(vdsAccountProfile){
+      vdsAccountProfile={
+        ...vdsAccountProfile,
+        free_bronze_packs:ace355State.free_bronze_packs,
+        free_silver_packs:ace355State.free_silver_packs,
+        free_gold_packs:ace355State.free_gold_packs,
+        ...(Number.isFinite(Number(data.coin_balance))?{coins:Number(data.coin_balance)}:{})
       };
-      scheduleRender();
-      return loginCache;
-    }catch(error){
-      console.warn("ACE login rewards load failed",error);
-      return loginCache;
-    }finally{
-      loginBusy=false;
+      try{vdsUpdateAccountUI?.()}catch(_){}
     }
   }
 
-  function allDailiesDone(){
-    const d=vdsDailyProgressCache||{};
-    return !!(
-      d.play_one_rewarded &&
-      d.win_one_rewarded &&
-      d.play_three_rewarded &&
-      d.first_win_rewarded
-    );
+  async function loadStatus(force=false){
+    if(!isSignedIn()||ace355Busy)return ace355State;
+    if(!force && ace355State && Date.now()-ace355LastStatusFetch<2500)return ace355State;
+
+    const client=ensureMultiplayerClient?.();
+    if(!client)return ace355State;
+
+    ace355Busy=true;
+    try{
+      const {data,error}=await client.rpc("vds_get_reward_status");
+      if(error)throw error;
+      mergeRewardWallet(data||{});
+      ace355LastStatusFetch=Date.now();
+      installPackBridge();
+      renderRewards();
+      patchPackStore();
+      return ace355State;
+    }catch(error){
+      console.warn("ACE rewards status unavailable",error);
+      return ace355State;
+    }finally{
+      ace355Busy=false;
+    }
   }
 
-  function dailyCompletedCount(){
-    const d=vdsDailyProgressCache||{};
-    return [
-      d.play_one_rewarded,
-      d.win_one_rewarded,
-      d.play_three_rewarded,
-      d.first_win_rewarded
-    ].filter(Boolean).length;
+  function allDailies(){
+    const d=ace355State?.daily||{};
+    return !!(d.play_one_rewarded&&d.win_one_rewarded&&d.play_three_rewarded&&d.first_win_rewarded);
   }
 
-  function nextLoginDay(){
-    const current=Math.max(0,Math.min(7,Number(loginCache?.cycle_day||0)));
-    return current>=7?1:current+1;
+  function dailyCount(){
+    const d=ace355State?.daily||{};
+    return [d.play_one_rewarded,d.win_one_rewarded,d.play_three_rewarded,d.first_win_rewarded].filter(Boolean).length;
   }
 
   function loginClaimedToday(){
-    return String(loginCache?.last_claim_date||"")===utcKey();
+    return String(ace355State?.login?.last_claim_date||"")===String(ace355State?.today||utcToday());
   }
 
-  function rewardInventoryHTML(){
-    const b=count("bronze"),s=count("silver"),g=count("gold");
+  function nextDay(){
+    const day=Math.max(0,Math.min(7,Number(ace355State?.login?.cycle_day||0)));
+    return day>=7?1:day+1;
+  }
+
+  function inventoryHTML(){
+    const b=freeCount("bronze"),s=freeCount("silver"),g=freeCount("gold");
     if(!(b+s+g))return "";
-    return `<div class="ace353FreePackInventory">
+    return `<div class="ace355Inventory">
       ${b?`<span class="bronze">BRONZE ×${b}</span>`:""}
       ${s?`<span class="silver">SILVER ×${s}</span>`:""}
       ${g?`<span class="gold">GOLD ×${g}</span>`:""}
     </div>`;
   }
 
-  function loginDaysHTML(){
-    const cycle=Math.max(0,Math.min(7,Number(loginCache?.cycle_day||0)));
+  function loginTrackHTML(){
+    const current=Math.max(0,Math.min(7,Number(ace355State?.login?.cycle_day||0)));
     const claimedToday=loginClaimedToday();
-    const next=nextLoginDay();
+    const next=nextDay();
 
-    return LOGIN_REWARDS.map(r=>{
-      const done=cycle>0 && r.day<=cycle;
-      const isNext=!claimedToday && r.day===next;
-      return `<div class="ace353LoginDay ${done?"done":""} ${isNext?"next":""} ${r.kind||""}">
-        <span>DAY ${r.day}</span>
-        <b>${r.label}</b>
-        <small>${r.sub}</small>
+    return LOGIN_REWARDS.map((r,i)=>{
+      const day=i+1;
+      const done=current>0&&day<=current;
+      const isNext=!claimedToday&&day===next;
+      return `<div class="ace355Day ${done?"done":""} ${isNext?"next":""} ${r[2]}">
+        <span>DAY ${day}</span><b>${r[0]}</b><small>${r[1]}</small>
       </div>`;
     }).join("");
   }
 
-  function ensureRewardLoop(){
+  function ensureRewardsMount(){
     const mount=q("#vdsUTHubMissionsMount");
     if(!mount)return null;
-
-    let loop=q("#ace353RewardLoop");
-    if(!loop){
-      loop=document.createElement("div");
-      loop.id="ace353RewardLoop";
-      loop.className="ace353RewardLoop";
-      mount.prepend(loop);
+    let el=q("#ace355Rewards",mount);
+    if(!el){
+      el=document.createElement("div");
+      el.id="ace355Rewards";
+      el.className="ace355Rewards";
+      mount.prepend(el);
     }
-    return loop;
+    return el;
   }
 
-  function render(){
-    renderQueued=false;
-    const loop=ensureRewardLoop();
-    if(!loop)return;
+  function renderRewards(){
+    if(!isSignedIn()||!ace355State)return;
+    const el=ensureRewardsMount();
+    if(!el)return;
 
-    const d=vdsDailyProgressCache||{};
-    const complete=dailyCompletedCount();
-    const allDone=allDailiesDone();
-    const claimed=!!d.completion_pack_claimed;
+    const complete=dailyCount();
+    const ready=allDailies();
+    const packClaimed=!!ace355State?.daily?.completion_pack_claimed;
     const claimedToday=loginClaimedToday();
-    const next=nextLoginDay();
-    const nextReward=LOGIN_REWARDS[next-1]||LOGIN_REWARDS[0];
+    const next=nextDay();
+    const todayReward=LOGIN_REWARDS[next-1];
 
-    loop.innerHTML=`
-      <section class="ace353RewardPanel">
-        <div class="ace353RewardHead">
-          <div>
-            <span>DAILY COMPLETION BONUS</span>
-            <b>Finish all 4. Earn a Silver Pack.</b>
-          </div>
-          <em class="${allDone&&!claimed?"ready":""}">${complete}/4 ${claimed?"CLAIMED":"COMPLETE"}</em>
+    el.innerHTML=`
+      <section class="ace355Panel">
+        <div class="ace355Head">
+          <div><small>DAILY COMPLETION BONUS</small><b>4/4 → Silver Pack</b></div>
+          <span class="ace355Chip ${ready&&!packClaimed?"ready":""}">${complete}/4 ${packClaimed?"CLAIMED":"COMPLETE"}</span>
         </div>
-
-        <div class="ace353DailyBonus">
-          <div class="ace353PackArt"><span>ACE</span><b>SILVER</b><span>PACK</span></div>
-          <div class="ace353DailyCopy">
+        <div class="ace355DailyRow">
+          <div class="ace355Silver"><span>ACE</span><b>SILVER</b><span>PACK</span></div>
+          <div class="ace355Copy">
             <b>Silver Player Pack</b>
-            <span>${claimed
-              ?"Today's completion pack is already in your club inventory."
-              : allDone
-                ?"All four Daily Objectives are complete. Your Silver Pack is ready."
-                : `Complete ${4-complete} more objective${4-complete===1?"":"s"} to unlock today's pack.`}</span>
-            ${rewardInventoryHTML()}
+            <span>${packClaimed
+              ?"Today's completion pack has been claimed."
+              :ready
+                ?"All four Daily Objectives are complete. Claim your pack."
+                :`Complete ${4-complete} more objective${4-complete===1?"":"s"} today.`}</span>
+            ${inventoryHTML()}
           </div>
-          <button id="ace353ClaimDaily" class="ace353ClaimBtn ${claimed?"claimed":""}" type="button" ${(!allDone||claimed||dailyClaimBusy)?"disabled":""}>
-            ${claimed?"✓ CLAIMED":dailyClaimBusy?"CLAIMING…":allDone?"CLAIM SILVER PACK":"LOCKED"}
+          <button class="ace355Btn" id="ace355DailyClaim" type="button" ${(!ready||packClaimed||ace355Busy)?"disabled":""}>
+            ${packClaimed?"✓ CLAIMED":ready?"CLAIM SILVER PACK":"LOCKED"}
           </button>
         </div>
       </section>
 
-      <section class="ace353RewardPanel">
-        <div class="ace353RewardHead">
-          <div>
-            <span>DAILY LOGIN</span>
-            <b>7 claimed days → Gold Pack.</b>
-          </div>
-          <em class="${!claimedToday?"ready":""}">${claimedToday?`DAY ${loginCache?.cycle_day||1} CLAIMED`:`DAY ${next} READY`}</em>
+      <section class="ace355Panel">
+        <div class="ace355Head">
+          <div><small>DAILY LOGIN</small><b>7 claimed days → Gold Pack</b></div>
+          <span class="ace355Chip ${!claimedToday?"ready":""}">${claimedToday?`DAY ${ace355State?.login?.cycle_day||1} CLAIMED`:`DAY ${next} READY`}</span>
         </div>
-
-        <div class="ace353LoginDays">${loginDaysHTML()}</div>
-
-        <div class="ace353LoginActions">
+        <div class="ace355LoginDays">${loginTrackHTML()}</div>
+        <div class="ace355LoginBottom">
           <p>${claimedToday
-            ? `<b>Come back tomorrow.</b> Missing a day does not reset your progress.`
-            : `Today's reward: <b>${nextReward.label}${nextReward.sub?` · ${nextReward.sub}`:""}</b>. Your progress only advances when you claim.`}</p>
-          <button id="ace353ClaimLogin" type="button" ${claimedToday||loginBusy?"disabled":""}>
-            ${claimedToday?"✓ TODAY CLAIMED":loginBusy?"LOADING…":`CLAIM DAY ${next}`}
+            ?"<b>Come back tomorrow.</b> Missing a day does not reset the track."
+            :`Today's reward: <b>${todayReward[0]} · ${todayReward[1]}</b>.`}</p>
+          <button class="ace355Btn" id="ace355LoginClaim" type="button" ${claimedToday||ace355Busy?"disabled":""}>
+            ${claimedToday?"✓ TODAY CLAIMED":`CLAIM DAY ${next}`}
           </button>
         </div>
       </section>`;
 
-    q("#ace353ClaimDaily")?.addEventListener("click",claimDailyPack);
-    q("#ace353ClaimLogin")?.addEventListener("click",claimLogin);
-
-    patchDashboard();
-    patchPackStore();
+    q("#ace355DailyClaim",el)?.addEventListener("click",claimDaily);
+    q("#ace355LoginClaim",el)?.addEventListener("click",claimLogin);
   }
 
-  function scheduleRender(){
-    if(renderQueued)return;
-    renderQueued=true;
-    requestAnimationFrame(render);
-  }
-
-  async function claimDailyPack(){
-    if(dailyClaimBusy||!allDailiesDone()||vdsDailyProgressCache?.completion_pack_claimed)return;
+  async function claimDaily(){
+    if(!isSignedIn()||ace355Busy)return;
     const client=ensureMultiplayerClient?.();
     if(!client)return;
-    dailyClaimBusy=true;
-    scheduleRender();
+
+    ace355Busy=true;
     try{
       const {data,error}=await client.rpc("vds_claim_daily_completion_pack");
       if(error)throw error;
-
-      if(data?.claimed||data?.already_claimed){
-        vdsDailyProgressCache={
-          ...(vdsDailyProgressCache||{}),
-          completion_pack_claimed:true
-        };
-        syncProfileFromReward(data);
-        try{
-          aceNotify?.({
-            title:data?.claimed?"+1 SILVER PACK":"SILVER PACK ALREADY CLAIMED",
-            body:data?.claimed?"All 4 Daily Objectives complete. Your reward pack is ready in Packs.":"Today's completion reward has already been collected.",
-            type:"pack",
-            sticky:true
-          });
-        }catch(_){}
-      }
+      mergeRewardWallet(data||{});
+      await loadStatus(true);
+      try{
+        aceNotify?.({
+          title:data?.claimed?"+1 SILVER PACK":"SILVER PACK ALREADY CLAIMED",
+          body:data?.claimed?"Your 4/4 Daily reward is ready in the Pack Store.":"Today's completion reward was already collected.",
+          type:"pack",
+          sticky:true
+        });
+      }catch(_){}
     }catch(error){
-      console.warn("ACE daily completion claim failed",error);
-      alert(String(error?.message||error).includes("DAILIES_NOT_COMPLETE")
+      console.warn("ACE daily Silver claim failed",error);
+      alert(/DAILIES_NOT_COMPLETE/i.test(String(error?.message||""))
         ?"Complete all four Daily Objectives first."
-        :"Could not claim the Daily Completion pack.");
+        :"Could not claim the Silver Pack.");
     }finally{
-      dailyClaimBusy=false;
-      scheduleRender();
+      ace355Busy=false;
+      await loadStatus(true);
     }
   }
 
   async function claimLogin(){
-    if(loginBusy||loginClaimedToday())return;
+    if(!isSignedIn()||ace355Busy||loginClaimedToday())return;
     const client=ensureMultiplayerClient?.();
     if(!client)return;
-    loginBusy=true;
-    scheduleRender();
+
+    ace355Busy=true;
     try{
       const {data,error}=await client.rpc("vds_claim_daily_login");
       if(error)throw error;
-
-      syncProfileFromReward(data);
-      loginCache={
-        ...(loginCache||{}),
-        cycle_day:Number(data?.day||loginCache?.cycle_day||0),
-        last_claim_date:String(data?.last_claim_date||utcKey()),
-        last_reward:{
-          day:Number(data?.day||0),
-          coins:Number(data?.coin_reward||0),
-          bronze_packs:Number(data?.bronze_pack_reward||0),
-          gold_packs:Number(data?.gold_pack_reward||0)
-        }
-      };
-
+      mergeRewardWallet(data||{});
       const bits=[];
       if(Number(data?.coin_reward||0)>0)bits.push(`+${Number(data.coin_reward).toLocaleString()} coins`);
       if(Number(data?.bronze_pack_reward||0)>0)bits.push("+1 Bronze Pack");
       if(Number(data?.gold_pack_reward||0)>0)bits.push("+1 Gold Pack");
-
       try{
         aceNotify?.({
           title:`DAY ${Number(data?.day||0)} LOGIN CLAIMED`,
-          body:bits.join(" · ")||"Daily login collected.",
+          body:bits.join(" · ")||"Login reward collected.",
           type:Number(data?.gold_pack_reward||0)>0?"pack":"reward",
           sticky:true
         });
@@ -45395,31 +45546,71 @@ body.ace34ShareOpen{
       console.warn("ACE login reward claim failed",error);
       alert("Could not claim today's login reward.");
     }finally{
-      loginBusy=false;
-      scheduleRender();
+      ace355Busy=false;
+      await loadStatus(true);
     }
   }
 
-  /* ---------- Generic free pack inventory ---------- */
-  window.vdsFreePackCount=vdsFreePackCount;
-  window.vdsHasFreePack=vdsHasFreePack;
+  /* Generic free-pack bridge. This is installed only AFTER a valid ACE
+     account exists and reward status has loaded. */
+  function installPackBridge(){
+    if(ace355PackBridgeInstalled||!isSignedIn())return;
 
-  /* Patch pack-store display after its canonical renderer runs. */
+    if(typeof vdsHasFreeGoldPack==="function"){
+      ace355OriginalFreeChecker=vdsHasFreeGoldPack;
+      const genericChecker=function(packId){
+        const id=String(packId||"").toLowerCase();
+        if(["bronze","silver","gold"].includes(id) && freeCount(id)>0)return true;
+        return id==="gold" ? !!ace355OriginalFreeChecker?.(packId) : false;
+      };
+      try{vdsHasFreeGoldPack=genericChecker}catch(_){}
+      window.vdsHasFreePack=genericChecker;
+    }
+
+    if(typeof openUltimatePack==="function"){
+      ace355OriginalOpenPack=openUltimatePack;
+      const wrappedOpen=async function(packId){
+        await loadStatus(true);
+        const result=await ace355OriginalOpenPack.apply(this,arguments);
+        await loadStatus(true);
+        patchPackStore();
+        return result;
+      };
+      try{openUltimatePack=wrappedOpen}catch(_){}
+      window.openUltimatePack=wrappedOpen;
+    }
+
+    if(typeof vdsRenderPackStoreShowcase==="function"){
+      ace355OriginalPackRenderer=vdsRenderPackStoreShowcase;
+      const wrappedRender=function(){
+        const result=ace355OriginalPackRenderer.apply(this,arguments);
+        requestAnimationFrame(patchPackStore);
+        return result;
+      };
+      try{vdsRenderPackStoreShowcase=wrappedRender}catch(_){}
+      window.vdsRenderPackStoreShowcase=wrappedRender;
+    }
+
+    ace355PackBridgeInstalled=true;
+  }
+
   function patchPackStore(){
+    if(!isSignedIn()||!ace355State)return;
     const showcase=q("#vdsUTPackShowcase");
     if(!showcase)return;
-    const packId=String(vdsPackStoreSelection||showcase.dataset.pack||"gold").toLowerCase();
-    const free=vdsFreePackCount(packId);
+    const packId=String(
+      typeof vdsPackStoreSelection!=="undefined" ? vdsPackStoreSelection : "gold"
+    ).toLowerCase();
+    const free=freeCount(packId);
     if(free<=0)return;
 
     const checkout=q(".acePackCheckout",showcase);
-    checkout?.classList.add("gift");
-    const copy=checkout?.querySelector("div");
-    if(copy){
-      const small=copy.querySelector("small");
-      const b=copy.querySelector("b");
-      if(small)small.textContent="YOUR REWARD PACK";
-      if(b)b.textContent=`FREE · ${free} LEFT`;
+    if(checkout){
+      checkout.classList.add("gift");
+      const small=checkout.querySelector("small");
+      const price=checkout.querySelector("b");
+      if(small)small.textContent="REWARD PACK";
+      if(price)price.textContent=`FREE · ${free} LEFT`;
     }
     const btn=q("#vdsUTPackHeroOpen",showcase);
     if(btn){
@@ -45432,124 +45623,139 @@ body.ace34ShareOpen{
     }
   }
 
-  /* Keep wallet label informative without creating another giant panel. */
-  try{
-    vdsPackStoreWalletText=function(){
-      const coins=vdsAccountProfile?.is_host_account?"∞":Number(vdsAccountProfile?.coins||0).toLocaleString();
-      const free=totalFree();
-      return free>0?`${coins} · 🎁 ${free} FREE PACK${free===1?"":"S"}`:coins;
-    };
-  }catch(_){}
-
-  if(typeof vdsRenderPackStoreShowcase==="function" && !vdsRenderPackStoreShowcase.__ace353Wrapped){
-    const base=vdsRenderPackStoreShowcase;
-    const wrapped=function(){
-      const result=base.apply(this,arguments);
-      requestAnimationFrame(patchPackStore);
-      return result;
-    };
-    wrapped.__ace353Wrapped=true;
-    try{vdsRenderPackStoreShowcase=wrapped}catch(_){}
-    try{window.vdsRenderPackStoreShowcase=wrapped}catch(_){}
+  function patchMissionsAfterCanonicalRender(){
+    if(!isSignedIn())return;
+    loadStatus();
+    renderRewards();
   }
 
-  /* ---------- Home/UT status patches ---------- */
-  function bestFreePack(){
-    if(count("gold"))return {kind:"GOLD",count:count("gold")};
-    if(count("silver"))return {kind:"SILVER",count:count("silver")};
-    if(count("bronze"))return {kind:"BRONZE",count:count("bronze")};
-    return null;
-  }
-
-  function patchDashboard(){
-    const free=bestFreePack();
-    const total=totalFree();
-
-    document.querySelectorAll("[data-ace35-route='packs']").forEach(card=>{
-      if(!total)return;
-      const value=card.querySelector(".ace35PulseValue, strong");
-      const meta=card.querySelector(".ace35PulseMeta, small");
-      const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
-
-      if(value && !card.classList.contains("primary") && !card.classList.contains("next")){
-        value.textContent=`${total} FREE PACK${total===1?"":"S"}`;
-      }
-      if(meta && !card.classList.contains("primary") && !card.classList.contains("next")){
-        meta.textContent=`${free.kind} reward pack${free.count===1?"":"s"} available now.`;
-      }
-      if(badge && !card.classList.contains("primary") && !card.classList.contains("next")){
-        badge.textContent="REWARD INVENTORY";
-        badge.classList.add("hot");
-      }
-    });
-
-    /* Daily completion/login attention lives on Missions rather than adding
-       another Home card. */
-    const loginReady=!!loginCache && !loginClaimedToday();
-    const silverReady=allDailiesDone() && !vdsDailyProgressCache?.completion_pack_claimed;
-
-    document.querySelectorAll("[data-ace35-route='missions']").forEach(card=>{
-      if(!(loginReady||silverReady))return;
-      const badge=card.querySelector(".ace35PulseBadge, .ace35DeckTag");
-      if(badge){
-        badge.textContent=silverReady?"SILVER PACK READY":"LOGIN REWARD READY";
-        badge.classList.add("reward");
-      }
-    });
-
-    q("#ultimate .vdsUTHubTab[data-ut-target='missions']")?.classList.toggle(
-      "ace35Attention",
-      loginReady||silverReady
-    );
-  }
-
-  /* Refresh login state when account/progression refreshes. */
-  if(typeof vdsLoadDailyProgress==="function" && !vdsLoadDailyProgress.__ace353Wrapped){
-    const base=vdsLoadDailyProgress;
-    const wrapped=async function(){
-      const result=await base.apply(this,arguments);
-      scheduleRender();
-      return result;
-    };
-    wrapped.__ace353Wrapped=true;
-    try{vdsLoadDailyProgress=wrapped}catch(_){}
-    try{window.vdsLoadDailyProgress=wrapped}catch(_){}
-  }
-
-  const observer=new MutationObserver(()=>{
-    if(q("#ultimate [data-ut-instance='missions'].active")||q("#vdsUTPackShowcase")){
-      scheduleRender();
-    }else{
-      patchDashboard();
+  function installMissionsHook(){
+    if(typeof vdsRenderDailyProgress==="function" && !vdsRenderDailyProgress.__ace355Wrapped){
+      const base=vdsRenderDailyProgress;
+      const wrapped=function(){
+        const result=base.apply(this,arguments);
+        requestAnimationFrame(patchMissionsAfterCanonicalRender);
+        return result;
+      };
+      wrapped.__ace355Wrapped=true;
+      try{vdsRenderDailyProgress=wrapped}catch(_){}
+      window.vdsRenderDailyProgress=wrapped;
     }
-  });
-  observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+  }
 
-  document.addEventListener("click",e=>{
-    if(e.target.closest?.("[data-ut-nav='missions'],[data-ace35-route='missions'],[data-ut-nav='packs'],[data-ace35-route='packs']")){
-      setTimeout(()=>{
-        loadLogin();
-        scheduleRender();
-      },90);
+  function maybeStart(){
+    /* Absolutely nothing happens until the original B21.35.2 auth flow
+       reports a permanent account. */
+    if(!isSignedIn())return;
+
+    if(!ace355Started){
+      ace355Started=true;
+      installMissionsHook();
+      loadStatus(true);
+    }else if(Date.now()-ace355LastStatusFetch>60000){
+      loadStatus();
+    }
+
+    if(typeof vdsUltimateHubActive!=="undefined" && vdsUltimateHubActive==="missions"){
+      renderRewards();
+    }
+    if(typeof vdsUltimateHubActive!=="undefined" && vdsUltimateHubActive==="packs"){
+      patchPackStore();
+    }
+  }
+
+  /* A tiny passive timer replaces mutation observers. Before sign-in this
+     only performs a boolean check and does not touch Supabase or the DOM. */
+  const ace355Timer=setInterval(maybeStart,1500);
+
+  document.addEventListener("click",event=>{
+    if(!isSignedIn())return;
+    if(event.target.closest?.("[data-ut-nav='missions'],[data-ace35-route='missions']")){
+      setTimeout(()=>{loadStatus(true);renderRewards()},120);
+    }
+    if(event.target.closest?.("[data-ut-nav='packs'],[data-ace35-route='packs']")){
+      setTimeout(()=>{loadStatus(true);patchPackStore()},120);
     }
   });
 
-  setTimeout(()=>{
-    loadLogin();
-    scheduleRender();
-  },300);
-  setTimeout(()=>{
-    loadLogin();
-    scheduleRender();
-  },1400);
-
-  window.ace353LoadLogin=loadLogin;
-  window.ace353RenderRewards=scheduleRender;
-  window.ACE_PROJECT_BUILD="B21.35.3";
-  window.ACE_DAILY_LOGIN_PACK_REWARDS=true;
+  window.ace355RefreshRewards=()=>loadStatus(true);
+  window.ACE_PROJECT_BUILD="B21.35.5";
+  window.ACE_SAFE_REWARD_REBUILD=true;
 })();
 </script>
-<!-- /ACE B21.35.3 — DAILY LOGIN + PACK REWARDS -->
+<!-- /ACE B21.35.5 — SAFE REWARD REBUILD -->
+
+
+<!-- ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
+<script id="ace-b21-35-6-account-boot-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.35.6";
+  window.ACE_ACCOUNT_BOOT_UNBLOCKED=true;
+})();
+</script>
+<!-- /ACE B21.35.6 — ACCOUNT BOOT UNBLOCKED -->
+
+
+<!-- ACE B21.35.7 — NONBLOCKING SUPABASE BOOT -->
+<script id="ace-b21-35-7-sdk-diagnostics">
+(function(){
+  function status(text,type){
+    try{
+      if(typeof vdsSetAuthStatus==="function")vdsSetAuthStatus(text,type);
+      else{
+        const el=document.getElementById("vdsAuthStatus");
+        if(el)el.textContent=text;
+      }
+    }catch(_){}
+  }
+
+  window.addEventListener("ace:supabase-ready",()=>{
+    if(!window.vdsAccountSession?.user?.id){
+      status("ACE account service connected. Continue with Google.");
+    }
+  });
+
+  window.addEventListener("ace:supabase-failed",()=>{
+    if(!window.vdsAccountSession?.user?.id){
+      status("Could not reach ACE account services. Check your connection and tap Google to retry.","error");
+    }
+  });
+
+  window.ACE_PROJECT_BUILD="B21.35.7";
+  window.ACE_NONBLOCKING_SUPABASE_BOOT=true;
+})();
+</script>
+<!-- /ACE B21.35.7 — NONBLOCKING SUPABASE BOOT -->
+
+
+<!-- ACE B21.35.8 — HARDENED LOGIN BOOT -->
+<script id="ace-b21-35-8-login-watchdog">
+(function(){
+  setTimeout(()=>{
+    const authStatus=document.getElementById("vdsAuthStatus");
+    const btn=document.getElementById("vdsGoogleSignIn");
+
+    if(btn && !window.vdsAccountSession?.user?.id){
+      btn.disabled=false;
+      btn.style.pointerEvents="auto";
+
+      if(authStatus && /checking your ace account/i.test(authStatus.textContent||"")){
+        authStatus.textContent="Ready. Continue with Google.";
+      }
+    }
+
+    document.querySelectorAll(".vdsAuthDbLoading").forEach(el=>{
+      if(/loading ace project player cards/i.test(el.textContent||"")){
+        el.textContent="PLAYER DATABASE CONNECTING… · SIGN-IN IS READY";
+      }
+    });
+  },4500);
+
+  window.ACE_PROJECT_BUILD="B21.35.8";
+  window.ACE_HARDENED_LOGIN_BOOT=true;
+})();
+</script>
+<!-- /ACE B21.35.8 — HARDENED LOGIN BOOT -->
 
 </body>
 </html>
