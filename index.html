@@ -17943,7 +17943,12 @@ async function vdsApplySignedInSession(session,{resumeRoom=true}={}){
 }
 
 async function vdsSignInWithGoogle(){
-  if(vdsAccountAuthBusy)return;
+  /* A visible enabled button should always be actionable. The only
+     legitimate busy window is the current OAuth handoff. */
+  if(vdsAccountAuthBusy){
+    vdsSetAuthStatus("Google sign-in is already opening…");
+    return;
+  }
   const client=ensureMultiplayerClient();
   if(!client){vdsSetAuthStatus("Supabase did not load. Please refresh the page.","error");return;}
 
@@ -18436,15 +18441,18 @@ function vdsHydrateSignInArtwork(){
 }
 
 async function vdsInitAccountGate(){
+  /* B21.36.3: wire the visible sign-in control first.
+     Fresh devices should never be able to see a dead Google button while
+     player artwork or account hydration is still loading. */
+  const btn=document.getElementById("vdsGoogleSignIn");
+  if(btn)btn.onclick=vdsSignInWithGoogle;
+
   vdsHydrateSignInArtwork();
 
   const client=ensureMultiplayerClient();
   if(!client){vdsShowAccountGate("Supabase did not load. Refresh the page to sign in.","error");return;}
 
   if(location.protocol==="file:")document.getElementById("vdsFileAuthWarning")?.classList.remove("hidden");
-
-  const btn=document.getElementById("vdsGoogleSignIn");
-  if(btn)btn.onclick=vdsSignInWithGoogle;
 
   document.getElementById("vdsAccountOpenBtn")?.addEventListener("click",()=>{
     vdsUpdateAccountUI();
@@ -26119,15 +26127,42 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
 */
 
 
-/* THE ACE PROJECT B10.0 Stage 1B.2 — critical account-gate boot */
+/* THE ACE PROJECT B21.36.3 — NEW USER SIGN-IN BOOT FIX */
 (function aceBootAccountGate(){
-  const start=()=>setTimeout(()=>{
-    if(typeof vdsInitAccountGate==="function")vdsInitAccountGate();
-    else console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
-  },40);
+  let started=false;
 
-  if(document.readyState==="complete")start();
-  else window.addEventListener("load",start,{once:true});
+  const start=()=>{
+    if(started)return;
+    started=true;
+
+    /* Supabase's blocking SDK script has already executed before this
+       inline application script. DOMContentLoaded is therefore enough;
+       do not wait for every player image / background asset to finish. */
+    setTimeout(()=>{
+      if(typeof vdsInitAccountGate==="function"){
+        Promise.resolve(vdsInitAccountGate()).catch(error=>{
+          console.error("ACE account gate init failed",error);
+          try{
+            vdsAccountAuthBusy=false;
+            const btn=document.getElementById("vdsGoogleSignIn");
+            if(btn){
+              btn.disabled=false;
+              btn.onclick=vdsSignInWithGoogle;
+            }
+            vdsShowAccountGate("Sign-in could not initialise. Tap Google to try again.","error");
+          }catch(e){}
+        });
+      }else{
+        console.error("ACE account gate could not start: vdsInitAccountGate is unavailable.");
+      }
+    },0);
+  };
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",start,{once:true});
+  }else{
+    start();
+  }
 })();
 
 </script>
@@ -46596,6 +46631,17 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.2 — EDITOR CRASH FIX + NON-SCROLL DESKTOP PROFILE -->
+
+
+<!-- ACE B21.36.3 — NEW USER SIGN-IN BOOT FIX -->
+<script id="ace-b21-36-3-new-user-signin-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.3";
+  window.ACE_NEW_USER_SIGNIN_BOOT_FIX=true;
+  window.ACE_AUTH_BOOT_EVENT="DOMContentLoaded";
+})();
+</script>
+<!-- /ACE B21.36.3 — NEW USER SIGN-IN BOOT FIX -->
 
 </body>
 </html>
