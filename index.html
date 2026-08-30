@@ -6848,7 +6848,7 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 </style>
 
 <style id="ace-b21-3-ace-special-style">
-/* Dedicated ACE 96–99 pack animation */
+/* Dedicated ACE 90–99 pack animation */
 .aceCinematicPackOverlay.ace-special{
   background:#010204!important;
   transition:background .35s ease;
@@ -8177,10 +8177,10 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
     <div class="vdsTierRangeLegend" aria-label="ACE rarity ranges">
       <span class="bronze">BRONZE <b>1–59</b></span>
       <span class="silver">SILVER <b>60–74</b></span>
-      <span class="gold">GOLD <b>75–84</b></span>
-      <span class="rare_gold">RARE GOLD <b>85–89</b></span>
-      <span class="elite">ELITE <b>90–95</b></span>
-      <span class="ace">ACE <b>96–99</b></span>
+      <span class="gold">GOLD <b>75–79</b></span>
+      <span class="rare_gold">RARE GOLD <b>80–84</b></span>
+      <span class="elite">ELITE <b>85–89</b></span>
+      <span class="ace">ACE <b>90–99</b></span>
     </div>
 
     <div class="vdsPlayerStatusRow">
@@ -9034,6 +9034,41 @@ function overall(p){
   );
 }
 
+
+function aceApplyCoreOvrRules(baseRating,position,stats){
+  const base=Math.max(0,Math.min(99,Math.round(Number(baseRating)||0)));
+  const pos=String(position||"OH").toUpperCase();
+  const CORE={
+    OH:["accuracy","hittingPower","serveReceive","positioning"],
+    OP:["accuracy","hittingPower","blocking","vertical"],
+    M:["blocking","vertical","reactionTime","accuracy"],
+    S:["setTechnique","setCreativity","positioning","reactionTime"],
+    L:["serveReceive","positioning","covering","reactionTime"]
+  };
+  const keys=CORE[pos]||CORE.OH;
+  const values=keys.map(k=>Math.max(0,Math.min(100,Number(stats?.[k])||0)));
+
+  if(base<85)return base;
+
+  const lowest=Math.min(...values);
+  let penalty=
+    lowest>=80?0:
+    lowest>=75?1:
+    lowest>=70?2:
+    lowest>=65?3:4;
+
+  if(base>=90 && values.filter(v=>v<78).length>=2)penalty+=1;
+  penalty=Math.min(5,penalty);
+
+  let finalRating=Math.max(0,Math.min(99,base-penalty));
+  const coreAverage=values.reduce((a,b)=>a+b,0)/values.length;
+
+  if(finalRating>=95 && (values.some(v=>v<80) || coreAverage<88)){
+    finalRating=94;
+  }
+  return finalRating;
+}
+
 function positionRatings(p){
   // B21.7 — canonical role-weight engine shared with the follower spinner.
   // SET is split into Set Technique / Set Creativity so secondary setting
@@ -9062,13 +9097,20 @@ function positionRatings(p){
     L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:26,positioning:15,covering:15,workRate:6,vertical:1,speed:7,reactionTime:12,service:0,blocking:0,setTechnique:7,setCreativity:3,mindset:6}
   };
 
-  const calc=(weights)=>{
+  const calc=(position,weights)=>{
     let score=0;
     for(const [key,pct] of Object.entries(weights))score+=a[key]*pct/100;
-    return Math.round(clamp(score,0,100));
+    const base=Math.round(clamp(score,0,99));
+    return aceApplyCoreOvrRules(base,position,a);
   };
 
-  return {OH:calc(W.OH),OP:calc(W.OP),M:calc(W.M),S:calc(W.S),L:calc(W.L)};
+  return {
+    OH:calc("OH",W.OH),
+    OP:calc("OP",W.OP),
+    M:calc("M",W.M),
+    S:calc("S",W.S),
+    L:calc("L",W.L)
+  };
 }
 function mainPositionRating(p){
   const pos=String(p?.position||"OH").toUpperCase();
@@ -9096,12 +9138,12 @@ function effectivePositionRating(p,role){
 
 function cardTier(p){
   // THE ACE PROJECT rarity ladder:
-  // 1–59 BRONZE · 60–74 SILVER · 75–84 GOLD · 85–89 RARE GOLD ·
-  // 90–95 ELITE · 96–99 ACE.
+  // 1–59 BRONZE · 60–74 SILVER · 75–79 GOLD · 80–84 RARE GOLD ·
+  // 85–89 ELITE · 90–99 ACE.
   const r=mainPositionRating(p);
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=85)return "rare_gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "elite";
+  if(r>=80)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -13148,15 +13190,15 @@ function calculateBlockCover(attackingTeam, attacker, blocker, shotInfo){
     effectivePower*.62 +
     blockForce*.22;
 
-  // Base chance roughly ranges from ~15% for weak covering vs huge power
-  // to ~75% for elite coverage of a softer blocked attack.
+  // Blocked attacks are usually touches rather than automatic points.
+  // Better cover units should recycle a meaningful share of block contacts.
   let coverStyleBonus=0;
   if(defenseStyleId(coverer)==="cover_specialist")coverStyleBonus=.18;
   if(defenseStyleId(coverer)==="chaser")coverStyleBonus=.06;
   const chance=clamp(
-    .18 + (coverSkill-reboundDifficulty)*.008 + coverStyleBonus,
-    .08,
-    .90
+    .30 + (coverSkill-reboundDifficulty)*.008 + coverStyleBonus,
+    .18,
+    .92
   );
 
   return {
@@ -13353,7 +13395,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     : 0);
   const formationBonus=formation.type==="DOUBLE BLOCK"?7:formation.type==="TRIPLE BLOCK"?10:0;
   const blockChance=blocker
-    ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/185,0.015,.34)
+    ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/245,0.008,.22)
     : 0;
 
   const digSkill=(floorDefenseSkill(defender,shotInfo));
@@ -13573,7 +13615,7 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
     : 0);
   const formationBonus=formation.type==="DOUBLE BLOCK"?7:formation.type==="TRIPLE BLOCK"?10:0;
   const blockChance=blocker
-    ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/185,.015,.34)
+    ? clamp((blockSkill+formationBonus-shotInfo.blockEvasion)/245,.008,.22)
     : 0;
   const digSkill=floorDefenseSkill(defender,shotInfo);
   const defenseMods=defensiveDigModifiers(defender,attacker,shotInfo);
@@ -17430,6 +17472,18 @@ let vdsAccountAuthSubscription=null;
 
 function vdsAuthReturnUrl(){
   if(location.protocol==="file:")return "";
+
+  /* B21.36.4 — Production OAuth must always return to the actual
+     GitHub Pages game path. Do not let query strings, cached routes,
+     or a root-page fallback become the requested OAuth destination. */
+  const ACE_PRODUCTION_ORIGIN="https://nishidaondrugs-spec.github.io";
+  const ACE_PRODUCTION_PATH="/volleyball-draft-simulator/";
+
+  if(location.hostname==="nishidaondrugs-spec.github.io"){
+    return ACE_PRODUCTION_ORIGIN+ACE_PRODUCTION_PATH;
+  }
+
+  /* Preserve local/dev hosting behaviour. */
   const url=new URL(location.href);
   url.hash="";
   for(const key of ["code","error","error_code","error_description"])url.searchParams.delete(key);
@@ -18441,6 +18495,17 @@ function vdsHydrateSignInArtwork(){
 }
 
 async function vdsInitAccountGate(){
+  /* Surface OAuth callback failures instead of leaving users wondering
+     why Google returned them without opening the game. */
+  try{
+    const aceAuthUrl=new URL(location.href);
+    const oauthError=aceAuthUrl.searchParams.get("error_description")
+      || aceAuthUrl.searchParams.get("error");
+    if(oauthError){
+      console.warn("ACE OAuth callback error:",oauthError);
+    }
+  }catch(e){}
+
   /* B21.36.3: wire the visible sign-in control first.
      Fresh devices should never be able to see a dead Google button while
      player artwork or account hydration is still loading. */
@@ -19478,9 +19543,9 @@ function miniDraftRoleRating(p,role){
 
 function miniDraftRoleTier(p,role){
   const r=miniDraftRoleRating(p,role);
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=85)return "rare_gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "elite";
+  if(r>=80)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -21451,7 +21516,7 @@ function vdsShowCaptainChoice(state){
   stage.innerHTML=`<div class="vdsCaptainChoice">
     <span class="vdsStarterSectionKicker">ONE PLAYER WILL LEAD THEM</span>
     <h2>CHOOSE YOUR ${v2?"GOLD":"SILVER"} CAPTAIN.</h2>
-    <p>${v2?"Choose one standard Gold captain (75–84). ":""}This choice is permanent for your starter club.</p>
+    <p>${v2?"Choose one standard Gold captain (75–79). ":""}This choice is permanent for your starter club.</p>
     <div class="vdsCaptainGrid">
       ${candidates.map((p,i)=>`<button class="vdsCaptainCard ${v2?"gold":""}" type="button" data-captain-id="${p.cloudId}">
         ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:""}
@@ -21526,7 +21591,7 @@ function vdsShowWelcomeGoldPackOffer(state){
       </div>
     </div>
     <div class="vdsWelcomePackGuarantee">
-      <span><b>1×</b> STANDARD GOLD · 75–84</span>
+      <span><b>1×</b> STANDARD GOLD · 75–79</span>
       <span><b>2×</b> SILVER · 60–74</span>
       <span>NO ELITE / ACE</span>
     </div>
@@ -21747,17 +21812,17 @@ const UT_PACKS={
 const UT_RARITY={
   bronze:{label:"BRONZE",min:1,max:59},
   silver:{label:"SILVER",min:60,max:74},
-  gold:{label:"GOLD",min:75,max:84},
-  rare_gold:{label:"RARE GOLD",min:85,max:89},
-  elite:{label:"ELITE",min:90,max:95},
-  ace:{label:"ACE",min:96,max:99}
+  gold:{label:"GOLD",min:75,max:79},
+  rare_gold:{label:"RARE GOLD",min:80,max:84},
+  elite:{label:"ELITE",min:85,max:89},
+  ace:{label:"ACE",min:90,max:99}
 };
 
 function utTierForCardRating(value){
   const r=Math.round(Number(value)||0);
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=85)return "rare_gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "elite";
+  if(r>=80)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -22021,9 +22086,9 @@ function utPlayerTier(player){
   // Ultimate Team uses the same ACE PROJECT rarity ladder everywhere.
   const key=utMainPositionKey(player);
   const r=Math.round(positionRatings(player)[key] ?? overall(player));
-  if(r>=96)return "ace";
-  if(r>=90)return "elite";
-  if(r>=85)return "rare_gold";
+  if(r>=90)return "ace";
+  if(r>=85)return "elite";
+  if(r>=80)return "rare_gold";
   if(r>=75)return "gold";
   if(r>=60)return "silver";
   return "bronze";
@@ -22425,7 +22490,7 @@ async function showUltimateTripleReveal(cards,packId){
     revealBtn.classList.add("hidden");
 
     // --------------------------------------------------------
-    // ACE 96–99: dedicated legacy-style staged reveal.
+    // ACE 90–99: dedicated legacy-style staged reveal.
     // Blackout -> spade -> ACE -> rating -> player name -> card.
     // --------------------------------------------------------
     if(card.rarity==="ace"){
@@ -22731,8 +22796,8 @@ function aceUTOpenQuickSellModal(sellCard,value){
   const rating=Math.round(Number(sellCard.rating||sellCard.positionRating||0));
   const tier=String(UT_RARITY[sellCard.rarity]?.label||sellCard.rarity||"CARD").toUpperCase();
   const natural=aceUTCardNaturalRole(sellCard);
-  const high=rating>=90;
-  const ace=rating>=96;
+  const high=rating>=85;
+  const ace=rating>=90;
 
   aceUTPendingQuickSell={sellCard,value};
 
@@ -23548,9 +23613,9 @@ function toggleProfileSection(id){
 
 function profileTier(p){
   const r=mainPositionRating(p);
-  if(r>=96)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
-  if(r>=90)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
-  if(r>=85)return {key:"rare_gold",label:"RARE GOLD",cardClass:"profileTierGold"};
+  if(r>=90)return {key:"ace",label:"ACE",cardClass:"profileTierAce"};
+  if(r>=85)return {key:"elite",label:"ELITE",cardClass:"profileTierElite"};
+  if(r>=80)return {key:"rare_gold",label:"RARE GOLD",cardClass:"profileTierGold"};
   if(r>=75)return {key:"gold",label:"GOLD",cardClass:"profileTierGold"};
   if(r>=60)return {key:"silver",label:"SILVER",cardClass:"profileTierSilver"};
   return {key:"bronze",label:"BRONZE",cardClass:"profileTierBronze"};
@@ -25676,7 +25741,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - Player Database, homepage carousel, Compare, Player Reveal,
    Ultimate Team/pack reveal and Mini Draft reveal all use purple ACE.
  - Ultimate Team threshold aligned from 92+ to 90+.
- - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–84, Elite 90–95, Ace 96–99.
+ - Public rarity ladder is standardised to Bronze 1–59, Silver 60–74, Gold 75–79, Rare Gold 80–84, Elite 85–89, Ace 90–99.
 */
 
 /*
@@ -25684,7 +25749,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - 60–68 Silver
  - 69–79 Rare Silver
  - 80–84 Gold
- - 85–89 Rare Gold
+ - 80–84 Rare Gold
  - 90+ Ace
  - Rare Silver uses a richer SILVER base.
  - Rare Gold uses a richer GOLD base.
@@ -25810,7 +25875,7 @@ document.getElementById("playerCompareModal")?.addEventListener("click",e=>{if(e
  - Card OVR is the player's rating in that drafted role.
  - Card rarity/colour is recalculated from that role rating:
    60–68 Silver · 69–79 premium Silver · 80–84 Gold ·
-   85–89 premium Gold · 90+ Purple Ace.
+   80–84 premium Gold · 90+ Purple Ace.
  - Cinematic mystery reveal uses the same role-based position, OVR and rarity.
  - SUB/ANY picks continue to use the player's natural/best card identity.
 */
@@ -26456,7 +26521,7 @@ function vdsRenderUltimateHubHome(){
           <div>
             <small>FEATURED PACK</small>
             <strong>Rare Gold Hunt</strong>
-            <em>2,500 ◉ · 85–89 Rare Gold available</em>
+            <em>2,500 ◉ · 80–84 Rare Gold available</em>
           </div>
           <span class="aceUTFeaturedArrow"><small>VIEW PACK</small><b>→</b></span>
         </button>
@@ -26604,7 +26669,7 @@ function vdsRenderPackStoreShowcase(){
       <div class="acePackStoreHeroCopy">
         <small>${isGold?'FEATURED PACK':'CLUB STORE'}</small>
         <h2>${isGold?'CHASE YOUR NEXT ACE.':'BUILD YOUR COLLECTION.'}</h2>
-        <p>${isGold?'Rare Gold 85–89, Elite 90–95 and the ultra-rare Ace 96–99 are all in play.':'Choose a pack, check the odds and add a new card to your club.'}</p>
+        <p>${isGold?'Rare Gold 80–84, Elite 85–89 and the ultra-rare Ace 90–99 are all in play.':'Choose a pack, check the odds and add a new card to your club.'}</p>
       </div>
       <div class="acePackWallet">
         <span>ACE COINS</span><b>${vdsPackStoreWalletText()} ◉</b>
@@ -26646,7 +26711,7 @@ function vdsRenderPackStoreShowcase(){
           <div class="acePackPromise">
             <span><b>${pack.players}</b><small>PLAYER CARDS</small></span>
             <span><b>LIVE</b><small>PLAYER DATABASE</small></span>
-            <span><b>96–99</b><small>ACE RANGE</small></span>
+            <span><b>90–99</b><small>ACE RANGE</small></span>
           </div>
 
           <div class="acePackOdds">
@@ -26665,7 +26730,7 @@ function vdsRenderPackStoreShowcase(){
               <small>${useFreeGold?'NO COINS CHARGED':`ADD ${pack.players} CARD${pack.players===1?'':'S'} TO THE CLUB`}</small>
             </button>
           </div>
-          <div class="acePackOddsNote">Bronze 1–59 · Silver 60–74 · Gold 75–84 · Rare Gold 85–89 · Elite 90–95 · Ace 96–99</div>
+          <div class="acePackOddsNote">Bronze 1–59 · Silver 60–74 · Gold 75–79 · Rare Gold 80–84 · Elite 85–89 · Ace 90–99</div>
         </div>
       </main>
     </div>`;
@@ -27385,8 +27450,8 @@ const ACE_AI_DIVISIONS={
   1:{name:"ROOKIE",modifier:-6,multiplier:1.00,next:3},
   2:{name:"AMATEUR",modifier:-3,multiplier:1.05,next:6},
   3:{name:"CHALLENGER",modifier:0,multiplier:1.10,next:10},
-  4:{name:"PRO",modifier:2,multiplier:1.15,next:15},
-  5:{name:"ELITE",modifier:4,multiplier:1.20,next:null}
+  4:{name:"PRO",modifier:5,multiplier:1.15,next:15},
+  5:{name:"ELITE",modifier:8,multiplier:1.20,next:null}
 };
 
 const ACE_AI_ROOKIE_MILESTONES=[
@@ -27500,12 +27565,25 @@ function aceUTBuildAiOpponent(userCards,userRolePlayers,difficultyModifier=0){
     if(!candidates.length)candidates=broad.filter(p=>!used.has(p.name));
 
     const already=selected.map(x=>x.player);
+    const highDivision=Number(difficultyModifier||0)>=5;
+    const eliteDivision=Number(difficultyModifier||0)>=8;
+    const selectionNoise=eliteDivision?0.30:(highDivision?0.75:2.40);
+
     const scored=candidates.map(player=>{
       const rating=aceUTRoleRating(player,slot.role);
       const ratingDistance=Math.abs(rating-targetRating);
+      const shortfall=Math.max(0,targetRating-rating);
       const shared=already.reduce((n,other)=>n+sharedAffiliations(player,other).length,0);
-      // Mostly rating based, with a small preference for coherent club links.
-      const score=ratingDistance - Math.min(3,shared)*0.9 + Math.random()*2.4;
+
+      /* PRO/ELITE should not randomly roll an easier lineup.
+         Above Challenger, being below the requested target is penalised
+         more heavily while coherent club links still matter. */
+      const score=
+        ratingDistance
+        +(highDivision?shortfall*1.35:0)
+        -Math.min(3,shared)*0.9
+        +Math.random()*selectionNoise;
+
       return {player,score,rating};
     }).sort((a,b)=>a.score-b.score);
 
@@ -27667,7 +27745,7 @@ function aceUTRenderOpponentFound(){
       <div class="aceUTVersusTeam right">
         <span>${esc(aceUTAIProgressConfig().name)} AI OPPONENT</span>
         <b>${esc(opponent.name)}</b>
-        <small>${opponent.ovr} OVR · ${opponent.chem}/18 CHEM · ${aceUTAIProgressConfig().multiplier.toFixed(2)}× REWARDS</small>
+        <small>${opponent.ovr} OVR · ${opponent.chem}/18 CHEM · ${aceUTAIProgressConfig().division>=4?"HARD AI · ":""}${aceUTAIProgressConfig().multiplier.toFixed(2)}× REWARDS</small>
       </div>
     </div>
 
@@ -28501,12 +28579,19 @@ Object.assign(window,{
         S:{accuracy:3,hittingPower:4,creativity:4,serveReceive:1,positioning:12,covering:3,workRate:4,vertical:5,speed:5,reactionTime:11,service:6,blocking:7,setTechnique:19,setCreativity:12,mindset:4},
         L:{accuracy:0,hittingPower:0,creativity:2,serveReceive:26,positioning:15,covering:15,workRate:6,vertical:1,speed:7,reactionTime:12,service:0,blocking:0,setTechnique:7,setCreativity:3,mindset:6}
       };
-      const calc=(weights)=>{
+      const calc=(position,weights)=>{
         let score=0;
         for(const [key,pct] of Object.entries(weights)) score += a[key]*pct/100;
-        return Math.round(Math.max(0,Math.min(100,score)));
+        const base=Math.round(Math.max(0,Math.min(99,score)));
+        return aceApplyCoreOvrRules(base,position,a);
       };
-      return {OH:calc(W.OH),OP:calc(W.OP),M:calc(W.M),S:calc(W.S),L:calc(W.L)};
+      return {
+        OH:calc("OH",W.OH),
+        OP:calc("OP",W.OP),
+        M:calc("M",W.M),
+        S:calc("S",W.S),
+        L:calc("L",W.L)
+      };
     };
   }catch(e){}
 
@@ -43830,7 +43915,7 @@ body.ace34ShareOpen{
       }else{
         if(label)label.textContent="FEATURED PACK";
         if(strong)strong.textContent="Rare Gold Hunt";
-        if(em)em.textContent="2,500 ◉ · 85–89 Rare Gold available";
+        if(em)em.textContent="2,500 ◉ · 80–84 Rare Gold available";
       }
     }
 
@@ -44225,7 +44310,7 @@ body.ace34ShareOpen{
           <b>LIVE ACE PULLS</b>
           <span>REAL PACK OPENINGS</span>
         </div>
-        <small>96–99 OVR · UPDATES LIVE</small>
+        <small>90–99 OVR · UPDATES LIVE</small>
       </div>
       <div class="ace351LiveRail">${railHTML()}</div>`;
   }
@@ -46642,6 +46727,69 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.3 — NEW USER SIGN-IN BOOT FIX -->
+
+
+<!-- ACE B21.36.4 — CANONICAL OAUTH REDIRECT -->
+<script id="ace-b21-36-4-canonical-oauth-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.4";
+  window.ACE_CANONICAL_OAUTH_REDIRECT=true;
+  window.ACE_PRODUCTION_AUTH_RETURN="https://nishidaondrugs-spec.github.io/volleyball-draft-simulator/";
+})();
+</script>
+<!-- /ACE B21.36.4 — CANONICAL OAUTH REDIRECT -->
+
+
+<!-- ACE B21.36.5 — HARDER PRO DIVISION -->
+<script id="ace-b21-36-5-harder-pro-division-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.5";
+  window.ACE_PRO_DIVISION_DIFFICULTY=true;
+  window.ACE_PRO_AI_OVR_MODIFIER=5;
+  window.ACE_ELITE_AI_OVR_MODIFIER=8;
+  window.ACE_HIGH_DIVISION_AI_SELECTION_TIGHTENED=true;
+})();
+</script>
+<!-- /ACE B21.36.5 — HARDER PRO DIVISION -->
+
+
+<!-- ACE B21.36.6 — BLOCKING BALANCE + RARITY STANDARD -->
+<script id="ace-b21-36-6-block-rarity-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.6";
+  window.ACE_RARITY_STANDARD={
+    bronze:"1-59",
+    silver:"60-74",
+    gold:"75-79",
+    rare_gold:"80-84",
+    elite:"85-89",
+    ace:"90-99"
+  };
+  window.ACE_90_99_STANDARD=true;
+  window.ACE_TERMINAL_BLOCKS_REBALANCED=true;
+  window.ACE_BLOCK_RAW_CEILING=0.22;
+  window.ACE_BLOCK_COVER_BASE=0.30;
+})();
+</script>
+<!-- /ACE B21.36.6 — BLOCKING BALANCE + RARITY STANDARD -->
+
+
+<!-- ACE B21.36.7 — CORE OVR PENALTY -->
+<script id="ace-b21-36-7-core-ovr-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.7";
+  window.ACE_CORE_OVR_PENALTY=true;
+  window.ACE_CORE_OVR_RULES={
+    startsAt:85,
+    lowestCorePenalty:{"80+":0,"75-79":-1,"70-74":-2,"65-69":-3,"<65":-4},
+    extraPenalty:"Base 90+ with two core stats below 78: -1",
+    maxPenalty:-5,
+    elite95Rule:"95+ requires every core stat >=80 and core average >=88",
+    maxOVR:99
+  };
+})();
+</script>
+<!-- /ACE B21.36.7 — CORE OVR PENALTY -->
 
 </body>
 </html>
