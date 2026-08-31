@@ -47659,6 +47659,99 @@ body.ace34ShareOpen{
 </script>
 <!-- /ACE B21.36.11 — PROFILE VIEW ICON-ONLY PLAYSTYLES -->
 
+
+<!-- ACE B21.36.12 — PROFILE CARD CENTERING TWEAK -->
+<style id="ace-b21-36-12-profile-card-centering">
+/* Tight centring polish for the big player-profile card area */
+#vdsCardShowcaseOverlay .ace29ProfileCardStage{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+  text-align:center!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+  margin-left:auto!important;
+  margin-right:auto!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardWrap,
+#vdsCardShowcaseOverlay .ace29ProfileLeft{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardFrame{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+}
+
+/* Keep the row of boxed playstyle icons visually centred under the stats */
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles{
+  justify-content:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+</style>
+
+<script id="ace-b21-36-12-profile-card-centering-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.12";
+  window.ACE_PROFILE_CARD_CENTERING_TWEAK=true;
+})();
+</script>
+<!-- /ACE B21.36.12 — PROFILE CARD CENTERING TWEAK -->
+
+
+<!-- ACE B21.36.13 — PROFILE ICON BOX CENTERING -->
+<style id="ace-b21-36-13-profile-icon-box-centering">
+/* Optical centring fix:
+   some emoji glyphs sit slightly off-centre inside the boxed playstyle pills.
+   Force the icon span to be absolutely centred inside each box. */
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleEmoji{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:14px!important;
+  height:14px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important;
+  text-align:center!important;
+  line-height:1!important;
+}
+
+@media (min-width:900px){
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleEmoji{
+    width:15px!important;
+    height:15px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-13-profile-icon-box-centering-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.13";
+  window.ACE_PROFILE_PLAYSTYLE_ICON_BOX_CENTERING=true;
+})();
+</script>
+<!-- /ACE B21.36.13 — PROFILE ICON BOX CENTERING -->
+
 </body>
 </html>
 
