@@ -8951,13 +8951,72 @@ async function commitPlayerPhotoUrl(p,idx,url,successMessage){
   setTimeout(()=>setBgRemoveStatus(idx,successMessage,"success"),20);
 }
 
+async function aceOptimisePlayerUploadFile(file,player){
+  if(!file || !String(file.type||"").startsWith("image/"))return file;
+
+  try{
+    const bitmap=await createImageBitmap(file);
+    const sourceW=Math.max(1,Number(bitmap.width||1));
+    const sourceH=Math.max(1,Number(bitmap.height||1));
+    const maxDimension=1600;
+    const scale=Math.min(1,maxDimension/Math.max(sourceW,sourceH));
+    const width=Math.max(1,Math.round(sourceW*scale));
+    const height=Math.max(1,Math.round(sourceH*scale));
+
+    const canvas=document.createElement("canvas");
+    canvas.width=width;
+    canvas.height=height;
+    const ctx=canvas.getContext("2d",{alpha:true});
+    if(!ctx){
+      bitmap.close?.();
+      return file;
+    }
+
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+    ctx.clearRect(0,0,width,height);
+    ctx.drawImage(bitmap,0,0,width,height);
+    bitmap.close?.();
+
+    const blob=await new Promise(resolve=>{
+      canvas.toBlob(resolve,"image/webp",0.90);
+    });
+
+    // Never replace the source just for the sake of saying it was compressed.
+    // Keep the original whenever WebP fails or saves less than ~8%.
+    if(!blob || !blob.size || blob.size>=Number(file.size||0)*0.92){
+      return file;
+    }
+
+    const safe=(player?.name||"player")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-|-$/g,"") || "player";
+
+    return new File(
+      [blob],
+      `${safe}-${Date.now()}.webp`,
+      {type:"image/webp",lastModified:Date.now()}
+    );
+  }catch(error){
+    console.warn("ACE image optimisation skipped; using original upload.",error);
+    return file;
+  }
+}
+
 async function uploadPlayerPhotoToCloud(p,file){
   if(!cloudDb||!cloudAdmin||!file)return null;
-  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+  const uploadFile=await aceOptimisePlayerUploadFile(file,p);
+  const ext=(uploadFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
   const safe=(p.name||"player").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   const path=`${safe}-${Date.now()}.${ext||"jpg"}`;
 
-  const {error}=await cloudDb.storage.from("player-images").upload(path,file,{upsert:false});
+  const {error}=await cloudDb.storage.from("player-images").upload(path,uploadFile,{
+    upsert:false,
+    contentType:uploadFile.type||undefined,
+    cacheControl:"31536000"
+  });
   if(error)throw error;
 
   const {data}=cloudDb.storage.from("player-images").getPublicUrl(path);
@@ -9962,8 +10021,13 @@ let acePlayerRenderState={
 
 function acePlayerBatchSize(context="all"){
   const phone=!!window.matchMedia?.("(max-width:760px)")?.matches;
-  if(context==="pool")return phone?4:8;
-  return phone?6:14;
+
+  // B21.36.17 bandwidth saver:
+  // Keep the first paint useful without silently pulling dozens of large
+  // player photos from Storage. More cards still load normally as the user
+  // reaches the end of the batch.
+  if(context==="pool")return phone?3:6;
+  return phone?4:8;
 }
 
 function aceDisconnectPlayerObservers(){
@@ -10015,7 +10079,7 @@ function acePlayerAppendBatch(context="all"){
   if("IntersectionObserver" in window){
     const observer=new IntersectionObserver(entries=>{
       if(entries.some(entry=>entry.isIntersecting))loadNext();
-    },{root:null,rootMargin:"700px 0px",threshold:0.01});
+    },{root:null,rootMargin:"120px 0px",threshold:0.01});
     observer.observe(sentinel);
     acePlayerRenderState[isPool?"poolObserver":"allObserver"]=observer;
   }
@@ -10948,9 +11012,10 @@ function moveAttackerToApproach(teamNo,attacker,zoneInfo){
 
   if(["OH","OH1","OH2"].includes(role)){
     if(back){
-      // HARD RULE: back-row outside attacks only as a PIPE from Zone 6,
-      // remaining behind the 3 m line.
-      movePlayerToTacticalZone(teamNo,attacker,6,teamNo===1?-5:5,0);
+      // Back-row OH approaches from around the 3 m line, not from the
+      // deep defensive P6 home. Zone 3 is used only as the visual centre lane;
+      // the outward X offset keeps the player behind the attack line.
+      movePlayerToTacticalZone(teamNo,attacker,3,teamNo===1?-8:8,0);
     }else{
       movePlayerToTacticalZone(teamNo,attacker,4,teamNo===1?2:-2,0);
     }
@@ -11206,7 +11271,18 @@ function waitForNextPhase(label){
   });
 }
 
+function setDeadBallState(dead=true){
+  const ball=document.getElementById("ballAnim");
+  if(!ball)return;
+  ball.classList.toggle("deadBall",!!dead);
+  ball.dataset.dead=dead?"1":"0";
+}
+
 function finishStepRally(){
+  // Every terminal rally state — kill, ace, block point, reception error,
+  // attack error, setting error, etc. — finishes here.
+  // Red makes it immediately obvious the ball is no longer live.
+  setDeadBallState(true);
   const btn=document.getElementById("nextPhaseBtn");
   const status=document.getElementById("rallyStatus");
   if(btn){btn.classList.add("hidden");btn.disabled=true;}
@@ -11334,6 +11410,23 @@ function ballArcToCourt(teamNo,zone,offsetX=0,offsetY=0,rotate=0,duration=420,pe
   ballArcTo(p.left,p.top,rotate,duration,peak,endDepth);
 }
 
+/* Controlled reception target.
+   Important: this moves the BALL, not the setter.
+   Zone 3 gives us the middle lane; the X offset pulls the ball back from
+   the net to a realistic setting window just in front of the 3 m line. */
+function ballArcToSettingWindow(teamNo,passQuality,rotate=280,duration=360,peak=105,endDepth=72){
+  const grade=Number(passQuality?.grade||0);
+
+  // Perfect ball sits a touch closer to the net; a merely good ball lands
+  // almost on the 3 m window. Both stay central rather than drifting to P2.
+  const inward=
+    grade>=3 ? 5 :
+    grade>=2 ? 7 : 9;
+
+  const offsetX=teamNo===1 ? -inward : inward;
+  ballArcToCourt(teamNo,3,offsetX,0,rotate,duration,peak,endDepth);
+}
+
 function ballArcToNet(sideFrom,vertical="45%",rotate=0,duration=320,peak=120,endDepth=88){
   ballArcTo(sideFrom===1?"49%":"47%",vertical,rotate,duration,peak,endDepth);
 }
@@ -11454,7 +11547,13 @@ function shotCourtTarget(attackingTeamNo,attacker,evt={}){
     else if(id==="cross"){zone=fromRight?5:1;ox=2;oy=0;}
     else if(id==="deep_corner"){zone=fromRight?5:1;ox=6;oy=0;}
     else if(id==="tip"){zone=3;ox=-2;oy=0;depth="short";}
-    else if(id==="roll"){zone=6;ox=-2;oy=0;depth="medium";}
+    else if(id==="roll"){
+      const rt=evt?.shotTarget;
+      zone=Number(rt?.primaryZone||rt?.zones?.[0]||6);
+      ox=Number(rt?.offsetX??-2);
+      oy=Number(rt?.offsetY??0);
+      depth=rt?.depth==="short"?"short":rt?.depth==="deep"?"deep":"medium";
+    }
     else if(id==="deep_push"){zone=6;ox=6;oy=0;}
     else if(id==="cut"){zone=fromRight?4:2;ox=-2;oy=0;depth="short";}
     else if(id==="seam"){zone=6;ox=1;oy=0;depth="medium";}
@@ -11475,7 +11574,11 @@ function shotCourtTarget(attackingTeamNo,attacker,evt={}){
     ox=-1;
     depth="short";
   }else if(id==="roll"){
-    zone=6;ox=-2;depth="medium";
+    const rt=evt?.shotTarget;
+    zone=Number(rt?.primaryZone||rt?.zones?.[0]||6);
+    ox=Number(rt?.offsetX??-2);
+    oy=Number(rt?.offsetY??0);
+    depth=rt?.depth==="short"?"short":rt?.depth==="deep"?"deep":"medium";
   }else if(id==="deep_push"){
     zone=fromRight?5:1;ox=5;
   }else if(id==="cut"){
@@ -11506,6 +11609,14 @@ function shotNetCrossing(attackingTeamNo,attacker,evt={}){
   if(id==="cut") y=lane==="top"?60:lane==="bottom"?35:45;
   if(id==="seam") y=50;
   if(id==="tip") y=lane==="top"?33:lane==="bottom"?62:47;
+  if(id==="roll" && evt?.shotTarget?.rollVariant){
+    const rv=evt.shotTarget.rollVariant;
+    y=rv==="left_seam"?34:
+      rv==="right_seam"?64:
+      rv==="short_middle"?48:
+      rv==="deep_change"?(lane==="top"?34:lane==="bottom"?64:49):
+      50;
+  }
   if(id==="deep_push"||id==="deep_corner") y=lane==="top"?30:lane==="bottom"?66:48;
   if(id==="block_out") y=lane==="top"?24:lane==="bottom"?71:45;
 
@@ -11649,18 +11760,42 @@ async function animateTransitionPossessions(events=[]){
       continue;
     }
 
-    if(evt.secondBallAttack){
+    if(evt.secondBallAttack || evt.setterFakeAttack){
       setPhase("attack");
       if(setter){
+        if(evt.secondBallAttack){
+          // Setter made contact one: the back-row OH now comes forward to
+          // around the 3 m line to take contact two.
+          moveAttackerToApproach(atkNo,setter,null);
+          await rallySleep(120);
+        }
         ballArcToPlayer(atkNo,setter,120,250,105,72);
-        showPlayerAction(atkNo,setter,"SECOND BALL","attack");
+        showPlayerAction(
+          atkNo,setter,
+          evt.setterFakeAttack?"FAKE SET":"SECOND BALL",
+          "attack"
+        );
         animateCourtPlayer(atkNo,setter,"jumpAttack",430);
         await rallySleep(180);
       }
     }else{
       setPhase("set");
       if(setter){
-        ballArcToPlayer(atkNo,setter,120,250,105,72);
+        if(evt.fakeSetUsed){
+          // Same physical approach as the second-ball attack. The defence
+          // should see the back-row OH arriving near 3 m before the Fake Set.
+          moveAttackerToApproach(atkNo,setter,null);
+          await rallySleep(120);
+          ballArcToPlayer(atkNo,setter,120,250,105,72);
+        }else if(
+          evt.emergencySetterMode==="normal" &&
+          Number(evt.passQuality?.grade||0)>=2 &&
+          String(setter.assignedRole||"")==="S"
+        ){
+          ballArcToSettingWindow(atkNo,evt.passQuality,120,250,105,72);
+        }else{
+          ballArcToPlayer(atkNo,setter,120,250,105,72);
+        }
         showPlayerAction(
           atkNo,setter,
           evt.outcome==="setting_error"?"SET ERROR":
@@ -11681,7 +11816,7 @@ async function animateTransitionPossessions(events=[]){
     }
 
     if(attacker){
-      if(!evt.secondBallAttack){
+      if(!evt.secondBallAttack && !evt.setterFakeAttack){
         moveAttackerToApproach(atkNo,attacker,evt.attackerZone);
         const peak=evt.outOfSystem?190:attackStyleId(attacker)==="high_arc_hitter"?175:attacker.assignedRole==="M"?118:150;
         ballArcToPlayer(atkNo,attacker,260,280,peak,94);
@@ -11694,6 +11829,7 @@ async function animateTransitionPossessions(events=[]){
         atkNo,attacker,
         evt.outcome==="attack_error"?"HIT OUT":
         evt.secondBallAttack?"ATTACK ON 2":
+        evt.setterFakeAttack?"SETTER ATTACK":
         evt.fakeSetUsed?"FAKE SET TARGET":
         evt.overpassAttack?"OVERPASS ATTACK":shotActionLabel(evt),
         evt.outcome==="attack_error"?"negative":"attack"
@@ -11778,6 +11914,9 @@ async function animateTransitionPossessions(events=[]){
 async function animateRally(winner, context={}){
   const s=liveState;
   if(!s)return;
+
+  // A new serve makes the ball live again.
+  setDeadBallState(false);
 
   const servingTeamNo=context.servingTeamNo || s.server;
   const receivingTeamNo=context.receivingTeamNo || (servingTeamNo===1?2:1);
@@ -11895,23 +12034,33 @@ async function animateRally(winner, context={}){
 
   const setter=evt?.setter || designatedSetter(receivingTeam);
 
-  // Only now does the actual second-contact player leave home to set.
+  // Only now does the actual second-contact player prepare to set.
+  // The setter's existing movement is preserved, but a good pass is visually
+  // targeted to the central setting window — the BALL is what moves there.
   moveSetterToBase(receivingTeamNo,setter);
   await rallySleep(140);
-  ballArcToPlayer(receivingTeamNo,setter,280,360,105,72);
+
+  if(Number(evt?.passQuality?.grade||0)>=2){
+    ballArcToSettingWindow(receivingTeamNo,evt?.passQuality,280,360,105,72);
+  }else{
+    ballArcToPlayer(receivingTeamNo,setter,280,360,105,72);
+  }
+
   await rallySleep(390);
   await waitForNextPhase("RECEIVE");
 
-  setPhase("set");
+  setPhase(evt?.setterFakeAttack?"attack":"set");
   if(setter){
     const setId=playerCourtId(receivingTeamNo,setter);
     if(setId)pulsePlayer(setId);
     showPlayerAction(
       receivingTeamNo,setter,
-      evt?.outcome==="setting_error"?"SET ERROR":evt?.outOfSystem?"OUT OF SYSTEM":"SET",
-      evt?.outcome==="setting_error"?"negative":evt?.outOfSystem?"attack":"touch"
+      evt?.outcome==="setting_error"?"SET ERROR":
+      evt?.setterFakeAttack?"FAKE SET":
+      evt?.outOfSystem?"OUT OF SYSTEM":"SET",
+      evt?.outcome==="setting_error"?"negative":evt?.outOfSystem?"attack":evt?.setterFakeAttack?"attack":"touch"
     );
-    animateCourtPlayer(receivingTeamNo,setter,"jumpSet",420);
+    animateCourtPlayer(receivingTeamNo,setter,evt?.setterFakeAttack?"jumpAttack":"jumpSet",420);
   }
 
   if(evt?.outcome==="setting_error"){
@@ -11924,9 +12073,10 @@ async function animateRally(winner, context={}){
     return;
   }
 
-  // Set to actual attacker.
+  // Set to actual attacker — unless the setter has used Fake Set to attack
+  // contact two themselves.
   const attacker=evt?.attacker;
-  if(attacker){
+  if(attacker && !evt?.setterFakeAttack){
     moveAttackerToApproach(receivingTeamNo,attacker,evt?.attackerZone);
     await rallySleep(130);
     const setPeak=evt?.outOfSystem?195:
@@ -11934,15 +12084,22 @@ async function animateRally(winner, context={}){
                   attacker.assignedRole==="M"?120:155;
     ballArcToPlayer(receivingTeamNo,attacker,380,360,setPeak,94);
     await rallySleep(390);
+  }else if(evt?.setterFakeAttack){
+    await rallySleep(90);
   }
-  await waitForNextPhase("SET");
+  await waitForNextPhase(evt?.setterFakeAttack?"FAKE SET":"SET");
 
   // Attack across net.
   setPhase("attack");
   if(attacker){
     const aid=playerCourtId(receivingTeamNo,attacker);
     if(aid)pulsePlayer(aid);
-    showPlayerAction(receivingTeamNo,attacker,evt?.outcome==="attack_error"?"HIT OUT":shotActionLabel(evt),evt?.outcome==="attack_error"?"negative":"attack");
+    showPlayerAction(
+      receivingTeamNo,
+      attacker,
+      evt?.outcome==="attack_error"?"HIT OUT":evt?.setterFakeAttack?"ATTACK ON 2":shotActionLabel(evt),
+      evt?.outcome==="attack_error"?"negative":"attack"
+    );
     animateCourtPlayer(receivingTeamNo,attacker,"jumpAttack",620);
   }
 
@@ -12743,6 +12900,108 @@ function mindsetErrorMultiplier(p){
   return clamp(mult,.86,1.18);
 }
 
+function chooseRollShotTarget(p,context={}){
+  const creativity=clamp(Number(p?.creativity||0),0,99);
+  const variety=clamp((creativity-45)/50,0,1);
+  const role=String(p?.assignedRole||"");
+  const fromRight=role==="OP";
+
+  // Low-creativity hitters overwhelmingly use the conventional middle roll.
+  // As creativity rises the distribution spreads into short-middle, both
+  // seams and a small deep-change option.
+  const options=[
+    {
+      key:"middle",
+      label:"middle court",
+      weight:68-32*variety,
+      primaryZone:6,
+      zones:[6],
+      depth:"mid",
+      family:"roll",
+      rangeDifficulty:3,
+      offsetX:-2,
+      offsetY:0
+    },
+    {
+      key:"short_middle",
+      label:"short middle",
+      weight:14+11*variety,
+      primaryZone:3,
+      zones:[2,3,4],
+      depth:"short",
+      family:"roll_short",
+      rangeDifficulty:6,
+      offsetX:-2,
+      offsetY:0
+    },
+    {
+      key:"left_seam",
+      label:"left seam",
+      weight:9+8*variety,
+      primaryZone:5,
+      zones:[5,6],
+      depth:"mid",
+      family:"roll_seam",
+      rangeDifficulty:5,
+      offsetX:-1,
+      offsetY:3
+    },
+    {
+      key:"right_seam",
+      label:"right seam",
+      weight:9+8*variety,
+      primaryZone:1,
+      zones:[6,1],
+      depth:"mid",
+      family:"roll_seam",
+      rangeDifficulty:5,
+      offsetX:-1,
+      offsetY:-3
+    },
+    {
+      key:"deep_change",
+      label:"deep space",
+      weight:5*variety,
+      primaryZone:fromRight?5:1,
+      zones:[fromRight?5:1,6],
+      depth:"deep",
+      family:"roll_deep",
+      rangeDifficulty:6,
+      offsetX:3,
+      offsetY:0
+    }
+  ].filter(o=>o.weight>0);
+
+  // Soft Touch is especially capable of dropping the ball short.
+  if(attackStyleId(p)==="soft_touch"){
+    const short=options.find(o=>o.key==="short_middle");
+    const middle=options.find(o=>o.key==="middle");
+    if(short && middle){
+      const shift=Math.min(8,middle.weight*.16);
+      short.weight+=shift;
+      middle.weight-=shift;
+    }
+  }
+
+  const total=options.reduce((s,o)=>s+Math.max(.01,o.weight),0);
+  let r=Math.random()*total;
+  let selected=options[0];
+
+  for(const o of options){
+    r-=Math.max(.01,o.weight);
+    if(r<=0){
+      selected=o;
+      break;
+    }
+  }
+
+  return {
+    ...selected,
+    creativity,
+    variety
+  };
+}
+
 function chooseAttackShot(p, blocker, context={}){
   const blockers=context.blockers || (blocker?[blocker]:[]);
   const hasBlock=blockers.length>0;
@@ -12792,13 +13051,18 @@ function chooseAttackShot(p, blocker, context={}){
     matchStat(p,"hittingPower")*Number(shot.powerWeight||.3)*styleMods.powerMult +
     Number(p.creativity||0)*Number(shot.creativityWeight||.3);
 
+  const rollTarget=shot.id==="roll"
+    ? chooseRollShotTarget(p,{...context,backRow:!!context.backRow})
+    : null;
+
   return {
     shot,
     execution,
     readPenalty,
     blockEvasion:Number(shot.blockEvasion||0)+readPenalty+styleMods.blockEvasion,
     styleMods,
-    backRow:!!context.backRow
+    backRow:!!context.backRow,
+    rollTarget
   };
 }
 function shotCommentary(attacker, shotInfo, blocker){
@@ -12807,7 +13071,12 @@ function shotCommentary(attacker, shotInfo, blocker){
   if(s==="cross") return `${n} swings cross-court`;
   if(s==="tip") return `${n} disguises the swing and tips over the block`;
   if(s==="deep_push") return `${n} pushes the ball deep behind the defence`;
-  if(s==="roll") return `${n} takes the pace off with a roll shot`;
+  if(s==="roll"){
+    const label=shotInfo?.rollTarget?.label;
+    return label
+      ? `${n} takes the pace off and rolls into ${label}`
+      : `${n} takes the pace off with a roll shot`;
+  }
   if(s==="deep_corner") return `${n} targets the deep corner`;
   if(s==="cut") return `${n} cuts a sharp cross-court angle inside the defence`;
   if(s==="block_out") return `${n} attacks ${b}'s hands looking for the block-out`;
@@ -13192,6 +13461,155 @@ function sanitizeBlockersForRotation(team,rotation,blockers=[]){
   return (blockers||[]).filter(p=>p && legal.has(p.name));
 }
 
+/* ===== B21.36.14 FAKE SET DECEPTION =====
+   Fake Set does not grant a hidden hitting boost.
+   Its value is that blockers may commit to the wrong second-contact threat
+   and then have to read/recover to the real attacker. */
+function fakeSetQualityScore(player){
+  if(!player)return 0;
+  return (
+    Number(player.setCreativity||0)*.45 +
+    matchStat(player,"setTechnique")*.30 +
+    matchStat(player,"reactionTime")*.15 +
+    Number(player.mindset||0)*.10
+  );
+}
+
+function fakeSetBlockReadScore(player){
+  if(!player)return 0;
+  return (
+    matchStat(player,"reactionTime")*.35 +
+    Number(player.positioning||0)*.30 +
+    matchStat(player,"blocking")*.20 +
+    Number(player.mindset||0)*.15
+  );
+}
+
+function fakeSetBlockRecoveryScore(player){
+  if(!player)return 0;
+  return (
+    matchStat(player,"reactionTime")*.30 +
+    Number(player.positioning||0)*.25 +
+    matchStat(player,"blocking")*.20 +
+    matchStat(player,"speed")*.25
+  );
+}
+
+function applyFakeSetBlockDiversion(defendingTeam,defRotation,blockers,faker,mode="oh"){
+  const legal=sanitizeBlockersForRotation(defendingTeam,defRotation,blockers);
+  const fakeQuality=fakeSetQualityScore(faker);
+
+  if(!legal.length || !faker || fakeQuality<=0){
+    return {
+      blockers:legal,
+      mode,
+      fakeQuality,
+      defenseRead:0,
+      originalCount:legal.length,
+      recoveredCount:legal.length,
+      fooledCount:0,
+      latePenalty:0
+    };
+  }
+
+  const reads=legal.map(fakeSetBlockReadScore);
+  const defenseRead=reads.reduce((s,v)=>s+v,0)/reads.length;
+  const survivors=[];
+
+  legal.forEach((p,index)=>{
+    const read=fakeSetBlockReadScore(p);
+    const recovery=fakeSetBlockRecoveryScore(p);
+    const composite=read*.58+recovery*.42;
+
+    // OH Fake Set: blockers were loading onto the apparent back-row contact-two
+    // attack, then have to peel to the real third-contact hitter.
+    // Setter Fake Set: blockers are releasing to hitters while the setter
+    // attacks contact two, so no-block / late-solo outcomes are more common.
+    let recoverChance=
+      mode==="setter"
+        ? .38 + (composite-fakeQuality)*.0105
+        : .69 + (composite-fakeQuality)*.0105;
+
+    // The best initial reader has a slightly better chance to stay alive.
+    if(index===0)recoverChance+=mode==="setter"?.07:.06;
+
+    recoverChance=clamp(
+      recoverChance,
+      mode==="setter"?.08:.16,
+      mode==="setter"?.70:.92
+    );
+
+    if(Math.random()<recoverChance){
+      survivors.push({p,read,recovery,composite,recoverChance});
+    }
+  });
+
+  let recovered=survivors.map(x=>x.p);
+
+  // A setter dump/fake attack should usually be no block or a late solo.
+  // A truly elite read can still produce a late double, but never a triple.
+  if(mode==="setter" && recovered.length>2){
+    recovered=recovered
+      .sort((a,b)=>fakeSetBlockRecoveryScore(b)-fakeSetBlockRecoveryScore(a))
+      .slice(0,2);
+  }
+
+  recovered=sanitizeBlockersForRotation(defendingTeam,defRotation,recovered);
+
+  const fooledCount=Math.max(0,legal.length-recovered.length);
+  const latePenalty=recovered.length
+    ? (mode==="setter" ? 5+fooledCount*2.2 : 2.5+fooledCount*1.7)
+    : 0;
+
+  return {
+    blockers:recovered,
+    mode,
+    fakeQuality,
+    defenseRead,
+    originalCount:legal.length,
+    recoveredCount:recovered.length,
+    fooledCount,
+    latePenalty
+  };
+}
+
+function setterFakeSetAttackChance(setter,passQuality,team,rotation,passer,setGrade){
+  if(!setter || !team || !aceHasFakeSetAbility(setter))return 0;
+  if(String(setter.assignedRole||"")!=="S")return 0;
+  if(passer?.name===setter.name)return 0;
+
+  const zones=effectiveSixOneZones(team,rotation);
+  if(!zones[setter.name]?.front)return 0;
+
+  const grade=Number(passQuality?.grade||0);
+  if(grade<2 || setGrade?.error || setGrade?.outOfSystem)return 0;
+
+  const info=aceFakeSetEligibility(setter);
+
+  let chance=
+    .08 +
+    Math.max(0,info.setCreativity-76)*.0010 +
+    Math.max(0,info.reaction-70)*.00045 +
+    Math.max(0,info.setTechnique-72)*.00020;
+
+  if(grade>=3)chance+=.004;
+  return clamp(chance,.08,.12);
+}
+
+function fakeSetBlockComment(formation){
+  const f=formation?.fakeSet;
+  if(!f)return "";
+  if(f.recoveredCount===0){
+    return ` 🎭 The fake pulls the block away — NO BLOCK recovers.`;
+  }
+  if(f.fooledCount>0){
+    const blockName=f.recoveredCount===1?"a late SOLO BLOCK":
+      f.recoveredCount===2?"a late DOUBLE BLOCK":"the block";
+    return ` 🎭 ${f.fooledCount} blocker${f.fooledCount===1?"":"s"} bite on the fake; only ${blockName} recovers.`;
+  }
+  return ` 🧠 The defence reads the fake and keeps its block organised.`;
+}
+
 function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   let blockers=sanitizeBlockersForRotation(
     defendingTeam,
@@ -13312,8 +13730,24 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
 
   // Final legality check in case any earlier logic/state changed mid-rally.
   chosen=sanitizeBlockersForRotation(defendingTeam,defRotation,chosen);
+
+  let fakeSetMeta=null;
+  if(context.fakeSetFaker && context.fakeSetMode){
+    fakeSetMeta=applyFakeSetBlockDiversion(
+      defendingTeam,
+      defRotation,
+      chosen,
+      context.fakeSetFaker,
+      context.fakeSetMode
+    );
+    chosen=fakeSetMeta.blockers;
+  }
+
   if(!chosen.length){
-    return {type:"NO BLOCK",blockers:[],quality:0,read:0,close:0,tempo,outOfSystem};
+    return {
+      type:"NO BLOCK",blockers:[],quality:0,read,close:0,tempo,outOfSystem,blockPlan,
+      fakeSet:fakeSetMeta
+    };
   }
 
   const type=
@@ -13333,7 +13767,13 @@ function buildBlockFormation(defendingTeam,defRotation,attacker,context={}){
   if(outOfSystem) quality+=4;
   quality+=tacticalBlockQuality;
 
-  return {type,blockers:chosen,quality,read,close,tempo,outOfSystem,blockPlan};
+  // A blocker who recovers after biting on a Fake Set is late. The punishment
+  // is applied to the BLOCK, not as an arbitrary attack-stat bonus.
+  if(fakeSetMeta?.latePenalty){
+    quality=Math.max(0,quality-fakeSetMeta.latePenalty);
+  }
+
+  return {type,blockers:chosen,quality,read,close,tempo,outOfSystem,blockPlan,fakeSet:fakeSetMeta};
 }
 
 function chooseBlockCoverer(attackingTeam, attacker){
@@ -13413,6 +13853,23 @@ function gameplayShotTarget(attacker,shotInfo){
   const fromRight=role==="OP";
   const backRow=!!shotInfo?.backRow;
 
+  // Roll placement is chosen once in chooseAttackShot(). Reuse it everywhere
+  // so animation, defender selection and dig difficulty all describe the same ball.
+  if(id==="roll" && shotInfo?.rollTarget){
+    const rt=shotInfo.rollTarget;
+    return {
+      zones:Array.isArray(rt.zones)?rt.zones:[Number(rt.primaryZone)||6],
+      primaryZone:Number(rt.primaryZone)||6,
+      depth:rt.depth||"mid",
+      family:rt.family||"roll",
+      rangeDifficulty:Number(rt.rangeDifficulty||3),
+      rollVariant:rt.key||"middle",
+      rollLabel:rt.label||"middle court",
+      offsetX:Number(rt.offsetX||0),
+      offsetY:Number(rt.offsetY||0)
+    };
+  }
+
   // Back-row OH pipe attacks originate from Zone 6. They can still choose
   // different finishes, but are not treated as a front-row Zone 4 pin swing.
   if(backRow && ["OH","OH1","OH2"].includes(role)){
@@ -13421,7 +13878,7 @@ function gameplayShotTarget(attacker,shotInfo){
       case "line":        return {zones:[6],depth:"deep",family:"pipe_line",rangeDifficulty:2};
       case "deep_corner": return {zones:[5,1],depth:"very_deep",family:"pipe_corner",rangeDifficulty:7};
       case "tip":         return {zones:[3],depth:"short",family:"pipe_tip",rangeDifficulty:9};
-      case "roll":        return {zones:[6],depth:"mid",family:"roll",rangeDifficulty:3};
+      case "roll":        return {zones:[6],primaryZone:6,depth:"mid",family:"roll",rangeDifficulty:3,rollVariant:"middle"};
       case "deep_push":   return {zones:[6],depth:"very_deep",family:"push",rangeDifficulty:6};
       case "cut":         return {zones:[4,2],depth:"short",family:"sharp_cross",rangeDifficulty:11};
       case "block_out":   return {zones:[],depth:"net",family:"tool",rangeDifficulty:0};
@@ -13434,7 +13891,7 @@ function gameplayShotTarget(attacker,shotInfo){
     case "line":        return {zones:[fromRight?5:1],depth:"deep",family:"line",rangeDifficulty:3};
     case "deep_corner": return {zones:[fromRight?5:1],depth:"very_deep",family:"corner",rangeDifficulty:7};
     case "tip":         return {zones:fromRight?[4,3]:[2,3],depth:"short",family:"tip",rangeDifficulty:8};
-    case "roll":        return {zones:[6],depth:"mid",family:"roll",rangeDifficulty:3};
+    case "roll":        return {zones:[6],primaryZone:6,depth:"mid",family:"roll",rangeDifficulty:3,rollVariant:"middle"};
     case "deep_push":   return {zones:[fromRight?5:1,6],depth:"very_deep",family:"push",rangeDifficulty:6};
     case "cut":         return {zones:[fromRight?4:2],depth:"short",family:"sharp_cross",rangeDifficulty:11};
     case "block_out":   return {zones:[],depth:"net",family:"tool",rangeDifficulty:0};
@@ -13475,8 +13932,14 @@ function defenderForShot(defendingTeam,defRot,attacker,shotInfo){
     if(target.family==="seam"&&targetZones.includes(current))reach+=12;
 
     const style=defenseStyleId(p);
-    if(style==="chaser")reach+=target.depth==="short"||target.family==="sharp_cross"?32:12;
-    if(style==="court_reader")reach+=["cross","line","roll","seam"].includes(target.family)?20:7;
+    if(style==="chaser"){
+      if(target.depth==="short" || target.family==="sharp_cross" || target.family==="roll_short")reach+=32;
+      else if(target.family==="roll_seam")reach+=18;
+      else reach+=12;
+    }
+    if(style==="court_reader"){
+      reach+=["cross","line","roll","roll_short","roll_seam","roll_deep","seam"].includes(target.family)?20:7;
+    }
     if(style==="deep_court_guardian"){
       if(target.depth==="deep"||target.depth==="very_deep")reach+=34;
       if(target.depth==="short")reach-=28;
@@ -13498,10 +13961,11 @@ function shotDigDifficulty(attacker,shotInfo,defender,defRot,defendingTeam){
   if(target.depth==="short"&&z?.back)penalty+=8;
 
   const style=defenseStyleId(defender);
-  if(style==="chaser"&&(target.depth==="short"||target.family==="sharp_cross"))penalty-=12;
+  if(style==="chaser"&&(target.depth==="short"||target.family==="sharp_cross"||target.family==="roll_short"))penalty-=12;
+  if(style==="chaser"&&target.family==="roll_seam")penalty-=6;
   if(style==="deep_court_guardian"&&(target.depth==="deep"||target.depth==="very_deep"))penalty-=12;
   if(style==="deep_court_guardian"&&target.depth==="short")penalty+=10;
-  if(style==="court_reader"&&["cross","line","roll","seam"].includes(target.family))penalty-=6;
+  if(style==="court_reader"&&["cross","line","roll","roll_short","roll_seam","roll_deep","seam"].includes(target.family))penalty-=6;
 
   return clamp(penalty,-8,28);
 }
@@ -13537,7 +14001,7 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   }
 
   const setter=designatedSetter(attackingTeam);
-  const setGrade=calculateSetQuality(setter,passQuality);
+  let setGrade=calculateSetQuality(setter,passQuality);
 
   // Only a genuine mishandle ends the point here. An OOS set stays alive.
   if(setGrade.error){
@@ -13546,8 +14010,41 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
   }
 
   const attackSelectionPass={...passQuality,outOfSystem:!!setGrade.outOfSystem};
-  const choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass);
-  const attacker=choice.attacker;
+  const setterFakeChance=setterFakeSetAttackChance(setter,passQuality,attackingTeam,atkRot,passer,setGrade);
+  const setterFakeAttack=setterFakeChance>0 && Math.random()<setterFakeChance;
+
+  let choice;
+  let attacker;
+
+  if(setterFakeAttack){
+    attacker=setter;
+
+    // No set is actually made. Carry the controlled pass quality into the
+    // setter's legal front-row contact-two attack.
+    setGrade={
+      ...setGrade,
+      label:"Fake Set",
+      grade:Math.max(2,Number(setGrade.grade||2)),
+      modifier:Number(passQuality.grade)>=3?1.04:.98,
+      error:false,
+      outOfSystem:false
+    };
+
+    choice={
+      attacker,
+      setterIQ:
+        matchStat(setter,"setTechnique")*.38+
+        Number(setter.setCreativity||0)*.47+
+        matchStat(setter,"reactionTime")*.15,
+      options:[attacker],
+      distribution:[{name:attacker.name,role:attacker.assignedRole,row:"front",probability:1}],
+      outOfSystem:false
+    };
+  }else{
+    choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass);
+    attacker=choice.attacker;
+  }
+
   const attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
   const outOfSystem=!!setGrade.outOfSystem;
 
@@ -13555,10 +14052,14 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     passGrade:passQuality.grade,
     setterIQ:choice.setterIQ,
     backRow:!!attackerZone?.back,
-    outOfSystem
+    outOfSystem,
+    fakeSetFaker:setterFakeAttack?setter:null,
+    fakeSetMode:setterFakeAttack?"setter":null
   });
   const legalFrontBlockers=legalBlockers(defendingTeam,defRot);
-  const blocker=formation.blockers[0] || weightedPick(legalFrontBlockers,p=>matchStat(p,"blocking")) || null;
+  const blocker=formation.type==="NO BLOCK"
+    ? null
+    : (formation.blockers[0] || weightedPick(legalFrontBlockers,p=>matchStat(p,"blocking")) || null);
 
   let defender=weightedPick(defendingTeam,p=>{
     const z=effectiveSixOneZones(defendingTeam,defRot)[p.name];
@@ -13658,15 +14159,20 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     outcome="dig";
   }
 
-  const setIntro=setQualityText(setGrade,setter);
+  const fakeBlockNote=fakeSetBlockComment(formation);
+  const setIntro=setterFakeAttack
+    ? `🎭 ${setter.name} shows a normal set and holds the blockers on the hitters.`
+    : setQualityText(setGrade,setter);
   const playstyleNote=attackStyleId(attacker)!=="none" ? ` [${attackingPlaystyle(attacker).name}]` : "";
-  const decision = outOfSystem
-    ? `OUT OF SYSTEM: ${setter.name} has no quick option and hangs a high ball for outside hitter ${attacker.name}`
-    : passQuality.grade===3 && attacker.assignedRole==="M"
-      ? `${setter.name} sees the perfect pass and runs a quick middle`
-      : passQuality.grade<=1
-        ? `${setter.name} is forced off the net and sends a safer high ball to ${attacker.name}`
-        : `${setter.name} reads the block and chooses ${attacker.name}`;
+  const decision = setterFakeAttack
+    ? `FAKE SET: ${setter.name} attacks the second contact instead${fakeBlockNote}`
+    : outOfSystem
+      ? `OUT OF SYSTEM: ${setter.name} has no quick option and hangs a high ball for outside hitter ${attacker.name}`
+      : passQuality.grade===3 && attacker.assignedRole==="M"
+        ? `${setter.name} sees the perfect pass and runs a quick middle`
+        : passQuality.grade<=1
+          ? `${setter.name} is forced off the net and sends a safer high ball to ${attacker.name}`
+          : `${setter.name} reads the block and chooses ${attacker.name}`;
 
   let text;
   if(outcome==="attack_error"){
@@ -13687,7 +14193,8 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
 
   return {attackingTeamNo,passer,server,setter,attacker,blocker,defender,formation,outcome,text,
     shot:shotInfo.shot.name,shotId:shotInfo.shot.id,shotTarget:gameplayShotTarget(attacker,shotInfo),
-    passQuality,setGrade,setterIQ:choice.setterIQ,attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem};
+    passQuality,setGrade,setterIQ:choice.setterIQ,attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem,
+    setterFakeAttack,setterFakeChance};
 }
 
 
@@ -13929,6 +14436,8 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   let secondBallAttack=false;
   let fakeSetUsed=false;
   let fakeSetChance=0;
+  let setterFakeAttack=false;
+  let setterFakeChance=0;
   let setterFirstBackOH=null;
 
   if(setterFirstContact && Number(passQuality.grade)>=2){
@@ -14077,17 +14586,61 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
       }
     }
 
-    const attackSelectionPass={...passQuality,outOfSystem:!!setGrade.outOfSystem};
-    choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass,setter);
-    attacker=choice.attacker;
-    attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
-    outOfSystem=!!setGrade.outOfSystem;
+    setterFakeChance=setterFakeSetAttackChance(
+      setter,
+      passQuality,
+      attackingTeam,
+      atkRot,
+      passer,
+      setGrade
+    );
+    setterFakeAttack=setterFakeChance>0 && Math.random()<setterFakeChance;
+
+    if(setterFakeAttack){
+      attacker=setter;
+      attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
+      outOfSystem=false;
+
+      setGrade={
+        ...setGrade,
+        label:"Fake Set",
+        grade:Math.max(2,Number(setGrade.grade||2)),
+        modifier:Number(passQuality.grade)>=3?1.04:.98,
+        error:false,
+        outOfSystem:false
+      };
+
+      choice={
+        attacker,
+        setterIQ:
+          matchStat(setter,"setTechnique")*.38+
+          Number(setter.setCreativity||0)*.47+
+          matchStat(setter,"reactionTime")*.15,
+        options:[attacker],
+        distribution:[{name:attacker.name,role:attacker.assignedRole,row:"front",probability:1}],
+        outOfSystem:false
+      };
+    }else{
+      const attackSelectionPass={...passQuality,outOfSystem:!!setGrade.outOfSystem};
+      choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass,setter);
+      attacker=choice.attacker;
+      attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
+      outOfSystem=!!setGrade.outOfSystem;
+    }
   }
 
   const formation=buildBlockFormation(defendingTeam,defRot,attacker,{
-    passGrade:passQuality.grade,setterIQ:choice.setterIQ,backRow:!!attackerZone?.back,outOfSystem
+    passGrade:passQuality.grade,
+    setterIQ:choice.setterIQ,
+    backRow:!!attackerZone?.back,
+    outOfSystem,
+    fakeSetFaker:fakeSetUsed?setterFirstBackOH:(setterFakeAttack?setter:null),
+    fakeSetMode:fakeSetUsed?"oh":(setterFakeAttack?"setter":null)
   });
-  const blocker=formation.blockers[0] || weightedPick(defendingTeam.filter(p=>p.assignedRole!=="L"),p=>matchStat(p,"blocking"));
+  const legalTransitionBlockers=legalBlockers(defendingTeam,defRot);
+  const blocker=formation.type==="NO BLOCK"
+    ? null
+    : (formation.blockers[0] || weightedPick(legalTransitionBlockers,p=>matchStat(p,"blocking")) || null);
   let defender=weightedPick(defendingTeam,p=>{
     const z=effectiveSixOneZones(defendingTeam,defRot)[p.name];
     const backBoost=z?.back?1.18:.82;
@@ -14156,23 +14709,28 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
     emergencySetterMode==="nearest"?`🆘 ${setter.name} is closest and takes the emergency second contact. `:
     emergencySetterMode==="setter_first_back_oh"?`🔄 Setter takes first contact cleanly — back-row OH ${setter.name} comes in for contact two. `:"";
 
+  const fakeBlockNote=fakeSetBlockComment(formation);
   const setIntro=secondBallAttack
     ?`${emergencyIntro}⚡ ${setter.name} loads to attack the second ball from behind the 3 m line.`
     :fakeSetUsed
       ?`${emergencyIntro}🎭 ${setter.name} shows the second-ball attack, then changes shape in the air.`
-      :emergencyIntro+setQualityText(setGrade,setter);
+      :setterFakeAttack
+        ?`${emergencyIntro}🎭 ${setter.name} shows a normal set and waits for the block to release.`
+        :emergencyIntro+setQualityText(setGrade,setter);
 
   const decision=secondBallAttack
     ?`SECOND-BALL ATTACK: ${setter.name} takes the organised back-row swing on contact two`
     :fakeSetUsed
-      ?`FAKE SET: ${setter.name} sells the back-row attack and sets ${attacker.name} instead`
-      :outOfSystem
-        ?`OUT OF SYSTEM: ${setter.name} sends a slow high ball to outside hitter ${attacker.name}, giving the block time to load up`
-        :passQuality.grade===3&&attacker.assignedRole==="M"
-          ?`${setter.name} turns the transition into a quick middle for ${attacker.name}`
-          :passQuality.grade<=1
-            ?`${setter.name} sends the emergency ball high to ${attacker.name}`
-            :`${setter.name} settles under it and chooses ${attacker.name}`;
+      ?`FAKE SET: ${setter.name} sells the back-row attack and sets ${attacker.name} instead${fakeBlockNote}`
+      :setterFakeAttack
+        ?`FAKE SET: ${setter.name} attacks the second contact instead${fakeBlockNote}`
+        :outOfSystem
+          ?`OUT OF SYSTEM: ${setter.name} sends a slow high ball to outside hitter ${attacker.name}, giving the block time to load up`
+          :passQuality.grade===3&&attacker.assignedRole==="M"
+            ?`${setter.name} turns the transition into a quick middle for ${attacker.name}`
+            :passQuality.grade<=1
+              ?`${setter.name} sends the emergency ball high to ${attacker.name}`
+              :`${setter.name} settles under it and chooses ${attacker.name}`;
   let text;
   if(outcome==="attack_error"){
     text=`${passIntro} → <span class="setGrade">${setGrade.label.toUpperCase()}</span> ${setIntro} → ${decision} → ${shotText}${attackContext}, but the counterattack misses — point ${defendingName}.`;
@@ -14190,6 +14748,7 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
     blocker,defender,formation,outcome,text,shot:shotInfo.shot.name,shotId:shotInfo.shot.id,shotTarget:gameplayShotTarget(attacker,shotInfo),setterIQ:choice.setterIQ,
     attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem,emergencySetterMode,
     setterFirstContact,secondBallAttack,fakeSetUsed,fakeSetChance,
+    setterFakeAttack,setterFakeChance,
     setterFirstBackOH:setterFirstBackOH?.name||null};
 }
 
@@ -18802,22 +19361,49 @@ async function vdsSignOut(){
   }
 }
 
-function vdsAuthPlayerCardMarkup(p,slotClass){
+function vdsAuthPlayerCardMarkup(p,slotClass,{deferPhoto=false}={}){
   const tier=cardTier(p);
   const mainPos=(p.position||"").toUpperCase();
   const posClass=["OH","OP","M","S","L"].includes(mainPos)?` pos-${mainPos}`:"";
 
   // The login reel uses the exact same canonical card body as Player Database.
+  // Only the currently visible login card is allowed to carry a live image src.
+  // Inactive carousel cards keep the URL in data-ace-auth-src until selected.
+  let body=vdsMasterPlayerCardHTML(p,{
+    role:p.position&&p.position!=="-"?p.position:"POS",
+    rating:mainPositionRating(p),
+    tier,
+    tierLabel:cardTierLabel(p),
+    footer:"VIEW PLAYER"
+  });
+
+  if(deferPhoto && p?.photo){
+    body=body.replace(
+      ` src="${p.photo}"`,
+      ` data-ace-auth-src="${esc(p.photo)}"`
+    );
+  }
+
   return `
     <div class="fifaPlayerCard vdsAuthDbCard ${slotClass} ${tier}${posClass} ${selectedPlaystyleCount(p)>0?"aceHasCardPlaystyles":""}">
-      ${vdsMasterPlayerCardHTML(p,{
-        role:p.position&&p.position!=="-"?p.position:"POS",
-        rating:mainPositionRating(p),
-        tier,
-        tierLabel:cardTierLabel(p),
-        footer:"VIEW PLAYER"
-      })}
+      ${body}
     </div>`;
+}
+
+function vdsAuthEnsureSlideImage(index){
+  const slides=vdsAuthCarouselSlides();
+  const slide=slides[Math.max(0,Math.min(slides.length-1,Number(index)||0))];
+  if(!slide)return;
+
+  slide.querySelectorAll("img[data-ace-auth-src]").forEach(img=>{
+    const src=img.getAttribute("data-ace-auth-src");
+    if(!src)return;
+    img.loading="eager";
+    img.decoding="async";
+    try{img.fetchPriority="high"}catch(_){}
+    img.src=src;
+    img.removeAttribute("data-ace-auth-src");
+  });
 }
 
 let vdsAuthCarouselIndex=0;
@@ -18892,6 +19478,9 @@ function vdsSetAuthCarouselActive(index,{scroll=true,instant=false}={}){
     }
   }
 
+  // Load only the card the user actually selected.
+  vdsAuthEnsureSlideImage(next);
+
   const featured=window.vdsAuthFeaturedPlayers||[];
   const active=featured[next];
   if(next!==vdsAuthCarouselLastBackdropIndex){
@@ -18899,12 +19488,10 @@ function vdsSetAuthCarouselActive(index,{scroll=true,instant=false}={}){
     const backdrop=document.getElementById("vdsAuthBackdropPlayer");
     if(backdrop && active?.photo){
       backdrop.style.opacity=".08";
-      const img=new Image();
-      img.onload=()=>{
-        backdrop.src=active.photo;
-        requestAnimationFrame(()=>{backdrop.style.opacity="1";});
-      };
-      img.src=active.photo;
+      backdrop.loading="eager";
+      backdrop.decoding="async";
+      backdrop.src=active.photo;
+      requestAnimationFrame(()=>{backdrop.style.opacity="1";});
     }
   }
 }
@@ -18957,6 +19544,8 @@ function vdsUpdateAuthCarouselVisuals(){
       dot.classList.toggle("isActive",i===bestIndex);
     });
 
+    vdsAuthEnsureSlideImage(bestIndex);
+
     const featured=window.vdsAuthFeaturedPlayers||[];
     const active=featured[bestIndex];
     if(bestIndex!==vdsAuthCarouselLastBackdropIndex && active?.photo){
@@ -18964,12 +19553,10 @@ function vdsUpdateAuthCarouselVisuals(){
       const backdrop=document.getElementById("vdsAuthBackdropPlayer");
       if(backdrop){
         backdrop.style.opacity=".10";
-        const img=new Image();
-        img.onload=()=>{
-          backdrop.src=active.photo;
-          requestAnimationFrame(()=>{backdrop.style.opacity="1";});
-        };
-        img.src=active.photo;
+        backdrop.loading="eager";
+        backdrop.decoding="async";
+        backdrop.src=active.photo;
+        requestAnimationFrame(()=>{backdrop.style.opacity="1";});
       }
     }
   }
@@ -19148,7 +19735,7 @@ function vdsRenderSignInSupabaseCards(){
         ${featured.map((p,i)=>`
           <div class="vdsAuthCarouselSlide ${i===0?"isActive":""}" data-index="${i}">
             <div class="vdsAuthCarouselRank">TOP ${i+1}</div>
-            ${vdsAuthPlayerCardMarkup(p,"")}
+            ${vdsAuthPlayerCardMarkup(p,"",{deferPhoto:i!==0})}
           </div>
         `).join("")}
       </div>
@@ -19171,6 +19758,8 @@ function vdsRenderSignInSupabaseCards(){
 
   const backdrop=document.getElementById("vdsAuthBackdropPlayer");
   if(backdrop && featured[0]?.photo){
+    backdrop.loading="eager";
+    backdrop.decoding="async";
     backdrop.src=featured[0].photo;
     backdrop.alt="";
   }
@@ -21609,7 +22198,7 @@ function renderAuction(){
     card.innerHTML=`<div class="small">PLAYER UP FOR AUCTION</div>
       <div class="auctionName" style="margin-top:10px">${esc(p.name)}</div>
       ${p.photo
-        ? `<img src="${p.photo}" alt="${esc(p.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,.7);margin:14px auto 10px;display:block;box-shadow:0 10px 28px rgba(0,0,0,.28)">`
+        ? `<img src="${p.photo}" alt="${esc(p.name)}" loading="lazy" decoding="async" fetchpriority="low" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,.7);margin:14px auto 10px;display:block;box-shadow:0 10px 28px rgba(0,0,0,.28)">`
         : `<div style="width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:54px;background:rgba(255,255,255,.08);border:4px solid rgba(255,255,255,.22);margin:14px auto 10px">👤</div>`}
       <div class="small">Stats remain hidden for the entire auction.</div>`;
   }
@@ -22086,7 +22675,7 @@ function vdsRunUTEntryCinematic({first=false,state=null}={}){
 
   const fanPlayers=vdsUTEntryFanPlayers(state);
   if(fan){
-    fan.innerHTML=fanPlayers.slice(0,3).map(p=>`<div class="vdsUTEntryFanCard">${p?.photo?`<img src="${esc(p.photo)}" alt="">`:""}</div>`).join("");
+    fan.innerHTML=fanPlayers.slice(0,3).map(p=>`<div class="vdsUTEntryFanCard">${p?.photo?`<img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async" fetchpriority="low">`:""}</div>`).join("");
   }
   if(kicker)kicker.textContent=first?"YOUR CLUB BEGINS":"ENTERING CLUB";
   if(title)title.textContent=first?"EVERY CLUB STARTS SOMEWHERE.":"PLAY. EARN. BUILD.";
@@ -22118,7 +22707,7 @@ function vdsRunUTEntryCinematic({first=false,state=null}={}){
 function vdsStarterMiniCardHTML(p,{silver=false,index=0}={}){
   if(!p)return "";
   return `<div class="vdsStarterMiniCard ${silver?"silver":"bronze"}" data-starter-card="${index}">
-    ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:""}
+    ${p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}" loading="lazy" decoding="async" fetchpriority="low">`:""}
     <div class="vdsStarterMiniShade"></div>
     <div class="vdsStarterMiniRating">${mainPositionRating(p)}<small>${esc(p.position||"-")}</small></div>
     <div class="vdsStarterMiniName">${esc(p.name)}</div>
@@ -44984,7 +45573,7 @@ body.ace34ShareOpen{
 
   function pullHTML(item,index){
     const photo=item?.player_photo_url
-      ? `<img src="${escLocal(item.player_photo_url)}" alt="">`
+      ? `<img src="${escLocal(item.player_photo_url)}" alt="" loading="lazy" decoding="async" fetchpriority="low">`
       : `<span>♠</span>`;
     const label=String(item?.puller_label||"ACE Manager");
     const pos=String(item?.player_position||"POS").toUpperCase();
@@ -45119,7 +45708,7 @@ body.ace34ShareOpen{
       pollTimer=setInterval(()=>{
         loadPulls();
         startRealtime();
-      },30000);
+      },300000);
     }
   }
 
@@ -46234,7 +46823,9 @@ body.ace34ShareOpen{
       ace355Started=true;
       installMissionsHook();
       loadStatus(true);
-    }else if(Date.now()-ace355LastStatusFetch>60000){
+    }else if(Date.now()-ace355LastStatusFetch>300000){
+      // Explicit mission/pack clicks and reward events still refresh immediately.
+      // This is only the passive safety refresh.
       loadStatus();
     }
 
@@ -47751,6 +48342,95 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.13 — PROFILE ICON BOX CENTERING -->
+
+
+<!-- ACE B21.36.14 — FAKE SET BLOCK DECEPTION -->
+<script id="ace-b21-36-14-fake-set-block-deception-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.14";
+  window.ACE_SETTER_FAKE_SET_ATTACK=true;
+  window.ACE_SETTER_FAKE_SET_CHANCE_RANGE=[0.08,0.12];
+  window.ACE_SETTER_FAKE_SET_REQUIREMENTS=["FRONT_ROW","CONTROLLED_PASS","SECOND_CONTACT","FAKE_SET_ABILITY"];
+  window.ACE_FAKE_SET_BLOCK_DECEPTION=true;
+  window.ACE_FAKE_SET_QUALITY_WEIGHTS={setCreativity:.45,setTechnique:.30,reaction:.15,mindset:.10};
+  window.ACE_FAKE_SET_BLOCK_READ_WEIGHTS={reaction:.35,positioning:.30,blocking:.20,mindset:.15};
+  window.ACE_FAKE_SET_BLOCK_EFFECT="REDUCE_OR_DELAY_BLOCK_FORMATION_NOT_ATTACK_STAT_BOOST";
+  window.ACE_OH_FAKE_SET_CAN_BREAK_TRIPLE_DOUBLE_BLOCKS=true;
+  window.ACE_SETTER_FAKE_SET_FAVOURS_NO_BLOCK_OR_LATE_SOLO=true;
+})();
+</script>
+<!-- /ACE B21.36.14 — FAKE SET BLOCK DECEPTION -->
+
+
+<!-- ACE B21.36.15 — DEAD BALL + PASS WINDOW + 3M OH APPROACH -->
+<style id="ace-b21-36-15-dead-ball-style">
+/* Yellow/blue = live ball. Red = rally is dead / point has ended. */
+#liveMatchCard .ballAnim.deadBall,
+#courtStage .ballAnim.deadBall,
+.ballAnim.deadBall{
+  background:
+    radial-gradient(circle at 34% 30%,
+      #fff 0 9%,
+      #ffb3b3 10% 17%,
+      #ff4a4a 19% 48%,
+      #a40816 50% 72%,
+      #4d0208 74% 100%)!important;
+  border:1px solid rgba(255,205,205,.90)!important;
+  box-shadow:
+    0 0 0 3px rgba(255,43,58,.18),
+    0 0 18px rgba(255,35,50,.78),
+    0 7px 14px rgba(0,0,0,.34)!important;
+}
+</style>
+
+
+<script id="ace-b21-36-15-dead-ball-pass-window-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.15";
+  window.ACE_DEAD_BALL_RED=true;
+  window.ACE_CONTROLLED_PASS_TARGET="BALL_TO_CENTRAL_WINDOW_JUST_IN_FRONT_OF_3M";
+  window.ACE_CONTROLLED_PASS_MOVES_BALL_NOT_SETTER=true;
+  window.ACE_BACKROW_OH_APPROACH="AROUND_3M_LINE";
+})();
+</script>
+<!-- /ACE B21.36.15 — DEAD BALL + PASS WINDOW + 3M OH APPROACH -->
+
+
+<!-- ACE B21.36.16 — DYNAMIC ROLL SHOT DEFENCE -->
+<script id="ace-b21-36-16-dynamic-roll-shot-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.16";
+  window.ACE_DYNAMIC_ROLL_SHOT_TARGETS=true;
+  window.ACE_ROLL_SHOT_TARGET_VARIANTS=["middle","short_middle","left_seam","right_seam","deep_change"];
+  window.ACE_ROLL_TARGET_DEPENDS_ON_CREATIVITY=true;
+  window.ACE_ROLL_TARGET_CHOSEN_ONCE_PER_SWING=true;
+  window.ACE_ROLL_DEFENDER_SELECTED_FROM_ACTUAL_TARGET=true;
+  window.ACE_ROLL_SHORT_CAN_PULL_FRONT_DEFENDERS_OR_CHASER=true;
+  window.ACE_ROLL_SEAMS_CAN_PULL_ADJACENT_DEFENDERS=true;
+})();
+</script>
+<!-- /ACE B21.36.16 — DYNAMIC ROLL SHOT DEFENCE -->
+
+
+<!-- ACE B21.36.17 — BANDWIDTH SAVER -->
+<script id="ace-b21-36-17-bandwidth-saver-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.17";
+  window.ACE_BANDWIDTH_SAVER=true;
+  window.ACE_EXISTING_PLAYER_IMAGES_UNCHANGED=true;
+  window.ACE_PLAYER_DATABASE_BATCHES={desktop:8,mobile:4,poolDesktop:6,poolMobile:3};
+  window.ACE_PLAYER_DATABASE_AUTOLOAD_MARGIN_PX=120;
+  window.ACE_AUTH_CAROUSEL_DEFER_INACTIVE_PHOTOS=true;
+  window.ACE_LIVE_PULL_FALLBACK_POLL_MS=300000;
+  window.ACE_REWARD_PASSIVE_REFRESH_MS=300000;
+  window.ACE_NEW_UPLOAD_MAX_DIMENSION=1600;
+  window.ACE_NEW_UPLOAD_WEBP_QUALITY=0.90;
+  window.ACE_NEW_UPLOAD_ONLY_REENCODE_IF_SMALLER=true;
+  window.ACE_NEW_UPLOAD_CACHE_CONTROL_SECONDS=31536000;
+  window.ACE_BANDWIDTH_SAVER_USES_DOCUMENT_MUTATION_OBSERVER=false;
+})();
+</script>
+<!-- /ACE B21.36.17 — BANDWIDTH SAVER -->
 
 </body>
 </html>
