@@ -47546,6 +47546,119 @@ body.ace34ShareOpen{
 </script>
 <!-- /ACE B21.36.10 — BACK-ROW OH SECOND BALL + FAKE SET -->
 
+
+<!-- ACE B21.36.11 — PROFILE VIEW ICON-ONLY PLAYSTYLES -->
+<style id="ace-b21-36-11-profile-icon-playstyles">
+/*
+  Player Profile VIEW MODE only:
+  keep the full playstyle names/descriptions in the information panel,
+  but make the card itself use compact boxed icons so 3 abilities do not
+  stretch the card vertically.
+*/
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles{
+  position:relative!important;
+  z-index:46!important;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  width:auto!important;
+  min-height:24px!important;
+  height:24px!important;
+  max-height:24px!important;
+  margin:5px auto 3px!important;
+  padding:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle{
+  position:relative!important;
+  z-index:47!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 26px!important;
+  width:26px!important;
+  min-width:26px!important;
+  max-width:26px!important;
+  height:22px!important;
+  min-height:22px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:6px!important;
+  border:1px solid rgba(230,197,86,.66)!important;
+  background:linear-gradient(180deg,rgba(22,25,28,.97),rgba(5,10,13,.97))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 2px 5px rgba(0,0,0,.30)!important;
+  overflow:visible!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle.defense{
+  border-color:rgba(104,197,244,.66)!important;
+  background:linear-gradient(180deg,rgba(10,29,41,.97),rgba(4,13,20,.97))!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleEmoji{
+  display:grid!important;
+  place-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:11px!important;
+  line-height:1!important;
+  font-weight:400!important;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))!important;
+}
+
+/* Labels stay in the DOM for the title/semantic context, but are not
+   rendered on the card itself in profile view. */
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleLabel{
+  display:none!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle:only-child{
+  flex:0 0 26px!important;
+  width:26px!important;
+  min-width:26px!important;
+  max-width:26px!important;
+}
+
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles + .fifaServeType{
+  margin-top:1px!important;
+}
+
+/* Slightly more breathing room on the large desktop profile without
+   increasing the card's vertical footprint. */
+@media (min-width:900px){
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyles{
+    gap:6px!important;
+  }
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyle{
+    flex-basis:28px!important;
+    width:28px!important;
+    min-width:28px!important;
+    max-width:28px!important;
+    height:23px!important;
+    min-height:23px!important;
+  }
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard .vdsCardPlaystyleEmoji{
+    font-size:12px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-11-profile-icon-playstyles-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.11";
+  window.ACE_PROFILE_VIEW_ICON_ONLY_PLAYSTYLES=true;
+  window.ACE_PROFILE_VIEW_PLAYSTYLE_LABELS_IN_PANEL=true;
+})();
+</script>
+<!-- /ACE B21.36.11 — PROFILE VIEW ICON-ONLY PLAYSTYLES -->
+
 </body>
 </html>
 
