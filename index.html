@@ -8603,7 +8603,7 @@ function cloudRowFromPlayer(p){
     affiliations:p.affiliations||[]
   };
   if(cloudColumns.defense_playstyle)row.defense_playstyle=p.defensePlaystyle||"none";
-  if(cloudColumns.tendencies)row.tendencies=p.tendencies||{};
+  if(cloudColumns.tendencies)row.tendencies={...(p.tendencies||{}),fakeSet:aceHasFakeSetAbility(p)};
   if(cloudColumns.final_rating)row.final_rating=p.finalRating??overall(p);
   if(cloudColumns.serve_type)row.serve_type=p.serveType||"auto";
   if(cloudColumns.card_art_scale)row.card_art_scale=Number(p.cardArtScale??1);
@@ -9148,6 +9148,58 @@ function cardTier(p){
   if(r>=60)return "silver";
   return "bronze";
 }
+
+function aceFakeSetEligibility(p){
+  if(!p || typeof p!=="object"){
+    return {eligible:false,position:"",setTechnique:0,setCreativity:0,reaction:0,average:0};
+  }
+
+  const position=String(p.position||"").toUpperCase();
+  const tendencies=(p.tendencies && typeof p.tendencies==="object")?p.tendencies:{};
+
+  const setTechnique=Math.max(0,Math.min(100,Number(
+    Number.isFinite(Number(p.setTechnique))
+      ? p.setTechnique
+      : (Number.isFinite(Number(tendencies.setTechnique)) ? tendencies.setTechnique : p.setting)
+  )||0));
+
+  const setCreativity=Math.max(0,Math.min(100,Number(
+    Number.isFinite(Number(p.setCreativity))
+      ? p.setCreativity
+      : (Number.isFinite(Number(tendencies.setCreativity)) ? tendencies.setCreativity : p.setting)
+  )||0));
+
+  const reaction=Math.max(0,Math.min(100,Number(p.reactionTime??p.reaction_time??0)||0));
+  const average=(setTechnique+setCreativity+reaction)/3;
+
+  const eligible=
+    (position==="OH" || position==="S") &&
+    setTechnique>=72 &&
+    setCreativity>=76 &&
+    reaction>=70 &&
+    average>=75;
+
+  return {eligible,position,setTechnique,setCreativity,reaction,average};
+}
+
+function aceHasFakeSetAbility(p){
+  return aceFakeSetEligibility(p).eligible;
+}
+
+function aceDerivedAbilities(p){
+  const items=[];
+  if(aceHasFakeSetAbility(p)){
+    items.push({
+      id:"fake_set",
+      name:"Fake Set",
+      icon:"🎭",
+      desc:"Can disguise a controlled second contact as a set and occasionally attack the second ball when legal.",
+      derived:true
+    });
+  }
+  return items;
+}
+
 function cardTierLabel(p){
   const t=cardTier(p);
   return ({
@@ -9195,6 +9247,9 @@ function vdsCardPlaystyleRail(p){
     const parts=vdsPlaystyleParts(def);
     items.push({name:parts.label,type:"defense",icon:parts.icon});
   }
+  if(aceHasFakeSetAbility(p)){
+    items.push({name:"Fake Set",type:"attack",icon:"🎭"});
+  }
   if(!items.length)return "";
 
   return `<div class="fifaPlaystyleRail" aria-label="Player playstyles">
@@ -9223,6 +9278,9 @@ function vdsCardPlaystylePills(p){
   if(def && def.id!=="none"){
     const parts=vdsPlaystyleParts(def);
     items.push({icon:parts.icon,label:parts.label,type:"defense"});
+  }
+  if(aceHasFakeSetAbility(p)){
+    items.push({icon:"🎭",label:"Fake Set",type:"attack"});
   }
 
   if(!items.length)return "";
@@ -11575,19 +11633,46 @@ async function animateTransitionPossessions(events=[]){
       continue;
     }
 
-    setPhase("set");
-    if(setter){
-      ballArcToPlayer(atkNo,setter,120,250,105,72);
-      showPlayerAction(
-        atkNo,setter,
-        evt.outcome==="setting_error"?"SET ERROR":
-        evt.emergencySetterMode==="libero"?"LIBERO SET":
-        evt.emergencySetterMode==="nearest"?"EMERGENCY SET":
-        evt.outOfSystem?"OUT OF SYSTEM":"SET",
-        evt.outcome==="setting_error"?"negative":evt.outOfSystem?"attack":"touch"
-      );
-      animateCourtPlayer(atkNo,setter,"jumpSet",390);
-      await rallySleep(270);
+    if(evt.outcome==="free_ball"){
+      const saver=evt.savePlayer||evt.setter||evt.passer;
+      if(saver){
+        ballArcToPlayer(atkNo,saver,110,235,90,58);
+        showPlayerAction(atkNo,saver,"SAVE","touch");
+        animateCourtPlayer(atkNo,saver,"coverPop",390);
+        await rallySleep(230);
+        ballArcToNet(atkNo,"45%",330,250,105,70);
+        await rallySleep(200);
+        ballArcToCourt(defNo,6,0,2,470,290,100,26);
+        await rallySleep(250);
+        recoverTeamAfterContact(atkNo,saver);
+      }
+      continue;
+    }
+
+    if(evt.secondBallAttack){
+      setPhase("attack");
+      if(setter){
+        ballArcToPlayer(atkNo,setter,120,250,105,72);
+        showPlayerAction(atkNo,setter,"SECOND BALL","attack");
+        animateCourtPlayer(atkNo,setter,"jumpAttack",430);
+        await rallySleep(180);
+      }
+    }else{
+      setPhase("set");
+      if(setter){
+        ballArcToPlayer(atkNo,setter,120,250,105,72);
+        showPlayerAction(
+          atkNo,setter,
+          evt.outcome==="setting_error"?"SET ERROR":
+          evt.fakeSetUsed?"FAKE SET":
+          evt.emergencySetterMode==="libero"?"LIBERO SET":
+          evt.emergencySetterMode==="nearest"?"EMERGENCY SET":
+          evt.outOfSystem?"OUT OF SYSTEM":"SET",
+          evt.outcome==="setting_error"?"negative":evt.outOfSystem?"attack":"touch"
+        );
+        animateCourtPlayer(atkNo,setter,evt.fakeSetUsed?"jumpAttack":"jumpSet",390);
+        await rallySleep(270);
+      }
     }
     if(evt.outcome==="setting_error"){
       ballArcToCourt(atkNo,3,0,6,220,250,70,12);
@@ -11596,12 +11681,23 @@ async function animateTransitionPossessions(events=[]){
     }
 
     if(attacker){
-      moveAttackerToApproach(atkNo,attacker,evt.attackerZone);
-      const peak=evt.outOfSystem?190:attackStyleId(attacker)==="high_arc_hitter"?175:attacker.assignedRole==="M"?118:150;
-      ballArcToPlayer(atkNo,attacker,260,280,peak,94);
-      await rallySleep(300);
+      if(!evt.secondBallAttack){
+        moveAttackerToApproach(atkNo,attacker,evt.attackerZone);
+        const peak=evt.outOfSystem?190:attackStyleId(attacker)==="high_arc_hitter"?175:attacker.assignedRole==="M"?118:150;
+        ballArcToPlayer(atkNo,attacker,260,280,peak,94);
+        await rallySleep(300);
+      }else{
+        await rallySleep(70);
+      }
       setPhase("attack");
-      showPlayerAction(atkNo,attacker,evt.outcome==="attack_error"?"HIT OUT":shotActionLabel(evt),evt.outcome==="attack_error"?"negative":"attack");
+      showPlayerAction(
+        atkNo,attacker,
+        evt.outcome==="attack_error"?"HIT OUT":
+        evt.secondBallAttack?"ATTACK ON 2":
+        evt.fakeSetUsed?"FAKE SET TARGET":
+        evt.overpassAttack?"OVERPASS ATTACK":shotActionLabel(evt),
+        evt.outcome==="attack_error"?"negative":"attack"
+      );
       animateCourtPlayer(atkNo,attacker,"jumpAttack",590);
       const y=shotNetCrossing(atkNo,attacker,evt);
       const shotArc=shotArcProfile(attacker,evt);
@@ -11744,7 +11840,11 @@ async function animateRally(winner, context={}){
   if(passer){
     const rid=playerCourtId(receivingTeamNo,passer);
     if(rid)pulsePlayer(rid);
-    showPlayerAction(receivingTeamNo,passer,evt?.outcome==="reception_error"?"ACED":"RECEIVE",evt?.outcome==="reception_error"?"negative":"touch");
+    showPlayerAction(
+      receivingTeamNo,passer,
+      evt?.outcome==="reception_error"?"ACED":evt?.outcome==="overpass"?"OVERPASS":"RECEIVE",
+      evt?.outcome==="reception_error"?"negative":evt?.outcome==="overpass"?"attack":"touch"
+    );
   }
 
   if(evt?.outcome==="reception_error"){
@@ -11755,6 +11855,34 @@ async function animateRally(winner, context={}){
     clearActivePlayers();
     setPhase("");
     resetCourtAfterRally();
+    return;
+  }
+
+  if(evt?.outcome==="overpass"){
+    clearPasserMarkers();
+    const opType=evt.overpassType||"attackable";
+    const y=opType==="tight"?"45%":opType==="deep"?"58%":"42%";
+
+    ballArcToNet(receivingTeamNo,y,310,260,115,78);
+    await rallySleep(220);
+
+    if(opType==="tight"){
+      ballArcToCourt(servingTeamNo,3,0,0,430,230,95,50);
+    }else if(opType==="deep"){
+      ballArcToCourt(servingTeamNo,6,0,2,430,310,120,30);
+    }else{
+      ballArcToCourt(servingTeamNo,3,0,8,430,265,105,38);
+    }
+    await rallySleep(270);
+
+    if(extendedEvents.length){
+      await animateTransitionPossessions(extendedEvents);
+    }
+
+    clearActivePlayers();
+    setPhase("");
+    resetCourtAfterRally();
+    finishStepRally();
     return;
   }
 
@@ -12747,10 +12875,71 @@ function calculatePassQuality(server, passer, serveType=null){
   const edge=receiveSkill-servePressure;
   const roll=Math.random()*100+edge*.32+reliableBonus;
 
-  if(roll<6.5)return {grade:0,score:0,label:"Reception Error",modifier:.35,roll,receiveSkill,servePressure,serveType:t};
-  if(roll<34)return {grade:1,score:1,label:"Poor Pass",modifier:.68,roll,receiveSkill,servePressure,serveType:t};
-  if(roll<70)return {grade:2,score:2,label:"Good Pass",modifier:.88,roll,receiveSkill,servePressure,serveType:t};
-  return {grade:3,score:3,label:"Perfect Pass",modifier:1.06,roll,receiveSkill,servePressure,serveType:t};
+  let result;
+  if(roll<6.5)result={grade:0,score:0,label:"Reception Error",modifier:.35,roll,receiveSkill,servePressure,serveType:t};
+  else if(roll<34)result={grade:1,score:1,label:"Poor Pass",modifier:.68,roll,receiveSkill,servePressure,serveType:t};
+  else if(roll<70)result={grade:2,score:2,label:"Good Pass",modifier:.88,roll,receiveSkill,servePressure,serveType:t};
+  else result={grade:3,score:3,label:"Perfect Pass",modifier:1.06,roll,receiveSkill,servePressure,serveType:t};
+
+  return applyOverpassCheck(result,passer,t);
+}
+
+function applyOverpassCheck(passQuality,passer,serveType){
+  if(!passQuality || !passer || Number(passQuality.grade)>=3 || Number(passQuality.grade)<=0)return passQuality;
+
+  const contact=
+    matchStat(passer,"reactionTime")*.58+
+    matchStat(passer,"serveReceive")*.42;
+
+  const control=
+    matchStat(passer,"serveReceive")*.62+
+    Number(passer.positioning||0)*.38;
+
+  const contactWithoutControl=clamp((contact-control)/55,-.22,.38);
+  const roll=Number(passQuality.roll||50);
+
+  let chance=0;
+  if(passQuality.grade===1){
+    chance=roll<18?.20:roll<27?.15:.105;
+  }else if(passQuality.grade===2){
+    chance=roll<43?.050:roll<52?.025:.008;
+  }
+
+  const serveId=String(serveType?.id||"");
+  const serveMult=
+    serveId==="jump_float"?1.18:
+    serveId==="standing_float"?1.10:
+    serveId==="jump_topspin"?.86:1;
+
+  chance*=serveMult*(1+contactWithoutControl);
+  if(defenseStyleId(passer)==="reliable_receiver")chance*=.72;
+  chance=clamp(chance,0,.26);
+
+  if(Math.random()>=chance)return {...passQuality,overpass:false,overpassChance:chance};
+
+  let typeRoll=Math.random();
+  if(serveId==="jump_float")typeRoll-=.06;
+
+  const overpassType=
+    typeRoll<.34?"tight":
+    typeRoll<.80?"attackable":"deep";
+
+  return {
+    ...passQuality,
+    overpass:true,
+    overpassType,
+    overpassChance:chance
+  };
+}
+
+function overpassReceptionText(passQuality,passer,server){
+  const type=passQuality?.overpassType||"attackable";
+  const serveName=passQuality?.serveType?.name||"serve";
+  const where=
+    type==="tight"?"hangs tight to the tape":
+    type==="deep"?"floats too deep to attack immediately":
+    "drops into an attackable area";
+  return `<span class="setGrade">OVERPASS</span> ⚠️ ${passer.name} gets a platform on ${server.name}'s ${serveName.toLowerCase()}, but loses control — the ball ${where}.`;
 }
 
 function servingPlayer(team,rotation){
@@ -13338,6 +13527,15 @@ function detailedRallyEvent(attackingTeam, defendingTeam, attackingName, defendi
     };
   }
 
+  // A live overpass exits normal serve-receive offence immediately.
+  if(passQuality.overpass){
+    return {
+      attackingTeamNo,passer,server,setter:designatedSetter(attackingTeam),attacker:null,blocker:null,defender:null,
+      outcome:"overpass",passQuality,overpassType:passQuality.overpassType,
+      text:overpassReceptionText(passQuality,passer,server)
+    };
+  }
+
   const setter=designatedSetter(attackingTeam);
   const setGrade=calculateSetQuality(setter,passQuality);
 
@@ -13522,11 +13720,170 @@ function transitionPassQuality(player,sourceType="dig"){
 
 function transitionPassText(pq,player,sourceType){
   const g=`<span class="setGrade">TRANSITION ${pq.score}/3</span>`;
+
+  if(sourceType==="free_ball"){
+    if(pq.grade<=1)return `${g} ${player.name} gets underneath the saved ball but the pass still pulls the offence off system.`;
+    if(pq.grade===2)return `${g} ${player.name} passes the free ball cleanly enough to run offence.`;
+    return `${g} ${player.name} puts the free ball directly on target.`;
+  }
+
+  if(sourceType==="overpass_pass"){
+    if(pq.grade<=1)return `${g} ${player.name} controls the deep overpass awkwardly.`;
+    if(pq.grade===2)return `${g} ${player.name} passes the deep overpass and brings the offence into system.`;
+    return `${g} ${player.name} calmly passes the deep overpass right to target.`;
+  }
+
   const action=sourceType==="block_cover"?"cover":"dig";
-  if(pq.grade===0)return `${g} ${player.name}'s ${action} keeps the ball off the floor, but it flies beyond a playable second contact.`;
+  if(pq.grade===0)return `${g} ${player.name}'s ${action} keeps the ball off the floor, but it flies beyond a normal second contact.`;
   if(pq.grade===1)return `${g} ${player.name}'s ${action} forces an emergency transition ball.`;
   if(pq.grade===2)return `${g} ${player.name} controls the ${action} well enough to run the offence.`;
   return `${g} ${player.name} delivers an excellent ${action} straight into transition offence.`;
+}
+
+function controlledBallPassQuality(player,sourceType="free_ball"){
+  if(!player)return {grade:1,score:1,label:"Emergency Pass",modifier:.66,transition:true};
+  const skill=
+    matchStat(player,"serveReceive")*.48+
+    Number(player.positioning||0)*.22+
+    matchStat(player,"reactionTime")*.18+
+    Number(player.covering||0)*.07+
+    Number(player.mindset||0)*.05;
+
+  const bonus=sourceType==="overpass_pass"?7:4;
+  const roll=skill+bonus+(Math.random()*22-11);
+
+  if(roll<46)return {grade:1,score:1,label:"Off-System Pass",modifier:.70,roll,receiveSkill:skill,transition:true};
+  if(roll<76)return {grade:2,score:2,label:"Controlled Pass",modifier:.91,roll,receiveSkill:skill,transition:true};
+  return {grade:3,score:3,label:"Perfect Pass",modifier:1.05,roll,receiveSkill:skill,transition:true};
+}
+
+function setterFirstContactBackRowOHPlan(team,rotation,firstContactSetter){
+  const zones=effectiveSixOneZones(team,rotation);
+
+  const backRowOH=team.filter(p=>
+    p.name!==firstContactSetter?.name &&
+    ["OH","OH1","OH2"].includes(String(p.assignedRole||"")) &&
+    zones[p.name]?.back
+  );
+
+  // This is an organised second-ball back-row attack pattern.
+  // Pick the OH who is best equipped to arrive and attack contact two.
+  const secondBallOH=weightedPick(backRowOH,p=>
+    matchStat(p,"accuracy")*.28+
+    matchStat(p,"hittingPower")*.24+
+    matchStat(p,"vertical")*.17+
+    matchStat(p,"reactionTime")*.15+
+    Number(p.positioning||0)*.09+
+    Number(p.creativity||0)*.07
+  );
+
+  return {secondBallOH,zones};
+}
+
+function fakeSetChoiceChance(player,passQuality){
+  if(!player || !aceHasFakeSetAbility(player) || Number(passQuality?.grade||0)<2)return 0;
+  const info=aceFakeSetEligibility(player);
+
+  // Direct second-ball attack remains the default threat.
+  // More creative OHs disguise that attack into a Fake Set more often.
+  let chance=
+    .30+
+    Math.max(0,info.setCreativity-76)*.004+
+    Math.max(0,info.reaction-70)*.0012+
+    Math.max(0,info.setTechnique-72)*.001;
+
+  if(Number(passQuality.grade)>=3)chance+=.04;
+  return clamp(chance,.30,.45);
+}
+
+function fakeSetTarget(team,rotation,secondBallOH,firstContactSetter){
+  const zones=effectiveSixOneZones(team,rotation);
+
+  const frontTargets=legalAttackers(team,rotation).filter(p=>
+    p.name!==secondBallOH?.name &&
+    zones[p.name]?.front &&
+    p.assignedRole!=="L"
+  );
+
+  if(!frontTargets.length)return null;
+
+  return weightedPick(frontTargets,p=>{
+    let score=
+      matchStat(p,"accuracy")*.29+
+      matchStat(p,"hittingPower")*.25+
+      matchStat(p,"vertical")*.15+
+      matchStat(p,"reactionTime")*.10+
+      Number(p.positioning||0)*.08+
+      Number(p.creativity||0)*.06+
+      Number(p.mindset||0)*.07;
+
+    // Middles are especially dangerous when the defence commits to
+    // the apparent back-row second-ball attack.
+    if(p.assignedRole==="M")score+=10;
+
+    // The setter who passed first contact can still legally become a hitter,
+    // but should not be the preferred third-contact option.
+    if(p.name===firstContactSetter?.name)score-=8;
+
+    return score;
+  });
+}
+
+function setterFirstContactRescue(team,firstContactSetter,rotation,passQuality){
+  const zones=effectiveSixOneZones(team,rotation);
+  const firstZone=Number(zones[firstContactSetter?.name]?.zone)||6;
+  const candidates=team.filter(p=>p.name!==firstContactSetter?.name);
+  if(!candidates.length)return {player:null,mode:"none",liberoReachChance:0};
+
+  const libero=candidates.find(p=>p.assignedRole==="L");
+  let liberoReachChance=0;
+
+  if(libero){
+    const z=Number(zones[libero.name]?.zone)||5;
+    const dist=zoneDistance(firstZone,z);
+    liberoReachChance=clamp(
+      .28+
+      matchStat(libero,"speed")*.0022+
+      matchStat(libero,"reactionTime")*.0020+
+      Number(libero.positioning||0)*.0014+
+      Number(passQuality?.grade||0)*.055-
+      dist*.095,
+      .16,.94
+    );
+
+    if(Math.random()<liberoReachChance){
+      return {player:libero,mode:"libero",liberoReachChance};
+    }
+  }
+
+  const ranked=candidates.map(p=>{
+    const z=Number(zones[p.name]?.zone)||6;
+    const dist=zoneDistance(firstZone,z);
+
+    // Once the libero cannot reach the ball, proximity becomes the dominant
+    // requirement. Setting skill only separates players who can both get there.
+    const score=
+      130-dist*38+
+      matchStat(p,"reactionTime")*.19+
+      matchStat(p,"speed")*.16+
+      Number(p.positioning||0)*.10+
+      matchStat(p,"setTechnique")*.07+
+      Number(p.setCreativity||0)*.03;
+
+    return {p,score,dist};
+  }).sort((a,b)=>b.score-a.score);
+
+  return {player:ranked[0]?.p||null,mode:"nearest",liberoReachChance};
+}
+
+function freeBallReceiver(team,rotation){
+  const pool=receptionCandidates(team,rotation);
+  return weightedPick(pool.length?pool:team,p=>
+    matchStat(p,"serveReceive")*.48+
+    Number(p.positioning||0)*.22+
+    matchStat(p,"reactionTime")*.18+
+    Number(p.covering||0)*.12
+  ) || team[0] || null;
 }
 
 function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defendingName,sourceEvt,possessionNo=2){
@@ -13534,38 +13891,199 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   const attackingTeamNo=attackingIsTeam1?1:2;
   const atkRot=liveState?(attackingIsTeam1?liveState.rotation1:liveState.rotation2):1;
   const defRot=liveState?(attackingIsTeam1?liveState.rotation2:liveState.rotation1):1;
-  const sourceType=sourceEvt?.outcome==="block_cover"?"block_cover":"dig";
-  const passer=sourceType==="block_cover"?sourceEvt?.blockCover?.coverer:sourceEvt?.defender;
-  const passQuality=transitionPassQuality(passer,sourceType);
+  const sourceType=
+    sourceEvt?.outcome==="block_cover"?"block_cover":
+    sourceEvt?.outcome==="free_ball"?"free_ball":
+    sourceEvt?.outcome==="overpass"?"overpass_pass":"dig";
+
+  let passer;
+  let passQuality;
+
+  if(sourceType==="free_ball" || sourceType==="overpass_pass"){
+    passer=freeBallReceiver(attackingTeam,atkRot);
+    passQuality=controlledBallPassQuality(passer,sourceType);
+  }else{
+    passer=sourceType==="block_cover"?sourceEvt?.blockCover?.coverer:sourceEvt?.defender;
+    passQuality=transitionPassQuality(passer,sourceType);
+  }
+
+  if(!passer){
+    return {isTransition:true,possessionNo,attackingTeamNo,passer:null,sourceType,passQuality,
+      setter:null,attacker:null,blocker:null,defender:null,
+      outcome:"transition_error",text:`Nobody can control the next ball — point ${defendingName}.`};
+  }
+
   const passIntro=transitionPassText(passQuality,passer,sourceType);
+  const normalSetter=designatedSetter(attackingTeam);
+  const setterFirstContact=
+    (sourceType==="dig" || sourceType==="block_cover") &&
+    normalSetter?.name===passer?.name;
 
-  if(passQuality.grade===0){
-    return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
-      setter:designatedSetter(attackingTeam),attacker:null,blocker:null,defender:null,
-      outcome:"transition_error",text:`${passIntro} — point ${defendingName}.`};
+  let setter=null;
+  let setGrade=null;
+  let emergencySetterMode="normal";
+  let choice=null;
+  let attacker=null;
+  let attackerZone=null;
+  let outOfSystem=false;
+  let secondBallAttack=false;
+  let fakeSetUsed=false;
+  let fakeSetChance=0;
+  let setterFirstBackOH=null;
+
+  if(setterFirstContact && Number(passQuality.grade)>=2){
+    // CONTROLLED SETTER FIRST CONTACT:
+    // the BACK-ROW OH becomes the second-contact player.
+    // Default = attack contact two from behind the 3 m line.
+    // If that OH owns Fake Set, they can instead disguise the attack
+    // and set a front-row teammate for contact three.
+    const plan=setterFirstContactBackRowOHPlan(attackingTeam,atkRot,passer);
+    setterFirstBackOH=plan.secondBallOH;
+
+    if(setterFirstBackOH){
+      setter=setterFirstBackOH;
+      emergencySetterMode="setter_first_back_oh";
+
+      fakeSetChance=fakeSetChoiceChance(setterFirstBackOH,passQuality);
+      fakeSetUsed=fakeSetChance>0 && Math.random()<fakeSetChance;
+
+      if(fakeSetUsed){
+        const fakeTarget=fakeSetTarget(attackingTeam,atkRot,setterFirstBackOH,passer);
+
+        if(fakeTarget){
+          setGrade=calculateSetQuality(setterFirstBackOH,passQuality);
+
+          // If the disguise was attempted but the OH cannot actually execute
+          // the set cleanly, register a genuine setting error.
+          if(setGrade.error){
+            return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,
+              setter:setterFirstBackOH,attacker:null,blocker:null,defender:null,formation:null,
+              outcome:"setting_error",outOfSystem:false,setterFirstContact:true,
+              setterFirstBackOH:setterFirstBackOH.name,fakeSetUsed:true,fakeSetChance,
+              text:`${passIntro} → 🎭 ${setterFirstBackOH.name} shapes for the second-ball attack, tries the Fake Set, but mishandles it — setting error.`};
+          }
+
+          attacker=fakeTarget;
+          attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
+          outOfSystem=!!setGrade.outOfSystem;
+
+          choice={
+            attacker,
+            setterIQ:
+              matchStat(setterFirstBackOH,"setTechnique")*.42+
+              Number(setterFirstBackOH.setCreativity||0)*.43+
+              matchStat(setterFirstBackOH,"reactionTime")*.15,
+            options:[attacker],
+            distribution:[{name:attacker.name,role:attacker.assignedRole,row:"front",probability:1}],
+            outOfSystem
+          };
+        }else{
+          // No legal front-row Fake Set target: keep the original threat
+          // and hit contact two instead.
+          fakeSetUsed=false;
+        }
+      }
+
+      if(!fakeSetUsed){
+        secondBallAttack=true;
+        attacker=setterFirstBackOH;
+        attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
+        outOfSystem=false;
+
+        // There is no set on a direct contact-two attack. This synthetic
+        // modifier carries the quality of the setter's first contact into
+        // the back-row OH's attack quality.
+        setGrade={
+          grade:Number(passQuality.grade)>=3?3:2,
+          score:Number(passQuality.grade)>=3?3:2,
+          label:"Second-Ball Attack",
+          modifier:Number(passQuality.grade)>=3?1.06:.98,
+          error:false,
+          outOfSystem:false
+        };
+
+        choice={
+          attacker,
+          setterIQ:
+            Number(attacker.creativity||0)*.38+
+            matchStat(attacker,"reactionTime")*.32+
+            Number(attacker.positioning||0)*.18+
+            matchStat(attacker,"accuracy")*.12,
+          options:[attacker],
+          distribution:[{name:attacker.name,role:attacker.assignedRole,row:"back",probability:1}],
+          outOfSystem:false
+        };
+      }
+    }
   }
 
-  const secondContact=transitionSetter(attackingTeam,passer,atkRot,passQuality,sourceType);
-  const setter=secondContact?.player;
-  if(!setter){
-    return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
-      setter:null,attacker:null,blocker:null,defender:null,formation:null,
-      outcome:"transition_error",text:`${passIntro} — nobody can take the second contact. Point ${defendingName}.`};
-  }
-  const emergencySetterMode=secondContact.mode||"normal";
-  const setGrade=calculateSetQuality(setter,passQuality);
+  if(!setterFirstContact || !setter){
+    if(setterFirstContact){
+      // UNCONTROLLED SETTER FIRST CONTACT:
+      // libero gets the first rescue attempt. If the libero cannot physically
+      // reach it, the closest sensible player has to take contact two.
+      const rescue=setterFirstContactRescue(attackingTeam,passer,atkRot,passQuality);
+      setter=rescue.player;
+      emergencySetterMode=rescue.mode||"nearest";
 
-  if(setGrade.error){
-    return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,
-      setter,attacker:null,blocker:null,defender:null,formation:null,outcome:"setting_error",outOfSystem:false,
-      text:`${passIntro} → ${setQualityText(setGrade,setter)}`};
+      if(!setter){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
+          setter:null,attacker:null,blocker:null,defender:null,formation:null,
+          outcome:"transition_error",setterFirstContact:true,
+          text:`${passIntro} — nobody can reach the second ball. Point ${defendingName}.`};
+      }
+
+      // Truly uncontrolled first contacts are no longer forced into a fake
+      // attack sequence. The rescue player simply saves the rally over.
+      if(Number(passQuality.grade)<=0){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
+          setter,savePlayer:setter,attacker:null,blocker:null,defender:null,formation:null,
+          outcome:"free_ball",outOfSystem:true,setterFirstContact:true,emergencySetterMode,
+          text:`${passIntro} → ${emergencySetterMode==="libero"?`🛡️ ${setter.name} reaches it first`:`🆘 ${setter.name} is closest`} and can only send a safe ball over. Rally continues.`};
+      }
+
+      setGrade=calculateSetQuality(setter,passQuality);
+
+      // If the rescue player cannot produce a real set, convert the second
+      // contact into a legal save/free ball instead of inventing an attack.
+      if(setGrade.error){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,
+          setter,savePlayer:setter,attacker:null,blocker:null,defender:null,formation:null,
+          outcome:"free_ball",outOfSystem:true,setterFirstContact:true,emergencySetterMode,
+          text:`${passIntro} → ${emergencySetterMode==="libero"?`🛡️ ${setter.name} gets there`:`🆘 ${setter.name} reaches the ball`} but cannot build an attack — save sent over. Rally continues.`};
+      }
+    }else{
+      if(passQuality.grade===0){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
+          setter:normalSetter,attacker:null,blocker:null,defender:null,
+          outcome:"transition_error",text:`${passIntro} — point ${defendingName}.`};
+      }
+
+      const secondContact=transitionSetter(attackingTeam,passer,atkRot,passQuality,sourceType);
+      setter=secondContact?.player;
+      emergencySetterMode=secondContact?.mode||"normal";
+
+      if(!setter){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,
+          setter:null,attacker:null,blocker:null,defender:null,formation:null,
+          outcome:"transition_error",text:`${passIntro} — nobody can take the second contact. Point ${defendingName}.`};
+      }
+
+      setGrade=calculateSetQuality(setter,passQuality);
+      if(setGrade.error){
+        return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,
+          setter,attacker:null,blocker:null,defender:null,formation:null,outcome:"setting_error",outOfSystem:false,
+          text:`${passIntro} → ${setQualityText(setGrade,setter)}`};
+      }
+    }
+
+    const attackSelectionPass={...passQuality,outOfSystem:!!setGrade.outOfSystem};
+    choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass,setter);
+    attacker=choice.attacker;
+    attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
+    outOfSystem=!!setGrade.outOfSystem;
   }
 
-  const attackSelectionPass={...passQuality,outOfSystem:!!setGrade.outOfSystem};
-  const choice=setterChooseAttacker(attackingTeam,defendingTeam,atkRot,defRot,attackSelectionPass,setter);
-  const attacker=choice.attacker;
-  const attackerZone=effectiveSixOneZones(attackingTeam,atkRot)[attacker.name];
-  const outOfSystem=!!setGrade.outOfSystem;
   const formation=buildBlockFormation(defendingTeam,defRot,attacker,{
     passGrade:passQuality.grade,setterIQ:choice.setterIQ,backRow:!!attackerZone?.back,outOfSystem
   });
@@ -13634,16 +14152,27 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
   }
 
   const emergencyIntro=
-    emergencySetterMode==="libero"?`🛡️ ${setter.name} steps in to take the second contact. `:
-    emergencySetterMode==="nearest"?`🆘 ${setter.name} is nearest and takes the emergency second contact. `:"";
-  const setIntro=emergencyIntro+setQualityText(setGrade,setter);
-  const decision=outOfSystem
-    ?`OUT OF SYSTEM: ${setter.name} sends a slow high ball to outside hitter ${attacker.name}, giving the block time to load up`
-    :passQuality.grade===3&&attacker.assignedRole==="M"
-      ?`${setter.name} turns the transition into a quick middle for ${attacker.name}`
-      :passQuality.grade<=1
-        ?`${setter.name} sends the emergency ball high to ${attacker.name}`
-        :`${setter.name} settles under it and chooses ${attacker.name}`;
+    emergencySetterMode==="libero"?`🛡️ ${setter.name} reaches the second contact. `:
+    emergencySetterMode==="nearest"?`🆘 ${setter.name} is closest and takes the emergency second contact. `:
+    emergencySetterMode==="setter_first_back_oh"?`🔄 Setter takes first contact cleanly — back-row OH ${setter.name} comes in for contact two. `:"";
+
+  const setIntro=secondBallAttack
+    ?`${emergencyIntro}⚡ ${setter.name} loads to attack the second ball from behind the 3 m line.`
+    :fakeSetUsed
+      ?`${emergencyIntro}🎭 ${setter.name} shows the second-ball attack, then changes shape in the air.`
+      :emergencyIntro+setQualityText(setGrade,setter);
+
+  const decision=secondBallAttack
+    ?`SECOND-BALL ATTACK: ${setter.name} takes the organised back-row swing on contact two`
+    :fakeSetUsed
+      ?`FAKE SET: ${setter.name} sells the back-row attack and sets ${attacker.name} instead`
+      :outOfSystem
+        ?`OUT OF SYSTEM: ${setter.name} sends a slow high ball to outside hitter ${attacker.name}, giving the block time to load up`
+        :passQuality.grade===3&&attacker.assignedRole==="M"
+          ?`${setter.name} turns the transition into a quick middle for ${attacker.name}`
+          :passQuality.grade<=1
+            ?`${setter.name} sends the emergency ball high to ${attacker.name}`
+            :`${setter.name} settles under it and chooses ${attacker.name}`;
   let text;
   if(outcome==="attack_error"){
     text=`${passIntro} → <span class="setGrade">${setGrade.label.toUpperCase()}</span> ${setIntro} → ${decision} → ${shotText}${attackContext}, but the counterattack misses — point ${defendingName}.`;
@@ -13659,7 +14188,163 @@ function detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defen
 
   return {isTransition:true,possessionNo,attackingTeamNo,passer,sourceType,passQuality,setGrade,setter,attacker,
     blocker,defender,formation,outcome,text,shot:shotInfo.shot.name,shotId:shotInfo.shot.id,shotTarget:gameplayShotTarget(attacker,shotInfo),setterIQ:choice.setterIQ,
-    attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem,emergencySetterMode};
+    attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,outOfSystem,emergencySetterMode,
+    setterFirstContact,secondBallAttack,fakeSetUsed,fakeSetChance,
+    setterFirstBackOH:setterFirstBackOH?.name||null};
+}
+
+
+function detailedOverpassAttackEvent(attackingTeam,defendingTeam,attackingName,defendingName,sourceEvt,possessionNo=2){
+  const attackingIsTeam1=liveState && attackingTeam===liveState.a;
+  const attackingTeamNo=attackingIsTeam1?1:2;
+  const atkRot=liveState?(attackingIsTeam1?liveState.rotation1:liveState.rotation2):1;
+  const defRot=liveState?(attackingIsTeam1?liveState.rotation2:liveState.rotation1):1;
+  const type=sourceEvt?.overpassType||"attackable";
+
+  if(type==="deep"){
+    return detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defendingName,sourceEvt,possessionNo);
+  }
+
+  const zones=effectiveSixOneZones(attackingTeam,atkRot);
+  const frontAttackers=legalAttackers(attackingTeam,atkRot).filter(p=>zones[p.name]?.front && p.assignedRole!=="L");
+
+  if(!frontAttackers.length){
+    return detailedTransitionEvent(
+      attackingTeam,defendingTeam,attackingName,defendingName,
+      {...sourceEvt,overpassType:"deep"},
+      possessionNo
+    );
+  }
+
+  // Middles see and punish overpasses fastest, followed by any front-row player
+  // with strong reaction/positioning.
+  const attacker=weightedPick(frontAttackers,p=>{
+    let score=
+      matchStat(p,"reactionTime")*.31+
+      Number(p.positioning||0)*.25+
+      matchStat(p,"accuracy")*.20+
+      matchStat(p,"hittingPower")*.16+
+      matchStat(p,"vertical")*.08;
+    if(p.assignedRole==="M")score+=18;
+    if(p.assignedRole==="S")score+=5;
+    return score;
+  });
+
+  const attackerZone=zones[attacker.name];
+  const legalFrontBlockers=legalBlockers(defendingTeam,defRot);
+  const blocker=weightedPick(legalFrontBlockers,p=>
+    matchStat(p,"blocking")*.52+
+    matchStat(p,"reactionTime")*.22+
+    matchStat(p,"vertical")*.16+
+    Number(p.positioning||0)*.10
+  ) || null;
+
+  const blockSkill=blocker
+    ? matchStat(blocker,"blocking")*.50+
+      matchStat(blocker,"vertical")*.22+
+      matchStat(blocker,"reactionTime")*.18+
+      Number(blocker.positioning||0)*.10
+    : 0;
+
+  const formation={
+    type:blocker?"SOLO BLOCK":"NO BLOCK",
+    blockers:blocker?[blocker]:[],
+    quality:blockSkill,
+    effective:blockSkill,
+    read:blockSkill,
+    close:0,
+    tempo:"overpass",
+    outOfSystem:false
+  };
+
+  let defender=weightedPick(defendingTeam,p=>{
+    const z=effectiveSixOneZones(defendingTeam,defRot)[p.name];
+    const backBoost=z?.back?1.18:.78;
+    return (
+      matchStat(p,"serveReceive")*.20+
+      Number(p.positioning||0)*.25+
+      matchStat(p,"reactionTime")*.24+
+      matchStat(p,"speed")*.20+
+      Number(p.covering||0)*.11
+    )*backBoost;
+  });
+
+  const shotInfo=chooseAttackShot(attacker,blocker,{
+    blockers:formation.blockers,
+    blockStrength:blockSkill,
+    backRow:false,
+    pressure:isPressureAttack()
+  });
+
+  // The defence has very little time to read an attackable overpass.
+  shotInfo.blockEvasion=Number(shotInfo.blockEvasion||0)+(type==="tight"?8:14);
+
+  defender=defenderForShot(defendingTeam,defRot,attacker,shotInfo)||defender;
+  const styleMods=shotInfo.styleMods||attackStyleModifiers(attacker,{
+    shotId:shotInfo.shot?.id,blockers:formation.blockers.length,backRow:false,pressure:isPressureAttack()
+  });
+
+  let attackQuality=clamp(
+    (shotInfo.execution+matchStat(attacker,"vertical")*.10+matchStat(attacker,"reactionTime")*.06)/112+
+    (type==="attackable"?.10:.05)+
+    Number(styleMods.kill||0)/100,
+    .18,.99
+  );
+
+  let attackErrorChance=clamp(
+    (.082-matchStat(attacker,"accuracy")*.00058+(type==="tight"?.012:0)+Number(styleMods.error||0)/100)*
+    mindsetErrorMultiplier(attacker),
+    .008,.12
+  );
+
+  const blockChance=blocker
+    ? clamp((blockSkill-shotInfo.blockEvasion)/(type==="tight"?225:275),.006,.17)
+    : 0;
+
+  const digSkill=floorDefenseSkill(defender,shotInfo);
+  const defenseMods=defensiveDigModifiers(defender,attacker,shotInfo);
+  const zonePenalty=shotDigDifficulty(attacker,shotInfo,defender,defRot,defendingTeam);
+  const digChance=clamp((digSkill+styleMods.digBonus+defenseMods.dig-zonePenalty)/145,.035,.60);
+
+  let outcome="kill",blockCover=null;
+  const r=Math.random();
+
+  if(r<attackErrorChance){
+    outcome="attack_error";
+  }else if(r<attackErrorChance+blockChance*(1-attackQuality*.42)){
+    blockCover=calculateBlockCover(attackingTeam,attacker,blocker,shotInfo);
+    outcome=blockCover.covered?"block_cover":"block";
+  }else if(r<attackErrorChance+blockChance*(1-attackQuality*.42)+digChance*(1-attackQuality*.42)){
+    outcome="dig";
+  }
+
+  const shotText=shotCommentary(attacker,shotInfo,blocker||{name:"the block"});
+  const overpassIntro=type==="tight"
+    ?`⚠️ Tight overpass at the tape — ${attacker.name} gets there immediately`
+    :`⚠️ Attackable overpass — ${attacker.name} pounces before the defence can organise`;
+
+  let text;
+  if(outcome==="attack_error"){
+    text=`${overpassIntro} → ${shotText}, but misses the overpass attack — point ${defendingName}.`;
+  }else if(outcome==="kill"){
+    text=`${overpassIntro} → ${shotText} — overpass kill ${attackingName}.`;
+  }else if(outcome==="block"){
+    text=`${overpassIntro} → ${shotText}, but ${blocker?.name||"the blocker"} wins the net contest — block point ${defendingName}.`;
+  }else if(outcome==="block_cover"){
+    text=`${overpassIntro} → ${shotText} is blocked, but ${blockCover.coverer.name} keeps it alive.`;
+  }else{
+    text=`${overpassIntro} → ${shotText} → ${defender.name} digs the overpass attack. Rally continues.`;
+  }
+
+  return {
+    isTransition:true,possessionNo,attackingTeamNo,
+    sourceType:"overpass",passer:null,passQuality:null,setter:null,
+    attacker,blocker,defender,formation,outcome,text,
+    shot:shotInfo.shot.name,shotId:shotInfo.shot.id,
+    shotTarget:gameplayShotTarget(attacker,shotInfo),
+    attackerZone,blockCover,styleMods,attackErrorChance,attackQuality,
+    outOfSystem:false,overpassAttack:true,overpassType:type
+  };
 }
 
 function terminalWinnerForEvent(evt,attackingTeamNo){
@@ -13678,13 +14363,18 @@ function resolveFullRallyChain(initialEvt,initialAttackingTeamNo){
   let possessionNo=1;
 
   while(!winner && possessionNo<24){
-    const nextAttackingTeamNo=evt.outcome==="dig"?(attackingTeamNo===1?2:1):attackingTeamNo;
+    const switchesPossession=["dig","overpass","free_ball"].includes(evt.outcome);
+    const nextAttackingTeamNo=switchesPossession?(attackingTeamNo===1?2:1):attackingTeamNo;
     const attackingTeam=nextAttackingTeamNo===1?liveState.a:liveState.b;
     const defendingTeam=nextAttackingTeamNo===1?liveState.b:liveState.a;
     const attackingName=nextAttackingTeamNo===1?liveState.name1:liveState.name2;
     const defendingName=nextAttackingTeamNo===1?liveState.name2:liveState.name1;
     possessionNo++;
-    evt=detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defendingName,evt,possessionNo);
+
+    evt=(evt.outcome==="overpass" && evt.overpassType!=="deep")
+      ?detailedOverpassAttackEvent(attackingTeam,defendingTeam,attackingName,defendingName,evt,possessionNo)
+      :detailedTransitionEvent(attackingTeam,defendingTeam,attackingName,defendingName,evt,possessionNo);
+
     events.push(evt);
     attackingTeamNo=nextAttackingTeamNo;
     winner=terminalWinnerForEvent(evt,attackingTeamNo);
@@ -13706,12 +14396,16 @@ function resolveFullRallyChain(initialEvt,initialAttackingTeamNo){
 
 function addActualEventStats(evt,attackingWon){
   if(!liveState||!evt)return;
-  const ensure=n=>{if(!liveState.totals[n])liveState.totals[n]={name:n,kills:0,errors:0,attackErrors:0,blocks:0,aces:0,digs:0,assists:0,attempts:0,perfectPasses:0,goodPasses:0,poorPasses:0,receptionErrors:0};return liveState.totals[n]};
+  const ensure=n=>{if(!liveState.totals[n])liveState.totals[n]={name:n,kills:0,errors:0,attackErrors:0,blocks:0,aces:0,digs:0,assists:0,attempts:0,perfectPasses:0,goodPasses:0,poorPasses:0,receptionErrors:0,overpasses:0,overpassesForced:0};return liveState.totals[n]};
   if(evt.passQuality && !evt.isTransition){
     const ps=ensure(evt.passer.name);
     if(evt.passQuality.grade===3) ps.perfectPasses++;
     if(evt.passQuality.grade===2) ps.goodPasses++;
     if(evt.passQuality.grade===1) ps.poorPasses++;
+    if(evt.passQuality.overpass){
+      ps.overpasses=(ps.overpasses||0)+1;
+      if(evt.server)ensure(evt.server.name).overpassesForced=(ensure(evt.server.name).overpassesForced||0)+1;
+    }
     if(evt.passQuality.grade===0){ ps.receptionErrors++; ps.errors++; registerMindsetError(evt.passer,"Reception"); if(evt.server) ensure(evt.server.name).aces++; }
   }
   if(evt.outcome==="reception_error" || evt.outcome==="transition_error") return;
@@ -13738,7 +14432,9 @@ function addActualEventStats(evt,attackingWon){
       });
     }
   }
-  ensure(evt.setter.name).assists=(ensure(evt.setter.name).assists||0)+(evt.outcome==="kill"?1:0);
+  if(evt.setter && evt.attacker && evt.setter.name!==evt.attacker.name && evt.outcome==="kill"){
+    ensure(evt.setter.name).assists=(ensure(evt.setter.name).assists||0)+1;
+  }
   if(evt.outcome==="attack_error" && evt.attacker){
     ensure(evt.attacker.name).errors++;
     ensure(evt.attacker.name).attackErrors++;
@@ -23703,6 +24399,7 @@ function comparePlayerHero(p,roleChoice){
   const display=compareDisplayRating(p,roleChoice);
   const atk=(p.attackPlaystyle||"none")!=="none"?attackingPlaystyle(p):null;
   const def=(p.defensePlaystyle||"none")!=="none"?defensivePlaystyle(p):null;
+  const fakeSet=aceHasFakeSetAbility(p);
   return `<div class="comparePlayerHero ${cardTier(p)}">
     <div class="compareHeroTop">
       <div class="compareHeroRating">${display.rating}<small>${display.role} · ${display.familiarity}</small></div>
@@ -23713,7 +24410,8 @@ function comparePlayerHero(p,roleChoice){
     <div class="compareHeroPlaystyles">
       ${atk?`<span>${esc(atk.name)}</span>`:""}
       ${def?`<span>${esc(def.name)}</span>`:""}
-      ${!atk&&!def?`<span>No Playstyle</span>`:""}
+      ${fakeSet?`<span>🎭 Fake Set</span>`:""}
+      ${!atk&&!def&&!fakeSet?`<span>No Playstyle</span>`:""}
     </div>
   </div>`;
 }
@@ -23876,6 +24574,7 @@ function openVdsCardShowcase(name){
   const playstyles=[];
   if((p.attackPlaystyle||"none")!=="none")playstyles.push(attackingPlaystyle(p).name);
   if((p.defensePlaystyle||"none")!=="none")playstyles.push(defensivePlaystyle(p).name);
+  if(aceHasFakeSetAbility(p))playstyles.push("🎭 Fake Set");
 
   content.innerHTML=`
     <div class="vdsCardShowcaseInner">
@@ -41036,6 +41735,12 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
     return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">${parts.icon}</div><div><b>${esc(parts.label)}</b><p>${esc(style.desc||"")}</p></div></div>`;
   }
 
+  function fakeSetAbilityView(p){
+    if(!aceHasFakeSetAbility(p))return "";
+    const info=aceFakeSetEligibility(p);
+    return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">🎭</div><div><b>FAKE SET</b><p>Automatic ability · STQ ${Math.round(info.setTechnique)} · SCR ${Math.round(info.setCreativity)} · REA ${Math.round(info.reaction)}</p></div></div>`;
+  }
+
   function statGroup(title,rating,rows){
     return `<div class="ace29StatGroup">
       <div class="ace29StatGroupHead"><span>${title}</span><b>${rating}</b></div>
@@ -41170,6 +41875,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
                 <div class="ace29Playstyles">
                   ${playstyleView(atk,"attacking")}
                   ${playstyleView(def,"defensive")}
+                  ${fakeSetAbilityView(p)}
                 </div>
               </div>
             </div>
@@ -46790,6 +47496,55 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.7 — CORE OVR PENALTY -->
+
+
+<!-- ACE B21.36.8 — AUTO FAKE SET ABILITY -->
+<script id="ace-b21-36-8-auto-fake-set-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.8";
+  window.ACE_AUTO_FAKE_SET_ABILITY=true;
+  window.ACE_FAKE_SET_THRESHOLDS={
+    positions:["OH","S"],
+    setTechnique:72,
+    setCreativity:76,
+    reaction:70,
+    average:75
+  };
+  window.ACE_FAKE_SET_CONSUMES_PLAYSTYLE_SLOT=false;
+})();
+</script>
+<!-- /ACE B21.36.8 — AUTO FAKE SET ABILITY -->
+
+
+<!-- ACE B21.36.9 — OVERPASS + SETTER FIRST CONTACT -->
+<script id="ace-b21-36-9-overpass-setter-first-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.9";
+  window.ACE_OVERPASS_SYSTEM=true;
+  window.ACE_OVERPASS_TYPES=["tight","attackable","deep"];
+  window.ACE_SETTER_FIRST_CONTACT_SYSTEM=true;
+  window.ACE_SETTER_CONTROLLED_FIRST_CONTACT="FRONT_OH_SECOND_CONTACT_TO_PIPE";
+  window.ACE_SETTER_UNCONTROLLED_FIRST_CONTACT="LIBERO_RESCUE_THEN_NEAREST";
+  window.ACE_FAKE_SET_CONTEXT_ONLY=true;
+  window.ACE_FAKE_SET_ATTACK_CHANCE_RANGE=[0.38,0.56];
+  window.ACE_FREE_BALL_SAVE_FALLBACK=true;
+})();
+</script>
+<!-- /ACE B21.36.9 — OVERPASS + SETTER FIRST CONTACT -->
+
+
+<!-- ACE B21.36.10 — BACK-ROW OH SECOND BALL + FAKE SET -->
+<script id="ace-b21-36-10-backrow-oh-second-ball-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.10";
+  window.ACE_SETTER_FIRST_CONTACT_PATTERN="CONTROLLED_TO_BACKROW_OH_CONTACT_TWO";
+  window.ACE_BACKROW_OH_SECOND_BALL_ATTACK=true;
+  window.ACE_FAKE_SET_BEHAVIOUR="BACKROW_OH_SHOWS_SECOND_BALL_ATTACK_THEN_SETS";
+  window.ACE_FAKE_SET_CHANCE_RANGE=[0.30,0.45];
+  window.ACE_DIRECT_SECOND_BALL_ATTACK_REMAINS_MAJORITY=true;
+})();
+</script>
+<!-- /ACE B21.36.10 — BACK-ROW OH SECOND BALL + FAKE SET -->
 
 </body>
 </html>
