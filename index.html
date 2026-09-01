@@ -48613,16 +48613,57 @@ body.ace34ShareOpen{
 
   function evoApplyCardRating(card,baseRating=null){
     if(!card)return card;
+
     const player=(typeof players!=="undefined"&&Array.isArray(players))
       ? players.find(p=>Number(p?.cloudId||0)===Number(card?.playerId||0))
       : null;
-    const liveBase=Number.isFinite(Number(baseRating))
-      ? Math.round(Number(baseRating))
-      : (player && typeof mainPositionRating==="function"
-          ? Math.round(Number(mainPositionRating(player)||0))
-          : Math.round(Number(card.baseRating??card.rating??0)||0));
+
+    /*
+      B21.36.20 — MASTER OVR IS AUTHORITATIVE.
+
+      JavaScript Number(null) === 0. The previous build treated that zero as
+      an explicitly supplied rating, so calls such as evoApplyCardRating(card)
+      could turn an 83 OVR Ben into a 0 OVR Evolution card.
+
+      For every cloud-owned player card, always recover the natural-position
+      rating from the master Players DB first. Only use a supplied/fallback
+      value when the matching master player is genuinely unavailable.
+    */
+    const masterBase=(player && typeof mainPositionRating==="function")
+      ? Math.round(Number(mainPositionRating(player)||0))
+      : 0;
+
+    const hasExplicitBase=
+      baseRating!==null &&
+      baseRating!==undefined &&
+      baseRating!=="" &&
+      Number.isFinite(Number(baseRating)) &&
+      Number(baseRating)>0;
+
+    const fallbackCandidates=[
+      hasExplicitBase?Number(baseRating):null,
+      Number(card.baseRating),
+      Number(card.sourceOverall),
+      Number(card.overallRating),
+      Number(card.positionRating),
+      Number(card.rating)
+    ];
+
+    const fallbackBase=fallbackCandidates.find(value=>
+      value!==null && Number.isFinite(value) && value>0
+    );
+
+    const liveBase=Math.max(
+      0,
+      Math.min(
+        99,
+        Math.round(masterBase>0 ? masterBase : (fallbackBase||0))
+      )
+    );
+
     const steps=evoStoredSteps(card);
     const effective=liveBase>=90 ? liveBase : Math.min(EVO_CAP,liveBase+steps);
+
     card.baseRating=liveBase;
     card.evolutionSteps=steps;
     card.evolutionBonusRaw=steps;
@@ -48630,6 +48671,10 @@ body.ace34ShareOpen{
     card.evolutionOvr=effective;
     card.rating=effective;
     card.positionRating=effective;
+    card.overallRating=player && typeof overall==="function"
+      ? Math.round(Number(overall(player)||liveBase))
+      : Math.round(Number(card.overallRating||liveBase));
+    card.sourceOverall=card.overallRating;
     card.rarity=evoTierForRating(effective);
     return card;
   }
@@ -48644,7 +48689,10 @@ body.ace34ShareOpen{
       if(!card)return card;
       card.evolutionSteps=Math.max(0,Math.floor(Number(row?.evolution_bonus||0)));
       card.evolutionUpdatedAt=row?.evolution_updated_at||null;
-      return evoApplyCardRating(card,Number(card.rating));
+
+      // Do not trust a cached/temporary zero. The master player determines
+      // the card's true starting OVR (e.g. Ben 83 starts at 83).
+      return evoApplyCardRating(card);
     };
   }
 
@@ -48915,6 +48963,40 @@ body.ace34ShareOpen{
   window.aceEvolutionDupesRequired=evoDupesRequired;
   window.aceEvolutionStatusForPlayer=evoStatusForPlayer;
 
+  function aceRepairEvolutionBaseRatings(){
+    try{
+      if(!Array.isArray(ultimateTeamState?.cards))return false;
+      let changed=false;
+      ultimateTeamState.cards.forEach(card=>{
+        if(!card?.playerId)return;
+        const before=Math.round(Number(card.rating||0));
+        evoApplyCardRating(card);
+        if(Math.round(Number(card.rating||0))!==before)changed=true;
+      });
+      if(changed){
+        try{vdsCacheUltimateTeam?.();}catch(_){}
+      }
+      return changed;
+    }catch(error){
+      console.warn("ACE Evolution base OVR repair skipped",error);
+      return false;
+    }
+  }
+
+  window.aceRepairEvolutionBaseRatings=aceRepairEvolutionBaseRatings;
+
+  // Repair any cloud cards already loaded from the previous 0-OVR build.
+  try{aceRepairEvolutionBaseRatings();}catch(_){}
+
+  if(typeof renderUltimateTeam==="function" && !window.__aceEvolutionRenderRepairWrapped){
+    window.__aceEvolutionRenderRepairWrapped=true;
+    const baseRenderUltimateTeam=renderUltimateTeam;
+    renderUltimateTeam=function(){
+      try{aceRepairEvolutionBaseRatings();}catch(_){}
+      return baseRenderUltimateTeam.apply(this,arguments);
+    };
+  }
+
   /* Put Evolution directly in My Club. This keeps the system discoverable
      without adding another permanent navigation tab. */
   if(typeof aceClubCardMarkup==="function" && !window.__aceEvolutionClubWrapped){
@@ -48975,6 +49057,739 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.19 — PLAYER EVOLUTION SYSTEM -->
+
+
+<!-- ACE B21.36.20 — EVOLUTION BASE OVR FIX -->
+<script id="ace-b21-36-20-evolution-base-ovr-fix-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.20";
+  window.ACE_EVOLUTION_BASE_OVR_SOURCE="MASTER_PLAYER_NATURAL_POSITION_RATING";
+  window.ACE_EVOLUTION_NULL_BASE_CAN_BECOME_ZERO=false;
+  window.ACE_EVOLUTION_STALE_ZERO_CACHE_AUTO_REPAIR=true;
+  window.ACE_EVOLUTION_EXAMPLE="BEN_83_STARTS_AT_83";
+})();
+</script>
+<!-- /ACE B21.36.20 — EVOLUTION BASE OVR FIX -->
+
+
+<!-- ACE B21.36.21 — ENHANCED EVOLUTION UI -->
+<style id="ace-b21-36-21-enhanced-evolution-ui">
+.aceEvo2ProfilePanel{
+  margin-top:12px;padding:14px;border-radius:18px;
+  border:1px solid rgba(176,116,255,.20);
+  background:
+    radial-gradient(circle at top right,rgba(125,67,215,.16),transparent 34%),
+    linear-gradient(180deg,rgba(19,15,28,.98),rgba(10,12,18,.98));
+  box-shadow:0 14px 40px rgba(0,0,0,.18)
+}
+.aceEvo2ProfileHead{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap
+}
+.aceEvo2ProfileHead strong{
+  color:#fff;font-size:11px;letter-spacing:.08em
+}
+.aceEvo2ProfileHead span{
+  color:#9e94aa;font-size:7px;font-weight:900;letter-spacing:.11em
+}
+.aceEvo2ProfileMiniRow{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px
+}
+.aceEvo2MiniStat{
+  padding:10px 9px;border-radius:12px;background:#0d1017;
+  border:1px solid rgba(255,255,255,.05)
+}
+.aceEvo2MiniStat span{
+  display:block;color:#7f7788;font-size:6px;font-weight:900;letter-spacing:.11em
+}
+.aceEvo2MiniStat b{
+  display:block;margin-top:4px;color:#fff;font-size:16px;line-height:1
+}
+.aceEvo2MiniStat small{
+  display:block;margin-top:4px;color:#ad9ec0;font-size:6px;font-weight:900;letter-spacing:.08em
+}
+.aceEvo2RankUpChip,.aceEvo2SteadyChip{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+  font-size:6.3px;font-weight:1000;letter-spacing:.11em;white-space:nowrap
+}
+.aceEvo2RankUpChip{
+  color:#f0defe;border:1px solid rgba(212,155,255,.30);
+  background:linear-gradient(135deg,rgba(124,65,214,.34),rgba(197,129,255,.16))
+}
+.aceEvo2SteadyChip{
+  color:#b3a7c2;border:1px solid rgba(255,255,255,.07);background:#0e1118
+}
+.aceEvo2ProfileActions{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:12px
+}
+.aceEvo2ProfileBtn{
+  min-height:46px;padding:0 14px;border-radius:12px;border:1px solid rgba(190,139,255,.24);
+  background:linear-gradient(135deg,#6433a9,#8f54dd);color:#fff;font-size:7px;font-weight:1000;
+  letter-spacing:.10em;cursor:pointer;box-shadow:0 12px 26px rgba(89,42,151,.18)
+}
+.aceEvo2ProfileBtn.secondary{
+  border-color:rgba(255,255,255,.08);background:#10131b;color:#cec6d8;box-shadow:none
+}
+.aceEvo2ProfileBtn:disabled{
+  opacity:.48;cursor:default;background:#12141a;color:#8b8492;border-color:rgba(255,255,255,.06)
+}
+.aceEvo2ProfileHint{
+  margin-top:10px;color:#8f8799;font-size:7px;line-height:1.45
+}
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard[data-ace-evo-card-open]{
+  cursor:pointer
+}
+#vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard[data-ace-evo-card-open]::after{
+  content:"CLICK CARD TO OPEN EVOLUTION";position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  padding:5px 9px;border-radius:999px;background:rgba(8,10,15,.84);
+  border:1px solid rgba(190,139,255,.20);color:#e4d6f3;font-size:5.8px;font-weight:1000;
+  letter-spacing:.11em;white-space:nowrap;z-index:20
+}
+
+.aceEvo2Modal{
+  position:fixed;inset:0;z-index:100120;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(4,5,9,.82);backdrop-filter:blur(16px)
+}
+.aceEvo2Modal.show{display:flex}
+body.aceEvo2Open{overflow:hidden}
+.aceEvo2Shell{
+  width:min(920px,97vw);max-height:min(900px,95vh);overflow:auto;border-radius:28px;
+  border:1px solid rgba(183,122,255,.20);
+  background:
+    radial-gradient(circle at top right,rgba(132,72,222,.20),transparent 28%),
+    radial-gradient(circle at top left,rgba(97,55,180,.18),transparent 24%),
+    linear-gradient(180deg,#0f1018,#090a11 72%);
+  box-shadow:0 30px 90px rgba(0,0,0,.58)
+}
+.aceEvo2Top{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+.aceEvo2TopKicker{
+  display:block;color:#9d70de;font-size:6.8px;font-weight:1000;letter-spacing:.18em
+}
+.aceEvo2TopTitle{
+  display:block;margin-top:4px;color:#fff;font-size:24px;font-weight:1000;letter-spacing:-.03em
+}
+.aceEvo2Close{
+  width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.07);
+  background:#11131a;color:#9a92a4;font-size:18px;cursor:pointer
+}
+.aceEvo2Body{padding:20px}
+.aceEvo2Hero{
+  display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;align-items:start
+}
+.aceEvo2Card{
+  position:relative;width:220px;aspect-ratio:5/7;margin:auto;border-radius:24px;overflow:hidden;
+  border:1px solid rgba(196,144,255,.22);
+  background:linear-gradient(160deg,#18131f,#0b0c12 72%)
+}
+.aceEvo2Card img{
+  position:absolute;left:3%;right:3%;top:7%;bottom:18%;width:94%;height:76%;
+  object-fit:contain;object-position:center bottom
+}
+.aceEvo2CardGlow{
+  position:absolute;inset:0;background:
+    radial-gradient(circle at top left,rgba(255,255,255,.18),transparent 22%),
+    linear-gradient(180deg,transparent 42%,rgba(8,10,16,.12) 55%,rgba(8,10,16,.98) 90%)
+}
+.aceEvo2CardRating{
+  position:absolute;left:14px;top:12px;z-index:2;color:#fff;font-size:38px;font-weight:1000;letter-spacing:-.08em
+}
+.aceEvo2CardRating small{
+  display:block;color:#b9afc5;font-size:7px;letter-spacing:.12em
+}
+.aceEvo2CardName{
+  position:absolute;left:12px;right:12px;bottom:14px;z-index:2;text-align:center;
+  color:#fff;font-size:11px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.aceEvo2CardTier{
+  position:absolute;right:12px;top:12px;z-index:2;padding:6px 9px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);background:rgba(8,10,14,.66);color:#ece7f3;
+  font-size:6px;font-weight:1000;letter-spacing:.14em
+}
+.aceEvo2Summary small{
+  display:block;color:#9b72dd;font-size:6.5px;font-weight:1000;letter-spacing:.16em
+}
+.aceEvo2Summary h2{
+  margin:7px 0 0;color:#fff;font-size:34px;line-height:.94;letter-spacing:-.05em
+}
+.aceEvo2Summary p{
+  margin:10px 0 0;color:#938b9d;font-size:9px;line-height:1.55
+}
+.aceEvo2Progress{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:18px
+}
+.aceEvo2ProgressBox{
+  padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.06);background:#0c0f16
+}
+.aceEvo2ProgressBox span{
+  display:block;color:#7e7787;font-size:6px;font-weight:1000;letter-spacing:.12em
+}
+.aceEvo2ProgressBox b{
+  display:block;margin-top:4px;color:#fff;font-size:34px;line-height:1;letter-spacing:-.06em
+}
+.aceEvo2ProgressBox em{
+  display:block;margin-top:5px;color:#bdaed1;font-size:6.5px;font-style:normal;font-weight:1000;letter-spacing:.10em
+}
+.aceEvo2ProgressArrow{font-size:22px;color:#9a63df;font-weight:1000}
+.aceEvo2TierTrack{
+  display:flex;gap:7px;flex-wrap:wrap;margin-top:14px
+}
+.aceEvo2TierTrack span{
+  padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.07);
+  background:#0e1118;color:#aea4bc;font-size:6.1px;font-weight:1000;letter-spacing:.11em
+}
+.aceEvo2TierTrack span.active{
+  color:#fff;border-color:rgba(197,141,255,.28);
+  background:linear-gradient(135deg,rgba(108,57,184,.32),rgba(152,89,232,.18))
+}
+.aceEvo2TierTrack span.future{
+  color:#dac2f4;border-color:rgba(190,139,255,.22);background:rgba(104,55,177,.10)
+}
+.aceEvo2StatusGrid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px
+}
+.aceEvo2Stat{
+  padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.05);background:#0c1017
+}
+.aceEvo2Stat span{
+  display:block;color:#7c7583;font-size:6px;font-weight:900;letter-spacing:.11em
+}
+.aceEvo2Stat b{
+  display:block;margin-top:4px;color:#fff;font-size:20px;line-height:1
+}
+.aceEvo2Stat small{
+  display:block;margin-top:4px;color:#b4a5c5;font-size:6px;font-weight:900;letter-spacing:.08em
+}
+.aceEvo2Message{
+  margin-top:14px;padding:13px 14px;border-radius:14px;border:1px solid rgba(172,115,255,.16);
+  background:rgba(99,55,157,.08);color:#ddd6e8;font-size:8px;line-height:1.55
+}
+.aceEvo2Curve{
+  margin-top:18px;padding:15px;border-radius:16px;border:1px solid rgba(255,255,255,.05);background:#0a0c12
+}
+.aceEvo2CurveHead{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap
+}
+.aceEvo2CurveHead strong{color:#fff;font-size:8px;letter-spacing:.09em}
+.aceEvo2CurveHead span{color:#7f7885;font-size:6.2px;letter-spacing:.10em}
+.aceEvo2CurveGrid{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px
+}
+.aceEvo2CurveGrid div{
+  padding:10px 8px;border-radius:11px;background:#0f1219;border:1px solid rgba(255,255,255,.04);text-align:center
+}
+.aceEvo2CurveGrid span{display:block;color:#756f7c;font-size:5.4px;font-weight:900}
+.aceEvo2CurveGrid b{display:block;margin-top:4px;color:#dbd5e5;font-size:8.4px}
+.aceEvo2Result{
+  margin-top:16px;padding:15px 16px;border-radius:16px;display:none
+}
+.aceEvo2Result.show{display:block}
+.aceEvo2Result.ok{
+  border:1px solid rgba(197,141,255,.22);
+  background:linear-gradient(135deg,rgba(101,55,171,.23),rgba(33,25,43,.92))
+}
+.aceEvo2Result.error{
+  border:1px solid rgba(201,89,106,.18);background:rgba(104,37,48,.16)
+}
+.aceEvo2ResultTop{
+  display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap
+}
+.aceEvo2ResultTop strong{
+  color:#fff;font-size:14px;letter-spacing:.05em
+}
+.aceEvo2ResultTop span{
+  color:#d9cbec;font-size:7px;font-weight:1000;letter-spacing:.12em
+}
+.aceEvo2ResultFlow{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:12px
+}
+.aceEvo2ResultCell{
+  padding:12px;border-radius:12px;background:#0d1018;border:1px solid rgba(255,255,255,.05);text-align:center
+}
+.aceEvo2ResultCell span{
+  display:block;color:#7f7885;font-size:6px;font-weight:1000;letter-spacing:.11em
+}
+.aceEvo2ResultCell b{
+  display:block;margin-top:4px;color:#fff;font-size:28px;line-height:1
+}
+.aceEvo2ResultCell small{
+  display:block;margin-top:4px;color:#c5b3db;font-size:6.3px;font-weight:1000;letter-spacing:.10em
+}
+.aceEvo2ResultArrow{font-size:24px;color:#b985ff;font-weight:1000}
+.aceEvo2ResultRank{
+  margin-top:12px;padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(197,141,255,.18);background:rgba(111,62,188,.10);
+  color:#f0e3ff;font-size:7px;font-weight:1000;letter-spacing:.11em;text-align:center
+}
+.aceEvo2Actions{
+  display:flex;gap:10px;margin-top:18px
+}
+.aceEvo2ActionBtn{
+  min-height:50px;border-radius:13px;font-size:7.1px;font-weight:1000;letter-spacing:.10em;cursor:pointer
+}
+.aceEvo2ActionBtn.primary{
+  flex:1;border:1px solid rgba(194,140,255,.26);background:linear-gradient(135deg,#6c39b8,#9859e8);color:#fff
+}
+.aceEvo2ActionBtn.primary:disabled{
+  opacity:.44;cursor:not-allowed;background:#16131c;color:#aba4b4
+}
+.aceEvo2ActionBtn.secondary{
+  padding:0 18px;border:1px solid rgba(255,255,255,.08);background:#0d1118;color:#8f8896
+}
+@media(max-width:800px){
+  .aceEvo2Modal{padding:8px;align-items:flex-end}
+  .aceEvo2Shell{width:100%;max-height:95vh;border-radius:22px 22px 10px 10px}
+  .aceEvo2Body{padding:16px 14px 18px}
+  .aceEvo2Hero{grid-template-columns:124px minmax(0,1fr);gap:14px}
+  .aceEvo2Card{width:124px;border-radius:16px}
+  .aceEvo2CardRating{font-size:25px;left:9px;top:8px}
+  .aceEvo2CardTier{right:8px;top:8px;padding:5px 7px}
+  .aceEvo2CardName{font-size:7.5px;bottom:10px}
+  .aceEvo2Summary h2{font-size:26px}
+  .aceEvo2Summary p{font-size:8px}
+  .aceEvo2Progress{gap:6px}
+  .aceEvo2ProgressBox{padding:10px}
+  .aceEvo2ProgressBox b{font-size:24px}
+  .aceEvo2StatusGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .aceEvo2CurveGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .aceEvo2Actions{display:grid;grid-template-columns:1fr}
+  .aceEvo2ActionBtn.secondary{min-height:46px}
+  .aceEvo2ProfileMiniRow{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+<!-- /ACE B21.36.21 — ENHANCED EVOLUTION UI -->
+
+
+<!-- ACE B21.36.21 — ENHANCED EVOLUTION UI SCRIPT -->
+<script id="ace-b21-36-21-enhanced-evolution-ui-script">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+  const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+  function evoTierKeyByRating(r){
+    const n=Math.round(Number(r)||0);
+    if(n>=90)return "ace";
+    if(n>=85)return "elite";
+    if(n>=80)return "rare_gold";
+    if(n>=75)return "gold";
+    if(n>=60)return "silver";
+    return "bronze";
+  }
+  function evoTierLabelByRating(r){
+    const k=evoTierKeyByRating(r);
+    return k==="rare_gold"?"RARE GOLD":k.toUpperCase();
+  }
+  function findPlayerById(playerId){
+    return (window.players||[]).find(p=>Number(p?.cloudId||0)===Number(playerId||0))||null;
+  }
+  function getStatus(playerId){
+    return typeof window.aceEvolutionStatusForPlayer==="function"
+      ? window.aceEvolutionStatusForPlayer(Number(playerId||0))
+      : null;
+  }
+  function getDupesRequired(current){
+    return typeof window.aceEvolutionDupesRequired==="function"
+      ? window.aceEvolutionDupesRequired(Number(current||0))
+      : null;
+  }
+  function hasProfileOpen(){
+    return !!q("#vdsCardShowcaseOverlay.show .ace29ProfileInner");
+  }
+
+  function injectProfileEvolution(playerName){
+    const overlay=q("#vdsCardShowcaseOverlay.show");
+    if(!overlay)return;
+    const profileRoot=q(".ace29ProfileInner",overlay);
+    if(!profileRoot)return;
+
+    const player=(window.players||[]).find(p=>String(p?.name||"")===String(playerName||"")) || null;
+    if(!player)return;
+
+    const status=getStatus(player.cloudId);
+    if(!status?.primary)return;
+
+    const next=status.ace || status.maxed ? status.current : Math.min(89,status.current+1);
+    const currentTier=evoTierLabelByRating(status.current);
+    const nextTier=evoTierLabelByRating(next);
+    const rankUp=currentTier!==nextTier;
+
+    const cardEl=q(".ace29ProfileCardStage .fifaPlayerCard",profileRoot);
+    if(cardEl){
+      cardEl.setAttribute("data-ace-evo-card-open",String(player.cloudId||0));
+      cardEl.setAttribute("title","Open Evolution");
+    }
+
+    const actions=q(".ace29ProfileActions",profileRoot);
+    if(actions && !q("[data-ace3621-profile-evolve]",actions)){
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="primary";
+      btn.setAttribute("data-ace3621-profile-evolve",String(player.cloudId||0));
+      btn.textContent=status.ace
+        ? "ACE · NO EVOLUTION"
+        : status.maxed
+          ? "EVOLUTION MAX · 89"
+          : `EVOLUTION ${status.current} → ${next}`;
+      if(status.ace || status.maxed)btn.disabled=true;
+      actions.insertBefore(btn, actions.firstElementChild || null);
+    }
+
+    let panel=q(".aceEvo2ProfilePanel",profileRoot);
+    if(!panel){
+      panel=document.createElement("div");
+      panel.className="aceEvo2ProfilePanel";
+      const info=q(".ace29ProfileInfo",profileRoot);
+      if(info)info.insertBefore(panel, info.firstElementChild);
+    }
+
+    panel.innerHTML = `
+      <div class="aceEvo2ProfileHead">
+        <div>
+          <strong>EVOLUTION STATUS</strong>
+          <span>EXACT DUPLICATES · PER-USER UPGRADE TRACK</span>
+        </div>
+        <div>${rankUp
+          ? `<span class="aceEvo2RankUpChip">RANK UP ON NEXT EVOLUTION · ${currentTier} → ${nextTier}</span>`
+          : `<span class="aceEvo2SteadyChip">NEXT STEP STAYS ${currentTier}</span>`}</div>
+      </div>
+
+      <div class="aceEvo2ProfileMiniRow">
+        <div class="aceEvo2MiniStat"><span>CURRENT</span><b>${status.current}</b><small>${currentTier}</small></div>
+        <div class="aceEvo2MiniStat"><span>NEXT</span><b>${next}</b><small>${nextTier}</small></div>
+        <div class="aceEvo2MiniStat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${status.required}`}</b><small>${status.ready ? "READY NOW" : "EXACT DUPES"}</small></div>
+        <div class="aceEvo2MiniStat"><span>CAP</span><b>${status.ace ? status.current : 89}</b><small>${status.ace ? "ACE LOCKED" : "NORMAL MAX"}</small></div>
+      </div>
+
+      <div class="aceEvo2ProfileActions">
+        <button type="button" class="aceEvo2ProfileBtn" data-ace3621-profile-evolve="${Number(player.cloudId||0)}" ${status.ace || status.maxed ? "disabled" : ""}>
+          ${status.ace
+            ? "ACE CARDS CANNOT EVOLVE"
+            : status.maxed
+              ? "CARD HAS REACHED 89 OVR"
+              : status.ready
+                ? `EVOLVE NOW · USE ${status.required} DUPES`
+                : `OPEN EVOLUTION · NEED ${Math.max(0,(status.required||0)-(status.available||0))} MORE`
+          }
+        </button>
+        <button type="button" class="aceEvo2ProfileBtn secondary" data-ace3621-view-curve="1">VIEW COST CURVE</button>
+      </div>
+
+      <div class="aceEvo2ProfileHint">
+        Click the card itself or use the Evolution button to open the cleaner upgrade view.
+        Locked, favourited and Starting Six copies remain protected and are never consumed.
+      </div>
+    `;
+  }
+
+  function ensureModal(){
+    let modal=q("#aceEvo2Modal");
+    if(modal)return modal;
+    modal=document.createElement("div");
+    modal.id="aceEvo2Modal";
+    modal.className="aceEvo2Modal";
+    modal.setAttribute("aria-hidden","true");
+    modal.innerHTML = `
+      <div class="aceEvo2Shell" role="dialog" aria-modal="true" aria-label="Evolution">
+        <div class="aceEvo2Top">
+          <div>
+            <span class="aceEvo2TopKicker">THE ACE PROJECT · EVOLUTION</span>
+            <span class="aceEvo2TopTitle">Upgrade your card cleanly</span>
+          </div>
+          <button type="button" class="aceEvo2Close" data-ace-evo2-close aria-label="Close">×</button>
+        </div>
+        <div class="aceEvo2Body" id="aceEvo2Body"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener("click",e=>{
+      if(e.target===modal || e.target.closest?.("[data-ace-evo2-close]"))closeModal();
+    });
+    return modal;
+  }
+
+  function closeModal(){
+    const modal=q("#aceEvo2Modal");
+    if(!modal)return;
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+    document.body.classList.remove("aceEvo2Open");
+  }
+
+  function renderTierTrack(current,next){
+    const tiers=["bronze","silver","gold","rare_gold","elite","ace"];
+    const active=evoTierKeyByRating(current);
+    const future=evoTierKeyByRating(next);
+    return tiers.map(t=>{
+      const label=t==="rare_gold"?"RARE GOLD":t.toUpperCase();
+      const cls=t===active ? "active" : (t===future && future!==active ? "future" : "");
+      return `<span class="${cls}">${label}</span>`;
+    }).join("");
+  }
+
+  function buildResultMarkup(result){
+    if(!result)return "";
+    const rankChanged=result.oldTier!==result.newTier;
+    return `
+      <div class="aceEvo2Result show ok">
+        <div class="aceEvo2ResultTop">
+          <div>
+            <strong>EVOLUTION COMPLETE</strong>
+            <span>${result.consumed} EXACT DUPLICATE${Number(result.consumed)===1?"":"S"} CONSUMED</span>
+          </div>
+          <div>${rankChanged
+            ? `<span class="aceEvo2RankUpChip">RANK UP · ${result.oldTier} → ${result.newTier}</span>`
+            : `<span class="aceEvo2SteadyChip">NO TIER CHANGE THIS STEP</span>`}</div>
+        </div>
+        <div class="aceEvo2ResultFlow">
+          <div class="aceEvo2ResultCell"><span>BEFORE</span><b>${result.oldRating}</b><small>${result.oldTier}</small></div>
+          <div class="aceEvo2ResultArrow">→</div>
+          <div class="aceEvo2ResultCell"><span>AFTER</span><b>${result.newRating}</b><small>${result.newTier}</small></div>
+        </div>
+        ${rankChanged ? `<div class="aceEvo2ResultRank">CARD RANKED UP CLEANLY · ${result.oldTier} → ${result.newTier}</div>` : ``}
+      </div>
+    `;
+  }
+
+  function openEnhancedEvolution(playerId,opts={}){
+    const status=getStatus(playerId);
+    const card=status?.primary;
+    const player=findPlayerById(playerId);
+    if(!status || !card || !player)return;
+
+    const modal=ensureModal();
+    const body=q("#aceEvo2Body",modal);
+    if(!body)return;
+
+    const current=Math.round(Number(status.current||0));
+    const next=status.ace || status.maxed ? current : Math.min(89,current+1);
+    const currentTier=evoTierLabelByRating(current);
+    const nextTier=evoTierLabelByRating(next);
+    const rankUp=currentTier!==nextTier;
+    const required=status.ace || status.maxed ? null : getDupesRequired(current);
+    const ready=!!required && Number(status.available||0) >= Number(required||0);
+    const playerPos=String(card.position||player.position||"POS");
+    const msg=status.ace
+      ? "ACE cards already sit above the normal Evolution ladder and cannot be upgraded through this system."
+      : status.maxed
+        ? "This card has reached the 89 OVR hard Evolution cap."
+        : ready
+          ? `${required} eligible exact duplicate${required===1?"":"s"} will be consumed. The upgraded copy remains on this account only.`
+          : `You currently have ${status.available}/${required} eligible exact duplicates. Locked, favourited and Starting Six copies are excluded from consumption.`;
+
+    body.dataset.playerId=String(playerId);
+    body.innerHTML = `
+      <div class="aceEvo2Hero">
+        <div class="aceEvo2Card ${esc(String(card.rarity||""))}">
+          ${player?.photo ? `<img src="${esc(player.photo)}" alt="${esc(player.name||card.playerName||"Player")}">` : ""}
+          <div class="aceEvo2CardGlow"></div>
+          <div class="aceEvo2CardRating">${current}<small>${esc(playerPos)}</small></div>
+          <div class="aceEvo2CardTier">${esc(currentTier)}</div>
+          <div class="aceEvo2CardName">${esc(card.playerName||player.name||"PLAYER")}</div>
+        </div>
+        <div class="aceEvo2Summary">
+          <small>PERSONAL CARD EVOLUTION</small>
+          <h2>${esc(card.playerName||player.name||"PLAYER")}</h2>
+          <p>Upgrade the card by consuming exact duplicates of this same player. Evolution is account-specific, so your upgraded version does not change anyone else’s copy.</p>
+
+          <div class="aceEvo2Progress">
+            <div class="aceEvo2ProgressBox"><span>CURRENT</span><b>${current}</b><em>${currentTier}</em></div>
+            <div class="aceEvo2ProgressArrow">→</div>
+            <div class="aceEvo2ProgressBox"><span>${status.ace || status.maxed ? "CEILING" : "NEXT STEP"}</span><b>${next}</b><em>${nextTier}</em></div>
+          </div>
+
+          <div class="aceEvo2TierTrack">${renderTierTrack(current,next)}</div>
+
+          <div class="aceEvo2StatusGrid">
+            <div class="aceEvo2Stat"><span>ELIGIBLE DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${required}`}</b><small>${ready ? "READY TO EVOLVE" : "EXACT DUPLICATES ONLY"}</small></div>
+            <div class="aceEvo2Stat"><span>CARD CAP</span><b>${status.ace ? current : 89}</b><small>${status.ace ? "ACE LOCKED" : "HARD LIMIT"}</small></div>
+            <div class="aceEvo2Stat"><span>TIER CHANGE</span><b>${rankUp ? "YES" : "NO"}</b><small>${rankUp ? `${currentTier} → ${nextTier}` : `STAYS ${currentTier}`}</small></div>
+            <div class="aceEvo2Stat"><span>THIS STEP</span><b>${status.ace || status.maxed ? "—" : required}</b><small>${status.ace || status.maxed ? "NO COST" : "DUPES NEEDED"}</small></div>
+          </div>
+
+          <div class="aceEvo2Message">${msg}</div>
+        </div>
+      </div>
+
+      ${buildResultMarkup(opts.result||null)}
+
+      <div class="aceEvo2Curve">
+        <div class="aceEvo2CurveHead">
+          <strong>DUPLICATE COST CURVE</strong>
+          <span>CLEANER PROGRESSION TOWARDS 89 OVR</span>
+        </div>
+        <div class="aceEvo2CurveGrid">
+          <div><span>UP TO 77</span><b>1 DUPE</b></div>
+          <div><span>78 → 84</span><b>2 DUPES</b></div>
+          <div><span>84 → 87</span><b>3 DUPES</b></div>
+          <div><span>87 → 88</span><b>4 DUPES</b></div>
+          <div><span>88 → 89</span><b>5 DUPES</b></div>
+        </div>
+      </div>
+
+      <div class="aceEvo2Actions">
+        <button type="button" class="aceEvo2ActionBtn primary" data-ace-evo2-confirm ${status.ace || status.maxed || !ready ? "disabled" : ""}>
+          ${status.ace
+            ? "ACE CARDS CANNOT EVOLVE"
+            : status.maxed
+              ? "CARD HAS REACHED 89 OVR"
+              : ready
+                ? `EVOLVE ${current} → ${next} · USE ${required} DUPES`
+                : `NEED ${Math.max(0,(required||0)-(status.available||0))} MORE DUPES`
+          }
+        </button>
+        <button type="button" class="aceEvo2ActionBtn secondary" data-ace-evo2-close>CLOSE</button>
+      </div>
+    `;
+
+    q("[data-ace-evo2-confirm]",body)?.addEventListener("click",()=>performEvolution(playerId));
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden","false");
+    document.body.classList.add("aceEvo2Open");
+  }
+
+  async function performEvolution(playerId){
+    const status=getStatus(playerId);
+    const primary=status?.primary;
+    if(!status || !primary)return;
+    const btn=q("#aceEvo2Body [data-ace-evo2-confirm]");
+    if(btn){
+      btn.disabled=true;
+      btn.textContent="EVOLVING…";
+    }
+    try{
+      const client=window.ensureMultiplayerClient?.();
+      if(!client)throw new Error("Supabase client is not ready.");
+      const oldRating=Math.round(Number(status.current||0));
+      const oldTier=evoTierLabelByRating(oldRating);
+
+      const {data,error}=await client.rpc("vds_evolve_ut_card",{p_card_id:String(primary.cloudCardId)});
+      if(error)throw error;
+      if(!data?.ok){
+        const code=String(data?.code||"EVOLUTION_FAILED");
+        if(code==="NOT_ENOUGH_DUPLICATES")throw new Error(`Only ${Number(data?.available||0)}/${Number(data?.required||0)} eligible duplicates are available.`);
+        if(code==="EVOLUTION_CAP_REACHED")throw new Error("This card has already reached the 89 OVR cap.");
+        if(code==="ACE_NOT_EVOLVABLE")throw new Error("ACE cards cannot use normal Evolution.");
+        throw new Error(code);
+      }
+
+      if(typeof window.vdsSyncUltimateTeamCloud==="function"){
+        await window.vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      }
+      try{window.aceRepairEvolutionBaseRatings?.();}catch(_){}
+      try{window.renderUltimateTeam?.();}catch(_){}
+      try{window.renderUltimateSquadVisual?.();}catch(_){}
+      try{window.aceNotify?.({
+        title:"EVOLUTION COMPLETE",
+        body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
+        type:"achievement"
+      });}catch(_){}
+
+      if(hasProfileOpen()){
+        const openName=q("#vdsCardShowcaseOverlay.show .ace29ProfileTop h2")?.textContent?.trim();
+        if(openName)injectProfileEvolution(openName);
+      }
+
+      openEnhancedEvolution(playerId,{
+        result:{
+          oldRating:Number(data.old_rating||oldRating),
+          newRating:Number(data.new_rating||oldRating+1),
+          oldTier:oldTier,
+          newTier:evoTierLabelByRating(Number(data.new_rating||oldRating+1)),
+          consumed:Number(data.consumed||0)
+        }
+      });
+    }catch(error){
+      console.error("ACE enhanced evolution failed",error);
+      const body=q("#aceEvo2Body");
+      if(body && !q(".aceEvo2Result.error",body)){
+        const block=document.createElement("div");
+        block.className="aceEvo2Result show error";
+        block.innerHTML=`<div class="aceEvo2ResultTop"><div><strong>EVOLUTION FAILED</strong><span>TRY AGAIN</span></div></div><div style="margin-top:10px;color:#efc8cf;font-size:8px;line-height:1.55">${esc(error?.message||String(error)||"Evolution failed.")}</div>`;
+        const curve=q(".aceEvo2Curve",body);
+        if(curve)body.insertBefore(block,curve); else body.appendChild(block);
+      }
+      if(btn){
+        btn.disabled=false;
+        btn.textContent="TRY EVOLUTION AGAIN";
+      }
+    }
+  }
+
+  // Wrap profile openers so the evolution button/panel is injected automatically.
+  function wrapProfileOpeners(){
+    if(typeof window.ace29OpenPlayerProfile==="function" && !window.ace29OpenPlayerProfile.__ace3621Wrapped){
+      const base=window.ace29OpenPlayerProfile;
+      const wrapped=function(name){
+        const result=base.apply(this,arguments);
+        requestAnimationFrame(()=>injectProfileEvolution(name));
+        return result;
+      };
+      wrapped.__ace3621Wrapped=true;
+      window.ace29OpenPlayerProfile=wrapped;
+      try{ace29OpenPlayerProfile=wrapped}catch(_){}
+      if(typeof window.openVdsCardShowcase==="function"){
+        window.openVdsCardShowcase=wrapped;
+        try{openVdsCardShowcase=wrapped}catch(_){}
+      }
+    }
+  }
+
+  wrapProfileOpeners();
+
+  // Prefer the enhanced modal whenever any existing Evolution trigger is clicked.
+  document.addEventListener("click",function(event){
+    const direct=event.target.closest?.("[data-ace3621-profile-evolve]");
+    if(direct){
+      event.preventDefault();
+      event.stopPropagation();
+      openEnhancedEvolution(Number(direct.getAttribute("data-ace3621-profile-evolve")||0));
+      return;
+    }
+
+    const cardOpen=event.target.closest?.("[data-ace-evo-card-open]");
+    if(cardOpen){
+      event.preventDefault();
+      event.stopPropagation();
+      openEnhancedEvolution(Number(cardOpen.getAttribute("data-ace-evo-card-open")||0));
+      return;
+    }
+
+    const curveBtn=event.target.closest?.("[data-ace3621-view-curve]");
+    if(curveBtn){
+      event.preventDefault();
+      event.stopPropagation();
+      const panel=q(".aceEvo2ProfilePanel");
+      panel?.scrollIntoView?.({behavior:"smooth",block:"start"});
+      return;
+    }
+  },true);
+
+  document.addEventListener("click",function(event){
+    const legacy=event.target.closest?.("[data-ace-evolve-player]");
+    if(legacy){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();
+      openEnhancedEvolution(Number(legacy.getAttribute("data-ace-evolve-player")||0));
+    }
+  },true);
+
+  document.addEventListener("keydown",function(event){
+    if(event.key==="Escape" && q("#aceEvo2Modal.show"))closeModal();
+  });
+
+  window.aceOpenPlayerEvolutionEnhanced=openEnhancedEvolution;
+  window.ACE_PROJECT_BUILD="B21.36.21";
+  window.ACE_ENHANCED_EVOLUTION_UI=true;
+  window.ACE_EVOLUTION_PROFILE_ENTRY=true;
+  window.ACE_EVOLUTION_CARD_CLICK_ENTRY=true;
+  window.ACE_EVOLUTION_RANKUP_RESULT_UI=true;
+})();
+</script>
+<!-- /ACE B21.36.21 — ENHANCED EVOLUTION UI SCRIPT -->
 
 </body>
 </html>
