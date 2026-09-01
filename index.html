@@ -7108,6 +7108,125 @@ body.aceUTMatchModalOpen{overflow:hidden!important}
 </style>
 <meta name="ace-build" content="B21.6 Combined Gameplay + Progression">
 <script id="ace34-html-to-image" src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+
+<style id="ace-b21-36-19-evolution-style">
+/* =========================================================
+   ACE B21.36.19 — PLAYER EVOLUTION
+   Exact duplicate progression · hard cap 89 OVR
+   ========================================================= */
+.aceEvolutionBadge{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;
+  border:1px solid rgba(180,115,255,.28);background:rgba(115,58,184,.18);
+  color:#d6b4ff;font-size:6px;font-weight:1000;letter-spacing:.09em;white-space:nowrap
+}
+.aceClubEvolutionAction{
+  width:100%;min-height:37px;margin-top:6px;padding:0 9px;border-radius:9px;
+  border:1px solid rgba(170,105,255,.26);background:linear-gradient(135deg,rgba(91,48,154,.34),rgba(145,83,224,.24));
+  color:#d8b8ff;font-size:6.5px;font-weight:1000;letter-spacing:.075em;cursor:pointer
+}
+.aceClubEvolutionAction.ready{
+  color:#fff;border-color:rgba(190,136,255,.48);background:linear-gradient(135deg,#6635ad,#9556e4);
+  box-shadow:0 7px 18px rgba(91,44,154,.18)
+}
+.aceClubEvolutionAction.maxed{opacity:.58;cursor:default;background:#0d1017;border-color:rgba(255,255,255,.07);color:#7e7788}
+.aceClubEvolutionAction:disabled{cursor:default}
+
+.aceEvolutionModal{
+  position:fixed;inset:0;z-index:100080;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(2,4,9,.84);backdrop-filter:blur(15px)
+}
+.aceEvolutionModal.show{display:flex}
+body.aceEvolutionOpen{overflow:hidden}
+.aceEvolutionShell{
+  width:min(760px,96vw);max-height:min(820px,94vh);overflow:auto;border-radius:22px;
+  border:1px solid rgba(176,116,255,.23);background:
+    radial-gradient(circle at 50% 0,rgba(134,73,222,.18),transparent 34%),
+    linear-gradient(180deg,#0d1019,#07090f 70%);
+  box-shadow:0 26px 80px rgba(0,0,0,.55)
+}
+.aceEvolutionTop{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+.aceEvolutionTop div{display:flex;align-items:center;gap:8px}
+.aceEvolutionTop strong{color:#fff;font-size:9px;letter-spacing:.12em}
+.aceEvolutionTop span{color:#8e64cf;font-size:6px;font-weight:1000;letter-spacing:.14em}
+.aceEvolutionClose{
+  width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.08);
+  background:#0d1119;color:#928a9c;font-size:17px;cursor:pointer
+}
+.aceEvolutionBody{padding:20px}
+.aceEvolutionHero{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;align-items:center}
+.aceEvolutionCardStage{
+  position:relative;width:190px;aspect-ratio:5/7;margin:auto;border-radius:19px;overflow:hidden;
+  border:1px solid rgba(190,135,255,.24);background:linear-gradient(155deg,#17121f,#090b11 72%)
+}
+.aceEvolutionCardStage img{position:absolute;inset:8% 3% 18%;width:94%;height:76%;object-fit:contain;object-position:center bottom}
+.aceEvolutionCardShade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(5,7,11,.18) 58%,rgba(5,7,11,.98) 88%)}
+.aceEvolutionCardRating{position:absolute;z-index:2;left:13px;top:11px;color:#fff;font-size:32px;font-weight:1000;letter-spacing:-.06em}
+.aceEvolutionCardRating small{display:block;font-size:7px;color:#aaa0b5;letter-spacing:.10em}
+.aceEvolutionCardName{position:absolute;z-index:2;left:10px;right:10px;bottom:13px;text-align:center;color:#fff;font-size:10px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aceEvolutionInfo>small{display:block;color:#8f61d0;font-size:6px;font-weight:1000;letter-spacing:.15em}
+.aceEvolutionInfo h2{margin:7px 0 0;color:#fff;font-size:31px;line-height:.95;letter-spacing:-.05em}
+.aceEvolutionInfo>p{margin:9px 0 0;color:#8b8491;font-size:9px;line-height:1.55}
+.aceEvolutionRatings{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-top:18px}
+.aceEvolutionRatingBox{padding:13px;border-radius:13px;border:1px solid rgba(255,255,255,.06);background:#0b0e15}
+.aceEvolutionRatingBox span{display:block;color:#6f6877;font-size:5.8px;font-weight:950;letter-spacing:.11em}
+.aceEvolutionRatingBox b{display:block;margin-top:3px;color:#fff;font-size:29px;letter-spacing:-.055em}
+.aceEvolutionRatingBox small{display:block;margin-top:1px;color:#9b8ca8;font-size:6px;font-weight:850}
+.aceEvolutionArrow{color:#9660dc;font-size:18px;font-weight:1000}
+.aceEvolutionDupeBox{
+  display:flex;align-items:center;justify-content:space-between;gap:13px;margin-top:14px;padding:13px 14px;
+  border-radius:13px;border:1px solid rgba(171,111,255,.14);background:rgba(99,55,157,.08)
+}
+.aceEvolutionDupeBox span{display:block;color:#807688;font-size:6.3px;font-weight:900;letter-spacing:.09em}
+.aceEvolutionDupeBox b{display:block;margin-top:3px;color:#ddd4e7;font-size:10px}
+.aceEvolutionDupeCount{font-size:24px!important;color:#cba3ff!important;white-space:nowrap}
+.aceEvolutionDupeBox.not-ready .aceEvolutionDupeCount{color:#d48691!important}
+.aceEvolutionProtection{margin-top:9px;color:#696370;font-size:6.4px;line-height:1.5}
+.aceEvolutionCurve{
+  margin-top:19px;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.055);background:#090c12
+}
+.aceEvolutionCurveHead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.aceEvolutionCurveHead b{color:#ddd7e3;font-size:7px;letter-spacing:.09em}
+.aceEvolutionCurveHead span{color:#756d7d;font-size:6px}
+.aceEvolutionCurveGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.aceEvolutionCurveGrid div{padding:8px 5px;border-radius:8px;background:#0e121a;border:1px solid rgba(255,255,255,.04);text-align:center}
+.aceEvolutionCurveGrid span{display:block;color:#6c6574;font-size:5px;font-weight:900}
+.aceEvolutionCurveGrid b{display:block;margin-top:3px;color:#bdb4c7;font-size:8px}
+.aceEvolutionActions{display:flex;gap:8px;margin-top:18px}
+.aceEvolutionConfirm,.aceEvolutionCancel{
+  min-height:48px;border-radius:11px;font-size:7px;font-weight:1000;letter-spacing:.10em;cursor:pointer
+}
+.aceEvolutionConfirm{flex:1;border:1px solid rgba(190,139,255,.28);background:linear-gradient(135deg,#6c39b8,#9859e8);color:#fff}
+.aceEvolutionConfirm:disabled{opacity:.38;cursor:not-allowed;background:#16131c}
+.aceEvolutionCancel{padding:0 17px;border:1px solid rgba(255,255,255,.07);background:#0c1017;color:#817a88}
+.aceEvolutionResult{display:none;margin-top:13px;padding:11px;border-radius:10px;text-align:center;font-size:7px;font-weight:950;letter-spacing:.07em}
+.aceEvolutionResult.show{display:block}
+.aceEvolutionResult.ok{color:#b9e2c3;background:rgba(56,126,76,.10);border:1px solid rgba(84,168,108,.16)}
+.aceEvolutionResult.error{color:#dda0a9;background:rgba(142,54,67,.09);border:1px solid rgba(196,82,99,.14)}
+
+@media(max-width:700px){
+  .aceEvolutionModal{padding:7px;align-items:flex-end}
+  .aceEvolutionShell{width:100%;max-height:93vh;border-radius:19px 19px 10px 10px}
+  .aceEvolutionBody{padding:15px 13px 18px}
+  .aceEvolutionHero{grid-template-columns:116px minmax(0,1fr);gap:13px;align-items:start}
+  .aceEvolutionCardStage{width:116px;border-radius:14px}
+  .aceEvolutionCardRating{font-size:23px;left:9px;top:8px}
+  .aceEvolutionCardName{font-size:7px;bottom:9px}
+  .aceEvolutionInfo h2{font-size:25px}
+  .aceEvolutionInfo>p{font-size:8px}
+  .aceEvolutionRatings{gap:5px;margin-top:11px}
+  .aceEvolutionRatingBox{padding:9px}
+  .aceEvolutionRatingBox b{font-size:23px}
+  .aceEvolutionDupeBox{margin-top:10px;padding:10px}
+  .aceEvolutionDupeCount{font-size:19px!important}
+  .aceEvolutionCurveGrid{grid-template-columns:repeat(3,1fr)}
+  .aceEvolutionActions{display:grid;grid-template-columns:1fr}
+  .aceEvolutionCancel{min-height:44px}
+}
+</style>
+
 </head>
 <body class="vdsAuthLocked">
 <div id="vdsAccountGate" class="vdsAccountGate" aria-live="polite">
@@ -11279,9 +11398,9 @@ function setDeadBallState(dead=true){
 }
 
 function finishStepRally(){
-  // Every terminal rally state — kill, ace, block point, reception error,
-  // attack error, setting error, etc. — finishes here.
-  // Red makes it immediately obvious the ball is no longer live.
+  // Safety net only. B21.36.18 colours the ball red at the terminal
+  // contact/trajectory itself so the player does not wait through animation
+  // sleeps, phase pauses or the POINT banner before seeing a dead ball.
   setDeadBallState(true);
   const btn=document.getElementById("nextPhaseBtn");
   const status=document.getElementById("rallyStatus");
@@ -11410,10 +11529,9 @@ function ballArcToCourt(teamNo,zone,offsetX=0,offsetY=0,rotate=0,duration=420,pe
   ballArcTo(p.left,p.top,rotate,duration,peak,endDepth);
 }
 
-/* Controlled reception target.
-   Important: this moves the BALL, not the setter.
-   Zone 3 gives us the middle lane; the X offset pulls the ball back from
-   the net to a realistic setting window just in front of the 3 m line. */
+/* Legacy generic setting-window helper.
+   B21.36.18: NORMAL reception/dig animations no longer use this helper.
+   A normal second ball must visibly finish at the actual setter in P2. */
 function ballArcToSettingWindow(teamNo,passQuality,rotate=280,duration=360,peak=105,endDepth=72){
   const grade=Number(passQuality?.grade||0);
 
@@ -11738,6 +11856,7 @@ async function animateTransitionPossessions(events=[]){
       const source=evt.passer;
       if(source){
         showPlayerAction(atkNo,source,"SCRAMBLE","negative");
+        setDeadBallState(true);
         ballArcToCourt(atkNo,6,0,5,210,240,70,12);
         await rallySleep(270);
       }
@@ -11787,13 +11906,11 @@ async function animateTransitionPossessions(events=[]){
           moveAttackerToApproach(atkNo,setter,null);
           await rallySleep(120);
           ballArcToPlayer(atkNo,setter,120,250,105,72);
-        }else if(
-          evt.emergencySetterMode==="normal" &&
-          Number(evt.passQuality?.grade||0)>=2 &&
-          String(setter.assignedRole||"")==="S"
-        ){
-          ballArcToSettingWindow(atkNo,evt.passQuality,120,250,105,72);
         }else{
+          // preparePossessionPositions() has already moved the ACTUAL
+          // second-contact player to their correct setting position.
+          // Normal designated setter = P2; emergency setter = wherever that
+          // player genuinely needs to take contact two.
           ballArcToPlayer(atkNo,setter,120,250,105,72);
         }
         showPlayerAction(
@@ -11810,6 +11927,7 @@ async function animateTransitionPossessions(events=[]){
       }
     }
     if(evt.outcome==="setting_error"){
+      setDeadBallState(true);
       ballArcToCourt(atkNo,3,0,6,220,250,70,12);
       await rallySleep(270);
       continue;
@@ -11845,6 +11963,7 @@ async function animateTransitionPossessions(events=[]){
     }
 
     if(evt.outcome==="attack_error"){
+      setDeadBallState(true);
       const missTarget=shotCourtTarget(atkNo,attacker,evt);
       if(missTarget){
         const missY=parseFloat(missTarget.top)+(missTarget.lane==="bottom"?12:-12);
@@ -11870,6 +11989,7 @@ async function animateTransitionPossessions(events=[]){
         await rallySleep(235);
       }
       if(evt.outcome==="block"){
+        setDeadBallState(true);
         ballArcToCourt(atkNo,3,0,6,570,270,85,14);
         await rallySleep(290);
         returnTeamToRallyHomes(atkNo);
@@ -11889,6 +12009,7 @@ async function animateTransitionPossessions(events=[]){
 
     if(evt.outcome==="kill"){
       showPlayerAction(atkNo,attacker,"KILL","positive");
+      setDeadBallState(true);
       ballArcToShotTarget(atkNo,attacker,evt,570);
       await rallySleep(310);
       returnTeamToRallyHomes(atkNo);
@@ -11956,6 +12077,7 @@ async function animateRally(winner, context={}){
 
   if(errorEvent?.type==="Serve"){
     showPlayerAction(servingTeamNo,server,"SERVE ERROR","negative");
+    setDeadBallState(true);
     ballToNet(servingTeamNo,"45%",140,300);
     await rallySleep(330);
     finishStepRally();
@@ -11987,6 +12109,7 @@ async function animateRally(winner, context={}){
   }
 
   if(evt?.outcome==="reception_error"){
+    setDeadBallState(true);
     ballToCourt(receivingTeamNo,6,0,8,260,260);
     await rallySleep(290);
     finishStepRally();
@@ -12035,16 +12158,13 @@ async function animateRally(winner, context={}){
   const setter=evt?.setter || designatedSetter(receivingTeam);
 
   // Only now does the actual second-contact player prepare to set.
-  // The setter's existing movement is preserved, but a good pass is visually
-  // targeted to the central setting window — the BALL is what moves there.
+  // HARD VISUAL RULE: for a normal setter contact, the setter releases to
+  // Position 2 and the PASS itself finishes at that player's actual sprite.
+  // Do not send a good pass to an abstract "setting window" away from them.
   moveSetterToBase(receivingTeamNo,setter);
   await rallySleep(140);
 
-  if(Number(evt?.passQuality?.grade||0)>=2){
-    ballArcToSettingWindow(receivingTeamNo,evt?.passQuality,280,360,105,72);
-  }else{
-    ballArcToPlayer(receivingTeamNo,setter,280,360,105,72);
-  }
+  ballArcToPlayer(receivingTeamNo,setter,280,360,105,72);
 
   await rallySleep(390);
   await waitForNextPhase("RECEIVE");
@@ -12064,6 +12184,7 @@ async function animateRally(winner, context={}){
   }
 
   if(evt?.outcome==="setting_error"){
+    setDeadBallState(true);
     ballToCourt(receivingTeamNo,3,0,8,340,260);
     await rallySleep(290);
     finishStepRally();
@@ -12118,6 +12239,7 @@ async function animateRally(winner, context={}){
 
   // Attack error: show the ball travelling out and end the rally.
   if(evt?.outcome==="attack_error"){
+    setDeadBallState(true);
     const missTarget=shotCourtTarget(receivingTeamNo,attacker,evt);
     if(missTarget){
       const missY=parseFloat(missTarget.top)+(missTarget.lane==="bottom"?13:-13);
@@ -12151,7 +12273,9 @@ async function animateRally(winner, context={}){
     }
 
     if(evt?.outcome==="block"){
-      // Stuff block reaches the floor.
+      // Stuff block is a terminal point: colour the ball dead immediately
+      // as it rebounds toward the floor.
+      setDeadBallState(true);
       ballArcToCourt(receivingTeamNo,3,0,6,720,300,92,16);
       await rallySleep(330);
       await waitForNextPhase("BLOCK POINT");
@@ -12190,6 +12314,7 @@ async function animateRally(winner, context={}){
       await animateTransitionPossessions(extendedEvents);
     }else{
       const losingTeamNo=winner===1?2:1;
+      setDeadBallState(true);
       ballArcToCourt(losingTeamNo,6,0,0,900,320,82,14);
       await rallySleep(350);
     }
@@ -12199,6 +12324,7 @@ async function animateRally(winner, context={}){
   if(evt?.outcome==="kill"){
     setPhase("defend");
     showPlayerAction(receivingTeamNo,attacker,"KILL","positive");
+    setDeadBallState(true);
     ballArcToShotTarget(receivingTeamNo,attacker,evt,760);
     await rallySleep(370);
     await waitForNextPhase("KILL");
@@ -12226,6 +12352,7 @@ async function animateRally(winner, context={}){
       await animateTransitionPossessions(extendedEvents);
     }else{
       const losingTeamNo=winner===1?2:1;
+      setDeadBallState(true);
       ballArcToCourt(losingTeamNo,6,0,0,900,320,82,14);
       await rallySleep(350);
     }
@@ -48431,6 +48558,423 @@ body.ace34ShareOpen{
 })();
 </script>
 <!-- /ACE B21.36.17 — BANDWIDTH SAVER -->
+
+
+<!-- ACE B21.36.18 — RALLY VISUAL SYNC FIX -->
+<script id="ace-b21-36-18-rally-visual-sync-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.18";
+  window.ACE_DEAD_BALL_RED_AT_TERMINAL_CONTACT=true;
+  window.ACE_DEAD_BALL_RED_WAIT_FOR_FINISH_STEP=false;
+  window.ACE_NORMAL_PASS_TARGET="ACTUAL_SETTER_SPRITE_AT_POSITION_2";
+  window.ACE_NORMAL_PASS_USES_ABSTRACT_SETTING_WINDOW=false;
+  window.ACE_TRANSITION_DIG_TO_SETTER_USES_ACTUAL_SECOND_CONTACT_PLAYER=true;
+  window.ACE_BANDWIDTH_SAVER=true;
+})();
+</script>
+<!-- /ACE B21.36.18 — RALLY VISUAL SYNC FIX -->
+
+
+<!-- ACE B21.36.19 — PLAYER EVOLUTION SYSTEM -->
+<script id="ace-b21-36-19-player-evolution-system">
+(function(){
+  "use strict";
+
+  const EVO_CAP=89;
+  const clampEvo=(n,min=0,max=99)=>Math.max(min,Math.min(max,Number(n)||0));
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+
+  function evoTierForRating(rating){
+    const r=Math.round(Number(rating)||0);
+    if(r>=90)return "ace";
+    if(r>=85)return "elite";
+    if(r>=80)return "rare_gold";
+    if(r>=75)return "gold";
+    if(r>=60)return "silver";
+    return "bronze";
+  }
+
+  function evoDupesRequired(current){
+    const r=Math.round(Number(current)||0);
+    if(r>=EVO_CAP)return null;
+    if(r<78)return 1;
+    if(r<84)return 2;
+    if(r<87)return 3;
+    if(r===87)return 4;
+    if(r===88)return 5;
+    return null;
+  }
+
+  function evoStoredSteps(card){
+    return Math.max(0,Math.floor(Number(
+      card?.evolutionSteps ?? card?.evolution_bonus ?? card?.evolutionBonusRaw ?? 0
+    )||0));
+  }
+
+  function evoApplyCardRating(card,baseRating=null){
+    if(!card)return card;
+    const player=(typeof players!=="undefined"&&Array.isArray(players))
+      ? players.find(p=>Number(p?.cloudId||0)===Number(card?.playerId||0))
+      : null;
+    const liveBase=Number.isFinite(Number(baseRating))
+      ? Math.round(Number(baseRating))
+      : (player && typeof mainPositionRating==="function"
+          ? Math.round(Number(mainPositionRating(player)||0))
+          : Math.round(Number(card.baseRating??card.rating??0)||0));
+    const steps=evoStoredSteps(card);
+    const effective=liveBase>=90 ? liveBase : Math.min(EVO_CAP,liveBase+steps);
+    card.baseRating=liveBase;
+    card.evolutionSteps=steps;
+    card.evolutionBonusRaw=steps;
+    card.evolutionBonus=Math.max(0,effective-liveBase);
+    card.evolutionOvr=effective;
+    card.rating=effective;
+    card.positionRating=effective;
+    card.rarity=evoTierForRating(effective);
+    return card;
+  }
+
+  /* Cloud mapping: Supabase owns evolution_steps; client derives the effective
+     card OVR from the player's live base rating + purchased evolution steps. */
+  if(typeof vdsCloudUTCardObject==="function" && !window.__aceEvolutionCloudWrapped){
+    window.__aceEvolutionCloudWrapped=true;
+    const baseCloudCard=vdsCloudUTCardObject;
+    vdsCloudUTCardObject=function(row,options){
+      const card=baseCloudCard.apply(this,arguments);
+      if(!card)return card;
+      card.evolutionSteps=Math.max(0,Math.floor(Number(row?.evolution_bonus||0)));
+      card.evolutionUpdatedAt=row?.evolution_updated_at||null;
+      return evoApplyCardRating(card,Number(card.rating));
+    };
+  }
+
+  /* Master refresh used to reset every UT card back to the database player's
+     raw OVR. Re-apply evolution immediately after that refresh. */
+  if(typeof refreshUltimateCardsFromMaster==="function" && !window.__aceEvolutionRefreshWrapped){
+    window.__aceEvolutionRefreshWrapped=true;
+    const baseRefresh=refreshUltimateCardsFromMaster;
+    refreshUltimateCardsFromMaster=function(){
+      const result=baseRefresh.apply(this,arguments);
+      try{
+        (ultimateTeamState?.cards||[]).forEach(card=>evoApplyCardRating(card));
+        if(typeof vdsCacheUltimateTeam==="function")vdsCacheUltimateTeam();
+      }catch(_){ }
+      return result;
+    };
+  }
+
+  /* An evolved card must actually PLAY better, not merely display a higher
+     number. Each purchased +1 evolution step is applied across usable player
+     attributes for this owned-card clone only; the master Players DB is never
+     mutated. Weighted positional OVR therefore rises with the evolution. */
+  function evoBoostedPlayer(player,steps){
+    const boost=Math.max(0,Math.floor(Number(steps)||0));
+    if(!player||!boost)return player;
+    const p={...player,tendencies:{...(player.tendencies||{})}};
+    const keys=[
+      "accuracy","hittingPower","creativity","serveReceive","positioning",
+      "covering","workRate","vertical","speed","reactionTime","service",
+      "blocking","setTechnique","setCreativity","mindset"
+    ];
+    keys.forEach(key=>{
+      if(Number.isFinite(Number(p[key])))p[key]=clampEvo(Math.round(Number(p[key]))+boost,0,99);
+    });
+    if(Number.isFinite(Number(p.setTechnique))||Number.isFinite(Number(p.setCreativity))){
+      p.setting=Math.round(clampEvo(Number(p.setTechnique||0)*.6+Number(p.setCreativity||0)*.4,0,99));
+      p.tendencies.setTechnique=p.setTechnique;
+      p.tendencies.setCreativity=p.setCreativity;
+    }
+    p.__aceEvolutionSteps=boost;
+    return p;
+  }
+
+  if(typeof aceUltimateMasterPlayer==="function" && !window.__aceEvolutionMasterWrapped){
+    window.__aceEvolutionMasterWrapped=true;
+    const baseMaster=aceUltimateMasterPlayer;
+    aceUltimateMasterPlayer=function(card){
+      const player=baseMaster.apply(this,arguments);
+      return evoBoostedPlayer(player,evoStoredSteps(card));
+    };
+  }
+
+  if(typeof aceUTCardRoleRating==="function" && !window.__aceEvolutionRoleWrapped){
+    window.__aceEvolutionRoleWrapped=true;
+    aceUTCardRoleRating=function(card,role){
+      if(!card)return 0;
+      const target=typeof aceNormalizeVolleyballRole==="function"
+        ? aceNormalizeVolleyballRole(role)
+        : String(role||"OH").toUpperCase();
+      const natural=typeof aceUTCardNaturalRole==="function"
+        ? aceUTCardNaturalRole(card)
+        : String(card.position||"OH").toUpperCase();
+      if(target===natural)return Math.round(Number(card.rating||card.positionRating||0));
+      const player=aceUltimateMasterPlayer(card);
+      if(!player)return Math.round(Number(card.rating||card.positionRating||0));
+      const ratings=typeof positionRatings==="function"?positionRatings(player):{};
+      const raw=Math.round(Number(ratings?.[target]??card.rating??0));
+      return Math.min(Number(card.baseRating||0)>=90?99:EVO_CAP,Math.max(0,raw));
+    };
+  }
+
+  function evoSamePlayerCards(playerId){
+    return (ultimateTeamState?.cards||[]).filter(card=>
+      !!card?.cloudCardId && Number(card.playerId||0)===Number(playerId||0)
+    );
+  }
+
+  function evoSquadSet(){
+    return new Set((ultimateTeamState?.lineupSlots||[]).filter(Boolean).map(String));
+  }
+
+  function evoPrimaryCard(playerId){
+    const list=evoSamePlayerCards(playerId);
+    if(!list.length)return null;
+    const evolved=list.filter(c=>evoStoredSteps(c)>0)
+      .sort((a,b)=>evoStoredSteps(b)-evoStoredSteps(a)||(Date.parse(a.pulledAt||"")||0)-(Date.parse(b.pulledAt||"")||0));
+    if(evolved.length)return evolved[0];
+    const squad=evoSquadSet();
+    return list.slice().sort((a,b)=>{
+      const score=c=>(squad.has(String(utCardUid(c)))?1000:0)+(c.locked?300:0)+(c.favorite?150:0);
+      return score(b)-score(a)||(Date.parse(a.pulledAt||"")||0)-(Date.parse(b.pulledAt||"")||0);
+    })[0]||null;
+  }
+
+  function evoEligibleDupes(primary){
+    if(!primary)return [];
+    const squad=evoSquadSet();
+    return evoSamePlayerCards(primary.playerId).filter(card=>
+      String(card.cloudCardId)!==String(primary.cloudCardId) &&
+      evoStoredSteps(card)===0 &&
+      card.locked!==true &&
+      card.favorite!==true &&
+      !squad.has(String(utCardUid(card)))
+    );
+  }
+
+  function evoStatusForPlayer(playerId){
+    const primary=evoPrimaryCard(playerId);
+    if(!primary)return {primary:null,current:0,required:null,available:0,ready:false,maxed:false,ace:false};
+    evoApplyCardRating(primary);
+    const current=Math.round(Number(primary.rating||0));
+    const ace=Number(primary.baseRating||current)>=90;
+    const maxed=!ace&&current>=EVO_CAP;
+    const required=ace||maxed?null:evoDupesRequired(current);
+    const available=evoEligibleDupes(primary).length;
+    return {primary,current,required,available,ready:!!required&&available>=required,maxed,ace};
+  }
+
+  function ensureModal(){
+    let modal=q("#aceEvolutionModal");
+    if(modal)return modal;
+    modal=document.createElement("div");
+    modal.id="aceEvolutionModal";
+    modal.className="aceEvolutionModal";
+    modal.setAttribute("aria-hidden","true");
+    modal.innerHTML=`
+      <div class="aceEvolutionShell" role="dialog" aria-modal="true" aria-label="Player Evolution">
+        <div class="aceEvolutionTop">
+          <div><strong>ACE EVOLUTION</strong><span>EXACT DUPLICATE DEVELOPMENT</span></div>
+          <button class="aceEvolutionClose" id="aceEvolutionClose" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="aceEvolutionBody" id="aceEvolutionBody"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    q("#aceEvolutionClose",modal)?.addEventListener("click",closeModal);
+    modal.addEventListener("click",event=>{if(event.target===modal)closeModal();});
+    return modal;
+  }
+
+  function closeModal(){
+    const modal=q("#aceEvolutionModal");
+    if(!modal)return;
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+    document.body.classList.remove("aceEvolutionOpen");
+  }
+
+  function tierLabel(tier){
+    try{return String(UT_RARITY?.[tier]?.label||tier||"CARD").toUpperCase()}catch(_){return String(tier||"CARD").toUpperCase()}
+  }
+
+  function renderModal(playerId){
+    const modal=ensureModal();
+    const body=q("#aceEvolutionBody",modal);
+    const s=evoStatusForPlayer(playerId);
+    const card=s.primary;
+    if(!body||!card)return;
+    const player=aceUltimateMasterPlayer(card);
+    const next=s.ace||s.maxed?s.current:Math.min(EVO_CAP,s.current+1);
+    const nextTier=evoTierForRating(next);
+    const currentTier=evoTierForRating(s.current);
+    const steps=evoStoredSteps(card);
+    const cannot=s.ace||s.maxed||!s.ready;
+    const message=s.ace
+      ? "ACE cards are already above the normal Evolution ceiling."
+      : s.maxed
+        ? "This card has reached the 89 OVR Evolution cap."
+        : s.ready
+          ? `${s.required} eligible exact duplicate${s.required===1?"":"s"} will be permanently consumed.`
+          : `You need ${Math.max(0,(s.required||0)-s.available)} more eligible exact duplicate${Math.max(0,(s.required||0)-s.available)===1?"":"s"}.`;
+
+    body.dataset.playerId=String(playerId);
+    body.dataset.cardId=String(card.cloudCardId||"");
+    body.innerHTML=`
+      <div class="aceEvolutionHero">
+        <div class="aceEvolutionCardStage ${card.rarity}">
+          ${player?.photo?`<img src="${esc(player.photo)}" alt="${esc(card.playerName)}">`:""}
+          <div class="aceEvolutionCardShade"></div>
+          <div class="aceEvolutionCardRating">${s.current}<small>${esc(card.position||player?.position||"-")}</small></div>
+          <div class="aceEvolutionCardName">${esc(card.playerName||player?.name||"PLAYER")}</div>
+        </div>
+        <div class="aceEvolutionInfo">
+          <small>${steps?`EVOLUTION LEVEL +${steps}`:"START EVOLUTION"}</small>
+          <h2>${esc(card.playerName||player?.name||"PLAYER")}</h2>
+          <p>Build one long-term version of this player by consuming exact duplicate cards. Evolution can cross Bronze, Silver, Gold, Rare Gold and Elite — but it can never create a 90+ ACE card.</p>
+          <div class="aceEvolutionRatings">
+            <div class="aceEvolutionRatingBox"><span>CURRENT</span><b>${s.current}</b><small>${esc(tierLabel(currentTier))}</small></div>
+            <div class="aceEvolutionArrow">→</div>
+            <div class="aceEvolutionRatingBox"><span>${s.ace||s.maxed?"CEILING":"NEXT"}</span><b>${next}</b><small>${esc(tierLabel(nextTier))}</small></div>
+          </div>
+          <div class="aceEvolutionDupeBox ${s.ready?"":"not-ready"}">
+            <div><span>ELIGIBLE EXACT DUPLICATES</span><b>${message}</b></div>
+            <b class="aceEvolutionDupeCount">${s.ace||s.maxed?"MAX":`${s.available}/${s.required}`}</b>
+          </div>
+          <div class="aceEvolutionProtection">Locked, favourited and Starting Six copies are protected and are never consumed. The evolved card automatically locks after its first upgrade.</div>
+        </div>
+      </div>
+
+      <div class="aceEvolutionCurve">
+        <div class="aceEvolutionCurveHead"><b>DUPE COST PER +1 OVR</b><span>HARDER AS THE CARD APPROACHES 89</span></div>
+        <div class="aceEvolutionCurveGrid">
+          <div><span>UP TO 77</span><b>1 DUPE</b></div>
+          <div><span>78 → 84</span><b>2 DUPES</b></div>
+          <div><span>84 → 87</span><b>3 DUPES</b></div>
+          <div><span>87 → 88</span><b>4 DUPES</b></div>
+          <div><span>88 → 89</span><b>5 DUPES</b></div>
+        </div>
+      </div>
+
+      <div class="aceEvolutionResult" id="aceEvolutionResult"></div>
+      <div class="aceEvolutionActions">
+        <button class="aceEvolutionConfirm" id="aceEvolutionConfirm" type="button" ${cannot?"disabled":""}>${s.ace?"ACE CARD · NO EVOLUTION":s.maxed?"89 OVR · MAX EVOLUTION":s.ready?`EVOLVE ${s.current} → ${next} · CONSUME ${s.required} DUPE${s.required===1?"":"S"}`:`NEED ${s.required||0} ELIGIBLE DUPES`}</button>
+        <button class="aceEvolutionCancel" id="aceEvolutionCancel" type="button">CANCEL</button>
+      </div>`;
+
+    q("#aceEvolutionCancel",body)?.addEventListener("click",closeModal);
+    q("#aceEvolutionConfirm",body)?.addEventListener("click",()=>performEvolution(card.cloudCardId,playerId));
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden","false");
+    document.body.classList.add("aceEvolutionOpen");
+  }
+
+  async function performEvolution(cardId,playerId){
+    const btn=q("#aceEvolutionConfirm");
+    const result=q("#aceEvolutionResult");
+    if(!cardId||!btn)return;
+    const status=evoStatusForPlayer(playerId);
+    if(!status.ready)return;
+    btn.disabled=true;
+    btn.textContent="EVOLVING…";
+    if(result){result.className="aceEvolutionResult";result.textContent="";}
+    try{
+      const client=ensureMultiplayerClient?.();
+      if(!client)throw new Error("SUPABASE_NOT_READY");
+      const {data,error}=await client.rpc("vds_evolve_ut_card",{p_card_id:cardId});
+      if(error)throw error;
+      if(!data?.ok){
+        const code=String(data?.code||"EVOLUTION_FAILED");
+        if(code==="NOT_ENOUGH_DUPLICATES")throw new Error(`Only ${Number(data?.available||0)}/${Number(data?.required||0)} eligible duplicates are available.`);
+        if(code==="EVOLUTION_CAP_REACHED")throw new Error("This card has already reached 89 OVR.");
+        if(code==="ACE_NOT_EVOLVABLE")throw new Error("ACE cards cannot use normal Evolution.");
+        throw new Error(code);
+      }
+
+      if(result){
+        result.className="aceEvolutionResult show ok";
+        result.textContent=`EVOLUTION COMPLETE · ${data.old_rating} → ${data.new_rating} OVR · ${data.consumed} DUPLICATE${Number(data.consumed)===1?"":"S"} CONSUMED`;
+      }
+
+      if(typeof vdsSyncUltimateTeamCloud==="function")await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      try{renderUltimateTeam?.();}catch(_){ }
+      try{window.aceNotify?.({title:"EVOLUTION COMPLETE",body:`${data.old_rating} → ${data.new_rating} OVR · ${tierLabel(data.rarity)}`,type:"achievement"});}catch(_){ }
+
+      setTimeout(()=>{
+        const current=evoPrimaryCard(playerId);
+        if(current)renderModal(playerId); else closeModal();
+      },650);
+    }catch(error){
+      console.error("ACE Evolution failed",error);
+      if(result){result.className="aceEvolutionResult show error";result.textContent=String(error?.message||error||"Evolution failed.");}
+      btn.disabled=false;
+      const s=evoStatusForPlayer(playerId);
+      btn.textContent=s.ready?`EVOLVE ${s.current} → ${s.current+1} · CONSUME ${s.required} DUPE${s.required===1?"":"S"}`:"TRY AGAIN";
+    }
+  }
+
+  window.aceOpenPlayerEvolution=renderModal;
+  window.aceEvolutionDupesRequired=evoDupesRequired;
+  window.aceEvolutionStatusForPlayer=evoStatusForPlayer;
+
+  /* Put Evolution directly in My Club. This keeps the system discoverable
+     without adding another permanent navigation tab. */
+  if(typeof aceClubCardMarkup==="function" && !window.__aceEvolutionClubWrapped){
+    window.__aceEvolutionClubWrapped=true;
+    const baseClubMarkup=aceClubCardMarkup;
+    aceClubCardMarkup=function(entry){
+      let markup=baseClubMarkup.apply(this,arguments);
+      try{
+        const card=entry?.card;
+        if(!card?.playerId)return markup;
+        const s=evoStatusForPlayer(card.playerId);
+        const primary=s.primary;
+        if(!primary)return markup;
+
+        /* Once a player has evolved across a rarity boundary, only show the
+           Evolution action on the evolved stack, not again on the base dupes. */
+        if(evoStoredSteps(primary)>0 && String(card.rarity)!==String(primary.rarity))return markup;
+
+        const steps=evoStoredSteps(primary);
+        if(steps>0){
+          markup=markup.replace('<div class="aceClubCardFlags">','<div class="aceClubCardFlags"><span class="aceEvolutionBadge">EVO +'+steps+'</span>');
+        }
+
+        const next=s.current<EVO_CAP?s.current+1:EVO_CAP;
+        const label=s.ace
+          ? "ACE · EVOLUTION NOT AVAILABLE"
+          : s.maxed
+            ? "EVOLUTION MAX · 89 OVR"
+            : `EVOLVE ${s.current}→${next} · ${s.available}/${s.required} DUPES`;
+        const cls=s.ready?"ready":(s.ace||s.maxed?"maxed":"");
+        const button=`<button type="button" class="aceClubEvolutionAction ${cls}" data-ace-evolve-player="${Number(card.playerId||0)}" ${s.ace||s.maxed?'disabled':''}>${label}</button>`;
+        markup=markup.replace('</article>',button+'</article>');
+      }catch(error){console.warn("Evolution My Club render",error);}
+      return markup;
+    };
+  }
+
+  document.addEventListener("click",event=>{
+    const btn=event.target.closest?.("[data-ace-evolve-player]");
+    if(!btn)return;
+    event.preventDefault();
+    event.stopPropagation();
+    renderModal(Number(btn.dataset.aceEvolvePlayer||0));
+  });
+
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape" && q("#aceEvolutionModal")?.classList.contains("show"))closeModal();
+  });
+
+  window.ACE_PROJECT_BUILD="B21.36.19";
+  window.ACE_PLAYER_EVOLUTION=true;
+  window.ACE_EVOLUTION_CAP=89;
+  window.ACE_EVOLUTION_EXACT_DUPES_ONLY=true;
+  window.ACE_EVOLUTION_DUPE_CURVE={below78:1,from78To83:2,from84To86:3,from87To87:4,from88To88:5};
+  window.ACE_EVOLUTION_AUTO_LOCK=true;
+  window.ACE_EVOLUTION_PROTECTS_LOCKED_FAVORITE_SQUAD_DUPES=true;
+  window.ACE_EVOLUTION_GAMEPLAY_STATS_APPLY=true;
+})();
+</script>
+<!-- /ACE B21.36.19 — PLAYER EVOLUTION SYSTEM -->
 
 </body>
 </html>
