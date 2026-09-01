@@ -49384,7 +49384,13 @@ body.aceEvo2Open{overflow:hidden}
     return k==="rare_gold"?"RARE GOLD":k.toUpperCase();
   }
   function findPlayerById(playerId){
-    return (window.players||[]).find(p=>Number(p?.cloudId||0)===Number(playerId||0))||null;
+    const roster=(()=>{
+      try{
+        if(typeof players!=="undefined" && Array.isArray(players))return players;
+      }catch(_){}
+      return Array.isArray(window.players)?window.players:[];
+    })();
+    return roster.find(p=>Number(p?.cloudId||0)===Number(playerId||0))||null;
   }
   function getStatus(playerId){
     return typeof window.aceEvolutionStatusForPlayer==="function"
@@ -49406,7 +49412,13 @@ body.aceEvo2Open{overflow:hidden}
     const profileRoot=q(".ace29ProfileInner",overlay);
     if(!profileRoot)return;
 
-    const player=(window.players||[]).find(p=>String(p?.name||"")===String(playerName||"")) || null;
+    const roster=(()=>{
+      try{
+        if(typeof players!=="undefined" && Array.isArray(players))return players;
+      }catch(_){}
+      return Array.isArray(window.players)?window.players:[];
+    })();
+    const player=roster.find(p=>String(p?.name||"")===String(playerName||"")) || null;
     if(!player)return;
 
     const status=getStatus(player.cloudId);
@@ -49660,7 +49672,15 @@ body.aceEvo2Open{overflow:hidden}
       btn.textContent="EVOLVING…";
     }
     try{
-      const client=window.ensureMultiplayerClient?.();
+      let client=null;
+      try{
+        if(typeof ensureMultiplayerClient==="function"){
+          client=ensureMultiplayerClient();
+        }
+      }catch(_){}
+      if(!client && typeof window.ensureMultiplayerClient==="function"){
+        try{client=window.ensureMultiplayerClient();}catch(_){}
+      }
       if(!client)throw new Error("Supabase client is not ready.");
       const oldRating=Math.round(Number(status.current||0));
       const oldTier=evoTierLabelByRating(oldRating);
@@ -49675,17 +49695,46 @@ body.aceEvo2Open{overflow:hidden}
         throw new Error(code);
       }
 
-      if(typeof window.vdsSyncUltimateTeamCloud==="function"){
-        await window.vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+      try{
+        if(typeof vdsSyncUltimateTeamCloud==="function"){
+          await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+        }else if(typeof window.vdsSyncUltimateTeamCloud==="function"){
+          await window.vdsSyncUltimateTeamCloud({allowLegacyImport:false});
+        }
+      }catch(syncError){
+        console.warn("ACE Evolution cloud resync warning",syncError);
       }
-      try{window.aceRepairEvolutionBaseRatings?.();}catch(_){}
-      try{window.renderUltimateTeam?.();}catch(_){}
-      try{window.renderUltimateSquadVisual?.();}catch(_){}
-      try{window.aceNotify?.({
-        title:"EVOLUTION COMPLETE",
-        body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
-        type:"achievement"
-      });}catch(_){}
+
+      try{
+        if(typeof aceRepairEvolutionBaseRatings==="function")aceRepairEvolutionBaseRatings();
+        else window.aceRepairEvolutionBaseRatings?.();
+      }catch(_){}
+
+      try{
+        if(typeof renderUltimateTeam==="function")renderUltimateTeam();
+        else window.renderUltimateTeam?.();
+      }catch(_){}
+
+      try{
+        if(typeof renderUltimateSquadVisual==="function")renderUltimateSquadVisual();
+        else window.renderUltimateSquadVisual?.();
+      }catch(_){}
+
+      try{
+        if(typeof aceNotify==="function"){
+          aceNotify({
+            title:"EVOLUTION COMPLETE",
+            body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
+            type:"achievement"
+          });
+        }else{
+          window.aceNotify?.({
+            title:"EVOLUTION COMPLETE",
+            body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
+            type:"achievement"
+          });
+        }
+      }catch(_){}
 
       if(hasProfileOpen()){
         const openName=q("#vdsCardShowcaseOverlay.show .ace29ProfileTop h2")?.textContent?.trim();
@@ -49790,6 +49839,450 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.21 — ENHANCED EVOLUTION UI SCRIPT -->
+
+
+<!-- ACE B21.36.22 — MERGED EVOLUTION DUPES + GREEN UPGRADE VIEW -->
+<style id="ace-b21-36-22-merged-evolution-dupes-and-green-upgrades">
+.ace3622EvoBadge,
+.ace3622ProfileUpgraded,
+.ace3622CardUpgradeChip{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:999px;font-weight:1000;letter-spacing:.10em;white-space:nowrap
+}
+.ace3622EvoBadge{
+  padding:4px 8px;border:1px solid rgba(97,221,137,.28);
+  background:linear-gradient(135deg,rgba(20,88,39,.55),rgba(45,170,82,.18));
+  color:#86f3a4;font-size:6px;box-shadow:0 6px 18px rgba(19,79,37,.18)
+}
+.ace3622MergedBadge{
+  display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;
+  border:1px solid rgba(176,116,255,.20);background:rgba(113,66,193,.14);
+  color:#dcc8fa;font-size:6px;font-weight:1000;letter-spacing:.10em;white-space:nowrap
+}
+.aceClubCard.evoMerged article,
+.aceClubCard.evoMerged{}
+.aceClubCard.evoMerged .aceClubDupe{background:#10131b;border-color:rgba(255,255,255,.07)}
+.aceClubCard.evoMerged .aceClubCardActions{
+  border-top-color:rgba(97,221,137,.09)
+}
+.aceClubCard.evoMerged .aceClubCardView .fifaPlayerCard{
+  box-shadow:0 14px 34px rgba(0,0,0,.20),0 0 0 1px rgba(97,221,137,.10)
+}
+
+.ace3622ProfileUpgraded{
+  padding:6px 10px;border:1px solid rgba(97,221,137,.28);
+  background:linear-gradient(135deg,rgba(14,82,34,.62),rgba(39,156,73,.18));
+  color:#d9ffe2;font-size:6.3px
+}
+.ace3622ProfileUpgraded b{
+  color:#7cf39e;font-size:10px;letter-spacing:0
+}
+.ace3622CardUpgradeChip{
+  position:absolute;right:10px;bottom:10px;z-index:12;
+  padding:6px 10px;border:1px solid rgba(97,221,137,.28);
+  background:linear-gradient(135deg,rgba(13,80,34,.88),rgba(28,122,58,.72));
+  color:#eaffef;font-size:6.2px;box-shadow:0 10px 24px rgba(18,82,39,.28)
+}
+.ace3622CardUpgradeChip b{
+  color:#88f6a9;font-size:11px;letter-spacing:0
+}
+.ace3622MetricValueGreen{
+  color:#7ef09f!important
+}
+.ace3622Hint{
+  margin-top:8px;color:#8d8a97;font-size:6.7px;line-height:1.45
+}
+@media(max-width:760px){
+  .ace3622CardUpgradeChip{right:7px;bottom:7px;padding:5px 8px}
+}
+</style>
+<!-- /ACE B21.36.22 — MERGED EVOLUTION DUPES + GREEN UPGRADE VIEW -->
+
+
+<!-- ACE B21.36.22 — MERGED EVOLUTION DUPES + GREEN UPGRADE VIEW SCRIPT -->
+<script id="ace-b21-36-22-merged-evolution-dupes-and-green-upgrades-script">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+  const text=v=>String(v??"");
+  const esc=s=>text(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+  function ace3622PlayerKey(card){
+    const id=Number(card?.playerId||0);
+    return id>0?`id:${id}`:`name:${String(card?.playerName||"").trim().toLowerCase()}`;
+  }
+  function ace3622CardsForPlayer(playerIdOrCard){
+    const key=typeof playerIdOrCard==="object"?ace3622PlayerKey(playerIdOrCard):(
+      Number(playerIdOrCard||0)>0?`id:${Number(playerIdOrCard||0)}`:String(playerIdOrCard||"")
+    );
+    return (ultimateTeamState?.cards||[]).filter(card=>ace3622PlayerKey(card)===key);
+  }
+  function ace3622CardBonus(card){
+    if(!card)return 0;
+    const raw=Math.max(
+      0,
+      Math.round(Number(
+        card.evolutionSteps ?? card.evolutionBonusRaw ?? card.evolutionBonus ?? 0
+      )||0)
+    );
+    if(raw>0)return raw;
+    const live=Math.round(Number(card.rating ?? card.positionRating ?? 0)||0);
+    const base=Math.round(Number(card.baseRating||0)||0);
+    return Math.max(0,live-base);
+  }
+  function ace3622HasEvolvedStack(playerIdOrCard){
+    return ace3622CardsForPlayer(playerIdOrCard).some(card=>ace3622CardBonus(card)>0);
+  }
+  function ace3622PrimaryCard(playerIdOrCard){
+    const cards=ace3622CardsForPlayer(playerIdOrCard);
+    if(!cards.length)return null;
+    const statusFn=window.aceEvolutionStatusForPlayer;
+    const first=cards[0];
+    const id=Number(first?.playerId||0);
+    try{
+      if(typeof statusFn==="function" && id>0){
+        const status=statusFn(id);
+        if(status?.primary)return status.primary;
+      }
+    }catch(_){}
+    return cards.slice().sort((a,b)=>{
+      const ab=ace3622CardBonus(a), bb=ace3622CardBonus(b);
+      return bb-ab
+        || Number(b.rating||0)-Number(a.rating||0)
+        || (Date.parse(b.pulledAt||"")||0)-(Date.parse(a.pulledAt||"")||0);
+    })[0]||null;
+  }
+  function ace3622SamePlayerCards(card){
+    return ace3622CardsForPlayer(card);
+  }
+
+  function ace3622BuildClubEntries(){
+    const cards=(ultimateTeamState?.cards||[]).slice();
+    const mergedByPlayer=new Map();
+    const groupedByRarity=new Map();
+
+    cards.forEach(card=>{
+      const playerKey=ace3622PlayerKey(card);
+      const hasEvolved=ace3622HasEvolvedStack(card);
+      if(hasEvolved){
+        if(!mergedByPlayer.has(playerKey)){
+          mergedByPlayer.set(playerKey,{
+            card:ace3622PrimaryCard(card)||card,
+            count:0,
+            newest:0,
+            mergedEvolution:true,
+            allCards:[]
+          });
+        }
+        const entry=mergedByPlayer.get(playerKey);
+        entry.count+=1;
+        entry.allCards.push(card);
+        const pulled=Date.parse(card.pulledAt||"")||0;
+        if(pulled>=entry.newest)entry.newest=pulled;
+        const primary=ace3622PrimaryCard(card)||entry.card;
+        if(primary)entry.card=primary;
+      }else{
+        const key=`${playerKey}|${String(card.rarity||"")}`;
+        if(!groupedByRarity.has(key)){
+          groupedByRarity.set(key,{card,count:0,newest:0,mergedEvolution:false,allCards:[]});
+        }
+        const entry=groupedByRarity.get(key);
+        entry.count+=1;
+        entry.allCards.push(card);
+        const pulled=Date.parse(card.pulledAt||"")||0;
+        if(pulled>=entry.newest){
+          entry.newest=pulled;
+          entry.card=card;
+        }
+      }
+    });
+
+    let entries=[...groupedByRarity.values(),...mergedByPlayer.values()];
+
+    entries=entries.filter(entry=>{
+      const entryCards=Array.isArray(entry.allCards)&&entry.allCards.length ? entry.allCards : [entry.card];
+      const card=entry.card||entryCards[0];
+      if(!card)return false;
+
+      const cardName=String(card.playerName||"");
+      const cardPos=String(card.position||"");
+      const specialOk=
+        aceClubFilter==="all"
+        || (aceClubFilter==="new" && entryCards.some(c=>typeof aceIsRecentClubCard==="function" && aceIsRecentClubCard(c)))
+        || (aceClubFilter==="duplicates" && Number(entry.count||entryCards.length||0)>1)
+        || (aceClubFilter==="favorites" && entryCards.some(c=>c.favorite===true))
+        || (aceClubFilter==="locked" && entryCards.some(c=>c.locked===true))
+        || String(card.rarity||"")===String(aceClubFilter||"");
+
+      const searchNeedle=String(aceClubSearch||"").trim().toLowerCase();
+      const searchOk=!searchNeedle
+        || cardName.toLowerCase().includes(searchNeedle)
+        || cardPos.toLowerCase().includes(searchNeedle);
+
+      return specialOk && searchOk;
+    });
+
+    entries.sort((a,b)=>{
+      if(aceClubSort==="newest")return Number(b.newest||0)-Number(a.newest||0);
+      if(aceClubSort==="name")return String(a.card?.playerName||"").localeCompare(String(b.card?.playerName||""));
+      return Number(b.card?.rating||0)-Number(a.card?.rating||0)
+        || String(a.card?.playerName||"").localeCompare(String(b.card?.playerName||""));
+    });
+
+    return entries;
+  }
+
+  function ace3622RenderMergedEvolvedClub(){
+    try{
+      const grid=document.getElementById("utCollection");
+      if(!grid)return;
+      if(typeof vdsUltimateHubReady!=="undefined" && vdsUltimateHubReady && vdsUltimateHubActive!=="club")return;
+      if(!(ultimateTeamState?.cards||[]).length)return;
+      if(!(ultimateTeamState.cards||[]).some(card=>ace3622CardBonus(card)>0))return;
+
+      const entries=ace3622BuildClubEntries();
+
+      aceClubRenderState.observer?.disconnect?.();
+      aceClubRenderState.observer=null;
+      aceClubRenderState.entries=entries;
+      aceClubRenderState.rendered=0;
+      aceClubRenderState.key=[
+        aceClubFilter,
+        aceClubSort,
+        aceClubSearch,
+        ultimateTeamState.cards.length,
+        entries.length,
+        "ace3622"
+      ].join("|");
+
+      const uniqueCount=document.getElementById("aceClubUniqueCount");
+      if(uniqueCount)uniqueCount.textContent=String(entries.length);
+
+      grid.replaceChildren();
+      if(!entries.length){
+        grid.innerHTML='<div class="vdsUTEmpty aceClubEmpty">No cards match this view.</div>';
+        return;
+      }
+      aceClubAppendBatch();
+    }catch(error){
+      console.warn("ACE B21.36.22 merged evolution render skipped",error);
+    }
+  }
+
+  if(typeof renderUltimateTeam==="function" && !window.__ace3622RenderUltimateWrapped){
+    window.__ace3622RenderUltimateWrapped=true;
+    const baseRenderUltimateTeam=renderUltimateTeam;
+    renderUltimateTeam=function(){
+      const result=baseRenderUltimateTeam.apply(this,arguments);
+      ace3622RenderMergedEvolvedClub();
+      return result;
+    };
+  }
+
+  if(typeof aceClubCardMarkup==="function" && !window.__ace3622ClubMarkupWrapped){
+    window.__ace3622ClubMarkupWrapped=true;
+    const baseClubMarkup=aceClubCardMarkup;
+    aceClubCardMarkup=function(entry){
+      if(entry?.card){
+        entry.card.__aceMergedEvolution=!!entry.mergedEvolution;
+        entry.card.__aceMergedTotal=Number(entry.count||0);
+      }
+      let markup=baseClubMarkup.apply(this,arguments);
+      const card=entry?.card;
+      const bonus=ace3622CardBonus(card);
+
+      if(card){
+        markup=markup.replace(
+          'data-club-player="',
+          `data-club-player-id="${Number(card.playerId||0)}" data-club-player="`
+        );
+      }
+
+      if(entry?.mergedEvolution){
+        markup=markup.replace(
+          '<article class="aceClubCard ',
+          '<article class="aceClubCard evoMerged '
+        );
+        markup=markup.replace(
+          '<div class="aceClubCardFlags">',
+          '<div class="aceClubCardFlags"><span class="ace3622MergedBadge">ALL DUPES MERGED</span>'
+        );
+        markup=markup.replace(/<span class="aceClubDupe">x(\d+)<\/span>/, '<span class="aceClubDupe">x$1 TOTAL</span>');
+      }
+
+      if(bonus>0){
+        markup=markup.replace(
+          '<div class="aceClubCardFlags">',
+          `<div class="aceClubCardFlags"><span class="ace3622EvoBadge">UPGRADE <b>+${bonus}</b></span>`
+        );
+      }
+      return markup;
+    };
+  }
+
+  if(typeof aceUTSellableCloudCopy==="function" && !window.__ace3622SellableWrapped){
+    window.__ace3622SellableWrapped=true;
+    const baseSellable=aceUTSellableCloudCopy;
+    aceUTSellableCloudCopy=function(groupCard){
+      if(groupCard && (groupCard.__aceMergedEvolution===true || ace3622HasEvolvedStack(groupCard))){
+        const squad=new Set((ultimateTeamState.lineupSlots||[]).filter(Boolean).map(String));
+        const cards=ace3622SamePlayerCards(groupCard)
+          .filter(card=>
+            !!card?.cloudCardId
+            && String(card.id||"").startsWith("ut_")
+            && card.locked!==true
+            && !squad.has(String(utCardUid(card)))
+          )
+          .sort((a,b)=>{
+            const aIsPrimary=String(a.cloudCardId||"")===String((ace3622PrimaryCard(groupCard)||{}).cloudCardId||"");
+            const bIsPrimary=String(b.cloudCardId||"")===String((ace3622PrimaryCard(groupCard)||{}).cloudCardId||"");
+            const aPenalty=(aIsPrimary?1000:0)+(a.favorite===true?300:0)+(ace3622CardBonus(a)>0?150:0);
+            const bPenalty=(bIsPrimary?1000:0)+(b.favorite===true?300:0)+(ace3622CardBonus(b)>0?150:0);
+            return aPenalty-bPenalty
+              || Number(a.rating||0)-Number(b.rating||0)
+              || (Date.parse(a.pulledAt||"")||0)-(Date.parse(b.pulledAt||"")||0);
+          });
+        return cards[0]||null;
+      }
+      return baseSellable.apply(this,arguments);
+    };
+  }
+
+  if(typeof aceUTQuickSellGroupedCard==="function" && !window.__ace3622QuickSellWrapped){
+    window.__ace3622QuickSellWrapped=true;
+    const baseQuickSell=aceUTQuickSellGroupedCard;
+    aceUTQuickSellGroupedCard=async function(playerId,rarity){
+      if(ace3622HasEvolvedStack(playerId)){
+        if(!vdsHasPermanentAccount?.()){
+          aceUTQuickSellToast("Sign in with a permanent account to sell cards.","error");
+          return;
+        }
+        const primary=ace3622PrimaryCard(playerId);
+        if(!primary)return;
+        const sellCard=aceUTSellableCloudCopy({...primary,__aceMergedEvolution:true});
+        if(!sellCard){
+          aceUTQuickSellToast("All spare copies of this evolved player are protected or in your Starting Six.","error");
+          return;
+        }
+        const rating=Math.round(Number(sellCard.rating||sellCard.positionRating||0));
+        const value=aceUTQuickSellValue(rating);
+        aceUTOpenQuickSellModal(sellCard,value);
+        return;
+      }
+      return baseQuickSell.apply(this,arguments);
+    };
+  }
+
+  function ace3622DecorateProfile(name){
+    const overlay=q("#vdsCardShowcaseOverlay.show");
+    if(!overlay)return;
+    const profile=q(".ace29ProfileInner",overlay);
+    if(!profile)return;
+
+    const roster=(()=>{
+      try{
+        if(typeof players!=="undefined" && Array.isArray(players))return players;
+      }catch(_){}
+      return Array.isArray(window.players)?window.players:[];
+    })();
+    const player=roster.find(p=>String(p?.name||"")===String(name||""));
+    if(!player)return;
+    const primary=ace3622PrimaryCard(Number(player.cloudId||0));
+    const bonus=ace3622CardBonus(primary);
+    if(!(bonus>0))return;
+
+    const current=Math.round(Number(primary.rating||primary.positionRating||0)||0);
+    const base=Math.round(Number(primary.baseRating||Math.max(0,current-bonus))||0);
+
+    const badges=q(".ace29ProfileBadges",profile);
+    if(badges && !q(".ace3622ProfileUpgraded",badges)){
+      badges.insertAdjacentHTML(
+        "beforeend",
+        `<span class="ace3622ProfileUpgraded">UPGRADED <b>+${bonus}</b> · LIVE CARD ${current} OVR</span>`
+      );
+    }
+
+    const stage=q(".ace29ProfileCardStage",profile);
+    if(stage){
+      let chip=q(".ace3622CardUpgradeChip",stage);
+      if(!chip){
+        chip=document.createElement("div");
+        chip.className="ace3622CardUpgradeChip";
+        stage.appendChild(chip);
+      }
+      chip.innerHTML=`BASE ${base} <b>+${bonus}</b>`;
+    }
+
+    const identityPanels=qa(".ace29ProfilePanel",profile);
+    const identityPanel=identityPanels.find(panel=>q("h3",panel)?.textContent?.trim()==="PLAYER IDENTITY");
+    if(identityPanel){
+      const metrics=q(".ace29ProfileMetrics",identityPanel);
+      if(metrics && !q("[data-ace3622-evo-metric]",metrics)){
+        const div=document.createElement("div");
+        div.className="ace29ProfileMetric";
+        div.setAttribute("data-ace3622-evo-metric","1");
+        div.innerHTML=`<span>EVOLUTION</span><b class="ace3622MetricValueGreen">+${bonus}</b>`;
+        metrics.appendChild(div);
+      }
+      if(!q(".ace3622Hint",identityPanel)){
+        const hint=document.createElement("div");
+        hint.className="ace3622Hint";
+        hint.textContent=`This owned Ultimate Team card is upgraded from ${base} to ${current}. All duplicate copies of ${player.name} are now merged under the upgraded card in My Club.`;
+        identityPanel.appendChild(hint);
+      }
+    }
+  }
+
+  if(typeof window.ace29OpenPlayerProfile==="function" && !window.ace29OpenPlayerProfile.__ace3622Wrapped){
+    const base=window.ace29OpenPlayerProfile;
+    const wrapped=function(name){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>ace3622DecorateProfile(name));
+      return result;
+    };
+    wrapped.__ace3622Wrapped=true;
+    window.ace29OpenPlayerProfile=wrapped;
+    try{ace29OpenPlayerProfile=wrapped}catch(_){}
+    if(typeof window.openVdsCardShowcase==="function"){
+      window.openVdsCardShowcase=wrapped;
+      try{openVdsCardShowcase=wrapped}catch(_){}
+    }
+  }
+
+  window.ace3622RenderMergedEvolvedClub=ace3622RenderMergedEvolvedClub;
+  window.ace3622PrimaryCard=ace3622PrimaryCard;
+  window.ace3622CardBonus=ace3622CardBonus;
+  window.ACE_PROJECT_BUILD="B21.36.22";
+  window.ACE_MERGED_EVOLUTION_DUPES=true;
+  window.ACE_GREEN_UPGRADE_VIEW=true;
+})();
+</script>
+<!-- /ACE B21.36.22 — MERGED EVOLUTION DUPES + GREEN UPGRADE VIEW SCRIPT -->
+
+
+<!-- ACE B21.36.23 — EVOLUTION BUTTON HOTFIX -->
+<script id="ace-b21-36-23-evolution-button-hotfix">
+(function(){
+  "use strict";
+
+  /*
+    B21.36.23
+    The B21.36.21 Evolution redesign used window.ensureMultiplayerClient,
+    window.players and window.vdsSyncUltimateTeamCloud. In this single-file
+    ACE build those canonical objects may be top-level lexical bindings rather
+    than window properties. The source functions above are now lexical-first.
+  */
+
+  window.ACE_PROJECT_BUILD="B21.36.23";
+  window.ACE_EVOLUTION_BUTTON_HOTFIX=true;
+  window.ACE_EVOLUTION_RPC_CLIENT_SOURCE="LEXICAL_FIRST";
+  window.ACE_EVOLUTION_PLAYER_LOOKUP_SOURCE="LEXICAL_FIRST";
+  window.ACE_EVOLUTION_POST_SYNC_SOURCE="LEXICAL_FIRST";
+})();
+</script>
+<!-- /ACE B21.36.23 — EVOLUTION BUTTON HOTFIX -->
 
 </body>
 </html>
