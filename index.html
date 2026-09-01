@@ -50284,6 +50284,387 @@ body.aceEvo2Open{overflow:hidden}
 </script>
 <!-- /ACE B21.36.23 — EVOLUTION BUTTON HOTFIX -->
 
+
+<!-- ACE B21.36.24 — EVOLUTION DECLUTTER + STAT DELTAS -->
+<style id="ace-b21-36-24-evolution-declutter-style">
+  .ace3622MergedBadge{display:none!important}
+  .ace3622EvoBadge{
+    padding:4px 8px!important;
+    border-radius:999px!important;
+    background:rgba(112,64,191,.28)!important;
+    border:1px solid rgba(185,137,255,.28)!important;
+    color:#efe7ff!important;
+    font-size:9px!important;
+    letter-spacing:.08em!important;
+    font-weight:1000!important;
+  }
+  .ace3622EvoBadge b{color:#8df1a4!important}
+  .aceClubCard .aceClubCardFlags{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+    align-items:center!important;
+  }
+  .aceClubCard .aceClubDupe,
+  .aceClubCard .aceClubInSquad,
+  .aceClubCard .aceClubNew{
+    font-size:9px!important;
+    letter-spacing:.08em!important;
+  }
+
+  .ace3622ProfileUpgraded{display:none!important}
+  .ace3622Hint{
+    margin-top:10px!important;
+    color:#9b94a4!important;
+    font-size:11px!important;
+    line-height:1.45!important;
+  }
+  .ace3622CardUpgradeChip{
+    right:10px!important;
+    bottom:10px!important;
+    padding:5px 9px!important;
+    border-radius:999px!important;
+    font-size:10px!important;
+    letter-spacing:.06em!important;
+    background:rgba(13,21,22,.85)!important;
+    border:1px solid rgba(122,224,145,.18)!important;
+    color:#c7c2cf!important;
+    box-shadow:none!important;
+  }
+  .ace3622CardUpgradeChip b{color:#80e597!important}
+
+  .ace3634ValueWrap{
+    display:inline-flex!important;
+    align-items:baseline!important;
+    gap:6px!important;
+    white-space:nowrap!important;
+  }
+  .ace3634Delta{
+    display:inline-block!important;
+    color:#7fe59a!important;
+    font-size:.72em!important;
+    font-weight:1000!important;
+    letter-spacing:.02em!important;
+  }
+  .ace29StatRow b,
+  .ace29ProfileMetric b,
+  .ace29PositionGrid b{
+    display:inline-flex!important;
+    align-items:baseline!important;
+    gap:6px!important;
+  }
+</style>
+
+<script id="ace-b21-36-24-evolution-declutter-script">
+(function(){
+  "use strict";
+
+  const q=(sel,root=document)=>root && root.querySelector ? root.querySelector(sel) : null;
+  const qa=(sel,root=document)=>root && root.querySelectorAll ? Array.from(root.querySelectorAll(sel)) : [];
+  const esc=(value)=>{
+    if(value===null || value===undefined)return "";
+    return String(value)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  };
+
+  function ace3634Roster(){
+    try{
+      if(typeof players!=="undefined" && Array.isArray(players))return players;
+    }catch(_){}
+    return Array.isArray(window.players) ? window.players : [];
+  }
+
+  function ace3634BasePlayer(name){
+    return ace3634Roster().find(p=>String(p?.name||"")===String(name||"")) || null;
+  }
+
+  function ace3634PrimaryCardForPlayer(player){
+    if(!player)return null;
+    if(typeof window.ace3622PrimaryCard==="function"){
+      try{
+        return window.ace3622PrimaryCard(Number(player.cloudId||0)) || null;
+      }catch(_){}
+    }
+    const cards=(window.ultimateTeamState?.cards||[]).filter(card=>
+      Number(card?.playerId||0)===Number(player?.cloudId||0)
+    );
+    return cards.sort((a,b)=>
+      Number(b?.rating||0)-Number(a?.rating||0) ||
+      (Date.parse(b?.pulledAt||"")||0) - (Date.parse(a?.pulledAt||"")||0)
+    )[0] || null;
+  }
+
+  function ace3634BoostedPlayer(primary,basePlayer){
+    if(primary && typeof aceUltimateMasterPlayer==="function"){
+      try{
+        return aceUltimateMasterPlayer(primary) || basePlayer || null;
+      }catch(_){}
+    }
+    return basePlayer || null;
+  }
+
+  function ace3634Bonus(card){
+    if(typeof window.ace3622CardBonus==="function"){
+      try{return Math.max(0, Number(window.ace3622CardBonus(card)||0));}catch(_){}
+    }
+    if(!card)return 0;
+    const live=Math.round(Number(card.rating ?? card.positionRating ?? 0) || 0);
+    const base=Math.round(Number(card.baseRating || 0) || 0);
+    return Math.max(0, live-base);
+  }
+
+  function ace3634TierLabelFromCard(card, player){
+    const rarity=String(card?.rarity || (typeof cardTier==="function" && player ? cardTier(player) : "") || "silver");
+    const label=(window.UT_RARITY?.[rarity]?.label) || rarity;
+    return String(label).toUpperCase();
+  }
+
+  function ace3634CurrentRating(card, player){
+    const raw = (card?.rating ?? card?.positionRating ?? ((typeof mainPositionRating==="function" && player) ? mainPositionRating(player) : 0) ?? 0);
+    return Math.round(Number(raw) || 0);
+  }
+
+  function ace3634SetHtml(node, currentValue, baseValue){
+    if(!node)return;
+    const isNum=Number.isFinite(Number(currentValue)) && Number.isFinite(Number(baseValue));
+    if(!isNum){
+      node.textContent=String(currentValue ?? "—");
+      return;
+    }
+    const current=Math.round(Number(currentValue));
+    const base=Math.round(Number(baseValue));
+    const delta=current-base;
+    node.innerHTML = delta>0
+      ? '<span class="ace3634ValueWrap">'+current+'<small class="ace3634Delta">+'+delta+'</small></span>'
+      : String(current);
+  }
+
+  function ace3634UpdateCardStage(profile, basePlayer, boostedPlayer, primary){
+    const stage=q(".ace29ProfileCardStage", profile);
+    if(!stage || !boostedPlayer)return;
+    const holder=q(".fifaPlayerCard", stage);
+    if(!holder || typeof vdsMasterPlayerCardHTML!=="function")return;
+
+    const current=ace3634CurrentRating(primary, boostedPlayer);
+    const tier=String(primary?.rarity || (typeof cardTier==="function" ? cardTier(boostedPlayer) : "silver") || "silver");
+    const tierLabel=ace3634TierLabelFromCard(primary, boostedPlayer);
+    const naturalRole=primary?.position || boostedPlayer?.position || basePlayer?.position || "POS";
+    const footer=(window.ultimateTeamState?.cards||[]).some(card=>Number(card?.playerId||0)===Number(basePlayer?.cloudId||0))
+      ? "MY CLUB"
+      : "VIEW PLAYER PROFILE";
+
+    holder.className = 'fifaPlayerCard '+esc(tier);
+    holder.innerHTML = vdsMasterPlayerCardHTML(boostedPlayer,{
+      role:naturalRole,
+      rating:current,
+      tier,
+      tierLabel,
+      footer
+    });
+  }
+
+  function ace3634UpdateBadges(profile, basePlayer, boostedPlayer, primary){
+    const badges=q(".ace29ProfileBadges", profile);
+    if(!badges || !basePlayer)return;
+
+    const current=ace3634CurrentRating(primary, boostedPlayer || basePlayer);
+    const pos=primary?.position || boostedPlayer?.position || basePlayer?.position || "POS";
+    const tierLabel=ace3634TierLabelFromCard(primary, boostedPlayer || basePlayer);
+
+    const first=badges.querySelector(".ace29ProfileBadge");
+    if(first){
+      first.textContent = tierLabel+' · '+current+' '+pos;
+    }
+
+    q(".ace3622ProfileUpgraded", badges)?.remove();
+  }
+
+  function ace3634UpdateIdentity(profile, basePlayer, boostedPlayer, primary){
+    const panels=qa(".ace29ProfilePanel", profile);
+    const identity=panels.find(panel => q("h3", panel)?.textContent?.trim() === "PLAYER IDENTITY");
+    if(!identity)return;
+
+    q('[data-ace3622-evo-metric]', identity)?.remove();
+
+    const metrics=qa(".ace29ProfileMetric", identity);
+    const current=ace3634CurrentRating(primary, boostedPlayer || basePlayer);
+    const bonus=ace3634Bonus(primary);
+
+    metrics.forEach(metric=>{
+      const label=q("span", metric)?.textContent?.trim().toUpperCase();
+      const value=q("b", metric);
+      if(!label || !value)return;
+      if(label==="ALL RATING"){
+        const baseMain=Math.round(Number(basePlayer && typeof mainPositionRating==="function" ? mainPositionRating(basePlayer) : current)||0);
+        ace3634SetHtml(value, current, baseMain);
+      }else if(label==="NATURAL POSITION"){
+        value.textContent = String(primary?.position || boostedPlayer?.position || basePlayer?.position || "—");
+      }else if(label==="SERVE TYPE"){
+        value.textContent = String(typeof serveLabel==="function" ? serveLabel(boostedPlayer || basePlayer) : "—");
+      }else if(label==="UT STATUS"){
+        value.textContent = (basePlayer?.ultimateTeamPool===true ? "LIVE ✓" : "NOT IN POOL");
+      }
+    });
+
+    let hint=q(".ace3622Hint", identity);
+    if(!hint){
+      hint=document.createElement("div");
+      hint.className="ace3622Hint";
+      identity.appendChild(hint);
+    }
+    const baseOvr=Math.round(Number(typeof mainPositionRating==="function" ? mainPositionRating(basePlayer) : 0)||0);
+    if(bonus>0){
+      hint.textContent = 'Live Ultimate Team copy upgraded from '+baseOvr+' to '+current+'. Any spare duplicate copies stay merged under this one player stack.';
+    }else{
+      hint.textContent = 'This is your live Ultimate Team copy.';
+    }
+  }
+
+  function ace3634UpdatePositionRatings(profile, basePlayer, boostedPlayer){
+    if(typeof positionRatings!=="function" || !basePlayer || !boostedPlayer)return;
+    const baseRatings=positionRatings(basePlayer) || {};
+    const currentRatings=positionRatings(boostedPlayer) || {};
+    qa(".ace29PositionGrid > div", profile).forEach(cell=>{
+      const role=q("span", cell)?.textContent?.trim();
+      const value=q("b", cell);
+      if(!role || !value)return;
+      ace3634SetHtml(value, currentRatings[role], baseRatings[role]);
+    });
+  }
+
+  function ace3634UpdateCoreRatings(profile, basePlayer, boostedPlayer){
+    if(typeof categoryRatings!=="function" || !basePlayer || !boostedPlayer)return;
+    const panels=qa(".ace29ProfilePanel", profile);
+    const core=panels.find(panel => q("h3", panel)?.textContent?.trim() === "CORE RATINGS");
+    if(!core)return;
+
+    const baseCats=categoryRatings(basePlayer) || {};
+    const curCats=categoryRatings(boostedPlayer) || {};
+    qa(".ace29ProfileMetric", core).forEach(metric=>{
+      const label=q("span", metric)?.textContent?.trim().toUpperCase();
+      const value=q("b", metric);
+      if(!label || !value)return;
+      if(label==="ATTACK"){
+        ace3634SetHtml(value, curCats.attacking, baseCats.attacking);
+      }else if(label==="DEFENCE"){
+        ace3634SetHtml(value, curCats.defense, baseCats.defense);
+      }else if(label==="PHYSICAL"){
+        ace3634SetHtml(value, curCats.physical, baseCats.physical);
+      }else if(label==="SETTING"){
+        ace3634SetHtml(value, Math.round(Number(boostedPlayer.setting||0)), Math.round(Number(basePlayer.setting||0)));
+      }
+    });
+  }
+
+  function ace3634AttributeMaps(basePlayer, boostedPlayer){
+    const baseTechnique = Number.isFinite(Number(basePlayer?.setTechnique)) ? Number(basePlayer.setTechnique) : Number(basePlayer?.setting||0);
+    const curTechnique = Number.isFinite(Number(boostedPlayer?.setTechnique)) ? Number(boostedPlayer.setTechnique) : Number(boostedPlayer?.setting||0);
+    const baseCreativity = Number.isFinite(Number(basePlayer?.setCreativity)) ? Number(basePlayer.setCreativity) : Number(basePlayer?.setting||0);
+    const curCreativity = Number.isFinite(Number(boostedPlayer?.setCreativity)) ? Number(boostedPlayer.setCreativity) : Number(boostedPlayer?.setting||0);
+
+    return {
+      "Attack Creativity":[basePlayer?.creativity, boostedPlayer?.creativity],
+      "Hitting Accuracy":[basePlayer?.accuracy, boostedPlayer?.accuracy],
+      "Hitting Power":[basePlayer?.hittingPower, boostedPlayer?.hittingPower],
+      "Serve Receive":[basePlayer?.serveReceive, boostedPlayer?.serveReceive],
+      "Positioning":[basePlayer?.positioning, boostedPlayer?.positioning],
+      "Covering":[basePlayer?.covering, boostedPlayer?.covering],
+      "Work Rate":[basePlayer?.workRate, boostedPlayer?.workRate],
+      "Vertical":[basePlayer?.vertical, boostedPlayer?.vertical],
+      "Speed":[basePlayer?.speed, boostedPlayer?.speed],
+      "Reaction Time":[basePlayer?.reactionTime, boostedPlayer?.reactionTime],
+      "Serve Type":[typeof serveLabel==="function" ? serveLabel(basePlayer) : "—", typeof serveLabel==="function" ? serveLabel(boostedPlayer) : "—"],
+      "Service":[basePlayer?.service, boostedPlayer?.service],
+      "Blocking":[basePlayer?.blocking, boostedPlayer?.blocking],
+      "Set Technique":[baseTechnique, curTechnique],
+      "Set Creativity":[baseCreativity, curCreativity],
+      "Mindset":[basePlayer?.mindset, boostedPlayer?.mindset]
+    };
+  }
+
+  function ace3634UpdateFullAttributes(profile, basePlayer, boostedPlayer){
+    if(!basePlayer || !boostedPlayer)return;
+    const map=ace3634AttributeMaps(basePlayer, boostedPlayer);
+    qa(".ace29StatRow", profile).forEach(row=>{
+      const label=q("span", row)?.textContent?.trim();
+      const value=q("b", row);
+      if(!label || !value || !(label in map))return;
+      const pair = map[label];
+      ace3634SetHtml(value, pair[1], pair[0]);
+    });
+  }
+
+  function ace3634RefreshProfile(name){
+    const overlay=q("#vdsCardShowcaseOverlay.show");
+    const profile=q(".ace29ProfileInner", overlay);
+    if(!overlay || !profile)return;
+
+    const basePlayer=ace3634BasePlayer(name);
+    if(!basePlayer)return;
+
+    const primary=ace3634PrimaryCardForPlayer(basePlayer);
+    if(!primary)return;
+    const boostedPlayer=ace3634BoostedPlayer(primary, basePlayer);
+    if(!boostedPlayer)return;
+
+    ace3634UpdateBadges(profile, basePlayer, boostedPlayer, primary);
+    ace3634UpdateCardStage(profile, basePlayer, boostedPlayer, primary);
+    ace3634UpdateIdentity(profile, basePlayer, boostedPlayer, primary);
+    ace3634UpdatePositionRatings(profile, basePlayer, boostedPlayer);
+    ace3634UpdateCoreRatings(profile, basePlayer, boostedPlayer);
+    ace3634UpdateFullAttributes(profile, basePlayer, boostedPlayer);
+  }
+
+  if(typeof aceClubCardMarkup==="function" && !aceClubCardMarkup.__ace3634Wrapped){
+    const baseClubMarkup=aceClubCardMarkup;
+    const wrapped=function(entry){
+      let markup=baseClubMarkup.apply(this,arguments);
+      const bonus=typeof window.ace3622CardBonus==="function"
+        ? Math.max(0, Number(window.ace3622CardBonus(entry?.card)||0))
+        : 0;
+      markup=markup.replace(/<span class="ace3622MergedBadge">.*?<\/span>/g, "");
+      markup=markup.replace(/<span class="aceClubDupe">x(\d+)\s*TOTAL<\/span>/g, '<span class="aceClubDupe">x$1</span>');
+      if(bonus>0){
+        markup=markup.replace(/<span class="ace3622EvoBadge">.*?<\/span>/g, '<span class="ace3622EvoBadge">EVO <b>+'+bonus+'</b></span>');
+      }
+      return markup;
+    };
+    wrapped.__ace3634Wrapped=true;
+    aceClubCardMarkup=wrapped;
+    try{window.aceClubCardMarkup=wrapped;}catch(_){}
+  }
+
+  if(typeof window.ace29OpenPlayerProfile==="function" && !window.ace29OpenPlayerProfile.__ace3634Wrapped){
+    const baseOpen=window.ace29OpenPlayerProfile;
+    const wrapped=function(name){
+      const result=baseOpen.apply(this,arguments);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          try{ace3634RefreshProfile(name);}catch(error){console.warn("ACE B21.36.24 profile declutter failed", error);}
+        });
+      });
+      return result;
+    };
+    wrapped.__ace3634Wrapped=true;
+    window.ace29OpenPlayerProfile=wrapped;
+    try{ace29OpenPlayerProfile=wrapped;}catch(_){}
+    if(typeof window.openVdsCardShowcase==="function"){
+      window.openVdsCardShowcase=wrapped;
+      try{openVdsCardShowcase=wrapped;}catch(_){}
+    }
+  }
+
+  window.ACE_PROJECT_BUILD="B21.36.24";
+  window.ACE_EVOLUTION_DECLUTTER=true;
+  window.ACE_EVOLUTION_STAT_DELTAS=true;
+})();
+</script>
+<!-- /ACE B21.36.24 — EVOLUTION DECLUTTER + STAT DELTAS -->
+
 </body>
 </html>
 
