@@ -24675,7 +24675,9 @@ let aceClubRenderState={
 let aceClubSearchTimer=0;
 
 function aceClubBatchSize(){
-  return window.matchMedia?.("(max-width:760px)")?.matches?6:12;
+  // B21.36.25: complete collectible cards are expensive DOM nodes.
+  // Keep the first paint light and append more only as the user approaches them.
+  return window.matchMedia?.("(max-width:760px)")?.matches?4:8;
 }
 
 function aceClubCardMarkup(entry){
@@ -24794,7 +24796,7 @@ function aceClubAppendBatch(){
   if("IntersectionObserver" in window){
     const observer=new IntersectionObserver(entries=>{
       if(entries.some(entry=>entry.isIntersecting))loadNext();
-    },{root:null,rootMargin:"700px 0px",threshold:0.01});
+    },{root:null,rootMargin:"160px 0px",threshold:0.01});
     observer.observe(sentinel);
     aceClubRenderState.observer=observer;
   }
@@ -49007,7 +49009,7 @@ body.ace34ShareOpen{
       try{
         const card=entry?.card;
         if(!card?.playerId)return markup;
-        const s=evoStatusForPlayer(card.playerId);
+        const s=entry?.evoStatus || evoStatusForPlayer(card.playerId);
         const primary=s.primary;
         if(!primary)return markup;
 
@@ -49960,35 +49962,81 @@ body.aceEvo2Open{overflow:hidden}
 
   function ace3622BuildClubEntries(){
     const cards=(ultimateTeamState?.cards||[]).slice();
-    const mergedByPlayer=new Map();
-    const groupedByRarity=new Map();
+    const squad=new Set((ultimateTeamState?.lineupSlots||[]).filter(Boolean).map(String));
+    const byPlayer=new Map();
 
+    /* One pass over ownership. The previous build repeatedly scanned the
+       entire club for every card to ask "does this player have an evolution?"
+       and "which copy is primary?". That became noticeably expensive once
+       users owned hundreds of cards. */
     cards.forEach(card=>{
       const playerKey=ace3622PlayerKey(card);
-      const hasEvolved=ace3622HasEvolvedStack(card);
-      if(hasEvolved){
-        if(!mergedByPlayer.has(playerKey)){
-          mergedByPlayer.set(playerKey,{
-            card:ace3622PrimaryCard(card)||card,
-            count:0,
-            newest:0,
-            mergedEvolution:true,
-            allCards:[]
-          });
+      if(!byPlayer.has(playerKey)){
+        byPlayer.set(playerKey,{key:playerKey,cards:[],newest:0});
+      }
+      const bucket=byPlayer.get(playerKey);
+      bucket.cards.push(card);
+      bucket.newest=Math.max(bucket.newest,Date.parse(card.pulledAt||"")||0);
+    });
+
+    const entries=[];
+
+    byPlayer.forEach(bucket=>{
+      const playerCards=bucket.cards;
+      const evolved=playerCards
+        .filter(card=>ace3622CardBonus(card)>0)
+        .sort((a,b)=>
+          ace3622CardBonus(b)-ace3622CardBonus(a)
+          || Number(b.rating||0)-Number(a.rating||0)
+          || (Date.parse(a.pulledAt||"")||0)-(Date.parse(b.pulledAt||"")||0)
+        );
+
+      if(evolved.length){
+        const primary=evolved[0];
+        const current=Math.round(Number(primary.rating||primary.positionRating||0));
+        const base=Math.round(Number(primary.baseRating||Math.max(0,current-ace3622CardBonus(primary)))||0);
+        const ace=base>=90;
+        const maxed=!ace && current>=89;
+        const required=ace||maxed
+          ? null
+          : (typeof window.aceEvolutionDupesRequired==="function"
+              ? window.aceEvolutionDupesRequired(current)
+              : (current<78?1:current<84?2:current<87?3:current===87?4:5));
+
+        const eligible=playerCards.filter(card=>
+          String(card.cloudCardId||"")!==String(primary.cloudCardId||"")
+          && ace3622CardBonus(card)===0
+          && card.locked!==true
+          && card.favorite!==true
+          && !squad.has(String(utCardUid(card)))
+        );
+
+        entries.push({
+          card:primary,
+          count:playerCards.length,
+          newest:bucket.newest,
+          mergedEvolution:true,
+          allCards:playerCards,
+          evoStatus:{
+            primary,
+            current,
+            required,
+            available:eligible.length,
+            ready:!!required && eligible.length>=required,
+            maxed,
+            ace
+          }
+        });
+        return;
+      }
+
+      const byRarity=new Map();
+      playerCards.forEach(card=>{
+        const rarity=String(card.rarity||"");
+        if(!byRarity.has(rarity)){
+          byRarity.set(rarity,{card,count:0,newest:0,mergedEvolution:false,allCards:[]});
         }
-        const entry=mergedByPlayer.get(playerKey);
-        entry.count+=1;
-        entry.allCards.push(card);
-        const pulled=Date.parse(card.pulledAt||"")||0;
-        if(pulled>=entry.newest)entry.newest=pulled;
-        const primary=ace3622PrimaryCard(card)||entry.card;
-        if(primary)entry.card=primary;
-      }else{
-        const key=`${playerKey}|${String(card.rarity||"")}`;
-        if(!groupedByRarity.has(key)){
-          groupedByRarity.set(key,{card,count:0,newest:0,mergedEvolution:false,allCards:[]});
-        }
-        const entry=groupedByRarity.get(key);
+        const entry=byRarity.get(rarity);
         entry.count+=1;
         entry.allCards.push(card);
         const pulled=Date.parse(card.pulledAt||"")||0;
@@ -49996,18 +50044,17 @@ body.aceEvo2Open{overflow:hidden}
           entry.newest=pulled;
           entry.card=card;
         }
-      }
+      });
+      byRarity.forEach(entry=>entries.push(entry));
     });
 
-    let entries=[...groupedByRarity.values(),...mergedByPlayer.values()];
+    const searchNeedle=String(aceClubSearch||"").trim().toLowerCase();
 
-    entries=entries.filter(entry=>{
-      const entryCards=Array.isArray(entry.allCards)&&entry.allCards.length ? entry.allCards : [entry.card];
-      const card=entry.card||entryCards[0];
+    const filtered=entries.filter(entry=>{
+      const entryCards=entry.allCards?.length?entry.allCards:[entry.card];
+      const card=entry.card;
       if(!card)return false;
 
-      const cardName=String(card.playerName||"");
-      const cardPos=String(card.position||"");
       const specialOk=
         aceClubFilter==="all"
         || (aceClubFilter==="new" && entryCards.some(c=>typeof aceIsRecentClubCard==="function" && aceIsRecentClubCard(c)))
@@ -50016,22 +50063,21 @@ body.aceEvo2Open{overflow:hidden}
         || (aceClubFilter==="locked" && entryCards.some(c=>c.locked===true))
         || String(card.rarity||"")===String(aceClubFilter||"");
 
-      const searchNeedle=String(aceClubSearch||"").trim().toLowerCase();
       const searchOk=!searchNeedle
-        || cardName.toLowerCase().includes(searchNeedle)
-        || cardPos.toLowerCase().includes(searchNeedle);
+        || String(card.playerName||"").toLowerCase().includes(searchNeedle)
+        || String(card.position||"").toLowerCase().includes(searchNeedle);
 
-      return specialOk && searchOk;
+      return specialOk&&searchOk;
     });
 
-    entries.sort((a,b)=>{
+    filtered.sort((a,b)=>{
       if(aceClubSort==="newest")return Number(b.newest||0)-Number(a.newest||0);
       if(aceClubSort==="name")return String(a.card?.playerName||"").localeCompare(String(b.card?.playerName||""));
       return Number(b.card?.rating||0)-Number(a.card?.rating||0)
         || String(a.card?.playerName||"").localeCompare(String(b.card?.playerName||""));
     });
 
-    return entries;
+    return filtered;
   }
 
   function ace3622RenderMergedEvolvedClub(){
@@ -50075,8 +50121,26 @@ body.aceEvo2Open{overflow:hidden}
     window.__ace3622RenderUltimateWrapped=true;
     const baseRenderUltimateTeam=renderUltimateTeam;
     renderUltimateTeam=function(){
-      const result=baseRenderUltimateTeam.apply(this,arguments);
-      ace3622RenderMergedEvolvedClub();
+      const activeBefore=(typeof vdsUltimateHubActive!=="undefined")?vdsUltimateHubActive:null;
+      const bypassClub=activeBefore==="club";
+
+      /* Skip the expensive legacy Club card paint. The base function still
+         updates wallet/rewards/counts/controls, then the optimised evolved
+         collection is painted once below. */
+      if(bypassClub){
+        try{vdsUltimateHubActive="__ace_club_render_bypass__";}catch(_){}
+      }
+
+      let result;
+      try{
+        result=baseRenderUltimateTeam.apply(this,arguments);
+      }finally{
+        if(bypassClub){
+          try{vdsUltimateHubActive=activeBefore;}catch(_){}
+        }
+      }
+
+      if(bypassClub)ace3622RenderMergedEvolvedClub();
       return result;
     };
   }
@@ -50664,6 +50728,105 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.24 — EVOLUTION DECLUTTER + STAT DELTAS -->
+
+
+<!-- ACE B21.36.25 — PLAYER PROFILE GRID REPAIR + UT PERFORMANCE -->
+<style id="ace-b21-36-25-profile-grid-repair">
+@media(min-width:901px){
+  /* Evolution became the first child of .ace29ProfileInfo, so the previous
+     nth-child grid rules were shifted by one. Explicit rows keep Playstyles
+     paired with Core Ratings instead of auto-flowing over Full Attributes. */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto minmax(0,1fr)!important;
+    align-content:stretch!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .aceEvo2ProfilePanel{
+    grid-column:1!important;
+    grid-row:1!important;
+    min-width:0!important;
+    margin-top:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    grid-column:2!important;
+    grid-row:1!important;
+    min-width:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(3){
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+    min-width:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfileTwo{
+    grid-column:1 / -1!important;
+    grid-row:3!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    align-items:stretch!important;
+    min-width:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfileTwo > .ace29ProfilePanel{
+    min-width:0!important;
+    height:auto!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace361AttributesPanel{
+    grid-column:1 / -1!important;
+    grid-row:4!important;
+    min-width:0!important;
+    min-height:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyles{
+    position:static!important;
+    width:auto!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+}
+
+/* Short laptops need slightly tighter profile rows, but should retain the
+   same ordering rather than letting CSS auto-placement move Playstyles. */
+@media(min-width:901px) and (max-height:900px){
+  #vdsCardShowcaseOverlay .ace29ProfileInfo{
+    gap:8px!important;
+  }
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel,
+  #vdsCardShowcaseOverlay .ace29ProfilePanel{
+    padding-top:11px!important;
+    padding-bottom:11px!important;
+  }
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    padding-top:7px!important;
+    padding-bottom:7px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-25-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.25";
+  window.ACE_UT_CLUB_SINGLE_PASS_RENDER=true;
+  window.ACE_UT_CLUB_LINEAR_EVOLUTION_GROUPING=true;
+  window.ACE_UT_CLUB_BATCH_SIZE={desktop:8,mobile:4};
+  window.ACE_PROFILE_PLAYSTYLE_GRID_REPAIRED=true;
+})();
+</script>
+<!-- /ACE B21.36.25 — PLAYER PROFILE GRID REPAIR + UT PERFORMANCE -->
 
 </body>
 </html>
