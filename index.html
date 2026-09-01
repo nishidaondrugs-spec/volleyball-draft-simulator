@@ -50950,6 +50950,658 @@ body.aceEvo2Open{overflow:hidden}
 </script>
 <!-- /ACE B21.36.26 — ULTIMATE TEAM LAG HOTFIX -->
 
+
+<!-- ACE B21.36.27 — SINGLE-SCREEN PLAYER PROFILE -->
+<style id="ace-b21-36-27-single-screen-profile-style">
+/* =========================================================
+   DESKTOP PLAYER PROFILE
+   One-screen dashboard: no redundant Evolution explanation,
+   no profile scrolling, all ratings/attributes visible.
+   ========================================================= */
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay{
+    padding:6px!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet{
+    width:min(1780px,99vw)!important;
+    max-width:1780px!important;
+    height:calc(100dvh - 12px)!important;
+    max-height:calc(100dvh - 12px)!important;
+    overflow:hidden!important;
+    border-radius:18px!important;
+  }
+
+  #vdsCardShowcaseOverlay #vdsCardShowcaseContent,
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    padding:14px 18px!important;
+  }
+
+  /* Header: name + badges only. The description was wasting a full line. */
+  #vdsCardShowcaseOverlay .ace29ProfileTop{
+    min-height:58px!important;
+    max-height:58px!important;
+    padding:0 58px 8px 0!important;
+    gap:14px!important;
+    align-items:center!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileKicker{
+    font-size:6.5px!important;
+    margin:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop h2{
+    margin:2px 0 0!important;
+    font-size:35px!important;
+    line-height:.96!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop p{
+    display:none!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileBadges{
+    gap:6px!important;
+    align-self:center!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileBadge{
+    padding:6px 8px!important;
+    font-size:5.8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    grid-template-columns:400px minmax(0,1fr)!important;
+    gap:14px!important;
+    height:calc(100% - 62px)!important;
+    min-height:0!important;
+    margin-top:4px!important;
+    overflow:hidden!important;
+  }
+
+  /* Left side card */
+  #vdsCardShowcaseOverlay .ace29ProfileCardColumn{
+    min-height:0!important;
+    height:100%!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage{
+    height:calc(100% - 98px)!important;
+    min-height:0!important;
+    padding:8px!important;
+    border-radius:16px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:min(315px,100%)!important;
+    min-width:0!important;
+    transform:none!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileActions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:6px!important;
+    height:86px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileActions button{
+    min-height:38px!important;
+    height:38px!important;
+    padding:0 8px!important;
+    font-size:6.5px!important;
+  }
+
+  /* Right side explicit compact rows */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo{
+    min-height:0!important;
+    height:100%!important;
+    overflow:hidden!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    grid-template-rows:118px 98px 130px minmax(0,1fr)!important;
+    gap:8px!important;
+    align-content:stretch!important;
+  }
+
+  /* Evolution + Identity */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .aceEvo2ProfilePanel{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    grid-column:2!important;
+    grid-row:1!important;
+  }
+
+  /* Effective positions */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(3){
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+  }
+
+  /* Core + Playstyles */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfileTwo{
+    grid-column:1 / -1!important;
+    grid-row:3!important;
+  }
+
+  /* Full attributes */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace361AttributesPanel{
+    grid-column:1 / -1!important;
+    grid-row:4!important;
+    min-height:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfilePanel,
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel{
+    min-height:0!important;
+    height:100%!important;
+    padding:10px 12px!important;
+    border-radius:13px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfilePanel h3{
+    margin:0 0 5px!important;
+    font-size:7px!important;
+  }
+
+  /* ==========================
+     COMPACT EVOLUTION PANEL
+     ========================== */
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel{
+    margin:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead{
+    margin:0!important;
+    min-height:14px!important;
+    align-items:center!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead strong{
+    font-size:8px!important;
+    letter-spacing:.08em!important;
+  }
+
+  /* Remove repeated explanation / "next stays elite" messaging. */
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead > div:first-child > span,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead > div:last-child,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHint,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileBtn.secondary{
+    display:none!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileMiniRow{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat{
+    min-height:44px!important;
+    padding:7px 8px!important;
+    border-radius:10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat span{
+    font-size:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat b{
+    margin-top:2px!important;
+    font-size:15px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat small{
+    margin-top:2px!important;
+    font-size:4.8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileActions{
+    margin-top:7px!important;
+    gap:0!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileBtn{
+    width:auto!important;
+    min-height:32px!important;
+    height:32px!important;
+    padding:0 12px!important;
+    border-radius:9px!important;
+    font-size:5.8px!important;
+    box-shadow:none!important;
+  }
+
+  /* Identity */
+  #vdsCardShowcaseOverlay .ace29ProfileMetrics{
+    gap:6px!important;
+    margin-top:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric{
+    min-height:48px!important;
+    padding:7px 8px!important;
+    border-radius:10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric span{
+    font-size:5.8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b,
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b[style]{
+    margin-top:3px!important;
+    font-size:17px!important;
+    line-height:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace3622Hint{
+    margin-top:5px!important;
+    font-size:6px!important;
+    line-height:1.25!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* Effective positions */
+  #vdsCardShowcaseOverlay .ace29PositionGrid{
+    gap:6px!important;
+    margin-top:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid > div{
+    min-height:58px!important;
+    padding:6px 5px!important;
+    border-radius:10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid span{
+    font-size:5.7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid b{
+    margin-top:3px!important;
+    font-size:18px!important;
+    line-height:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid small{
+    margin-top:2px!important;
+    font-size:4.6px!important;
+  }
+
+  /* Core + Playstyles */
+  #vdsCardShowcaseOverlay .ace29ProfileTwo{
+    display:grid!important;
+    grid-template-columns:40% minmax(0,60%)!important;
+    gap:8px!important;
+    min-height:0!important;
+    height:100%!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo > .ace29ProfilePanel{
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo .ace29ProfileMetrics{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+
+  /* Playstyles all in one row rather than three tall stacked cards. */
+  #vdsCardShowcaseOverlay .ace29Playstyles{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:5px!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    display:grid!important;
+    grid-template-columns:26px minmax(0,1fr)!important;
+    gap:6px!important;
+    align-items:start!important;
+    min-width:0!important;
+    height:82px!important;
+    padding:7px!important;
+    border-radius:10px!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PlaystyleIcon{
+    width:26px!important;
+    height:26px!important;
+    font-size:13px!important;
+    border-radius:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle b{
+    font-size:7.2px!important;
+    line-height:1.05!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle p{
+    display:-webkit-box!important;
+    -webkit-line-clamp:3!important;
+    -webkit-box-orient:vertical!important;
+    overflow:hidden!important;
+    margin-top:3px!important;
+    font-size:5.8px!important;
+    line-height:1.2!important;
+  }
+
+  /* ==========================
+     FULL ATTRIBUTES — FIT ALL
+     ========================== */
+  #vdsCardShowcaseOverlay .ace361AttributesPanel{
+    padding:8px 10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:4px!important;
+    height:calc(100% - 17px)!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroup{
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    border-radius:9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroupHead{
+    padding:5px 7px!important;
+    font-size:6.3px!important;
+    line-height:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow{
+    min-height:0!important;
+    padding:4px 7px!important;
+    font-size:6.2px!important;
+    line-height:1.05!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow b{
+    font-size:7.2px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace3634Delta{
+    font-size:.75em!important;
+  }
+}
+
+/* Short laptop screens: shrink card/header slightly before ever allowing
+   scrolling. This still keeps every desktop stat visible. */
+@media(min-width:901px) and (max-height:780px){
+  #vdsCardShowcaseOverlay .ace29ProfileTop{
+    min-height:50px!important;
+    max-height:50px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop h2{
+    font-size:30px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    grid-template-columns:350px minmax(0,1fr)!important;
+    height:calc(100% - 54px)!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo{
+    grid-template-rows:108px 88px 116px minmax(0,1fr)!important;
+    gap:6px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:270px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    height:70px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle p{
+    -webkit-line-clamp:2!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow{
+    padding:3px 6px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-27-single-screen-profile-script">
+(function(){
+  "use strict";
+
+  function simplifyEvolutionCopy(){
+    const root=document.querySelector("#vdsCardShowcaseOverlay.show .ace29ProfileInner");
+    if(!root)return;
+
+    const evo=root.querySelector(".aceEvo2ProfilePanel");
+    if(!evo)return;
+
+    const mainButton=evo.querySelector(".aceEvo2ProfileBtn:not(.secondary)");
+    if(mainButton){
+      const text=String(mainButton.textContent||"").trim();
+      const need=text.match(/NEED\s+(\d+)\s+MORE/i);
+      const ready=text.match(/USE\s+(\d+)\s+DUPES?/i);
+
+      if(need){
+        mainButton.textContent=`EVOLVE · NEED ${need[1]} MORE`;
+      }else if(ready){
+        mainButton.textContent=`EVOLVE NOW · ${ready[1]} DUPES`;
+      }else if(/REACHED 89/i.test(text)){
+        mainButton.textContent="MAX · 89 OVR";
+      }else if(/ACE/i.test(text)){
+        mainButton.textContent="ACE · MAX";
+      }
+    }
+  }
+
+  if(typeof window.ace29OpenPlayerProfile==="function" && !window.ace29OpenPlayerProfile.__ace3627Wrapped){
+    const base=window.ace29OpenPlayerProfile;
+    const wrapped=function(name){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>requestAnimationFrame(simplifyEvolutionCopy));
+      return result;
+    };
+    wrapped.__ace3627Wrapped=true;
+    window.ace29OpenPlayerProfile=wrapped;
+    try{ace29OpenPlayerProfile=wrapped;}catch(_){}
+    if(typeof window.openVdsCardShowcase==="function"){
+      window.openVdsCardShowcase=wrapped;
+      try{openVdsCardShowcase=wrapped;}catch(_){}
+    }
+  }
+
+  window.ACE_PROJECT_BUILD="B21.36.27";
+  window.ACE_PLAYER_PROFILE_SINGLE_SCREEN_DESKTOP=true;
+  window.ACE_EVOLUTION_PROFILE_EXPLANATION_REDUCED=true;
+  window.ACE_PROFILE_ALL_ATTRIBUTES_VISIBLE=true;
+  window.ACE_PROFILE_PLAYSTYLES_COMPACT_ROW=true;
+})();
+</script>
+<!-- /ACE B21.36.27 — SINGLE-SCREEN PLAYER PROFILE -->
+
+
+<!-- ACE B21.36.28 — CLEAN PROFILE COPY -->
+<style id="ace-b21-36-28-clean-profile-copy-style">
+@media(min-width:901px){
+  /* Remove secondary copy that repeats what the numbers already show. */
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead > div:first-child > span,
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat small,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHint,
+  #vdsCardShowcaseOverlay .ace3622Hint{
+    display:none!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfilePanel h3{
+    letter-spacing:.11em!important;
+  }
+
+  /* Playstyles: name + one concise line only. */
+  #vdsCardShowcaseOverlay .ace29Playstyle p{
+    -webkit-line-clamp:1!important;
+    line-clamp:1!important;
+    white-space:normal!important;
+  }
+
+  /* Buttons should read like actions, not sentences. */
+  #vdsCardShowcaseOverlay .ace29ProfileActions button,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileBtn{
+    letter-spacing:.08em!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-28-clean-profile-copy-script">
+(function(){
+  "use strict";
+
+  const q=(s,r=document)=>{try{return r.querySelector(s)}catch(_){return null}};
+  const qa=(s,r=document)=>{try{return Array.from(r.querySelectorAll(s))}catch(_){return []}};
+
+  function cleanProfileCopy(){
+    const root=q("#vdsCardShowcaseOverlay.show .ace29ProfileInner");
+    if(!root)return;
+
+    /* Header */
+    const kicker=q(".ace29ProfileKicker",root);
+    if(kicker)kicker.textContent="PLAYER PROFILE";
+
+    /* Compact top badges */
+    qa(".ace29ProfileBadge",root).forEach(badge=>{
+      const t=String(badge.textContent||"").trim();
+      if(/LIVE IN ULTIMATE TEAM/i.test(t))badge.textContent="UT ✓";
+      else if(/^OWNED/i.test(t)){
+        const m=t.match(/×\s*(\d+)/i);
+        badge.textContent=m?`OWNED ×${m[1]}`:"OWNED";
+      }
+    });
+
+    /* Section titles */
+    qa(".ace29ProfilePanel h3",root).forEach(h=>{
+      const t=String(h.textContent||"").trim().toUpperCase();
+      if(t==="PLAYER IDENTITY")h.textContent="PLAYER";
+      else if(t==="EFFECTIVE RATING BY POSITION")h.textContent="POSITION OVR";
+      else if(t==="CORE RATINGS")h.textContent="CORE";
+      else if(t==="FULL ATTRIBUTES")h.textContent="ATTRIBUTES";
+    });
+
+    /* Player identity labels */
+    qa(".ace29ProfileMetric",root).forEach(metric=>{
+      const label=q("span",metric);
+      if(!label)return;
+      const t=String(label.textContent||"").trim().toUpperCase();
+      if(t==="ALL RATING")label.textContent="OVR";
+      else if(t==="NATURAL POSITION")label.textContent="POS";
+      else if(t==="SERVE TYPE")label.textContent="SERVE";
+      else if(t==="UT STATUS")label.textContent="UT";
+    });
+
+    /* Evolution */
+    const evo=q(".aceEvo2ProfilePanel",root);
+    if(evo){
+      const title=q(".aceEvo2ProfileHead strong",evo);
+      if(title)title.textContent="EVOLUTION";
+
+      qa(".aceEvo2MiniStat",evo).forEach(stat=>{
+        const label=q("span",stat);
+        if(!label)return;
+        const t=String(label.textContent||"").trim().toUpperCase();
+        if(t==="CURRENT")label.textContent="OVR";
+        else if(t==="NEXT")label.textContent="NEXT";
+        else if(t==="DUPES")label.textContent="DUPES";
+        else if(t==="CAP")label.textContent="MAX";
+      });
+
+      const btn=q(".aceEvo2ProfileBtn:not(.secondary)",evo);
+      if(btn){
+        const t=String(btn.textContent||"").trim();
+        let m=t.match(/NEED\s+(\d+)\s+MORE/i);
+        if(m)btn.textContent=`EVOLVE · ${m[1]} MORE`;
+        else{
+          m=t.match(/(\d+)\s+DUPES?/i);
+          if(m && /EVOLVE/i.test(t))btn.textContent=`EVOLVE · ${m[1]} DUPES`;
+          else if(/REACHED 89|MAX/i.test(t))btn.textContent="MAX · 89";
+          else if(/ACE/i.test(t))btn.textContent="ACE · MAX";
+        }
+      }
+    }
+
+    /* Action buttons */
+    qa(".ace29ProfileActions button",root).forEach(btn=>{
+      const t=String(btn.textContent||"").trim().toUpperCase();
+      if(t.startsWith("EVOLUTION ")){
+        const m=t.match(/(\d+)\s*→\s*(\d+)/);
+        btn.textContent=m?`EVOLVE ${m[1]}→${m[2]}`:"EVOLVE";
+      }else if(t==="SHARE CARD")btn.textContent="SHARE";
+      else if(t==="ADD TO SQUAD")btn.textContent="SQUAD";
+      else if(t==="EDIT PLAYER")btn.textContent="EDIT";
+      else if(t==="VIEW CARD")btn.textContent="VIEW";
+    });
+
+    /* Fake Set copy */
+    qa(".ace29Playstyle",root).forEach(item=>{
+      const title=q("b",item)?.textContent?.trim().toUpperCase();
+      const p=q("p",item);
+      if(title==="FAKE SET" && p){
+        p.textContent=String(p.textContent||"")
+          .replace(/Automatic ability\s*·\s*/i,"AUTO · ")
+          .replace(/Set Technique/gi,"STQ")
+          .replace(/Set Creativity/gi,"SCR")
+          .replace(/Reaction(?: Time)?/gi,"REA");
+      }
+    });
+  }
+
+  if(typeof window.ace29OpenPlayerProfile==="function" && !window.ace29OpenPlayerProfile.__ace3628Wrapped){
+    const base=window.ace29OpenPlayerProfile;
+    const wrapped=function(name){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>requestAnimationFrame(cleanProfileCopy));
+      return result;
+    };
+    wrapped.__ace3628Wrapped=true;
+    window.ace29OpenPlayerProfile=wrapped;
+    try{ace29OpenPlayerProfile=wrapped;}catch(_){}
+    if(typeof window.openVdsCardShowcase==="function"){
+      window.openVdsCardShowcase=wrapped;
+      try{openVdsCardShowcase=wrapped;}catch(_){}
+    }
+  }
+
+  window.ACE_PROJECT_BUILD="B21.36.28";
+  window.ACE_PROFILE_COPY_DECLUTTER=true;
+  window.ACE_PROFILE_NUMBERS_FIRST=true;
+})();
+</script>
+<!-- /ACE B21.36.28 — CLEAN PROFILE COPY -->
+
 </body>
 </html>
 
