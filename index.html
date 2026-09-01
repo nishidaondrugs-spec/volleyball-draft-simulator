@@ -9313,7 +9313,7 @@ function cardTier(p){
 
 function aceFakeSetEligibility(p){
   if(!p || typeof p!=="object"){
-    return {eligible:false,position:"",setTechnique:0,setCreativity:0,reaction:0,average:0};
+    return {eligible:false,position:"",setTechnique:0,setCreativity:0,reaction:0,average:0,baseEligible:false};
   }
 
   const position=String(p.position||"").toUpperCase();
@@ -9334,14 +9334,34 @@ function aceFakeSetEligibility(p){
   const reaction=Math.max(0,Math.min(100,Number(p.reactionTime??p.reaction_time??0)||0));
   const average=(setTechnique+setCreativity+reaction)/3;
 
-  const eligible=
+  const currentThresholdEligible=
     (position==="OH" || position==="S") &&
     setTechnique>=72 &&
     setCreativity>=76 &&
     reaction>=70 &&
     average>=75;
 
-  return {eligible,position,setTechnique,setCreativity,reaction,average};
+  /*
+    B21.36.36 — Fake Set is innate.
+    Evolution can improve the quality of Fake Set for a player who already
+    owned it, but cannot unlock the ability on a player who failed the
+    requirements at their original/base stats.
+  */
+  const hasLockedBaseFlag=typeof p.__aceBaseFakeSetEligible==="boolean";
+  const eligible=hasLockedBaseFlag
+    ? p.__aceBaseFakeSetEligible===true
+    : currentThresholdEligible;
+
+  return {
+    eligible,
+    position,
+    setTechnique,
+    setCreativity,
+    reaction,
+    average,
+    baseEligible:hasLockedBaseFlag?p.__aceBaseFakeSetEligible:currentThresholdEligible,
+    currentThresholdEligible
+  };
 }
 
 function aceHasFakeSetAbility(p){
@@ -9355,7 +9375,7 @@ function aceDerivedAbilities(p){
       id:"fake_set",
       name:"Fake Set",
       icon:"🎭",
-      desc:"Can disguise a controlled second contact as a set and occasionally attack the second ball when legal.",
+      desc:"Disguises the second contact: setters can attack instead of setting, while back-row OHs can show attack before setting to a front-row teammate.",
       derived:true
     });
   }
@@ -42452,8 +42472,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
 
   function fakeSetAbilityView(p){
     if(!aceHasFakeSetAbility(p))return "";
-    const info=aceFakeSetEligibility(p);
-    return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">🎭</div><div><b>FAKE SET</b><p>Automatic ability · STQ ${Math.round(info.setTechnique)} · SCR ${Math.round(info.setCreativity)} · REA ${Math.round(info.reaction)}</p></div></div>`;
+    return `<div class="ace29Playstyle"><div class="ace29PlaystyleIcon">🎭</div><div><b>Fake Set</b><p>Disguises the second contact: setters can attack instead of setting, while back-row OHs can show attack before setting to a front-row teammate.</p></div></div>`;
   }
 
   function statGroup(title,rating,rows){
@@ -48717,7 +48736,19 @@ body.ace34ShareOpen{
   function evoBoostedPlayer(player,steps){
     const boost=Math.max(0,Math.floor(Number(steps)||0));
     if(!player||!boost)return player;
-    const p={...player,tendencies:{...(player.tendencies||{})}};
+
+    // Lock Fake Set from the un-evolved player before any Evolution stat boost.
+    // A non-eligible base player can never gain Fake Set through Evolution.
+    const baseFakeSetInfo=typeof aceFakeSetEligibility==="function"
+      ? aceFakeSetEligibility(player)
+      : {eligible:false};
+
+    const p={
+      ...player,
+      tendencies:{...(player.tendencies||{})},
+      __aceBaseFakeSetEligible:baseFakeSetInfo.eligible===true
+    };
+
     const keys=[
       "accuracy","hittingPower","creativity","serveReceive","positioning",
       "covering","workRate","vertical","speed","reactionTime","service",
@@ -48876,7 +48907,7 @@ body.ace34ShareOpen{
         <div class="aceEvolutionInfo">
           <small>${steps?`EVOLUTION LEVEL +${steps}`:"EVOLUTION"}</small>
           <h2>${esc(card.playerName||player?.name||"PLAYER")}</h2>
-          <p>Use exact duplicates to increase OVR. Max 89.</p>
+          <p>Spend exact duplicates for +1 OVR. Max 89.</p>
           <div class="aceEvolutionRatings">
             <div class="aceEvolutionRatingBox"><span>CURRENT</span><b>${s.current}</b><small>${esc(tierLabel(currentTier))}</small></div>
             <div class="aceEvolutionArrow">→</div>
@@ -49489,10 +49520,10 @@ body.aceEvo2Open{overflow:hidden}
       </div>
 
       <div class="aceEvo2ProfileMiniRow">
-        <div class="aceEvo2MiniStat"><span>CURRENT</span><b>${status.current}</b><small>${currentTier}</small></div>
-        <div class="aceEvo2MiniStat"><span>NEXT</span><b>${next}</b><small>${nextTier}</small></div>
-        <div class="aceEvo2MiniStat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${status.required}`}</b><small>${status.ready ? "READY" : "DUPES"}</small></div>
-        <div class="aceEvo2MiniStat"><span>CAP</span><b>${status.ace ? status.current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
+        <div class="aceEvo2MiniStat current"><span>CURRENT</span><b>${status.current}</b><small>${currentTier}</small></div>
+        <div class="aceEvo2MiniStat next"><span>NEXT</span><b>${next}</b><small>${nextTier}</small></div>
+        <div class="aceEvo2MiniStat dupes ${status.ready?"ready":"not-ready"}"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${status.required}`}</b><small>${status.ready ? "READY" : "DUPES"}</small></div>
+        <div class="aceEvo2MiniStat cap"><span>CAP</span><b>${status.ace ? status.current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
       </div>
 
       <div class="aceEvo2ProfileActions">
@@ -49606,8 +49637,8 @@ body.aceEvo2Open{overflow:hidden}
       : status.maxed
         ? "Max OVR reached."
         : ready
-          ? `${required} dupe${required===1?"":"s"} required.`
-          : `${status.available}/${required} dupes · need ${Math.max(0,required-status.available)} more.`;
+          ? `READY · COST ${required} DUPE${required===1?"":"S"}`
+          : `NEED ${Math.max(0,required-status.available)} MORE DUPE${Math.max(0,required-status.available)===1?"":"S"}`;
 
     body.dataset.playerId=String(playerId);
     body.innerHTML = `
@@ -49622,24 +49653,24 @@ body.aceEvo2Open{overflow:hidden}
         <div class="aceEvo2Summary">
           <small>EVOLUTION</small>
           <h2>${esc(card.playerName||player.name||"PLAYER")}</h2>
-          <p>Use exact duplicates to increase OVR. Max 89.</p>
+          <p>Spend exact duplicates for +1 OVR. Max 89.</p>
 
           <div class="aceEvo2Progress">
-            <div class="aceEvo2ProgressBox"><span>CURRENT</span><b>${current}</b><em>${currentTier}</em></div>
+            <div class="aceEvo2ProgressBox current"><span>CURRENT</span><b>${current}</b><em>${currentTier}</em></div>
             <div class="aceEvo2ProgressArrow">→</div>
-            <div class="aceEvo2ProgressBox"><span>${status.ace || status.maxed ? "MAX" : "NEXT"}</span><b>${next}</b><em>${nextTier}</em></div>
+            <div class="aceEvo2ProgressBox next"><span>${status.ace || status.maxed ? "MAX" : "NEXT"}</span><b>${next}</b><em>${nextTier}</em></div>
           </div>
 
           <div class="aceEvo2TierTrack">${renderTierTrack(current,next)}</div>
 
           <div class="aceEvo2StatusGrid">
-            <div class="aceEvo2Stat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${required}`}</b><small>${ready ? "READY" : "EXACT DUPES"}</small></div>
-            <div class="aceEvo2Stat"><span>MAX OVR</span><b>${status.ace ? current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
-            <div class="aceEvo2Stat"><span>NEXT RANK</span><b>${rankUp ? "YES" : "NO"}</b><small>${rankUp ? `${currentTier} → ${nextTier}` : `STAYS ${currentTier}`}</small></div>
-            <div class="aceEvo2Stat"><span>COST</span><b>${status.ace || status.maxed ? "—" : required}</b><small>${status.ace || status.maxed ? "—" : "DUPES"}</small></div>
+            <div class="aceEvo2Stat dupes ${ready?"ready":"not-ready"}"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${required}`}</b><small>${ready ? "READY" : "EXACT DUPES"}</small></div>
+            <div class="aceEvo2Stat cap"><span>MAX OVR</span><b>${status.ace ? current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
+            <div class="aceEvo2Stat rank"><span>NEXT RANK</span><b>${rankUp ? "YES" : "NO"}</b><small>${rankUp ? `${currentTier} → ${nextTier}` : `STAYS ${currentTier}`}</small></div>
+            <div class="aceEvo2Stat cost"><span>COST</span><b>${status.ace || status.maxed ? "—" : required}</b><small>${status.ace || status.maxed ? "—" : "DUPES"}</small></div>
           </div>
 
-          <div class="aceEvo2Message">${msg}</div>
+          <div class="aceEvo2Message ${status.ace || status.maxed ? "maxed" : ready ? "ready" : "not-ready"}">${msg}</div>
         </div>
       </div>
 
@@ -52426,6 +52457,110 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.34 — REMOVE SIMULATION TEST LAB -->
+
+
+<!-- ACE B21.36.35 — EVOLUTION COLOUR GUIDE -->
+<style id="ace-b21-36-35-evolution-colour-guide">
+#aceEvo2Modal .aceEvo2Summary p{color:#d2c7df}
+#aceEvo2Modal .aceEvo2ProgressBox.current,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.current{
+  border-color:rgba(188,136,255,.34)!important;
+  background:linear-gradient(135deg,rgba(92,48,162,.26),rgba(26,19,42,.95))!important;
+}
+#aceEvo2Modal .aceEvo2ProgressBox.next,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.next{
+  border-color:rgba(118,179,255,.28)!important;
+  background:linear-gradient(135deg,rgba(34,74,144,.24),rgba(17,25,43,.95))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.dupes.ready,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.dupes.ready{
+  border-color:rgba(102,224,144,.28)!important;
+  background:linear-gradient(135deg,rgba(23,95,49,.26),rgba(13,26,20,.96))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.dupes.not-ready,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.dupes.not-ready{
+  border-color:rgba(255,184,92,.30)!important;
+  background:linear-gradient(135deg,rgba(113,69,16,.26),rgba(28,20,12,.96))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.cap,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.cap{
+  border-color:rgba(255,214,112,.28)!important;
+  background:linear-gradient(135deg,rgba(120,88,18,.24),rgba(30,24,12,.96))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.rank{
+  border-color:rgba(177,141,255,.28)!important;
+  background:linear-gradient(135deg,rgba(76,51,129,.23),rgba(21,17,35,.96))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.cost{
+  border-color:rgba(122,202,255,.24)!important;
+  background:linear-gradient(135deg,rgba(24,73,104,.22),rgba(14,21,31,.96))!important;
+}
+#aceEvo2Modal .aceEvo2Stat.dupes.ready b,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.dupes.ready b{color:#8af4aa!important}
+#aceEvo2Modal .aceEvo2Stat.dupes.not-ready b,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.dupes.not-ready b{color:#ffd48e!important}
+#aceEvo2Modal .aceEvo2Stat.cap b,
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.cap b{color:#ffe49f!important}
+#aceEvo2Modal .aceEvo2Stat.cost b{color:#a7ddff!important}
+#aceEvo2Modal .aceEvo2Stat.rank b{color:#dec2ff!important}
+#aceEvo2Modal .aceEvo2Message.ready{
+  border-color:rgba(102,224,144,.24)!important;
+  background:rgba(22,81,44,.24)!important;color:#d3f8de!important
+}
+#aceEvo2Modal .aceEvo2Message.not-ready{
+  border-color:rgba(255,184,92,.22)!important;
+  background:rgba(86,57,19,.22)!important;color:#ffe1ad!important
+}
+#aceEvo2Modal .aceEvo2Message.maxed{
+  border-color:rgba(160,155,172,.18)!important;
+  background:rgba(33,35,42,.72)!important;color:#d8d3e0!important
+}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(1){border-color:rgba(171,115,72,.25);background:rgba(75,44,28,.28);color:#d7b39a}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(2){border-color:rgba(165,173,193,.24);background:rgba(58,63,76,.28);color:#d8deeb}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(3){border-color:rgba(255,208,98,.25);background:rgba(98,74,16,.30);color:#ffe08e}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(4){border-color:rgba(255,221,112,.28);background:rgba(124,96,16,.32);color:#ffebb3}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(5){border-color:rgba(198,141,255,.30);background:rgba(89,47,145,.30);color:#ebd7ff}
+#aceEvo2Modal .aceEvo2TierTrack span:nth-child(6){border-color:rgba(141,204,255,.28);background:rgba(30,79,116,.28);color:#ccefff}
+#aceEvo2Modal .aceEvo2TierTrack span.active{box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 20px rgba(144,107,214,.18)}
+#aceEvo2Modal .aceEvo2CurveGrid div:nth-child(1){border-color:rgba(102,224,144,.20);background:rgba(18,74,37,.26)}
+#aceEvo2Modal .aceEvo2CurveGrid div:nth-child(2){border-color:rgba(122,202,255,.18);background:rgba(20,57,92,.23)}
+#aceEvo2Modal .aceEvo2CurveGrid div:nth-child(3){border-color:rgba(255,208,98,.18);background:rgba(88,66,18,.23)}
+#aceEvo2Modal .aceEvo2CurveGrid div:nth-child(4){border-color:rgba(255,154,90,.18);background:rgba(91,44,19,.24)}
+#aceEvo2Modal .aceEvo2CurveGrid div:nth-child(5){border-color:rgba(198,141,255,.18);background:rgba(67,37,103,.25)}
+#aceEvo2Modal .aceEvo2ResultFlow .aceEvo2ResultCell:first-child{background:#11151d;border-color:rgba(255,255,255,.05)}
+#aceEvo2Modal .aceEvo2ResultFlow .aceEvo2ResultCell:last-child{background:linear-gradient(135deg,rgba(24,92,50,.28),rgba(13,22,19,.96));border-color:rgba(102,224,144,.18)}
+#aceEvo2Modal .aceEvo2ResultRank{background:rgba(102,224,144,.12);border-color:rgba(102,224,144,.18);color:#bff2cd}
+#aceEvo2Modal .aceEvo2ActionBtn.primary:not(:disabled){box-shadow:0 10px 24px rgba(115,70,195,.24)}
+#aceEvo2Modal .aceEvo2ActionBtn.primary:disabled{opacity:.55}
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.current b{color:#ead8ff!important}
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.next b{color:#c8e4ff!important}
+#vdsCardShowcaseOverlay .aceEvo2MiniStat.cap b{color:#ffe49f!important}
+</style>
+<!-- /ACE B21.36.35 — EVOLUTION COLOUR GUIDE -->
+
+<!-- ACE B21.36.35 — EVOLUTION COLOUR GUIDE SCRIPT -->
+<script id="ace-b21-36-35-evolution-colour-guide-script">
+(function(){
+  try{
+    window.ACE_PROJECT_BUILD="B21.36.35";
+    window.ACE_EVOLUTION_COLOUR_GUIDE=true;
+  }catch(_){ }
+})();
+</script>
+<!-- /ACE B21.36.35 — EVOLUTION COLOUR GUIDE SCRIPT -->
+
+
+<!-- ACE B21.36.36 — INNATE FAKE SET -->
+<script id="ace-b21-36-36-innate-fake-set-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.36";
+  window.ACE_FAKE_SET_INNATE_FROM_BASE_STATS=true;
+  window.ACE_EVOLUTION_CANNOT_UNLOCK_FAKE_SET=true;
+  window.ACE_EVOLUTION_CAN_IMPROVE_EXISTING_FAKE_SET=true;
+  window.ACE_FAKE_SET_VIEW_TITLE="Fake Set";
+})();
+</script>
+<!-- /ACE B21.36.36 — INNATE FAKE SET -->
 
 </body>
 </html>
