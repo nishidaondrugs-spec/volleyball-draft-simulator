@@ -24677,7 +24677,7 @@ let aceClubSearchTimer=0;
 function aceClubBatchSize(){
   // B21.36.25: complete collectible cards are expensive DOM nodes.
   // Keep the first paint light and append more only as the user approaches them.
-  return window.matchMedia?.("(max-width:760px)")?.matches?4:8;
+  return window.matchMedia?.("(max-width:760px)")?.matches?3:6;
 }
 
 function aceClubCardMarkup(entry){
@@ -36482,23 +36482,36 @@ body.aceQuickSellOpen{overflow:hidden!important}
 
   /* ---------- My Club flags enhancer ---------- */
   function aceEnhanceClubCards(){
+    const cards=ultimateTeamState.cards||[];
+    if(!cards.length)return;
+
+    const stateByGroup=new Map();
+    cards.forEach(card=>{
+      const key=`${Number(card.playerId||0)}|${String(card.rarity||"")}`;
+      let state=stateByGroup.get(key);
+      if(!state){
+        state={favorite:false,locked:false};
+        stateByGroup.set(key,state);
+      }
+      if(card.favorite===true)state.favorite=true;
+      if(card.locked===true || card.source==="starter")state.locked=true;
+    });
+
     $$('#utCollection .aceClubCard').forEach(article=>{
       const uid=article.dataset.clubCardUid;
-      const card=(ultimateTeamState.cards||[]).find(c=>String(utCardUid(c))===String(uid));
+      const card=cards.find(c=>String(utCardUid(c))===String(uid));
       if(!card)return;
-      const group=aceGroupCards(card);
-      const flags=article.querySelector('.aceClubCardFlags');
-      if(flags){
-        flags.querySelectorAll('.aceQOLFlag').forEach(x=>x.remove());
-        if(group.some(c=>c.favorite))flags.insertAdjacentHTML('beforeend','<span class="aceQOLFlag favourite">★</span>');
-        if(group.some(c=>c.locked)||card.source==='starter')flags.insertAdjacentHTML('beforeend','<span class="aceQOLFlag locked">🔒</span>');
-      }
-      article.classList.toggle('is-favourite',group.some(c=>c.favorite));
-      article.classList.toggle('is-locked',group.some(c=>c.locked)||card.source==='starter');
+      const state=stateByGroup.get(`${Number(card.playerId||0)}|${String(card.rarity||"")}`)||{};
+      article.classList.toggle('is-favourite',state.favorite===true);
+      article.classList.toggle('is-locked',state.locked===true);
     });
   }
-  const clubObserver=new MutationObserver(()=>requestAnimationFrame(aceEnhanceClubCards));
-  const observeClub=()=>{const g=$('#utCollection');if(g){clubObserver.disconnect();clubObserver.observe(g,{childList:true,subtree:true});aceEnhanceClubCards();}};
+  /* B21.36.26: DO NOT observe My Club mutations.
+     The previous observer called aceEnhanceClubCards(), which removed and
+     re-added flag elements. Those DOM writes triggered the same observer
+     again and could create a near-continuous render loop on large clubs. */
+  const clubObserver={disconnect(){},observe(){}};
+  const observeClub=()=>{const g=$('#utCollection');if(g)aceEnhanceClubCards();};
   window.addEventListener('load',()=>setTimeout(observeClub,250));
 
   /* ---------- viewed + compare capture before old Club click handler ---------- */
@@ -48969,12 +48982,32 @@ body.ace34ShareOpen{
     try{
       if(!Array.isArray(ultimateTeamState?.cards))return false;
       let changed=false;
+
       ultimateTeamState.cards.forEach(card=>{
         if(!card?.playerId)return;
-        const before=Math.round(Number(card.rating||0));
+
+        const shown=Math.round(Number(card.rating||card.positionRating||0));
+        const base=Math.round(Number(card.baseRating||0));
+        const steps=evoStoredSteps(card);
+        const expected=base>0
+          ? (base>=90?base:Math.min(EVO_CAP,base+steps))
+          : null;
+
+        /* The cloud mapper already gives healthy cards the correct rating.
+           Only invoke the expensive master-player lookup for broken/stale
+           cards instead of every card on every UT render. */
+        const needsRepair=
+          shown<=0 ||
+          base<=0 ||
+          (expected!==null && shown!==expected);
+
+        if(!needsRepair)return;
+
+        const before=shown;
         evoApplyCardRating(card);
         if(Math.round(Number(card.rating||0))!==before)changed=true;
       });
+
       if(changed){
         try{vdsCacheUltimateTeam?.();}catch(_){}
       }
@@ -50827,6 +50860,95 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.25 — PLAYER PROFILE GRID REPAIR + UT PERFORMANCE -->
+
+
+<!-- ACE B21.36.26 — ULTIMATE TEAM LAG HOTFIX -->
+<style id="ace-b21-36-26-ut-lag-hotfix-style">
+/* The Club is a dense grid of complex cards. Paint only what is near the
+   viewport and isolate each card so one card cannot invalidate the grid. */
+#ultimate .vdsCollectionPanel .aceClubCard{
+  content-visibility:auto!important;
+  contain:layout paint style!important;
+  contain-intrinsic-size:300px 520px!important;
+}
+
+/* Filters, drop shadows, animated shines and hover transforms are expensive
+   across many cards. Keep card art static in My Club; pack reveals/profile
+   cards retain their richer effects. */
+#ultimate .vdsCollectionPanel .aceClubCard,
+#ultimate .vdsCollectionPanel .aceClubCard *,
+#ultimate .vdsCollectionPanel .aceClubCard *::before,
+#ultimate .vdsCollectionPanel .aceClubCard *::after{
+  animation:none!important;
+  transition:none!important;
+}
+
+#ultimate .vdsCollectionPanel .aceClubCard .fifaPlayerCard,
+#ultimate .vdsCollectionPanel .aceClubCard:hover .fifaPlayerCard,
+#ultimate .vdsCollectionPanel .aceClubCard.is-new .fifaPlayerCard{
+  transform:none!important;
+  filter:none!important;
+  will-change:auto!important;
+}
+
+#ultimate .vdsCollectionPanel .aceClubCard.compare-selected .aceClubCardView>.fifaPlayerCard{
+  filter:none!important;
+  box-shadow:0 0 0 2px rgba(167,104,255,.56)!important;
+}
+
+/* Static badges are much cheaper than observer-driven badge insertion. */
+.aceClubCardFlags .aceQOLFlag{
+  font-size:8px!important;
+  padding:4px 6px!important;
+}
+</style>
+
+<script id="ace-b21-36-26-ut-lag-hotfix-script">
+(function(){
+  "use strict";
+
+  /* Add favourite/lock markers during card HTML construction. No observer,
+     no remove/reinsert cycle, no self-triggering DOM mutations. */
+  if(typeof aceClubCardMarkup==="function" && !aceClubCardMarkup.__ace3626Wrapped){
+    const base=aceClubCardMarkup;
+    const wrapped=function(entry){
+      let markup=base.apply(this,arguments);
+      try{
+        const cards=Array.isArray(entry?.allCards)&&entry.allCards.length
+          ? entry.allCards
+          : [entry?.card].filter(Boolean);
+
+        const favourite=cards.some(card=>card?.favorite===true);
+        const locked=cards.some(card=>card?.locked===true || card?.source==="starter");
+
+        const extras=[
+          favourite?'<span class="aceQOLFlag favourite">★</span>':"",
+          locked?'<span class="aceQOLFlag locked">🔒</span>':""
+        ].join("");
+
+        if(extras){
+          markup=markup.replace(
+            '<div class="aceClubCardFlags">',
+            '<div class="aceClubCardFlags">'+extras
+          );
+        }
+      }catch(_){}
+      return markup;
+    };
+    wrapped.__ace3626Wrapped=true;
+    aceClubCardMarkup=wrapped;
+    try{window.aceClubCardMarkup=wrapped;}catch(_){}
+  }
+
+  window.ACE_PROJECT_BUILD="B21.36.26";
+  window.ACE_UT_CLUB_MUTATION_OBSERVER_REMOVED=true;
+  window.ACE_UT_CLUB_SELF_TRIGGER_LOOP_REMOVED=true;
+  window.ACE_UT_CLUB_CONTENT_VISIBILITY=true;
+  window.ACE_UT_CLUB_CARD_EFFECTS_DISABLED=true;
+  window.ACE_EVOLUTION_REPAIR_ONLY_WHEN_STALE=true;
+})();
+</script>
+<!-- /ACE B21.36.26 — ULTIMATE TEAM LAG HOTFIX -->
 
 </body>
 </html>
