@@ -7568,22 +7568,6 @@ body.aceEvolutionOpen{overflow:hidden}
 
 <section id="sim" class="page">
   <div class="grid simulationOnlyGrid">
-    <div class="card full simTestLab" id="simulationTestLab">
-      <details>
-        <summary>🧪 Simulation Test Lab <span class="badge">ACTUAL RALLY ENGINE</span></summary>
-        <div class="simTestIntro">
-          Test the real ACE match engine without waiting for animations. It uses the same serve, receive, setting, attack, block, defence, rotation, fatigue, tendencies and error logic as a normal live match. Test runs are local only and are not added to Match History.
-        </div>
-        <div class="simTestActions">
-          <button class="btn secondary" id="testRandomTeamsBtn" type="button">🎲 Load Random Test Teams</button>
-          <button class="btn primary" id="testRun1Btn" type="button">▶ Run 1 Full Match</button>
-          <button class="btn secondary" id="testRun10Btn" type="button">⚡ Run 10 Matches</button>
-          <button class="btn danger hidden" id="testStopBtn" type="button">■ Stop Test</button>
-        </div>
-        <div class="simTestStatus" id="simTestStatus">Use your current lineups, or load random test teams, then run a full match instantly.</div>
-        <div class="simTestResults" id="simTestResults"></div>
-      </details>
-    </div>
     <div class="card full hidden" id="liveMatchCard">
       <h2>Live Match</h2>
       <div class="liveArena">
@@ -24677,7 +24661,7 @@ let aceClubSearchTimer=0;
 function aceClubBatchSize(){
   // B21.36.25: complete collectible cards are expensive DOM nodes.
   // Keep the first paint light and append more only as the user approaches them.
-  return window.matchMedia?.("(max-width:760px)")?.matches?3:6;
+  return window.matchMedia?.("(max-width:760px)")?.matches?3:10;
 }
 
 function aceClubCardMarkup(entry){
@@ -52160,6 +52144,288 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.32 — UT PLAYER CARD SPACING POLISH -->
+
+
+<!-- ACE B21.36.33 — READABLE PROFILE + 10 CARD DESKTOP BATCH -->
+<style id="ace-b21-36-33-readable-profile">
+/*
+  Desktop profile readability pass.
+  Do not solve density by using 5–7px copy. Use the available PC width.
+*/
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet{
+    width:min(1840px,99vw)!important;
+    max-width:1840px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    grid-template-columns:390px minmax(0,1fr)!important;
+    gap:14px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:315px!important;
+    min-width:315px!important;
+    max-width:315px!important;
+  }
+
+  /* Header */
+  #vdsCardShowcaseOverlay .ace29ProfileKicker{
+    font-size:9px!important;
+    line-height:1.1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop h2{
+    font-size:38px!important;
+    line-height:.95!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileBadge{
+    font-size:8px!important;
+    padding:7px 10px!important;
+  }
+
+  /* Section headings */
+  #vdsCardShowcaseOverlay .ace29ProfilePanel h3,
+  #vdsCardShowcaseOverlay .aceEvo2ProfileHead strong{
+    font-size:10px!important;
+    line-height:1.1!important;
+    letter-spacing:.10em!important;
+  }
+
+  /* Evolution */
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel{
+    min-height:118px!important;
+    padding:11px 13px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileMiniRow{
+    gap:7px!important;
+    margin-top:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat{
+    min-height:50px!important;
+    padding:8px 9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat span{
+    font-size:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat b{
+    font-size:20px!important;
+    line-height:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileBtn{
+    min-height:35px!important;
+    height:35px!important;
+    padding:0 13px!important;
+    font-size:8px!important;
+  }
+
+  /* Player identity */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    min-height:118px!important;
+    padding:11px 13px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric{
+    min-height:54px!important;
+    padding:8px 9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric span{
+    font-size:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b,
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b[style]{
+    font-size:20px!important;
+    line-height:1.05!important;
+  }
+
+  /* Position OVR */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(3){
+    padding:10px 12px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid{
+    gap:7px!important;
+    margin-top:7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid > div{
+    min-height:62px!important;
+    padding:8px 7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid span{
+    font-size:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid b{
+    font-size:21px!important;
+    line-height:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid small{
+    font-size:7px!important;
+    margin-top:4px!important;
+  }
+
+  /* Core ratings */
+  #vdsCardShowcaseOverlay .ace29ProfileTwo{
+    grid-template-columns:42% minmax(0,58%)!important;
+    gap:9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo > .ace29ProfilePanel{
+    min-height:120px!important;
+    padding:10px 12px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo .ace29ProfileMetric{
+    min-height:58px!important;
+  }
+
+  /* Playstyles: readable, still one row */
+  #vdsCardShowcaseOverlay .ace29Playstyles{
+    gap:7px!important;
+    margin-top:7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    height:86px!important;
+    min-height:86px!important;
+    padding:9px!important;
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PlaystyleIcon{
+    width:32px!important;
+    height:32px!important;
+    font-size:17px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle b{
+    font-size:10px!important;
+    line-height:1.15!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle p{
+    font-size:8.5px!important;
+    line-height:1.3!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+    margin-top:5px!important;
+  }
+
+  /* Attributes: the biggest readability problem in the screenshot */
+  #vdsCardShowcaseOverlay .ace361AttributesPanel{
+    padding:10px 12px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody{
+    gap:8px!important;
+    margin-top:7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroupHead{
+    padding:7px 9px!important;
+    font-size:9px!important;
+    line-height:1.1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroupHead span{
+    font-size:9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroupHead b{
+    font-size:10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow{
+    min-height:25px!important;
+    padding:6px 9px!important;
+    font-size:9px!important;
+    line-height:1.15!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow span{
+    font-size:9px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow b{
+    font-size:10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace3634Delta{
+    font-size:8px!important;
+    margin-left:1px!important;
+  }
+
+  /* Left-side actions should also be readable */
+  #vdsCardShowcaseOverlay .ace29ProfileActions{
+    grid-auto-rows:43px!important;
+    gap:7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileActions button{
+    min-height:43px!important;
+    height:43px!important;
+    font-size:8px!important;
+  }
+}
+
+/*
+  Shorter laptop screens:
+  keep readable text instead of shrinking back to microscopic sizes.
+  Allow the modal itself to scroll if the user's viewport is genuinely too short.
+*/
+@media(min-width:901px) and (max-height:800px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet,
+  #vdsCardShowcaseOverlay #vdsCardShowcaseContent,
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    overflow-y:auto!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    overflow:visible!important;
+    grid-template-columns:350px minmax(0,1fr)!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:285px!important;
+    min-width:285px!important;
+    max-width:285px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-33-readable-profile-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.33";
+  window.ACE_PROFILE_READABILITY_PRIORITY=true;
+  window.ACE_PROFILE_MICRO_TEXT_REMOVED=true;
+  window.ACE_UT_DESKTOP_PLAYER_BATCH=10;
+  window.ACE_UT_MOBILE_PLAYER_BATCH=3;
+})();
+</script>
+<!-- /ACE B21.36.33 — READABLE PROFILE + 10 CARD DESKTOP BATCH -->
+
+
+<!-- ACE B21.36.34 — REMOVE SIMULATION TEST LAB -->
+<script id="ace-b21-36-34-remove-simulation-test-lab-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.34";
+  window.ACE_SIMULATION_TEST_LAB_VISIBLE=false;
+  window.ACE_NORMAL_MATCH_SIMULATION_PRESERVED=true;
+})();
+</script>
+<!-- /ACE B21.36.34 — REMOVE SIMULATION TEST LAB -->
 
 </body>
 </html>
