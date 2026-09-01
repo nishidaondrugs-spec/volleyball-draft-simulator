@@ -17383,7 +17383,7 @@ function renderLineupConfirmationState(){
     const main=planBtn.querySelector("b");
     const sub=planBtn.querySelector("small");
     if(main)main.textContent=ownReady?"🧠 EDIT LOCKED TACTICS":"🧠 SCOUT & GAME PLAN";
-    if(sub)sub.textContent=ownReady?"WITHDRAWS READY BEFORE EDITING":"OPTIONAL · SET YOUR OPENING TACTICS";
+    if(sub)sub.textContent=ownReady?"WITHDRAWS READY OLD EDITING":"OPTIONAL · SET YOUR OPENING TACTICS";
     planBtn.title=ownReady?"Reopen your locked tactics. Your READY state will be withdrawn first.":"Scout the opponent and set your opening game plan";
   }
 
@@ -26830,7 +26830,7 @@ vdsSyncGlobalNav();
 */
 
 /*
- BUILD B2.57 — SCOREBOARD AFTER RALLY
+ BUILD B2.57 — SCOREBOARD NEW RALLY
  - Multiplayer/local scoreboard no longer increments when the rally winner is decided internally.
  - Point is committed only after animateRally() completes.
  - Host sends rally_event with the pre-point score.
@@ -32110,7 +32110,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     modal.innerHTML=`
       <section class="acePreMatchSheet" role="dialog" aria-modal="true" aria-labelledby="acePreMatchTitle">
         <div class="acePreMatchHead">
-          <div><span>COACHING ROOM · BEFORE READY</span><h2 id="acePreMatchTitle">Scout & Set Game Plan</h2></div>
+          <div><span>COACHING ROOM · OLD READY</span><h2 id="acePreMatchTitle">Scout & Set Game Plan</h2></div>
           <button class="acePreMatchClose" type="button" aria-label="Close">×</button>
         </div>
         <div class="acePreMatchBody"></div>
@@ -33403,7 +33403,7 @@ console.info("[THE ACE PROJECT] B12.0 Cloud Ultimate Team active — inventory, 
     mm.cancelRequested=false;
     mm.token++;
 
-    // Clear the online guard BEFORE navigating. leaveMultiplayer() also tells
+    // Clear the online guard OLD navigating. leaveMultiplayer() also tells
     // Supabase to release the room/matchmaking pair for both managers.
     window.aceUTOnlineMatchActive=false;
 
@@ -42540,7 +42540,7 @@ body:not(.cloudReadOnly) #players .ace28AdminQueue{
           <div>
             <div class="ace29ProfileKicker">THE ACE PROJECT · PLAYER PROFILE</div>
             <h2>${esc(p.name)}</h2>
-            <p>${follower?"Community-created Follower Edition card. ":"Official ACE player card. "}Position ratings below show how the card performs across every volleyball role.</p>
+            <p>${follower?"":""}</p>
           </div>
           <div class="ace29ProfileBadges">
             <span class="ace29ProfileBadge">${esc(tierLabel)} · ${mainPositionRating(p)} ${esc(p.position||"POS")}</span>
@@ -43913,7 +43913,7 @@ body:not(.cloudReadOnly) #players .ace30AdminOnly{
 
 
 
-<!-- ACE B21.34 — BROWSER-NATIVE CARD CAPTURE -->
+<!-- ACE B21.34 — BROWSER-NATIVE MAX OVRTURE -->
 <style id="ace-b21-34-share-style">
 #vdsCardShowcaseOverlay .ace34ShareBtn{
   color:#fff!important;
@@ -44398,7 +44398,7 @@ body.ace34ShareOpen{
     setReady(false);
     const token=++renderToken;
 
-    /* Snapshot BEFORE opening the share overlay, so the player-profile
+    /* Snapshot OLD opening the share overlay, so the player-profile
        rendering context is completely untouched. */
     let cardBitmap;
     try{
@@ -44553,7 +44553,7 @@ body.ace34ShareOpen{
   window.ACE_BROWSER_NATIVE_CARD_CAPTURE=true;
 })();
 </script>
-<!-- /ACE B21.34 — BROWSER-NATIVE CARD CAPTURE -->
+<!-- /ACE B21.34 — BROWSER-NATIVE MAX OVRTURE -->
 
 
 <!-- ACE B21.34.1 — SHARE PILLS RESTORED -->
@@ -46864,7 +46864,7 @@ body.ace34ShareOpen{
     }
   }
 
-  /* Generic free-pack bridge. This is installed only AFTER a valid ACE
+  /* Generic free-pack bridge. This is installed only NEW a valid ACE
      account exists and reward status has loaded. */
   function installPackBridge(){
     if(ace355PackBridgeInstalled||!isSignedIn())return;
@@ -48206,7 +48206,7 @@ body.ace34ShareOpen{
   };
   window.ACE_90_99_STANDARD=true;
   window.ACE_TERMINAL_BLOCKS_REBALANCED=true;
-  window.ACE_BLOCK_RAW_CEILING=0.22;
+  window.ACE_BLOCK_RAW_MAX=0.22;
   window.ACE_BLOCK_COVER_BASE=0.30;
 })();
 </script>
@@ -48836,7 +48836,7 @@ body.ace34ShareOpen{
     modal.innerHTML=`
       <div class="aceEvolutionShell" role="dialog" aria-modal="true" aria-label="Player Evolution">
         <div class="aceEvolutionTop">
-          <div><strong>ACE EVOLUTION</strong><span>EXACT DUPLICATE DEVELOPMENT</span></div>
+          <div><strong>ACE EVOLUTION</strong><span>EXACT DUPLICATES</span></div>
           <button class="aceEvolutionClose" id="aceEvolutionClose" type="button" aria-label="Close">×</button>
         </div>
         <div class="aceEvolutionBody" id="aceEvolutionBody"></div>
@@ -48872,12 +48872,12 @@ body.ace34ShareOpen{
     const steps=evoStoredSteps(card);
     const cannot=s.ace||s.maxed||!s.ready;
     const message=s.ace
-      ? "ACE cards are already above the normal Evolution ceiling."
+      ? "ACE cards cannot evolve."
       : s.maxed
-        ? "This card has reached the 89 OVR Evolution cap."
+        ? "Max OVR reached."
         : s.ready
-          ? `${s.required} eligible exact duplicate${s.required===1?"":"s"} will be permanently consumed.`
-          : `You need ${Math.max(0,(s.required||0)-s.available)} more eligible exact duplicate${Math.max(0,(s.required||0)-s.available)===1?"":"s"}.`;
+          ? `${s.required} dupe${s.required===1?"":"s"} required.`
+          : `${s.available}/${s.required} dupes · need ${Math.max(0,(s.required||0)-s.available)} more.`;
 
     body.dataset.playerId=String(playerId);
     body.dataset.cardId=String(card.cloudCardId||"");
@@ -48890,16 +48890,16 @@ body.ace34ShareOpen{
           <div class="aceEvolutionCardName">${esc(card.playerName||player?.name||"PLAYER")}</div>
         </div>
         <div class="aceEvolutionInfo">
-          <small>${steps?`EVOLUTION LEVEL +${steps}`:"START EVOLUTION"}</small>
+          <small>${steps?`EVOLUTION LEVEL +${steps}`:"EVOLUTION"}</small>
           <h2>${esc(card.playerName||player?.name||"PLAYER")}</h2>
-          <p>Build one long-term version of this player by consuming exact duplicate cards. Evolution can cross Bronze, Silver, Gold, Rare Gold and Elite — but it can never create a 90+ ACE card.</p>
+          <p>Use exact duplicates to increase OVR. Max 89.</p>
           <div class="aceEvolutionRatings">
             <div class="aceEvolutionRatingBox"><span>CURRENT</span><b>${s.current}</b><small>${esc(tierLabel(currentTier))}</small></div>
             <div class="aceEvolutionArrow">→</div>
-            <div class="aceEvolutionRatingBox"><span>${s.ace||s.maxed?"CEILING":"NEXT"}</span><b>${next}</b><small>${esc(tierLabel(nextTier))}</small></div>
+            <div class="aceEvolutionRatingBox"><span>${s.ace||s.maxed?"MAX":"NEXT"}</span><b>${next}</b><small>${esc(tierLabel(nextTier))}</small></div>
           </div>
           <div class="aceEvolutionDupeBox ${s.ready?"":"not-ready"}">
-            <div><span>ELIGIBLE EXACT DUPLICATES</span><b>${message}</b></div>
+            <div><span>DUPES</span><b>${message}</b></div>
             <b class="aceEvolutionDupeCount">${s.ace||s.maxed?"MAX":`${s.available}/${s.required}`}</b>
           </div>
           <div class="aceEvolutionProtection">Locked, favourited and Starting Six copies are protected and are never consumed. The evolved card automatically locks after its first upgrade.</div>
@@ -48907,9 +48907,9 @@ body.ace34ShareOpen{
       </div>
 
       <div class="aceEvolutionCurve">
-        <div class="aceEvolutionCurveHead"><b>DUPE COST PER +1 OVR</b><span>HARDER AS THE CARD APPROACHES 89</span></div>
+        <div class="aceEvolutionCurveHead"><b>DUPES PER +1 OVR</b><span>MAX 89 OVR</span></div>
         <div class="aceEvolutionCurveGrid">
-          <div><span>UP TO 77</span><b>1 DUPE</b></div>
+          <div><span>≤77</span><b>1 DUPE</b></div>
           <div><span>78 → 84</span><b>2 DUPES</b></div>
           <div><span>84 → 87</span><b>3 DUPES</b></div>
           <div><span>87 → 88</span><b>4 DUPES</b></div>
@@ -48919,7 +48919,7 @@ body.ace34ShareOpen{
 
       <div class="aceEvolutionResult" id="aceEvolutionResult"></div>
       <div class="aceEvolutionActions">
-        <button class="aceEvolutionConfirm" id="aceEvolutionConfirm" type="button" ${cannot?"disabled":""}>${s.ace?"ACE CARD · NO EVOLUTION":s.maxed?"89 OVR · MAX EVOLUTION":s.ready?`EVOLVE ${s.current} → ${next} · CONSUME ${s.required} DUPE${s.required===1?"":"S"}`:`NEED ${s.required||0} ELIGIBLE DUPES`}</button>
+        <button class="aceEvolutionConfirm" id="aceEvolutionConfirm" type="button" ${cannot?"disabled":""}>${s.ace?"ACE CARD · NO EVOLUTION":s.maxed?"89 OVR · MAX EVOLUTION":s.ready?`EVOLVE ${s.current} → ${next} · CONSUME ${s.required} DUPE${s.required===1?"":"S"}`:`NEED ${s.required||0} DUPES`}</button>
         <button class="aceEvolutionCancel" id="aceEvolutionCancel" type="button">CANCEL</button>
       </div>`;
 
@@ -48954,12 +48954,12 @@ body.ace34ShareOpen{
 
       if(result){
         result.className="aceEvolutionResult show ok";
-        result.textContent=`EVOLUTION COMPLETE · ${data.old_rating} → ${data.new_rating} OVR · ${data.consumed} DUPLICATE${Number(data.consumed)===1?"":"S"} CONSUMED`;
+        result.textContent=`EVOLVED · ${data.old_rating} → ${data.new_rating} OVR · ${data.consumed} DUPLICATE${Number(data.consumed)===1?"":"S"} CONSUMED`;
       }
 
       if(typeof vdsSyncUltimateTeamCloud==="function")await vdsSyncUltimateTeamCloud({allowLegacyImport:false});
       try{renderUltimateTeam?.();}catch(_){ }
-      try{window.aceNotify?.({title:"EVOLUTION COMPLETE",body:`${data.old_rating} → ${data.new_rating} OVR · ${tierLabel(data.rarity)}`,type:"achievement"});}catch(_){ }
+      try{window.aceNotify?.({title:"EVOLVED",body:`${data.old_rating} → ${data.new_rating} OVR · ${tierLabel(data.rarity)}`,type:"achievement"});}catch(_){ }
 
       setTimeout(()=>{
         const current=evoPrimaryCard(playerId);
@@ -49496,38 +49496,37 @@ body.aceEvo2Open{overflow:hidden}
     panel.innerHTML = `
       <div class="aceEvo2ProfileHead">
         <div>
-          <strong>EVOLUTION STATUS</strong>
-          <span>EXACT DUPLICATES · PER-USER UPGRADE TRACK</span>
+          <strong>EVOLUTION</strong>
+          <span>EXACT DUPLICATES</span>
         </div>
         <div>${rankUp
-          ? `<span class="aceEvo2RankUpChip">RANK UP ON NEXT EVOLUTION · ${currentTier} → ${nextTier}</span>`
-          : `<span class="aceEvo2SteadyChip">NEXT STEP STAYS ${currentTier}</span>`}</div>
+          ? `<span class="aceEvo2RankUpChip">NEXT RANK · ${currentTier} → ${nextTier}</span>`
+          : `<span class="aceEvo2SteadyChip">RANK · ${currentTier}</span>`}</div>
       </div>
 
       <div class="aceEvo2ProfileMiniRow">
         <div class="aceEvo2MiniStat"><span>CURRENT</span><b>${status.current}</b><small>${currentTier}</small></div>
         <div class="aceEvo2MiniStat"><span>NEXT</span><b>${next}</b><small>${nextTier}</small></div>
-        <div class="aceEvo2MiniStat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${status.required}`}</b><small>${status.ready ? "READY NOW" : "EXACT DUPES"}</small></div>
-        <div class="aceEvo2MiniStat"><span>CAP</span><b>${status.ace ? status.current : 89}</b><small>${status.ace ? "ACE LOCKED" : "NORMAL MAX"}</small></div>
+        <div class="aceEvo2MiniStat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${status.required}`}</b><small>${status.ready ? "READY" : "DUPES"}</small></div>
+        <div class="aceEvo2MiniStat"><span>CAP</span><b>${status.ace ? status.current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
       </div>
 
       <div class="aceEvo2ProfileActions">
         <button type="button" class="aceEvo2ProfileBtn" data-ace3621-profile-evolve="${Number(player.cloudId||0)}" ${status.ace || status.maxed ? "disabled" : ""}>
           ${status.ace
-            ? "ACE CARDS CANNOT EVOLVE"
+            ? "ACE · MAX"
             : status.maxed
-              ? "CARD HAS REACHED 89 OVR"
+              ? "MAX · 89"
               : status.ready
-                ? `EVOLVE NOW · USE ${status.required} DUPES`
-                : `OPEN EVOLUTION · NEED ${Math.max(0,(status.required||0)-(status.available||0))} MORE`
+                ? `EVOLVE · ${status.required} DUPES`
+                : `EVOLVE · NEED ${Math.max(0,(status.required||0)-(status.available||0))}`
           }
         </button>
-        <button type="button" class="aceEvo2ProfileBtn secondary" data-ace3621-view-curve="1">VIEW COST CURVE</button>
+        <button type="button" class="aceEvo2ProfileBtn secondary" data-ace3621-view-curve="1">DUPE COSTS</button>
       </div>
 
       <div class="aceEvo2ProfileHint">
-        Click the card itself or use the Evolution button to open the cleaner upgrade view.
-        Locked, favourited and Starting Six copies remain protected and are never consumed.
+        Locked, favourited and Starting Six cards are protected.
       </div>
     `;
   }
@@ -49543,8 +49542,8 @@ body.aceEvo2Open{overflow:hidden}
       <div class="aceEvo2Shell" role="dialog" aria-modal="true" aria-label="Evolution">
         <div class="aceEvo2Top">
           <div>
-            <span class="aceEvo2TopKicker">THE ACE PROJECT · EVOLUTION</span>
-            <span class="aceEvo2TopTitle">Upgrade your card cleanly</span>
+            <span class="aceEvo2TopKicker">PLAYER EVOLUTION</span>
+            <span class="aceEvo2TopTitle">PLAYER EVOLUTION</span>
           </div>
           <button type="button" class="aceEvo2Close" data-ace-evo2-close aria-label="Close">×</button>
         </div>
@@ -49583,19 +49582,19 @@ body.aceEvo2Open{overflow:hidden}
       <div class="aceEvo2Result show ok">
         <div class="aceEvo2ResultTop">
           <div>
-            <strong>EVOLUTION COMPLETE</strong>
+            <strong>EVOLVED</strong>
             <span>${result.consumed} EXACT DUPLICATE${Number(result.consumed)===1?"":"S"} CONSUMED</span>
           </div>
           <div>${rankChanged
             ? `<span class="aceEvo2RankUpChip">RANK UP · ${result.oldTier} → ${result.newTier}</span>`
-            : `<span class="aceEvo2SteadyChip">NO TIER CHANGE THIS STEP</span>`}</div>
+            : `<span class="aceEvo2SteadyChip">NO NEXT RANK COST</span>`}</div>
         </div>
         <div class="aceEvo2ResultFlow">
-          <div class="aceEvo2ResultCell"><span>BEFORE</span><b>${result.oldRating}</b><small>${result.oldTier}</small></div>
+          <div class="aceEvo2ResultCell"><span>OLD</span><b>${result.oldRating}</b><small>${result.oldTier}</small></div>
           <div class="aceEvo2ResultArrow">→</div>
-          <div class="aceEvo2ResultCell"><span>AFTER</span><b>${result.newRating}</b><small>${result.newTier}</small></div>
+          <div class="aceEvo2ResultCell"><span>NEW</span><b>${result.newRating}</b><small>${result.newTier}</small></div>
         </div>
-        ${rankChanged ? `<div class="aceEvo2ResultRank">CARD RANKED UP CLEANLY · ${result.oldTier} → ${result.newTier}</div>` : ``}
+        ${rankChanged ? `<div class="aceEvo2ResultRank">RANK UP · ${result.oldTier} → ${result.newTier}</div>` : ``}
       </div>
     `;
   }
@@ -49619,12 +49618,12 @@ body.aceEvo2Open{overflow:hidden}
     const ready=!!required && Number(status.available||0) >= Number(required||0);
     const playerPos=String(card.position||player.position||"POS");
     const msg=status.ace
-      ? "ACE cards already sit above the normal Evolution ladder and cannot be upgraded through this system."
+      ? "ACE cards cannot evolve."
       : status.maxed
-        ? "This card has reached the 89 OVR hard Evolution cap."
+        ? "Max OVR reached."
         : ready
-          ? `${required} eligible exact duplicate${required===1?"":"s"} will be consumed. The upgraded copy remains on this account only.`
-          : `You currently have ${status.available}/${required} eligible exact duplicates. Locked, favourited and Starting Six copies are excluded from consumption.`;
+          ? `${required} dupe${required===1?"":"s"} required.`
+          : `${status.available}/${required} dupes · need ${Math.max(0,required-status.available)} more.`;
 
     body.dataset.playerId=String(playerId);
     body.innerHTML = `
@@ -49637,23 +49636,23 @@ body.aceEvo2Open{overflow:hidden}
           <div class="aceEvo2CardName">${esc(card.playerName||player.name||"PLAYER")}</div>
         </div>
         <div class="aceEvo2Summary">
-          <small>PERSONAL CARD EVOLUTION</small>
+          <small>EVOLUTION</small>
           <h2>${esc(card.playerName||player.name||"PLAYER")}</h2>
-          <p>Upgrade the card by consuming exact duplicates of this same player. Evolution is account-specific, so your upgraded version does not change anyone else’s copy.</p>
+          <p>Use exact duplicates to increase OVR. Max 89.</p>
 
           <div class="aceEvo2Progress">
             <div class="aceEvo2ProgressBox"><span>CURRENT</span><b>${current}</b><em>${currentTier}</em></div>
             <div class="aceEvo2ProgressArrow">→</div>
-            <div class="aceEvo2ProgressBox"><span>${status.ace || status.maxed ? "CEILING" : "NEXT STEP"}</span><b>${next}</b><em>${nextTier}</em></div>
+            <div class="aceEvo2ProgressBox"><span>${status.ace || status.maxed ? "MAX" : "NEXT"}</span><b>${next}</b><em>${nextTier}</em></div>
           </div>
 
           <div class="aceEvo2TierTrack">${renderTierTrack(current,next)}</div>
 
           <div class="aceEvo2StatusGrid">
-            <div class="aceEvo2Stat"><span>ELIGIBLE DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${required}`}</b><small>${ready ? "READY TO EVOLVE" : "EXACT DUPLICATES ONLY"}</small></div>
-            <div class="aceEvo2Stat"><span>CARD CAP</span><b>${status.ace ? current : 89}</b><small>${status.ace ? "ACE LOCKED" : "HARD LIMIT"}</small></div>
-            <div class="aceEvo2Stat"><span>TIER CHANGE</span><b>${rankUp ? "YES" : "NO"}</b><small>${rankUp ? `${currentTier} → ${nextTier}` : `STAYS ${currentTier}`}</small></div>
-            <div class="aceEvo2Stat"><span>THIS STEP</span><b>${status.ace || status.maxed ? "—" : required}</b><small>${status.ace || status.maxed ? "NO COST" : "DUPES NEEDED"}</small></div>
+            <div class="aceEvo2Stat"><span>DUPES</span><b>${status.ace || status.maxed ? "MAX" : `${status.available}/${required}`}</b><small>${ready ? "READY" : "EXACT DUPES"}</small></div>
+            <div class="aceEvo2Stat"><span>MAX OVR</span><b>${status.ace ? current : 89}</b><small>${status.ace ? "ACE" : "MAX"}</small></div>
+            <div class="aceEvo2Stat"><span>NEXT RANK</span><b>${rankUp ? "YES" : "NO"}</b><small>${rankUp ? `${currentTier} → ${nextTier}` : `STAYS ${currentTier}`}</small></div>
+            <div class="aceEvo2Stat"><span>COST</span><b>${status.ace || status.maxed ? "—" : required}</b><small>${status.ace || status.maxed ? "—" : "DUPES"}</small></div>
           </div>
 
           <div class="aceEvo2Message">${msg}</div>
@@ -49664,11 +49663,11 @@ body.aceEvo2Open{overflow:hidden}
 
       <div class="aceEvo2Curve">
         <div class="aceEvo2CurveHead">
-          <strong>DUPLICATE COST CURVE</strong>
-          <span>CLEANER PROGRESSION TOWARDS 89 OVR</span>
+          <strong>DUPES PER +1 OVR</strong>
+          <span>MAX 89 OVR</span>
         </div>
         <div class="aceEvo2CurveGrid">
-          <div><span>UP TO 77</span><b>1 DUPE</b></div>
+          <div><span>≤77</span><b>1 DUPE</b></div>
           <div><span>78 → 84</span><b>2 DUPES</b></div>
           <div><span>84 → 87</span><b>3 DUPES</b></div>
           <div><span>87 → 88</span><b>4 DUPES</b></div>
@@ -49679,12 +49678,12 @@ body.aceEvo2Open{overflow:hidden}
       <div class="aceEvo2Actions">
         <button type="button" class="aceEvo2ActionBtn primary" data-ace-evo2-confirm ${status.ace || status.maxed || !ready ? "disabled" : ""}>
           ${status.ace
-            ? "ACE CARDS CANNOT EVOLVE"
+            ? "ACE · MAX"
             : status.maxed
-              ? "CARD HAS REACHED 89 OVR"
+              ? "MAX · 89"
               : ready
-                ? `EVOLVE ${current} → ${next} · USE ${required} DUPES`
-                : `NEED ${Math.max(0,(required||0)-(status.available||0))} MORE DUPES`
+                ? `EVOLVE ${current} → ${next} · ${required} DUPES`
+                : `NEED ${Math.max(0,(required||0)-(status.available||0))} MORE`
           }
         </button>
         <button type="button" class="aceEvo2ActionBtn secondary" data-ace-evo2-close>CLOSE</button>
@@ -49758,13 +49757,13 @@ body.aceEvo2Open{overflow:hidden}
       try{
         if(typeof aceNotify==="function"){
           aceNotify({
-            title:"EVOLUTION COMPLETE",
+            title:"EVOLVED",
             body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
             type:"achievement"
           });
         }else{
           window.aceNotify?.({
-            title:"EVOLUTION COMPLETE",
+            title:"EVOLVED",
             body:`${data.old_rating} → ${data.new_rating} · ${evoTierLabelByRating(data.new_rating)}`,
             type:"achievement"
           });
@@ -50326,7 +50325,7 @@ body.aceEvo2Open{overflow:hidden}
       if(!q(".ace3622Hint",identityPanel)){
         const hint=document.createElement("div");
         hint.className="ace3622Hint";
-        hint.textContent=`This owned Ultimate Team card is upgraded from ${base} to ${current}. All duplicate copies of ${player.name} are now merged under the upgraded card in My Club.`;
+        hint.textContent=`Upgraded ${base} to ${current}. All duplicate copies of ${player.name} are now merged under the upgraded card in My Club.`;
         identityPanel.appendChild(hint);
       }
     }
@@ -50615,7 +50614,7 @@ body.aceEvo2Open{overflow:hidden}
     }
     const baseOvr=Math.round(Number(typeof mainPositionRating==="function" ? mainPositionRating(basePlayer) : 0)||0);
     if(bonus>0){
-      hint.textContent = 'Live Ultimate Team copy upgraded from '+baseOvr+' to '+current+'. Any spare duplicate copies stay merged under this one player stack.';
+      hint.textContent = 'Upgraded '+baseOvr+' to '+current+'. Any spare duplicate copies stay merged under this one player stack.';
     }else{
       hint.textContent = 'This is your live Ultimate Team copy.';
     }
@@ -51601,6 +51600,566 @@ body.aceEvo2Open{overflow:hidden}
 })();
 </script>
 <!-- /ACE B21.36.28 — CLEAN PROFILE COPY -->
+
+
+<!-- ACE B21.36.29 — PROFILE LAYOUT REBALANCE -->
+<style id="ace-b21-36-29-profile-layout-rebalance">
+@media(min-width:901px){
+  #vdsCardShowcaseOverlay .vdsCardShowcaseSheet{
+    height:calc(100dvh - 16px)!important;
+    max-height:calc(100dvh - 16px)!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .vdsCardShowcaseInner.ace29ProfileInner{
+    padding:12px 16px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:0!important;
+  }
+
+  /* Compact header */
+  #vdsCardShowcaseOverlay .ace29ProfileTop{
+    flex:0 0 58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    padding:0 58px 7px 0!important;
+    margin:0!important;
+  }
+
+  /* Main body: natural-sized left card + dense information */
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:360px minmax(0,1fr)!important;
+    gap:12px!important;
+    align-items:start!important;
+    overflow:hidden!important;
+    margin-top:3px!important;
+  }
+
+  /* LEFT COLUMN ------------------------------------------------ */
+  #vdsCardShowcaseOverlay .ace29ProfileCardColumn{
+    height:auto!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    overflow:visible!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage{
+    height:auto!important;
+    min-height:0!important;
+    flex:0 0 auto!important;
+    padding:7px!important;
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    overflow:visible!important;
+    border-radius:15px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:300px!important;
+    min-width:300px!important;
+    max-width:300px!important;
+    margin:0 auto!important;
+    transform:none!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileActions{
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:38px!important;
+    gap:6px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileActions button{
+    min-height:38px!important;
+    height:38px!important;
+    padding:0 8px!important;
+    font-size:6.2px!important;
+  }
+
+  /* RIGHT COLUMN ------------------------------------------------ */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo{
+    height:auto!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto auto!important;
+    gap:8px!important;
+    align-content:start!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .aceEvo2ProfilePanel{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    grid-column:2!important;
+    grid-row:1!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(3){
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfileTwo{
+    grid-column:1 / -1!important;
+    grid-row:3!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace361AttributesPanel{
+    grid-column:1 / -1!important;
+    grid-row:4!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfilePanel,
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel{
+    height:auto!important;
+    min-height:0!important;
+    padding:9px 11px!important;
+    border-radius:12px!important;
+    overflow:hidden!important;
+  }
+
+  /* Evolution: compact, complete, no clipped button */
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel{
+    min-height:104px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileMiniRow{
+    margin-top:6px!important;
+    gap:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat{
+    min-height:40px!important;
+    padding:6px 7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2MiniStat b{
+    font-size:14px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileActions{
+    margin-top:6px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfileBtn{
+    min-height:30px!important;
+    height:30px!important;
+    padding:0 11px!important;
+  }
+
+  /* Player card */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    min-height:104px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetrics{
+    gap:5px!important;
+    margin-top:4px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric{
+    min-height:45px!important;
+    padding:6px 7px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b,
+  #vdsCardShowcaseOverlay .ace29ProfileMetric b[style]{
+    font-size:16px!important;
+  }
+
+  /* Position strip */
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(3){
+    padding:8px 10px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid{
+    margin-top:4px!important;
+    gap:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid > div{
+    min-height:51px!important;
+    padding:5px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PositionGrid b{
+    font-size:17px!important;
+  }
+
+  /* Core + Playstyles: compact but not cramped */
+  #vdsCardShowcaseOverlay .ace29ProfileTwo{
+    height:auto!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:40% minmax(0,60%)!important;
+    gap:8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo > .ace29ProfilePanel{
+    height:auto!important;
+    min-height:103px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyles{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-top:4px!important;
+    overflow:visible!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    height:69px!important;
+    min-height:69px!important;
+    padding:6px!important;
+    grid-template-columns:24px minmax(0,1fr)!important;
+    gap:5px!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29PlaystyleIcon{
+    width:24px!important;
+    height:24px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle b{
+    font-size:6.8px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle p{
+    font-size:5.4px!important;
+    line-height:1.15!important;
+    -webkit-line-clamp:2!important;
+    line-clamp:2!important;
+  }
+
+  /* Attributes: natural height, no giant empty vertical panels */
+  #vdsCardShowcaseOverlay .ace361AttributesPanel{
+    height:auto!important;
+    min-height:0!important;
+    padding:8px 10px!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody{
+    height:auto!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-top:4px!important;
+    align-items:start!important;
+    overflow:visible!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroup{
+    height:auto!important;
+    min-height:0!important;
+    align-self:start!important;
+    overflow:hidden!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatGroupHead{
+    padding:5px 6px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow{
+    padding:3px 6px!important;
+    min-height:18px!important;
+    line-height:1.05!important;
+  }
+
+  /* Remove the floating BASE chip from the bottom-right of the whole profile.
+     Stat deltas already explain the upgrade much more cleanly. */
+  #vdsCardShowcaseOverlay .ace3622CardUpgradeChip{
+    display:none!important;
+  }
+}
+
+/* Smaller laptop displays */
+@media(min-width:901px) and (max-height:820px){
+  #vdsCardShowcaseOverlay .ace29ProfileGrid{
+    grid-template-columns:325px minmax(0,1fr)!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileCardStage .fifaPlayerCard{
+    width:265px!important;
+    min-width:265px!important;
+    max-width:265px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop{
+    flex-basis:50px!important;
+    min-height:50px!important;
+    max-height:50px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTop h2{
+    font-size:29px!important;
+  }
+
+  #vdsCardShowcaseOverlay .aceEvo2ProfilePanel,
+  #vdsCardShowcaseOverlay .ace29ProfileInfo > .ace29ProfilePanel:nth-child(2){
+    min-height:94px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29ProfileTwo > .ace29ProfilePanel{
+    min-height:92px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace29Playstyle{
+    height:61px!important;
+    min-height:61px!important;
+  }
+
+  #vdsCardShowcaseOverlay .ace361AttributesBody .ace29StatRow{
+    padding:2px 5px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-29-profile-layout-rebalance-script">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.29";
+  window.ACE_PROFILE_NATURAL_CONTENT_SIZING=true;
+  window.ACE_PROFILE_FIXED_STRETCH_ROWS=false;
+  window.ACE_PROFILE_ACTIONS_DIRECTLY_UNDER_CARD=true;
+  window.ACE_PROFILE_ATTRIBUTES_NATURAL_HEIGHT=true;
+})();
+</script>
+<!-- /ACE B21.36.29 — PROFILE LAYOUT REBALANCE -->
+
+
+<!-- ACE B21.36.30 — LITERAL UI COPY RULE -->
+<script id="ace-b21-36-30-literal-ui-copy-rule">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.30";
+  window.ACE_UI_COPY_RULE="LITERAL_SHORT_GAME_LANGUAGE";
+  window.ACE_UI_COPY_NO_MARKETING_FILLER=true;
+  window.ACE_UI_COPY_NO_NARRATED_UI=true;
+})();
+</script>
+<!-- /ACE B21.36.30 — LITERAL UI COPY RULE -->
+
+
+<!-- ACE B21.36.31 — UT PLAYERS ICON DECLUTTER + INLINE EVOLVE -->
+<style id="ace-b21-36-31-ut-players-icon-declutter">
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyles{position:relative!important;z-index:46!important;display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:center!important;gap:6px!important;width:auto!important;min-height:24px!important;height:24px!important;max-height:24px!important;margin:5px auto 3px!important;padding:0!important;overflow:visible!important;pointer-events:none!important}
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyle{position:relative!important;z-index:47!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 28px!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:22px!important;min-height:22px!important;margin:0!important;padding:0!important;border-radius:6px!important;border:1px solid rgba(230,197,86,.66)!important;background:linear-gradient(180deg,rgba(22,25,28,.97),rgba(5,10,13,.97))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 5px rgba(0,0,0,.30)!important;overflow:visible!important}
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyle.defense{border-color:rgba(104,197,244,.66)!important;background:linear-gradient(180deg,rgba(10,29,41,.97),rgba(4,13,20,.97))!important}
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyleEmoji{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:14px!important;height:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;font-size:11px!important;line-height:1!important;font-weight:400!important;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))!important}
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyleLabel{display:none!important}
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyles + .fifaServeType{margin-top:1px!important}
+#ultimate .aceClubCard .aceClubCardActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+#ultimate .aceClubCard .aceClubCardActions [data-club-squad]{display:none!important}
+#ultimate .aceClubCard .aceClubCardActions [data-club-view],#ultimate .aceClubCard .aceClubCardActions .aceClubEvolutionAction.inline{min-height:35px!important}
+#ultimate .aceClubCard .aceClubCardActions .aceClubEvolutionAction.inline{display:flex!important;align-items:center!important;justify-content:center!important;border-radius:8px!important;border:1px solid rgba(168,112,255,.16)!important;background:rgba(126,72,210,.06)!important;color:#c3aae7!important;font-size:5.8px!important;font-weight:1000!important;letter-spacing:.08em!important;cursor:pointer!important}
+#ultimate .aceClubCard .aceClubCardActions .aceClubEvolutionAction.inline.ready{color:#fff!important;border-color:rgba(192,148,251,.24)!important;background:linear-gradient(135deg,#7b48d1,#a162f6)!important;box-shadow:0 10px 24px rgba(80,40,145,.22)!important}
+#ultimate .aceClubCard .aceClubCardActions .aceClubQuickSell{grid-column:1/-1!important}
+#ultimate .aceClubCard.no-inline-evo .aceClubCardActions{grid-template-columns:1fr!important}
+#ultimate .aceClubCard.no-inline-evo .aceClubCardActions .aceClubQuickSell,#ultimate .aceClubCard.no-inline-evo .aceClubCardActions [data-club-view]{grid-column:1/-1!important}
+@media (max-width:760px){#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyle{flex-basis:27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;height:22px!important}}
+</style>
+<script id="ace-b21-36-31-ut-players-icon-declutter-runtime">
+(function(){
+  "use strict";
+  function html(s){return String(s==null?"":s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function quickSellMarkup(card,inSquad){
+    const sellable=typeof aceUTSellableCloudCopy==="function"?aceUTSellableCloudCopy(card):null;
+    const sellRating=Math.round(Number((sellable&&sellable.rating)||card.rating||0));
+    const sellValue=typeof aceUTQuickSellValue==="function"?aceUTQuickSellValue(sellRating):0;
+    const title=sellable?('Quick sell for '+Number(sellValue).toLocaleString()+' ACE Coins'):(inSquad?'Remove a copy from the Starting Six before selling':'Starter cards cannot be sold');
+    const text=sellable?('QUICK SELL · '+Number(sellValue).toLocaleString()+' ◉'):(inSquad?'IN SIX':'NOT SELLABLE');
+    return '<button type="button" class="aceClubQuickSell '+(sellRating>=90?'high-tier':'')+'" data-club-sell-player-id="'+Number(card.playerId||0)+'" data-club-sell-rarity="'+html(card.rarity||'')+'" '+(sellable?'':'disabled')+' title="'+html(title)+'">'+text+'</button>';
+  }
+  function viewMarkup(card){
+    return '<button type="button" data-club-view="'+html(card.playerName||'')+'">VIEW CARD</button>';
+  }
+  function inlineEvoMarkup(card){
+    if(!card||!card.playerId||typeof aceEvolutionStatusForPlayer!=="function")return '';
+    let s=null; try{s=aceEvolutionStatusForPlayer(card.playerId)}catch(_){s=null}
+    if(!s||!s.primary||s.ace||s.maxed)return '';
+    const current=Math.round(Number(s.current||card.rating||0));
+    const next=Math.min(current+1,Math.round(Number(s.cap||89))||89);
+    const cls='aceClubEvolutionAction inline'+(s.ready?' ready':'');
+    const title=Number(s.available||0)+'/'+Number(s.required||0)+' duplicate copies available';
+    return '<button type="button" class="'+cls+'" data-ace-evolve-player="'+Number(card.playerId||0)+'" title="'+html(title)+'">EVOLVE '+current+' → '+next+'</button>';
+  }
+  if(typeof aceClubCardMarkup==='function'&&!window.__ace3631ClubMarkupWrapped){
+    window.__ace3631ClubMarkupWrapped=true;
+    const baseClubMarkup=aceClubCardMarkup;
+    aceClubCardMarkup=function(entry){
+      let out=String(baseClubMarkup.apply(this,arguments)||'');
+      const card=entry&&entry.card; if(!card)return out;
+      const uid=typeof utCardUid==='function'?utCardUid(card):String(card.id||'');
+      const inSquad=typeof utFindSlotOfCard==='function'?utFindSlotOfCard(uid)>=0:false;
+      const evo=inlineEvoMarkup(card);
+      const actions='<div class="aceClubCardActions">'+viewMarkup(card)+evo+quickSellMarkup(card,inSquad)+'</div>';
+      out=out.replace(/<button[^>]*class="aceClubEvolutionAction(?! inline)[^>]*>[\s\S]*?<\/button>/g,'');
+      out=out.replace(/<div class="aceClubCardActions">[\s\S]*?<\/div>/,actions);
+      if(!evo){
+        out=out.replace('<article class="aceClubCard ','<article class="aceClubCard no-inline-evo ');
+      }
+      return out;
+    };
+  }
+  function rerenderClub(){
+    try{
+      if(typeof vdsUltimateHubActive!=='undefined'&&vdsUltimateHubActive==='club'&&typeof renderUltimateTeam==='function')renderUltimateTeam();
+    }catch(_){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',rerenderClub,{once:true});
+  else setTimeout(rerenderClub,0);
+  window.ACE_PROJECT_BUILD='B21.36.31';
+  window.ACE_UT_PLAYERS_ICON_DECLUTTER=true;
+})();
+</script>
+<!-- /ACE B21.36.31 — UT PLAYERS ICON DECLUTTER + INLINE EVOLVE -->
+
+
+<!-- ACE B21.36.32 — UT PLAYER CARD SPACING POLISH -->
+<style id="ace-b21-36-32-ut-player-card-spacing-polish">
+/* My Club / UT > Players: tighter hierarchy, less wasted space */
+#ultimate .vdsCollectionPanel .utCollection{
+  align-items:start!important;
+}
+
+#ultimate .aceClubCard{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:0!important;
+}
+
+#ultimate .aceClubCardView{
+  margin:0!important;
+}
+
+#ultimate .aceClubCardView>.fifaPlayerCard{
+  margin:0 auto!important;
+}
+
+/* Top badges: one clean row, tucked closer to the card */
+#ultimate .aceClubCardFlags{
+  top:6px!important;
+  left:8px!important;
+  right:8px!important;
+  gap:5px!important;
+  align-items:center!important;
+}
+
+#ultimate .aceClubCardFlags span{
+  min-height:22px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 7px!important;
+  line-height:1!important;
+}
+
+/* Playstyle icons: consistent compact box sizing */
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyles{
+  gap:5px!important;
+  margin-top:4px!important;
+  margin-bottom:2px!important;
+}
+
+#ultimate .aceClubCard .fifaPlayerCard .vdsCardPlaystyle{
+  width:27px!important;
+  min-width:27px!important;
+  max-width:27px!important;
+  flex-basis:27px!important;
+  height:22px!important;
+  min-height:22px!important;
+}
+
+/* Actions sit immediately under the card and read as one control group */
+#ultimate .aceClubCard .aceClubCardActions{
+  width:min(275px,100%)!important;
+  margin:6px auto 0!important;
+  gap:6px!important;
+}
+
+#ultimate .aceClubCard .aceClubCardActions button{
+  min-height:38px!important;
+  border-radius:9px!important;
+  padding:0 8px!important;
+  line-height:1.05!important;
+}
+
+#ultimate .aceClubCard .aceClubCardActions [data-club-view]{
+  color:#b9aec7!important;
+  border-color:rgba(178,140,235,.10)!important;
+  background:#0a0d14!important;
+}
+
+#ultimate .aceClubCard .aceClubCardActions .aceClubEvolutionAction.inline{
+  margin:0!important;
+}
+
+#ultimate .aceClubCard .aceClubCardActions .aceClubQuickSell{
+  min-height:40px!important;
+  margin-top:0!important;
+}
+
+/* No empty action slot when Evolution is unavailable */
+#ultimate .aceClubCard.no-inline-evo .aceClubCardActions{
+  grid-template-columns:1fr!important;
+}
+
+/* Keep card groups visually separated without excessive vertical gaps */
+#ultimate .vdsCollectionPanel .utCollection{
+  row-gap:20px!important;
+  column-gap:18px!important;
+}
+
+@media (max-width:760px){
+  #ultimate .vdsCollectionPanel .utCollection{
+    gap:16px!important;
+    padding:12px 8px!important;
+  }
+
+  #ultimate .aceClubCard .aceClubCardActions{
+    width:min(300px,100%)!important;
+    margin-top:6px!important;
+  }
+
+  #ultimate .aceClubCard .aceClubCardActions button{
+    min-height:42px!important;
+    font-size:8px!important;
+  }
+
+  #ultimate .aceClubCard .aceClubCardActions .aceClubQuickSell{
+    min-height:44px!important;
+  }
+}
+</style>
+
+<script id="ace-b21-36-32-ut-player-card-spacing-polish-marker">
+(function(){
+  window.ACE_PROJECT_BUILD="B21.36.32";
+  window.ACE_UT_PLAYER_CARD_SPACING_POLISH=true;
+  window.ACE_UT_PLAYER_CARD_ACTION_GROUP_COMPACT=true;
+})();
+</script>
+<!-- /ACE B21.36.32 — UT PLAYER CARD SPACING POLISH -->
 
 </body>
 </html>
